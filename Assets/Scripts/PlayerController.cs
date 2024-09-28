@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-//// Ensure we have a Rigidbody component as it is required to calculate the movement for every player.
+/// Ensure we have a CharacterController component as it is required to move the player.
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
@@ -22,7 +22,8 @@ public class PlayerController : MonoBehaviour
 
     [Header("Player Parameters")]
     [SerializeField]
-    private Transform _cameraTransform;
+    [Tooltip("An empty object hidden within the Player object to control the camera's rotation.")]
+    private Transform _followTransform;
 
     [SerializeField]
     private Transform _playerTransform;
@@ -54,7 +55,11 @@ public class PlayerController : MonoBehaviour
     {
         _playerControls.Enable();
 
-        _playerControls.Player.Jump.performed += HandleJump;
+        _playerControls.Player.Attack.performed += Attack;
+        _playerControls.Player.AlternateAttack.performed += AlternateAttack;
+        _playerControls.Player.Drop.performed += Drop;
+        _playerControls.Player.Interact.performed += Interact;
+        _playerControls.Player.Jump.performed += Jump;
     }
 
     /// <summary>
@@ -63,10 +68,15 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         // Check to see if the player is on the ground or not.
-        _isGrounded = Physics.Raycast(_playerTransform.position, Vector3.down, 1.25f) && _playerVelocity.y <= 0f;
+        _isGrounded = Physics.Raycast(_playerTransform.position, Vector3.down, 1f) && _playerVelocity.y <= 0f;
+
+        // Update the player's y-axis position to account for gravity
+        _playerVelocity.y += _gravity * Time.deltaTime;
+        _playerController.Move(_playerVelocity * Time.deltaTime);
 
         HandleLook();
         HandleMovement();
+        HandleSprint();
     }
 
     /// <summary>
@@ -79,13 +89,15 @@ public class PlayerController : MonoBehaviour
         // Since the axes in which we move our input device are opposite in Unity, we must swap them to ensure correct behavior.
         // For example, moving the mouse up and/or down corresponds to side-to-side mouse movement in Unity, so we need to adjust for this.
         _yRotation += userInput.x;
-        _xRotation = Mathf.Clamp(_xRotation - userInput.y, -90f, 90f); // Prevent the player from rotating their head backwards.
+        _xRotation = Mathf.Clamp(_xRotation - userInput.y, -45f, 45f); // Prevent the player from rotating their head backwards.
 
-        _cameraTransform.rotation = Quaternion.Euler(_xRotation, _yRotation, 0);
+        // "Revert" _xRotation as the controls are inverted.
+        // Without this, moving the controller down causes the camera to look up.
+        _followTransform.rotation = Quaternion.Euler(-_xRotation, _yRotation, 0);
 
         // Since we have not yet implemented character models, we will only rotate the entire character on the y-axis.
         // This logic may change to display the character looking upwards once a character model is implemented.
-        _playerTransform.rotation = Quaternion.Euler(0, _yRotation, 0); 
+        _playerTransform.rotation = Quaternion.Euler(0, _yRotation, 0);
     }
 
     /// <summary>
@@ -104,10 +116,57 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
+    /// Adds additional speed to the player's movement.
+    /// </summary>
+    private void HandleSprint()
+    {
+        if (_playerControls.Player.Sprint.IsPressed())
+        {
+            Debug.Log("Sprinting....");
+        }
+    }
+
+    /// <summary>
+    /// Handle the player's input for attacking.
+    /// </summary>
+    /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
+    private void Attack(InputAction.CallbackContext context)
+    {
+        Debug.Log("Attack");
+    }
+
+    /// <summary>
+    /// Handle the player's input for the alternate attack on any given weapon.
+    /// </summary>
+    /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
+    private void AlternateAttack(InputAction.CallbackContext context)
+    {
+        Debug.Log("Alternate Attack");
+    }
+
+    /// <summary>
+    /// Handle the player's input for dropping object in their inventory.
+    /// </summary>
+    /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
+    private void Drop(InputAction.CallbackContext context)
+    {
+        Debug.Log("Drop");
+    }
+
+    /// <summary>
+    /// Handle the player's input for interacting with interactable objects.
+    /// </summary>
+    /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
+    private void Interact(InputAction.CallbackContext context)
+    {
+        Debug.Log("Interact");
+    }
+
+    /// <summary>
     /// Handle the player's input for jumping.
     /// </summary>
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
-    private void HandleJump(InputAction.CallbackContext context)
+    private void Jump(InputAction.CallbackContext context)
     {
         if (_isGrounded)
         {
@@ -123,6 +182,10 @@ public class PlayerController : MonoBehaviour
     {
         _playerControls.Disable();
 
-        _playerControls.Player.Jump.performed -= HandleJump;
+        _playerControls.Player.Attack.performed -= Attack;
+        _playerControls.Player.AlternateAttack.performed -= AlternateAttack;
+        _playerControls.Player.Drop.performed -= Drop;
+        _playerControls.Player.Interact.performed -= Interact;
+        _playerControls.Player.Jump.performed -= Jump;
     }
 }
