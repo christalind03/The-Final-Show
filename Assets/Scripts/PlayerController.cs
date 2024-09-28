@@ -10,6 +10,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float _cameraSensitivity;
 
+    [SerializeField]
+    private float _interactableDistance;
+
     [Header("Movement Parameters")]
     [SerializeField]
     private float _gravity;
@@ -21,6 +24,10 @@ public class PlayerController : MonoBehaviour
     private float _jumpHeight;
 
     [Header("Player Parameters")]
+    [SerializeField]
+    [Tooltip("The scene's main camera.")]
+    private Transform _cameraTransform;
+
     [SerializeField]
     [Tooltip("An empty object hidden within the Player object to control the camera's rotation.")]
     private Transform _followTransform;
@@ -35,6 +42,7 @@ public class PlayerController : MonoBehaviour
     private float _xRotation; // Keep track of the current rotation of the camera and player on the x-axis.
     private float _yRotation; // Keep track of the current rotation of the camera and player on the y-axis.
     private Vector3 _playerVelocity; // Keep track of the current position of the camera and player on the y-axis.
+    private RaycastHit _raycastHit;
     private PlayerControls _playerControls;
 
     /// <summary>
@@ -98,6 +106,9 @@ public class PlayerController : MonoBehaviour
         // Since we have not yet implemented character models, we will only rotate the entire character on the y-axis.
         // This logic may change to display the character looking upwards once a character model is implemented.
         _playerTransform.rotation = Quaternion.Euler(0, _yRotation, 0);
+
+        // Check to see if we're looking at anything of importance.
+        Physics.Raycast(_cameraTransform.position, _cameraTransform.forward * _interactableDistance, out _raycastHit);
     }
 
     /// <summary>
@@ -159,7 +170,10 @@ public class PlayerController : MonoBehaviour
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void Interact(InputAction.CallbackContext context)
     {
-        Debug.Log("Interact");
+        if (_raycastHit.collider != null)
+        {
+            Debug.Log("Interact");
+        }
     }
 
     /// <summary>
