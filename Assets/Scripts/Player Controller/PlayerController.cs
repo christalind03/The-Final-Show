@@ -2,7 +2,10 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// Ensure we have a CharacterController component as it is required to move the player.
+/// <summary>
+/// Controls the player's actions, interactions, and movement within the game world.
+/// </summary>
+// Ensure we have a CharacterController component as it is required to move the player.
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
