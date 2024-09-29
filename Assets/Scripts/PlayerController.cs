@@ -170,9 +170,11 @@ public class PlayerController : MonoBehaviour
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void Interact(InputAction.CallbackContext context)
     {
-        if (_raycastHit.collider != null)
+        Collider raycastCollider = _raycastHit.collider;
+
+        if (raycastCollider != null && raycastCollider.gameObject.TryGetComponent(out IInteractable interactableObj))
         {
-            Debug.Log("Interact");
+            interactableObj.Interact();
         }
     }
 
