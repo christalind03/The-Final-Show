@@ -6,7 +6,7 @@ using UnityEngine;
 /// This was referenced from "Programming A BETTER State Machine" by iHeartGameDev on YouTube:
 /// https://www.youtube.com/watch?v=qsIiFsddGV4
 /// </summary>
-/// <typeparam name="EState"></typeparam>
+/// <typeparam name="EState">The enumerable type representing the possible states</typeparam>
 public abstract class BaseState<EState> where EState : Enum
 {
     public EState StateKey {  get; set; }
