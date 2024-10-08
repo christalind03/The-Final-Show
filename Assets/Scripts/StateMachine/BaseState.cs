@@ -16,7 +16,6 @@ public abstract class BaseState<EState> where EState : Enum
         StateKey = stateKey;
     }
 
-    public abstract EState GetNextState();
     public abstract void EnterState();
     public abstract void ExitState();
     public abstract void OnTriggerEnter(Collider otherCollider);

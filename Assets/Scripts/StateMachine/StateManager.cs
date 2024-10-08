@@ -24,22 +24,13 @@ public abstract class StateManager<EState> : MonoBehaviour where EState : Enum
     }
 
     /// <summary>
-    /// Updates the current state or transitions to a new state based on the next state key.
+    /// Trigger the update loop for the current state.
     /// </summary>
     private void Update()
     {
-        EState nextStateKey = CurrentState.GetNextState();
-
         if (!_isTransitioningState)
         {
-            if (nextStateKey.Equals(CurrentState.StateKey))
-            {
-                CurrentState.UpdateState();
-            }
-            else
-            {
-                TransitionToState(nextStateKey);
-            }
+            CurrentState.UpdateState();
         }
     }
 
@@ -74,14 +65,17 @@ public abstract class StateManager<EState> : MonoBehaviour where EState : Enum
     /// Transition from the current state to the given state.
     /// </summary>
     /// <param name="stateKey">The enumerable member to transition to</param>
-    private void TransitionToState(EState stateKey)
+    protected void TransitionToState(EState stateKey)
     {
-        _isTransitioningState = true;
+        if (!CurrentState.StateKey.Equals(stateKey))
+        {
+            _isTransitioningState = true;
 
-        CurrentState.ExitState();
-        CurrentState = States[stateKey];
-        CurrentState.EnterState();
+            CurrentState.ExitState();
+            CurrentState = States[stateKey];
+            CurrentState.EnterState();
 
-        _isTransitioningState = false;
+            _isTransitioningState = false;
+        }
     }
 }
