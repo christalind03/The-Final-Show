@@ -146,7 +146,7 @@ public class PlayerController : MonoBehaviour
             _staminaPoints.Decrease(_staminaCost * Time.deltaTime);
         }
 
-        if (!_isSprinting && _staminaPoints.CurrentValue != _staminaPoints.BaseValue)
+        if (!_isSprinting && _staminaPoints.CurrentValue < _staminaPoints.BaseValue)
         {
             _staminaPoints.Increase(_staminaRestoration * Time.deltaTime);
         }
