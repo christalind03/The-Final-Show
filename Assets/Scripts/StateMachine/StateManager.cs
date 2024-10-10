@@ -8,8 +8,14 @@ using UnityEngine;
 /// https://www.youtube.com/watch?v=qsIiFsddGV4
 /// </summary>
 /// <typeparam name="EState">The enumerable type representing the possible states</typeparam>
+[System.Serializable]
 public abstract class StateManager<EState> : MonoBehaviour where EState : Enum
 {
+    [Header("State Paramaters")]
+    [Tooltip("Associates each state with its corresponding behavior.")]
+    [SerializeField] protected List<StateMapping<EState>> StateMappings = new List<StateMapping<EState>>();
+    [SerializeField] private EState _defaultState;
+
     protected Dictionary<EState, BaseState<EState>> States = new Dictionary<EState, BaseState<EState>>();
     protected BaseState<EState> CurrentState;
     
@@ -20,6 +26,7 @@ public abstract class StateManager<EState> : MonoBehaviour where EState : Enum
     /// </summary>
     private void Start()
     {
+        CurrentState = States[_defaultState];
         CurrentState.EnterState();
     }
 

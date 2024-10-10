@@ -7,11 +7,11 @@ using UnityEngine;
 /// https://www.youtube.com/watch?v=qsIiFsddGV4
 /// </summary>
 /// <typeparam name="EState">The enumerable type representing the possible states</typeparam>
-public abstract class BaseState<EState> where EState : Enum
+public abstract class BaseState<EState> : ScriptableObject where EState : Enum
 {
     public EState StateKey {  get; set; }
 
-    public BaseState(EState stateKey)
+    public void Initialize(EState stateKey)
     {
         StateKey = stateKey;
     }
