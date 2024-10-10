@@ -44,17 +44,19 @@ public class PlayerController : MonoBehaviour
     private Vector3 _playerVelocity; // Keep track of the current position of the camera and player on the y-axis.
     private RaycastHit _raycastHit;
     private PlayerControls _playerControls;
+    private PlayerInventory _playerInventory;
 
     /// <summary>
     /// Configure the cursor settings and initialize a new instance of PlayerControls when the script is first loaded.
     /// </summary>
     private void Awake()
     {
+        _canSprint = true;
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked; // Keep the cursor locked to the center of the game view.
 
-        _canSprint = true;
         _playerControls = new PlayerControls();
+        _playerInventory = new PlayerInventory();
     }
 
     /// <summary>
@@ -69,6 +71,14 @@ public class PlayerController : MonoBehaviour
         _playerControls.Player.Drop.performed += Drop;
         _playerControls.Player.Interact.performed += Interact;
         _playerControls.Player.Jump.performed += Jump;
+
+        // Subscribe to inventory slot selection for all slots.
+        InputActionMap inventoryActions = _playerControls.asset.FindActionMap("Inventory");
+
+        foreach (InputAction inventorySlot in  inventoryActions)
+        {
+            inventorySlot.performed += _playerInventory.SelectSlot;
+        }
     }
 
     /// <summary>
@@ -180,12 +190,30 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Handle the player's input for dropping object in their inventory.
+    /// Handle the player's input for dropping an object from their inventory.
     /// </summary>
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void Drop(InputAction.CallbackContext context)
     {
-        Debug.Log("Drop");
+        Drop();
+    }
+
+    /// <summary>
+    /// Drop an item from the player's inventory into the game world.
+    /// </summary>
+    /// <param name="targetPosition">The target position to set the dropped item to.</param>
+    private void Drop(Vector3? targetPosition = null)
+    {
+        GameObject droppedItem = _playerInventory.RemoveItem();
+
+        if (_raycastHit.collider != null && droppedItem != null)
+        {
+            // Determine how far the dropped item should be from the player
+            Vector3 dropOffset = targetPosition ?? transform.position + transform.forward * 3;
+
+            droppedItem.transform.position = dropOffset;
+            droppedItem.SetActive(true);
+        }
     }
 
     /// <summary>
@@ -194,11 +222,20 @@ public class PlayerController : MonoBehaviour
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void Interact(InputAction.CallbackContext context)
     {
-        Collider raycastCollider = _raycastHit.collider;
+        Collider hitCollider = _raycastHit.collider;
+        GameObject hitGameObject = hitCollider.gameObject;
 
-        if (raycastCollider != null && raycastCollider.gameObject.TryGetComponent(out IInteractable interactableObj))
+        if (hitCollider != null && hitGameObject.TryGetComponent(out IInteractable interactableObj))
         {
             interactableObj.Interact();
+
+            // TODO: Before adding an item to the inventory, we should check whether or not this item is equippable
+            if (_playerInventory.HasItem())
+            {
+                Drop(hitGameObject.transform.position);
+            }
+
+            _playerInventory.AddItem(hitCollider.gameObject);
         }
     }
 
@@ -227,6 +264,14 @@ public class PlayerController : MonoBehaviour
         _playerControls.Player.Drop.performed -= Drop;
         _playerControls.Player.Interact.performed -= Interact;
         _playerControls.Player.Jump.performed -= Jump;
+
+        // Unsubscribe from inventory slot selection for all slots.
+        InputActionMap inventoryActions = _playerControls.asset.FindActionMap("Inventory");
+
+        foreach (InputAction inventorySlot in inventoryActions)
+        {
+            inventorySlot.performed -= _playerInventory.SelectSlot;
+        }
     }
 
     /// <summary>
