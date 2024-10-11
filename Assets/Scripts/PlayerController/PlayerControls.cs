@@ -319,6 +319,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Cycle Slots"",
+                    ""type"": ""Value"",
+                    ""id"": ""490bfc61-a28b-400b-a2aa-2b57cc5bd02e"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -420,6 +429,17 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""Slot 9"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e4f79c08-d817-4967-a82e-017626d97794"",
+                    ""path"": ""<Mouse>/scroll"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard and Mouse"",
+                    ""action"": ""Cycle Slots"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -464,6 +484,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Inventory_Slot7 = m_Inventory.FindAction("Slot 7", throwIfNotFound: true);
         m_Inventory_Slot8 = m_Inventory.FindAction("Slot 8", throwIfNotFound: true);
         m_Inventory_Slot9 = m_Inventory.FindAction("Slot 9", throwIfNotFound: true);
+        m_Inventory_CycleSlots = m_Inventory.FindAction("Cycle Slots", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -636,6 +657,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Inventory_Slot7;
     private readonly InputAction m_Inventory_Slot8;
     private readonly InputAction m_Inventory_Slot9;
+    private readonly InputAction m_Inventory_CycleSlots;
     public struct InventoryActions
     {
         private @PlayerControls m_Wrapper;
@@ -649,6 +671,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         public InputAction @Slot7 => m_Wrapper.m_Inventory_Slot7;
         public InputAction @Slot8 => m_Wrapper.m_Inventory_Slot8;
         public InputAction @Slot9 => m_Wrapper.m_Inventory_Slot9;
+        public InputAction @CycleSlots => m_Wrapper.m_Inventory_CycleSlots;
         public InputActionMap Get() { return m_Wrapper.m_Inventory; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -685,6 +708,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Slot9.started += instance.OnSlot9;
             @Slot9.performed += instance.OnSlot9;
             @Slot9.canceled += instance.OnSlot9;
+            @CycleSlots.started += instance.OnCycleSlots;
+            @CycleSlots.performed += instance.OnCycleSlots;
+            @CycleSlots.canceled += instance.OnCycleSlots;
         }
 
         private void UnregisterCallbacks(IInventoryActions instance)
@@ -716,6 +742,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Slot9.started -= instance.OnSlot9;
             @Slot9.performed -= instance.OnSlot9;
             @Slot9.canceled -= instance.OnSlot9;
+            @CycleSlots.started -= instance.OnCycleSlots;
+            @CycleSlots.performed -= instance.OnCycleSlots;
+            @CycleSlots.canceled -= instance.OnCycleSlots;
         }
 
         public void RemoveCallbacks(IInventoryActions instance)
@@ -764,5 +793,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         void OnSlot7(InputAction.CallbackContext context);
         void OnSlot8(InputAction.CallbackContext context);
         void OnSlot9(InputAction.CallbackContext context);
+        void OnCycleSlots(InputAction.CallbackContext context);
     }
 }

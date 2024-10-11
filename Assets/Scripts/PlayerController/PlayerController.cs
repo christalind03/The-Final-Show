@@ -77,9 +77,10 @@ public class PlayerController : MonoBehaviour
         _playerControls.Player.Jump.performed += Jump;
 
         // Subscribe to inventory slot selection for all slots.
+        _playerControls.Inventory.CycleSlots.performed += _playerInventory.SelectSlot;
         InputActionMap inventoryActions = _playerControls.asset.FindActionMap("Inventory");
 
-        foreach (InputAction inventorySlot in  inventoryActions)
+        foreach (InputAction inventorySlot in inventoryActions)
         {
             inventorySlot.performed += _playerInventory.SelectSlot;
         }
@@ -270,6 +271,7 @@ public class PlayerController : MonoBehaviour
         _playerControls.Player.Jump.performed -= Jump;
 
         // Unsubscribe from inventory slot selection for all slots.
+        _playerControls.Inventory.CycleSlots.performed -= _playerInventory.SelectSlot;
         InputActionMap inventoryActions = _playerControls.asset.FindActionMap("Inventory");
 
         foreach (InputAction inventorySlot in inventoryActions)

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -9,6 +10,7 @@ using UnityEngine.UIElements;
 public class PlayerInventory
 {
     private string _currentSlot;
+    private string _elementName;
     private Dictionary<string, GameObject> _inventorySlots;
     private VisualElement _uiDocument;
 
@@ -32,6 +34,8 @@ public class PlayerInventory
         };
 
         _uiDocument = uiDocument;
+        _elementName = _currentSlot.Replace(" ", "-");
+        _uiDocument.Q<VisualElement>(_elementName).AddToClassList("active");
     }
 
     /// <summary>
@@ -40,16 +44,23 @@ public class PlayerInventory
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     public void SelectSlot(InputAction.CallbackContext context)
     {
+        // Handle hotkey input for inventory slots.
         // NOTE: The actionName includes whitespace
         string actionName = context.action.name;
-        string elementName = actionName.Replace(" ", "-");
 
         if (_inventorySlots.ContainsKey(actionName))
         {
             ResetSlots();
             _currentSlot = actionName;
-            _uiDocument.Q<VisualElement>(actionName.Replace(" ", "-")).AddToClassList("active");
+            _elementName = actionName.Replace(" ", "-");
+            _uiDocument.Q<VisualElement>(_elementName).AddToClassList("active");
+        }
 
+        // Handle input from mouse scroll wheel.
+        if (context.action.type == InputActionType.Value && context.action.expectedControlType == "Vector2")
+        {
+            // TODO: Implement the scroll logic after we have items to reference.
+            // This involves possibly converting the _inventorySlots type from a Dictionary to a List in order to utilize indices for cycling.
         }
     }
     
@@ -72,6 +83,7 @@ public class PlayerInventory
     public void AddItem(GameObject equippableItem)
     {
         _inventorySlots[_currentSlot] = equippableItem;
+        _uiDocument.Q<VisualElement>(_elementName).AddToClassList("containsItem");
     }
 
     /// <summary>
@@ -81,7 +93,9 @@ public class PlayerInventory
     public GameObject RemoveItem()
     {
         GameObject removedItem = _inventorySlots[_currentSlot];
+        
         _inventorySlots[_currentSlot] = null;
+        _uiDocument.Q<VisualElement>(_elementName).RemoveFromClassList("containsItem");
      
         return removedItem;
     }
