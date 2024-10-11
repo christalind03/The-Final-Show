@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 /// <summary>
 /// Controls the player's actions, interactions, and movement within the game world.
@@ -45,6 +46,7 @@ public class PlayerController : MonoBehaviour
     private RaycastHit _raycastHit;
     private PlayerControls _playerControls;
     private PlayerInventory _playerInventory;
+    private VisualElement _uiDocument;
 
     /// <summary>
     /// Configure the cursor settings and initialize a new instance of PlayerControls when the script is first loaded.
@@ -52,11 +54,13 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         _canSprint = true;
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked; // Keep the cursor locked to the center of the game view.
+        UnityEngine.Cursor.visible = false;
+        UnityEngine.Cursor.lockState = CursorLockMode.Locked; // Keep the cursor locked to the center of the game view.
+
+        _uiDocument = GetComponent<UIDocument>().rootVisualElement;
 
         _playerControls = new PlayerControls();
-        _playerInventory = new PlayerInventory();
+        _playerInventory = new PlayerInventory(_uiDocument);
     }
 
     /// <summary>
