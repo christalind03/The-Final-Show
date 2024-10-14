@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 /// <summary>
 /// Controls the player's actions, interactions, and movement within the game world.
@@ -10,53 +12,55 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [Header("Camera Parameters")]
-    [SerializeField]
-    private float _cameraSensitivity;
-
-    [SerializeField]
-    private float _interactableDistance;
+    [SerializeField] private float _cameraSensitivity;
+    [SerializeField] private float _interactableDistance;
 
     [Header("Movement Parameters")]
-    [SerializeField]
-    private float _gravity;
+    [SerializeField] private float _gravity;
+    [SerializeField] private float _jumpHeight;
+    [SerializeField] private float _sprintSpeed;
+    [SerializeField] private float _walkSpeed;
 
-    [SerializeField]
-    private float _movementSpeed;
-
-    [SerializeField]
-    private float _jumpHeight;
+    [Header("Stat Parameters")]
+    [SerializeField] private Stat _staminaPoints;
+    [SerializeField] private float _staminaCost;
+    [SerializeField] private float _staminaRestoration;
+    [SerializeField] private float _staminaCooldown;
 
     [Header("Player Parameters")]
-    [SerializeField]
     [Tooltip("The scene's main camera.")]
-    private Transform _cameraTransform;
+    [SerializeField] private Transform _cameraTransform;
 
-    [SerializeField]
     [Tooltip("An empty object hidden within the Player object to control the camera's rotation.")]
-    private Transform _followTransform;
-
-    [SerializeField]
-    private Transform _playerTransform;
-
-    [SerializeField]
-    private CharacterController _playerController;
+    [SerializeField] private Transform _followTransform;
+    [SerializeField] private Transform _playerTransform;
+    [SerializeField] private CharacterController _playerController;
 
     private bool _isGrounded;
+    private bool _isSprinting;
+
+    private bool _canSprint;
     private float _xRotation; // Keep track of the current rotation of the camera and player on the x-axis.
     private float _yRotation; // Keep track of the current rotation of the camera and player on the y-axis.
     private Vector3 _playerVelocity; // Keep track of the current position of the camera and player on the y-axis.
     private RaycastHit _raycastHit;
     private PlayerControls _playerControls;
+    private PlayerInventory _playerInventory;
+    private VisualElement _uiDocument;
 
     /// <summary>
     /// Configure the cursor settings and initialize a new instance of PlayerControls when the script is first loaded.
     /// </summary>
     private void Awake()
     {
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked; // Keep the cursor locked to the center of the game view.
+        _canSprint = true;
+        UnityEngine.Cursor.visible = false;
+        UnityEngine.Cursor.lockState = CursorLockMode.Locked; // Keep the cursor locked to the center of the game view.
+
+        _uiDocument = GetComponent<UIDocument>().rootVisualElement;
 
         _playerControls = new PlayerControls();
+        _playerInventory = new PlayerInventory(_uiDocument);
     }
 
     /// <summary>
@@ -71,6 +75,15 @@ public class PlayerController : MonoBehaviour
         _playerControls.Player.Drop.performed += Drop;
         _playerControls.Player.Interact.performed += Interact;
         _playerControls.Player.Jump.performed += Jump;
+
+        // Subscribe to inventory slot selection for all slots.
+        _playerControls.Inventory.CycleSlots.performed += _playerInventory.SelectSlot;
+        InputActionMap inventoryActions = _playerControls.asset.FindActionMap("Inventory");
+
+        foreach (InputAction inventorySlot in inventoryActions)
+        {
+            inventorySlot.performed += _playerInventory.SelectSlot;
+        }
     }
 
     /// <summary>
@@ -95,12 +108,12 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void HandleLook()
     {
-        Vector2 userInput = _cameraSensitivity * Time.deltaTime * _playerControls.Player.Look.ReadValue<Vector2>();
+        Vector2 lookInput = _cameraSensitivity * Time.deltaTime * _playerControls.Player.Look.ReadValue<Vector2>();
 
         // Since the axes in which we move our input device are opposite in Unity, we must swap them to ensure correct behavior.
         // For example, moving the mouse up and/or down corresponds to side-to-side mouse movement in Unity, so we need to adjust for this.
-        _yRotation += userInput.x;
-        _xRotation = Mathf.Clamp(_xRotation - userInput.y, -45f, 45f); // Prevent the player from rotating their head backwards.
+        _yRotation += lookInput.x;
+        _xRotation = Mathf.Clamp(_xRotation - lookInput.y, -45f, 45f); // Prevent the player from rotating their head backwards.
 
         // "Revert" _xRotation as the controls are inverted.
         // Without this, moving the controller down causes the camera to look up.
@@ -119,24 +132,47 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void HandleMovement()
     {
+        float totalSpeed = _isSprinting ? _sprintSpeed : _walkSpeed;
+
         // Ensure we always move relative to the direction we are looking at.
-        Vector2 userInput = _playerControls.Player.Movement.ReadValue<Vector2>();
-        Vector3 moveDirection = _playerTransform.forward * userInput.y + _playerTransform.right * userInput.x;
+        Vector2 moveInput = _playerControls.Player.Movement.ReadValue<Vector2>();
+        Vector3 moveDirection = _playerTransform.forward * moveInput.y + _playerTransform.right * moveInput.x;
 
         _playerVelocity.y += _gravity * Time.deltaTime;
 
-        _playerController.Move(_movementSpeed * Time.deltaTime * moveDirection);
+        _playerController.Move(totalSpeed * Time.deltaTime * moveDirection);
         _playerController.Move(_playerVelocity * Time.deltaTime);
     }
 
     /// <summary>
-    /// Adds additional speed to the player's movement.
+    /// Set the _isSpriting variable to true if the player is moving forward while the sprint button is pressed.
     /// </summary>
     private void HandleSprint()
     {
-        if (_playerControls.Player.Sprint.IsPressed())
+        // Only sprint if the we are moving forward.
+        Vector2 moveInput = _playerControls.Player.Movement.ReadValue<Vector2>();
+        bool isForward = 0 < moveInput.y;
+
+        _isSprinting = _canSprint && isForward && 0 < _staminaPoints.CurrentValue && _playerControls.Player.Sprint.IsPressed();
+
+        // Decrease/Increase stamina based on whether or not we are currently sprinting.
+        if (_isSprinting)
         {
-            Debug.Log("Sprinting....");
+            _staminaPoints.Decrease(_staminaCost * Time.deltaTime);
+        }
+
+        if (!_isSprinting && _staminaPoints.CurrentValue < _staminaPoints.BaseValue)
+        {
+            _staminaPoints.Increase(_staminaRestoration * Time.deltaTime);
+        }
+
+        // If the current stamina is zero, wait until the stamina bar fills up again.
+        if (_staminaPoints.CurrentValue == 0f)
+        {
+            _canSprint = false;
+            _isSprinting = false;
+
+            StartCoroutine(SprintCooldown());
         }
     }
 
@@ -159,12 +195,30 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Handle the player's input for dropping object in their inventory.
+    /// Handle the player's input for dropping an object from their inventory.
     /// </summary>
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void Drop(InputAction.CallbackContext context)
     {
-        Debug.Log("Drop");
+        Drop();
+    }
+
+    /// <summary>
+    /// Drop an item from the player's inventory into the game world.
+    /// </summary>
+    /// <param name="targetPosition">The target position to set the dropped item to.</param>
+    private void Drop(Vector3? targetPosition = null)
+    {
+        GameObject droppedItem = _playerInventory.RemoveItem();
+
+        if (_raycastHit.collider != null && droppedItem != null)
+        {
+            // Determine how far the dropped item should be from the player
+            Vector3 dropOffset = targetPosition ?? transform.position + transform.forward * 3;
+
+            droppedItem.transform.position = dropOffset;
+            droppedItem.SetActive(true);
+        }
     }
 
     /// <summary>
@@ -173,11 +227,20 @@ public class PlayerController : MonoBehaviour
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void Interact(InputAction.CallbackContext context)
     {
-        Collider raycastCollider = _raycastHit.collider;
+        Collider hitCollider = _raycastHit.collider;
+        GameObject hitGameObject = hitCollider.gameObject;
 
-        if (raycastCollider != null && raycastCollider.gameObject.TryGetComponent(out IInteractable interactableObj))
+        if (hitCollider != null && hitGameObject.TryGetComponent(out IInteractable interactableObj))
         {
             interactableObj.Interact();
+
+            // TODO: Before adding an item to the inventory, we should check whether or not this item is equippable
+            if (_playerInventory.HasItem())
+            {
+                Drop(hitGameObject.transform.position);
+            }
+
+            _playerInventory.AddItem(hitCollider.gameObject);
         }
     }
 
@@ -206,5 +269,24 @@ public class PlayerController : MonoBehaviour
         _playerControls.Player.Drop.performed -= Drop;
         _playerControls.Player.Interact.performed -= Interact;
         _playerControls.Player.Jump.performed -= Jump;
+
+        // Unsubscribe from inventory slot selection for all slots.
+        _playerControls.Inventory.CycleSlots.performed -= _playerInventory.SelectSlot;
+        InputActionMap inventoryActions = _playerControls.asset.FindActionMap("Inventory");
+
+        foreach (InputAction inventorySlot in inventoryActions)
+        {
+            inventorySlot.performed -= _playerInventory.SelectSlot;
+        }
+    }
+
+    /// <summary>
+    /// Handles the cooldown period after sprinting.
+    /// </summary>
+    /// <returns>An IEnumerator for coroutine execution.</returns>
+    private IEnumerator SprintCooldown()
+    {
+        yield return new WaitForSeconds(_staminaCooldown);
+        _canSprint = true;
     }
 }

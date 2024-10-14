@@ -6,11 +6,11 @@ using UnityEngine;
 public class ExampleItem : MonoBehaviour, IInteractable
 {
     /// <summary>
-    /// Destroy the current gameObject this component is tied to after the player interacts with it.
+    /// Disable the current gameObject this component is tied to after the player interacts with it.
     /// </summary>
     public void Interact()
     {
-        Destroy(gameObject);
+        gameObject.SetActive(false);
         Debug.Log($"Picked up {transform.name}");
     }
 }
