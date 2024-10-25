@@ -1,13 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+/// <summary>
+/// Managers the lobby UI 
+/// </summary>
 public class UIManager : MonoBehaviour
 {
     // Gameobjects
-    private SteamLobby steamLobby;
     public VisualElement ui;
+    private SteamLobby steamLobby;
     private VisualElement _menuView;
     private VisualElement _lobbyView;
     private VisualElement _lobbyJoinView;
@@ -19,11 +20,17 @@ public class UIManager : MonoBehaviour
     private Button _leaveButtonJoinView;
     private Button _exitButton;
 
+    /// <summary>
+    /// Get the different components needed to run the script
+    /// </summary>
     private void Start (){
         GameObject NetworkManager = GameObject.Find("NetworkManager");
         steamLobby = NetworkManager.GetComponent<SteamLobby>();
     }
 
+    /// <summary>
+    /// Initializes the different UI views 
+    /// </summary>
     private void Awake() {
         ui = GetComponent<UIDocument>().rootVisualElement;
         _menuView = ui.Q<VisualElement>("LobbyMenu");
@@ -31,6 +38,9 @@ public class UIManager : MonoBehaviour
         _lobbyJoinView = ui.Q<VisualElement>("LobbyJoin");
     }
 
+    /// <summary>
+    /// Subscribes the different functions for when an action happens for button pressed
+    /// </summary>
     private void OnEnable() {
         _hostButton = _menuView.Q<VisualElement>("Container").Q<Button>("hostButton");
         _hostButton.clicked += HostLobby;
@@ -52,24 +62,41 @@ public class UIManager : MonoBehaviour
 
     }
     
+    /// <summary>
+    /// Switch UI to main menu from the join menu
+    /// </summary>
     private void LeaveJoin(){
         SwitchUI(_lobbyJoinView, _menuView);
     }
 
+    /// <summary>
+    /// Start the game if you are the host 
+    /// </summary>
     private void StartGame(){
         steamLobby.StartGame();
     }
 
+    /// <summary>
+    /// Switch UI to menu when player leave the lobby 
+    /// </summary>
     private void LeaveLobby(){
         SwitchUI(_lobbyView, _menuView);
-        ulong lobbyIDField = _lobbyView.Q<VisualElement>("lobbyContainer").Q<UnsignedLongField>("id").value;
+        ulong lobbyIDField = _lobbyView.Q<VisualElement>("lobbyContainer").Q<UnsignedLongField>("id").value; // gets the unique lobbyID required to leave the lobby
         steamLobby.LeaveLobby(lobbyIDField);
     }
 
+    /// <summary>
+    /// Close the game 
+    /// </summary>
     private void ExitGame(){
         Application.Quit();
     }
 
+    /// <summary>
+    /// Helper function to switch to different UI views
+    /// </summary>
+    /// <param name="curScreen">The current screen the player is on</param>
+    /// <param name="newScreen">The new screen that the player should be viewing</param>
     private void SwitchUI(VisualElement curScreen, VisualElement newScreen){
         if(curScreen != null){
             curScreen.RemoveFromClassList("show");
@@ -84,22 +111,42 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Joins the steam lobby using the lobbyID
+    /// </summary>
+    /// <param name="lobbyID">Unique steam lobbyID</param>
     private void JoinLobby(ulong lobbyID){
         steamLobby.JoinLobby(lobbyID);
     }
     
+    /// <summary>
+    /// Host the lobby
+    /// </summary>
     private void HostLobby(){
         steamLobby.HostLobby();
     }
+
+    /// <summary>
+    /// Initializes the join screen and all the functions attached to it
+    /// </summary>
     private void JoinScreen(){
+        // Get the button and id field from the current screen 
         Button joinLobbyBtn = _lobbyJoinView.Q<VisualElement>("lobbyContainer").Q<Button>("joinButton");
         UnsignedLongField idField= _lobbyJoinView.Q<VisualElement>("lobbyContainer").Q<UnsignedLongField>("id");
-        idField.value = 0;
-        SwitchUI(_menuView, _lobbyJoinView);
-        joinLobbyBtn.clicked += () => JoinLobby(idField.value);
 
+        // Reset the id field to 0 when you transition into it
+        idField.value = 0;
+
+        // Switch the screen to lobby view 
+        SwitchUI(_menuView, _lobbyJoinView);
+
+        // Subscribes to the join lobby function 
+        joinLobbyBtn.clicked += () => JoinLobby(idField.value);
     }   
 
+    /// <summary>
+    /// If you are the host, enble the join button in lobby screen
+    /// </summary>
     private void enableJoinHost(){
         if(!steamLobby.isHost()){
             _startButtonLobbyView.RemoveFromClassList("show");
@@ -112,6 +159,11 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Initalizes the lobby screen screen 
+    /// </summary>
+    /// <param name="lobbyID">Unique steam lobbyID</param>
+    /// <param name="lobbyName">Name of the lobby</param>
     public void lobbyScreen(ulong lobbyID, string lobbyName){
         enableJoinHost();   
         SwitchUI(_menuView, _lobbyView);
@@ -124,6 +176,9 @@ public class UIManager : MonoBehaviour
         lobbyIDField.value = lobbyID;
     }
     
+    /// <summary>
+    /// Wrapper function for join screen function used by the steam lobby script 
+    /// </summary>
     public void invalidLobby(){
         JoinScreen();
     }

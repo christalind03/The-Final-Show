@@ -127,6 +127,8 @@ public class PlayerControllerNetwork : NetworkBehaviour
 
         // Check to see if we're looking at anything of importance.
         Physics.Raycast(_cameraTransform.position, _cameraTransform.forward * _interactableDistance, out _raycastHit);
+
+        CmdLook(_playerTransform.rotation);
     }
 
     /// <summary>
@@ -144,7 +146,7 @@ public class PlayerControllerNetwork : NetworkBehaviour
 
         _playerController.Move(totalSpeed * Time.deltaTime * moveDirection);
         _playerController.Move(_playerVelocity * Time.deltaTime);
-        CmdMovePlayer(_playerTransform.position, _playerTransform.rotation);
+        CmdMovePlayer(_playerTransform.position);
     }
 
     /// <summary>
@@ -185,6 +187,7 @@ public class PlayerControllerNetwork : NetworkBehaviour
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void Attack(InputAction.CallbackContext context)
     {
+        if(!isLocalPlayer) {return;}
         Debug.Log("Attack");
     }
 
@@ -194,6 +197,7 @@ public class PlayerControllerNetwork : NetworkBehaviour
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void AlternateAttack(InputAction.CallbackContext context)
     {
+        if(!isLocalPlayer) {return;}
         Debug.Log("Alternate Attack");
     }
 
@@ -203,6 +207,7 @@ public class PlayerControllerNetwork : NetworkBehaviour
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void Drop(InputAction.CallbackContext context)
     {
+        if(!isLocalPlayer) {return;}
         Drop();
     }
 
@@ -217,10 +222,14 @@ public class PlayerControllerNetwork : NetworkBehaviour
         if (_raycastHit.collider != null && droppedItem != null)
         {
             // Determine how far the dropped item should be from the player
-            Vector3 dropOffset = targetPosition ?? transform.position + transform.forward * 3;
-
-            droppedItem.transform.position = dropOffset;
-            droppedItem.SetActive(true);
+            // Vector3 dropOffset = targetPosition ?? transform.position + transform.forward * 3;
+            // droppedItem.transform.position = dropOffset;
+            // droppedItem.SetActive(true);
+            if(targetPosition.HasValue){
+                CmdDrop(droppedItem, targetPosition.Value, true);
+            }else{
+                CmdDrop(droppedItem, new Vector3(0,0,0), false);
+            }
         }
     }
 
@@ -230,20 +239,20 @@ public class PlayerControllerNetwork : NetworkBehaviour
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void Interact(InputAction.CallbackContext context)
     {
+        if(!isLocalPlayer) {return;}
         Collider hitCollider = _raycastHit.collider;
         GameObject hitGameObject = hitCollider.gameObject;
 
-        if (hitCollider != null && hitGameObject.TryGetComponent(out IInteractable interactableObj))
+        if (hitCollider != null && hitGameObject.GetComponent<IInteractable>() != null)
         {
-            interactableObj.Interact();
-
             // TODO: Before adding an item to the inventory, we should check whether or not this item is equippable
             if (_playerInventory.HasItem())
             {
                 Drop(hitGameObject.transform.position);
             }
 
-            _playerInventory.AddItem(hitCollider.gameObject);
+            _playerInventory.AddItem(hitGameObject);
+            CmdInteract(hitGameObject);
         }
     }
 
@@ -253,6 +262,7 @@ public class PlayerControllerNetwork : NetworkBehaviour
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void Jump(InputAction.CallbackContext context)
     {
+        if(!isLocalPlayer) {return;}
         if (_isGrounded)
         {
             // Physics equation to calculate the initial jump velocity for reaching a specific height.
@@ -293,23 +303,107 @@ public class PlayerControllerNetwork : NetworkBehaviour
         _canSprint = true;
     }
 
+    /// <summary>
+    /// Server code for updating player's movement, as of right now the client calculates 
+    /// the positions and gives it to the server. Not very safe if cheater that manipulate 
+    /// the calculation if we care about security.  
+    /// </summary>
+    /// <param name="position">Position of the player</param>
     [Command]
-    private void CmdMovePlayer(Vector3 position, Quaternion rotation){
-        // Update the player's position on the server
+    private void CmdMovePlayer(Vector3 position){
         _playerTransform.position = position;
-        _playerTransform.rotation = rotation;
 
-        // Notify all clients to update the position
-        RpcUpdatePlayerPosition(position, rotation);
+        // Propagates the changes to all client
+        RpcUpdatePlayerPosition(position);
     }
 
+    /// <summary>
+    /// Server code for updating player's rotation, similar to CmdMovePlayer but with rotation
+    /// </summary>
+    /// <param name="rotation">Player rotation</param>
+    [Command]
+    private void CmdLook(Quaternion rotation){
+        _playerTransform.rotation = rotation;
+
+        // Propagates the changes to all client
+        RpcUpdatePlayerLook(_playerTransform.rotation);
+    }
+
+    /// <summary>
+    /// Calculate the drop position and set the drop item to that position and activate it. 
+    /// </summary>
+    /// <param name="dropItem">The item that is being dropped</param>
+    /// <param name="targetPosition">Position that the item should be dropped at</param>
+    /// <param name="hasValue">Bool for make sure if targetPosition exist since Commands can't have nullable Vector3</param>
+    [Command]
+    private void CmdDrop(GameObject dropItem, Vector3 targetPosition, bool hasValue){
+        Vector3 dropOffset = hasValue ? targetPosition : transform.position + transform.forward * 3;
+        dropItem.transform.position = dropOffset;
+        dropItem.SetActive(true);
+        
+        // Propagates the changes to all client
+        RpcDrop(dropItem, dropOffset);
+    }
+
+    /// <summary>
+    /// Interact with the GameObject if it has IInteractable script
+    /// </summary>
+    /// <param name="hitObj">The object that is being interacted</param>
+    [Command]
+    private void CmdInteract(GameObject hitObj){
+        if(hitObj.TryGetComponent(out IInteractable interactableObj)){
+            interactableObj.Interact();
+        }
+
+        // Propagates the changes to all client
+        RpcInteract(hitObj);
+    }
+    
+    /// <summary>
+    /// Update player position to all clients
+    /// </summary>
+    /// <param name="position">Player position</param>
     [ClientRpc]
-    private void RpcUpdatePlayerPosition(Vector3 position, Quaternion rotation)
+    private void RpcUpdatePlayerPosition(Vector3 position)
     {
-        if (isLocalPlayer) return; // Skip local player, already updated
-
+        // Local player will not run this code since they've already calculated their own position in HandleMovement
+        if (isLocalPlayer) return;
         _playerTransform.position = position;
+    }
+
+    /// <summary>
+    /// Update player rotation to all clients
+    /// </summary>
+    /// <param name="rotation">Player rotation</param>
+    [ClientRpc]
+    private void RpcUpdatePlayerLook(Quaternion rotation){
+        if (isLocalPlayer) return;
         _playerTransform.rotation = rotation;
     }
 
+    /// <summary>
+    /// Update the item that is being dropped in world view to all client
+    /// </summary>
+    /// <param name="dropItem">Item that is being dropped</param>
+    /// <param name="dropPos">Location to be dropped at</param>
+    [ClientRpc]
+    private void RpcDrop(GameObject dropItem, Vector3 dropPos){
+        // Since we are using a Host-Client network structure, there will be one player that acts as the server and they don't have to run the code again
+        if(!isServer){
+            dropItem.transform.position = dropPos;
+            dropItem.SetActive(true);
+        }
+    }
+
+    /// <summary>
+    /// Update the object that is being interacted to all client
+    /// </summary>
+    /// <param name="hitObj">Item that is being interacted</param>
+    [ClientRpc]
+    private void RpcInteract(GameObject hitObj){
+        // Same reasoning as RpcDrop with the added component of getting the component "IInteractable"
+        if(!isServer && hitObj.TryGetComponent(out IInteractable interactableObj)){
+            interactableObj.Interact();
+        }
+    }
 }

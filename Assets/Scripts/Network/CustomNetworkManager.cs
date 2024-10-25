@@ -1,8 +1,15 @@
 using UnityEngine;
 using Mirror;
 
+/// <summary>
+/// Network Manager that controls all the server and client processing
+/// </summary>
 public class CustomNetworkManager : NetworkManager
 {
+    /// <summary>
+    /// If the scence changes to the gameplay scene, Instantiate all the players and add them to the connection 
+    /// </summary>
+    /// <param name="sceneName">Scene that is being transitioned to</param>
     public override void OnServerSceneChanged(string sceneName){
         base.OnServerSceneChanged(sceneName);
         if(sceneName == "Gameplay"){
