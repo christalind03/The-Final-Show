@@ -384,9 +384,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _cameraSensitivity: 3.5
+  _interactableDistance: 0
   _gravity: -12.5
-  _movementSpeed: 10
   _jumpHeight: 1.5
+  _sprintSpeed: 0
+  _walkSpeed: 0
+  _staminaPoints:
+    _baseValue: 0
+    _currentValue: 0
+  _staminaCost: 0
+  _staminaRestoration: 0
+  _staminaCooldown: 0
+  _cameraTransform: {fileID: 0}
   _followTransform: {fileID: 1279517964111326137}
   _playerTransform: {fileID: 8203241780073711057}
   _playerController: {fileID: 8053147996298278901}
