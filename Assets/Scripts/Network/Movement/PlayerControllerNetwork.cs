@@ -98,7 +98,7 @@ public class PlayerControllerNetwork : NetworkBehaviour
         _xRotation = Mathf.Clamp(_xRotation - lookInput.y, -45f, 45f); 
 
 
-        _followTransform.rotation = Quaternion.Euler(-_xRotation, _yRotation, 0);
+        _followTransform.rotation = Quaternion.Euler(_xRotation, _yRotation, 0);
 
         _playerTransform.rotation = Quaternion.Euler(0, _yRotation, 0);
 
