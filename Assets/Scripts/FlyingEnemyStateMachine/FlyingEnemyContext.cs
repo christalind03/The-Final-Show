@@ -13,13 +13,12 @@ public class FlyingEnemyContext
     public readonly Quaternion InitialRotation;
     public readonly Transform Transform;
 
-    public readonly Rigidbody _rigidbody;
     public readonly NavMeshAgent NavMeshAgent;
 
     public readonly Transform PlayerTransform;
 
     public FlyingEnemyContext(float attackDamage, float startChaseDist, float endChaseDist, float startAttackDist, float endAttackDist,
-        Vector3 initialPosition, Quaternion initialRoatation, Transform transform, Rigidbody rigidbody, NavMeshAgent navMeshAgent, Transform playerTransform)
+        Vector3 initialPosition, Quaternion initialRoatation, Transform transform, NavMeshAgent navMeshAgent, Transform playerTransform)
     {
         AttackDamage = attackDamage;
         StartChaseDist = startChaseDist;
@@ -31,7 +30,6 @@ public class FlyingEnemyContext
         InitialRotation = initialRoatation;
         Transform = transform;
 
-        _rigidbody = rigidbody;
         NavMeshAgent = navMeshAgent;
 
         PlayerTransform = playerTransform;

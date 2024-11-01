@@ -14,8 +14,7 @@ public class FlyingEnemyStateMachine : StateManager<FlyingEnemyStateMachine.EEne
     }
 
     public Transform _playerTransform;
-
-    [SerializeField] private Rigidbody _rigidbody;
+    
     [SerializeField] private SphereCollider _spherecollider;
 
     [Header("Attack Parameters")]
@@ -33,6 +32,7 @@ public class FlyingEnemyStateMachine : StateManager<FlyingEnemyStateMachine.EEne
     protected Quaternion _initialRotation;
 
     protected NavMeshAgent _navMeshAgent;
+    protected FieldOfView _fieldOfView;
 
     protected FlyingEnemyContext _context;
     protected bool _canAttack;
@@ -44,9 +44,10 @@ public class FlyingEnemyStateMachine : StateManager<FlyingEnemyStateMachine.EEne
         _initialRotation = transform.rotation;
 
         _navMeshAgent = GetComponent<NavMeshAgent>();
+        _fieldOfView = GetComponent<FieldOfView>();
 
         _context = new FlyingEnemyContext(_attackDamage, _startChaseDist, _endChaseDist, _startAttackDist, _endAttackDist, 
-            _initialPosition, _initialRotation, transform, _rigidbody, _navMeshAgent, _playerTransform);
+            _initialPosition, _initialRotation, transform, _navMeshAgent, _playerTransform);
         _canAttack = true;
 
         InitializeStates();
