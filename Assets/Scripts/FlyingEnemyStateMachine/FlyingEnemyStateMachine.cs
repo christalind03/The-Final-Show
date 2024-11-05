@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-[RequireComponent(typeof(NavMeshAgent))]
+[RequireComponent(typeof(FieldOfView), typeof(NavMeshAgent))]
 public class FlyingEnemyStateMachine : StateManager<FlyingEnemyStateMachine.EEnemyState>
 {
     public enum EEnemyState
@@ -47,7 +47,7 @@ public class FlyingEnemyStateMachine : StateManager<FlyingEnemyStateMachine.EEne
         _fieldOfView = GetComponent<FieldOfView>();
 
         _context = new FlyingEnemyContext(_attackDamage, _startChaseDist, _endChaseDist, _startAttackDist, _endAttackDist, 
-            _initialPosition, _initialRotation, transform, _navMeshAgent, _playerTransform);
+            _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _playerTransform);
         _canAttack = true;
 
         InitializeStates();
@@ -69,6 +69,7 @@ public class FlyingEnemyStateMachine : StateManager<FlyingEnemyStateMachine.EEne
 
     private void FixedUpdate()
     {
+        /*
         float distToPlayer = Vector3.Distance(_playerTransform.position, transform.position);
         if (CurrentState.StateKey.Equals(EEnemyState.Idle) && distToPlayer < _startChaseDist)
         {
@@ -85,6 +86,33 @@ public class FlyingEnemyStateMachine : StateManager<FlyingEnemyStateMachine.EEne
         else if (CurrentState.StateKey.Equals(EEnemyState.Attacking) && distToPlayer > _endAttackDist)
         {
             TransitionToState(EEnemyState.Chasing);
+        }
+        */
+        // _fieldOfView's interested layers should only be player
+        if (0 < _fieldOfView.DetectedObjects.Count)
+        {
+            Debug.Log("Object(s) Detected");
+            // TODO: choose one target, keep that target until it leaves FOV
+            Transform targetTransform = _fieldOfView.DetectedObjects[0].transform; // get the first object
+            float distToPlayer = Vector3.Distance(transform.position, targetTransform.position);
+            transform.LookAt(targetTransform.position);
+            // enforce that _startChaseDist = FOV.Distance?
+            if (CurrentState.StateKey.Equals(EEnemyState.Idle) && distToPlayer < _startChaseDist)
+            {
+                TransitionToState(EEnemyState.Chasing);
+            }
+            else if (CurrentState.StateKey.Equals(EEnemyState.Chasing) && distToPlayer < _startAttackDist)
+            {
+                TransitionToState(EEnemyState.Attacking);
+            }
+            else if (CurrentState.StateKey.Equals(EEnemyState.Attacking) && distToPlayer > _endAttackDist)
+            {
+                TransitionToState(EEnemyState.Chasing);
+            }
+        }
+        else
+        {
+            TransitionToState(EEnemyState.Idle);
         }
     }
 
