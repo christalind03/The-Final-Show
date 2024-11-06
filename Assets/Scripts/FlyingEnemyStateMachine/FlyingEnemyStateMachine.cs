@@ -12,8 +12,6 @@ public class FlyingEnemyStateMachine : StateManager<FlyingEnemyStateMachine.EEne
         Chasing,
         Attacking
     }
-
-    public Transform _playerTransform;
     
     [SerializeField] private SphereCollider _spherecollider;
 
@@ -22,11 +20,16 @@ public class FlyingEnemyStateMachine : StateManager<FlyingEnemyStateMachine.EEne
     [SerializeField] protected float _attackDamage;
     [SerializeField] protected float _attackRange;
 
-    [Header("Behavior parameters")]
-    [SerializeField] protected float _startChaseDist;
+    [Header("Behavior Parameters")]
+    [Tooltip("Distance at which the enemy will stop chasing the target and return to idle. Should be no less than the object's FieldOfView distance.")]
     [SerializeField] protected float _endChaseDist;
-    [SerializeField] protected float _startAttackDist;
+    [Tooltip("Distance at which the enemy will start chasing the target from the idle state. Should be no greater than the object's FieldOfView distance.")]
+    [SerializeField] protected float _startChaseDist;
+    [Tooltip("Distance at which the enemy will stop attacking the target and resume chasing. Should be no less than Start Attack Dist")]
     [SerializeField] protected float _endAttackDist;
+    [Tooltip("Distance at which the enemy will start attacking the target from the chasing state. Should be no greater than Start Chase Dist.")]
+    [SerializeField] protected float _startAttackDist;
+    
 
     protected Vector3 _initialPosition;
     protected Quaternion _initialRotation;
@@ -50,7 +53,7 @@ public class FlyingEnemyStateMachine : StateManager<FlyingEnemyStateMachine.EEne
         _fieldOfView = GetComponent<FieldOfView>();
 
         _context = new FlyingEnemyContext(_attackDamage, _startChaseDist, _endChaseDist, _startAttackDist, _endAttackDist, 
-            _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _playerTransform);
+            _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent);
         _canAttack = true;
 
         InitializeStates();
