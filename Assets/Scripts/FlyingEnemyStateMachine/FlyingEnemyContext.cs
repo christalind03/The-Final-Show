@@ -19,7 +19,7 @@ public class FlyingEnemyContext
     public readonly Transform PlayerTransform;
 
     public FlyingEnemyContext(float attackDamage, float startChaseDist, float endChaseDist, float startAttackDist, float endAttackDist,
-        Vector3 initialPosition, Quaternion initialRoatation, Transform transform, FieldOfView fieldOfView, NavMeshAgent navMeshAgent, Transform playerTransform)
+        Vector3 initialPosition, Quaternion initialRoatation, Transform transform, FieldOfView fieldOfView, NavMeshAgent navMeshAgent)
     {
         AttackDamage = attackDamage;
         StartChaseDist = startChaseDist;
@@ -33,7 +33,5 @@ public class FlyingEnemyContext
 
         FieldOfView = fieldOfView;
         NavMeshAgent = navMeshAgent;
-
-        PlayerTransform = playerTransform;
     }
 }
