@@ -34,6 +34,9 @@ public class FlyingEnemyStateMachine : StateManager<FlyingEnemyStateMachine.EEne
     protected NavMeshAgent _navMeshAgent;
     protected FieldOfView _fieldOfView;
 
+    protected Transform _targetTransform;
+    protected bool _hasTarget;
+
     protected FlyingEnemyContext _context;
     protected bool _canAttack;
 
@@ -69,50 +72,53 @@ public class FlyingEnemyStateMachine : StateManager<FlyingEnemyStateMachine.EEne
 
     private void FixedUpdate()
     {
-        /*
-        float distToPlayer = Vector3.Distance(_playerTransform.position, transform.position);
-        if (CurrentState.StateKey.Equals(EEnemyState.Idle) && distToPlayer < _startChaseDist)
-        {
-            TransitionToState(EEnemyState.Chasing);
-        }
-        else if (CurrentState.StateKey.Equals(EEnemyState.Chasing) && distToPlayer > _endChaseDist)
-        {
-            TransitionToState(EEnemyState.Idle);
-        }
-        else if (CurrentState.StateKey.Equals(EEnemyState.Chasing) && distToPlayer < _startAttackDist)
-        {
-            TransitionToState(EEnemyState.Attacking);
-        }
-        else if (CurrentState.StateKey.Equals(EEnemyState.Attacking) && distToPlayer > _endAttackDist)
-        {
-            TransitionToState(EEnemyState.Chasing);
-        }
-        */
         // _fieldOfView's interested layers should only be player
+        float distToTarget = 0f;
+        // When a target is within the FOV
         if (0 < _fieldOfView.DetectedObjects.Count)
         {
-            Debug.Log("Object(s) Detected");
-            // TODO: choose one target, keep that target until it leaves FOV
-            Transform targetTransform = _fieldOfView.DetectedObjects[0].transform; // get the first object
-            float distToPlayer = Vector3.Distance(transform.position, targetTransform.position);
-            transform.LookAt(targetTransform.position);
-            // enforce that _startChaseDist = FOV.Distance?
-            if (CurrentState.StateKey.Equals(EEnemyState.Idle) && distToPlayer < _startChaseDist)
+            // Choose one target, keep that target until it leaves chase radius
+            // If a different target is within FOV, switch to that target
+            _hasTarget = true;
+            _targetTransform = _fieldOfView.DetectedObjects[0].transform; // get the first object
+            distToTarget = Vector3.Distance(transform.position, _targetTransform.position);
+            Vector3 dir = (_targetTransform.position - transform.position).normalized;
+            Quaternion targetRotation = Quaternion.LookRotation(dir);
+            float rotationSpeed = 1.5f; // initialize this value somewhere else
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+
+            // If Idle and target is within chase distance, start Chasing
+            if (CurrentState.StateKey.Equals(EEnemyState.Idle) && distToTarget < _startChaseDist)
             {
                 TransitionToState(EEnemyState.Chasing);
             }
-            else if (CurrentState.StateKey.Equals(EEnemyState.Chasing) && distToPlayer < _startAttackDist)
+            // If Chasing and target is within attack range, start Attacking
+            else if (CurrentState.StateKey.Equals(EEnemyState.Chasing) && distToTarget < _startAttackDist)
             {
                 TransitionToState(EEnemyState.Attacking);
             }
-            else if (CurrentState.StateKey.Equals(EEnemyState.Attacking) && distToPlayer > _endAttackDist)
+            // If Attacking and target is out of attack range, start Chasing
+            else if (CurrentState.StateKey.Equals(EEnemyState.Attacking) && distToTarget > _endAttackDist)
             {
                 TransitionToState(EEnemyState.Chasing);
             }
         }
-        else
+        // When a target is not within the FOV
+        // e.g. still within chase distance or behind obstacle
+        else if(_hasTarget)
         {
-            TransitionToState(EEnemyState.Idle);
+            distToTarget = Vector3.Distance(transform.position, _targetTransform.position); // recalculate distToTarget
+            // If target is farther than endChaseDist, stop chasing, no longer have a target
+            if (CurrentState.StateKey.Equals(EEnemyState.Chasing) && distToTarget > _endChaseDist)
+            {
+                _hasTarget = false;
+                TransitionToState(EEnemyState.Idle);
+            }
+            // Target MUST be within FOV (and unobstructed) to attack
+            else if (CurrentState.StateKey.Equals(EEnemyState.Attacking))
+            {
+                TransitionToState(EEnemyState.Chasing);
+            }
         }
     }
 
