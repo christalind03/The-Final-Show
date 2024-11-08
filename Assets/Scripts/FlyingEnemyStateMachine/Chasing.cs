@@ -25,6 +25,6 @@ public class ChasingState : FlyingEnemyState
     public override void OnTriggerStay(Collider otherCollider) { }
     public override void UpdateState() 
     {
-        Context.NavMeshAgent.destination = Context.PlayerTransform.position;
+        Context.NavMeshAgent.destination = Context.TargetTransform.position;
     }
 }

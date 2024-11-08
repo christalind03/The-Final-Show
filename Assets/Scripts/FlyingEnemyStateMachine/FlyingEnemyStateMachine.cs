@@ -84,6 +84,7 @@ public class FlyingEnemyStateMachine : StateManager<FlyingEnemyStateMachine.EEne
             // If a different target is within FOV, switch to that target
             _hasTarget = true;
             _targetTransform = _fieldOfView.DetectedObjects[0].transform; // get the first object
+            _context.TargetTransform = _targetTransform;
             distToTarget = Vector3.Distance(transform.position, _targetTransform.position);
             Vector3 dir = (_targetTransform.position - transform.position).normalized;
             Quaternion targetRotation = Quaternion.LookRotation(dir);
@@ -125,11 +126,11 @@ public class FlyingEnemyStateMachine : StateManager<FlyingEnemyStateMachine.EEne
         }
     }
 
-    /*
+    
     protected IEnumerator AttackCooldown()
     {
         yield return new WaitForSeconds(_attackCooldown);
         _canAttack = true;
     }
-    */
+    
 }

@@ -16,7 +16,7 @@ public class FlyingEnemyContext
     public readonly FieldOfView FieldOfView;
     public readonly NavMeshAgent NavMeshAgent;
 
-    public readonly Transform PlayerTransform;
+    public Transform TargetTransform;
 
     public FlyingEnemyContext(float attackDamage, float startChaseDist, float endChaseDist, float startAttackDist, float endAttackDist,
         Vector3 initialPosition, Quaternion initialRoatation, Transform transform, FieldOfView fieldOfView, NavMeshAgent navMeshAgent)

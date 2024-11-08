@@ -15,7 +15,6 @@ public class IdleState : FlyingEnemyState
         Context = context;
         base.Initialize(context, stateKey);
 
-        _hasTargetRotation = false;
         _isReset = true;
     }
 
