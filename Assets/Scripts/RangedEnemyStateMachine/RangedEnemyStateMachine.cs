@@ -54,7 +54,7 @@ public class RangedEnemyStateMachine : StateManager<RangedEnemyStateMachine.EEne
 
         _navMeshAgent = GetComponent<NavMeshAgent>();
         _fieldOfView = GetComponent<FieldOfView>();
-        _material = GetComponent<Renderer>().material;
+        _material = GetComponentsInChildren<Renderer>()[0].material;
 
         _context = new RangedEnemyContext(_attackDamage, _startChaseDist, _endChaseDist, _startAimDist, _endAimDist, 
             _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _material);
