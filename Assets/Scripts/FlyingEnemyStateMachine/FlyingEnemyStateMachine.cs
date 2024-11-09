@@ -10,6 +10,7 @@ public class FlyingEnemyStateMachine : StateManager<FlyingEnemyStateMachine.EEne
     {
         Idle,
         Chasing,
+        Aiming,
         Attacking
     }
     
@@ -25,10 +26,10 @@ public class FlyingEnemyStateMachine : StateManager<FlyingEnemyStateMachine.EEne
     [SerializeField] protected float _endChaseDist;
     [Tooltip("Distance at which the enemy will start chasing the target from the idle state. Should be no greater than the object's FieldOfView distance.")]
     [SerializeField] protected float _startChaseDist;
-    [Tooltip("Distance at which the enemy will stop attacking the target and resume chasing. Should be no less than Start Attack Dist")]
-    [SerializeField] protected float _endAttackDist;
-    [Tooltip("Distance at which the enemy will start attacking the target from the chasing state. Should be no greater than Start Chase Dist.")]
-    [SerializeField] protected float _startAttackDist;
+    [Tooltip("Distance at which the enemy will stop aiming at the target and resume chasing. Should be no less than Start Aim Dist")]
+    [SerializeField] protected float _endAimDist;
+    [Tooltip("Distance at which the enemy will start aiming at the target from the chasing state. Should be no greater than Start Chase Dist.")]
+    [SerializeField] protected float _startAimDist;
     
 
     protected Vector3 _initialPosition;
@@ -52,7 +53,7 @@ public class FlyingEnemyStateMachine : StateManager<FlyingEnemyStateMachine.EEne
         _navMeshAgent = GetComponent<NavMeshAgent>();
         _fieldOfView = GetComponent<FieldOfView>();
 
-        _context = new FlyingEnemyContext(_attackDamage, _startChaseDist, _endChaseDist, _startAttackDist, _endAttackDist, 
+        _context = new FlyingEnemyContext(_attackDamage, _startChaseDist, _endChaseDist, _startAimDist, _endAimDist, 
             _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent);
         _canAttack = true;
 
@@ -96,15 +97,25 @@ public class FlyingEnemyStateMachine : StateManager<FlyingEnemyStateMachine.EEne
             {
                 TransitionToState(EEnemyState.Chasing);
             }
-            // If Chasing and target is within attack range, start Attacking
-            else if (CurrentState.StateKey.Equals(EEnemyState.Chasing) && distToTarget < _startAttackDist)
+            // If Chasing and target is within aim range, start Aiming
+            else if (CurrentState.StateKey.Equals(EEnemyState.Chasing) && distToTarget < _startAimDist)
             {
-                TransitionToState(EEnemyState.Attacking);
+                TransitionToState(EEnemyState.Aiming);
             }
-            // If Attacking and target is out of attack range, start Chasing
-            else if (CurrentState.StateKey.Equals(EEnemyState.Attacking) && distToTarget > _endAttackDist)
+            // If Aiming and target is out of aim range, start Chasing
+            else if (CurrentState.StateKey.Equals(EEnemyState.Aiming) && distToTarget > _endAimDist)
             {
                 TransitionToState(EEnemyState.Chasing);
+            }
+            else if (CurrentState.StateKey.Equals(EEnemyState.Aiming) && _canAttack)
+            {
+                TransitionToState(EEnemyState.Attacking);
+                _canAttack = false;
+                StartCoroutine(AttackCooldown());
+            }
+            else if (CurrentState.StateKey.Equals(EEnemyState.Attacking) && !_canAttack)
+            {
+                TransitionToState(EEnemyState.Aiming);
             }
         }
         // When a target is not within the FOV
@@ -118,8 +129,8 @@ public class FlyingEnemyStateMachine : StateManager<FlyingEnemyStateMachine.EEne
                 _hasTarget = false;
                 TransitionToState(EEnemyState.Idle);
             }
-            // Target MUST be within FOV (and unobstructed) to attack
-            else if (CurrentState.StateKey.Equals(EEnemyState.Attacking))
+            // Target MUST be within FOV (and unobstructed) to aim
+            else if (CurrentState.StateKey.Equals(EEnemyState.Aiming))
             {
                 TransitionToState(EEnemyState.Chasing);
             }

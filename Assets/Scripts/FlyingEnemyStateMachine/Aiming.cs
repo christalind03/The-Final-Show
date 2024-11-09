@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "BaseState/FlyingEnemy/Attacking")]
-public class AttackingState : FlyingEnemyState
+[CreateAssetMenu(menuName = "BaseState/FlyingEnemy/Aiming")]
+public class AimingState : FlyingEnemyState
 {
     public void Initialize(FlyingEnemyContext context, FlyingEnemyStateMachine.EEnemyState stateKey)
     {
@@ -12,12 +12,13 @@ public class AttackingState : FlyingEnemyState
 
     public override void EnterState()
     {
-        Debug.Log("Entering Attacking State");
+        Debug.Log("Entering Aiming State");
+        Context.NavMeshAgent.destination = Context.Transform.position;
     }
 
-    public override void ExitState() 
+    public override void ExitState()
     {
-        Debug.Log("Leaving Attacking State");
+        Debug.Log("Leaving Aiming State");
     }
     public override void OnTriggerEnter(Collider otherCollider) { }
     public override void OnTriggerExit(Collider otherCollider) { }
