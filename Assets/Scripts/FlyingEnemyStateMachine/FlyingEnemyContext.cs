@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class FlyingEnemyContext
+public class RangedEnemyContext
 {
     public readonly float AttackDamage;
     public readonly float StartChaseDist;
@@ -19,7 +19,7 @@ public class FlyingEnemyContext
     public Transform TargetTransform;
     public Material Material;
 
-    public FlyingEnemyContext(float attackDamage, float startChaseDist, float endChaseDist, float startAttackDist, float endAttackDist,
+    public RangedEnemyContext(float attackDamage, float startChaseDist, float endChaseDist, float startAttackDist, float endAttackDist,
         Vector3 initialPosition, Quaternion initialRoatation, Transform transform, FieldOfView fieldOfView, NavMeshAgent navMeshAgent, Material material)
     {
         AttackDamage = attackDamage;

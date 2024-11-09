@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "BaseState/FlyingEnemy/Idle")]
-public class IdleState : FlyingEnemyState
+[CreateAssetMenu(menuName = "BaseState/RangedEnemy/Idle")]
+public class IdleState : RangedEnemyState
 {
     [SerializeField] private float _rotationSpeed = 1.5f;
 
@@ -10,7 +10,7 @@ public class IdleState : FlyingEnemyState
     private bool _hasTargetRotation;
     private bool _isReset;
     
-    public void Initialize(FlyingEnemyContext context, FlyingEnemyStateMachine.EEnemyState stateKey)
+    public void Initialize(RangedEnemyContext context, RangedEnemyStateMachine.EEnemyState stateKey)
     {
         Context = context;
         base.Initialize(context, stateKey);
