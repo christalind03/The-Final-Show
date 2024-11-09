@@ -21,6 +21,7 @@ public class IdleState : FlyingEnemyState
     public override void EnterState()
     {
         Debug.Log("Entering Idle State");
+        Context.Material.SetColor("_BaseColor", Color.green);
         bool hasInitialPosition = Context.InitialPosition == Context.Transform.position;
         bool hasInitialRotation = Context.InitialRotation == Context.Transform.rotation;
 

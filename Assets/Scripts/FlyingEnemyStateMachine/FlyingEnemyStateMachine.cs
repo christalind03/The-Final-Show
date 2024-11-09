@@ -44,6 +44,8 @@ public class FlyingEnemyStateMachine : StateManager<FlyingEnemyStateMachine.EEne
     protected FlyingEnemyContext _context;
     protected bool _canAttack;
 
+    protected Material _material;
+
     
     private void Awake()
     {
@@ -52,9 +54,10 @@ public class FlyingEnemyStateMachine : StateManager<FlyingEnemyStateMachine.EEne
 
         _navMeshAgent = GetComponent<NavMeshAgent>();
         _fieldOfView = GetComponent<FieldOfView>();
+        _material = GetComponent<Renderer>().material;
 
         _context = new FlyingEnemyContext(_attackDamage, _startChaseDist, _endChaseDist, _startAimDist, _endAimDist, 
-            _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent);
+            _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _material);
         _canAttack = true;
 
         InitializeStates();

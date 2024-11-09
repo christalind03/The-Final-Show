@@ -13,6 +13,7 @@ public class AimingState : FlyingEnemyState
     public override void EnterState()
     {
         Debug.Log("Entering Aiming State");
+        Context.Material.SetColor("_BaseColor", Color.red);
         Context.NavMeshAgent.destination = Context.Transform.position;
     }
 

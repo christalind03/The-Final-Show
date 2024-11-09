@@ -13,6 +13,7 @@ public class AttackingState : FlyingEnemyState
     public override void EnterState()
     {
         Debug.Log("Entering Attacking State");
+        Context.Material.SetColor("_BaseColor", Color.magenta);
     }
 
     public override void ExitState() 

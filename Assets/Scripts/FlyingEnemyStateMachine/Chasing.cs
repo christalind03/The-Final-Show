@@ -14,6 +14,7 @@ public class ChasingState : FlyingEnemyState
     public override void EnterState()
     {
         Debug.Log("Entering Chasing State");
+        Context.Material.SetColor("_BaseColor", Color.yellow);
     }
 
     public override void ExitState() 
