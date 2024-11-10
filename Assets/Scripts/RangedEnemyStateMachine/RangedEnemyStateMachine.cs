@@ -20,17 +20,19 @@ public class RangedEnemyStateMachine : StateManager<RangedEnemyStateMachine.EEne
     [SerializeField] protected float _attackCooldown;
     [SerializeField] protected float _attackDamage;
     [SerializeField] protected float _attackRange;
-
-    [Header("Behavior Parameters")]
-    [Tooltip("Distance at which the enemy will stop chasing the target and return to idle. Should be no less than the object's FieldOfView distance.")]
-    [SerializeField] protected float _endChaseDist;
-    [Tooltip("Distance at which the enemy will start chasing the target from the idle state. Should be no greater than the object's FieldOfView distance.")]
-    [SerializeField] protected float _startChaseDist;
-    [Tooltip("Distance at which the enemy will stop aiming at the target and resume chasing. Should be no less than Start Aim Dist")]
-    [SerializeField] protected float _endAimDist;
-    [Tooltip("Distance at which the enemy will start aiming at the target from the chasing state. Should be no greater than Start Chase Dist.")]
-    [SerializeField] protected float _startAimDist;
     
+    [Header("Behavior Parameters")]
+    [Tooltip("Distance at which the enemy will start chasing the target from the idle state. Making this value larger than the object's FieldOfView distance has no effect.")]
+    [SerializeField] protected float _startChaseDist;
+    [Tooltip("Additional distance beyond the starting chase distance at which the enemy will stop chasing and return to idle.")]
+    [SerializeField] protected float _chaseBuffer;
+    [Tooltip("Distance at which the enemy will start aiming at the target from the chasing state. Should be no greater than the starting chase distance.")]
+    [SerializeField] protected float _startAimDist;
+    [Tooltip("Additional distance beyone the starting aim distance at which the enemy will stop aiming and return to chasing.")]
+    [SerializeField] protected float _aimBuffer;
+
+    protected float _endChaseDist;
+    protected float _endAimDist;
 
     protected Vector3 _initialPosition;
     protected Quaternion _initialRotation;
@@ -55,6 +57,9 @@ public class RangedEnemyStateMachine : StateManager<RangedEnemyStateMachine.EEne
         _navMeshAgent = GetComponent<NavMeshAgent>();
         _fieldOfView = GetComponent<FieldOfView>();
         _material = GetComponentsInChildren<Renderer>()[0].material;
+
+        _endChaseDist = _startChaseDist + _chaseBuffer;
+        _endAimDist = _startAimDist + _aimBuffer;
 
         _context = new RangedEnemyContext(_attackDamage, _startChaseDist, _endChaseDist, _startAimDist, _endAimDist, 
             _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _material);
