@@ -14,6 +14,7 @@ public class AttackingState : RangedEnemyState
     {
         Debug.Log("Entering Attacking State");
         Context.Material.SetColor("_BaseColor", Color.magenta);
+        // Need to actually damage player
     }
 
     public override void ExitState() 

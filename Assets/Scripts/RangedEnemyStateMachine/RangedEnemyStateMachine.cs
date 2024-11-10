@@ -138,6 +138,11 @@ public class RangedEnemyStateMachine : StateManager<RangedEnemyStateMachine.EEne
                 TransitionToState(EEnemyState.Chasing);
             }
         }
+        // Abnormal behavior: go to Idle
+        else
+        {
+            TransitionToState(EEnemyState.Idle);
+        }
     }
 
     
