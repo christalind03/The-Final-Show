@@ -115,12 +115,14 @@ public class RangedEnemyStateMachine : StateManager<RangedEnemyStateMachine.EEne
             {
                 TransitionToState(EEnemyState.Chasing);
             }
+            // If Aiming and can attack, Attack
             else if (CurrentState.StateKey.Equals(EEnemyState.Aiming) && _canAttack)
             {
                 TransitionToState(EEnemyState.Attacking);
                 _canAttack = false;
                 StartCoroutine(AttackCooldown());
             }
+            // If Attacking but can no longer attack, start Aiming
             else if (CurrentState.StateKey.Equals(EEnemyState.Attacking) && !_canAttack)
             {
                 TransitionToState(EEnemyState.Aiming);
@@ -150,7 +152,6 @@ public class RangedEnemyStateMachine : StateManager<RangedEnemyStateMachine.EEne
         }
     }
 
-    
     protected IEnumerator AttackCooldown()
     {
         yield return new WaitForSeconds(_attackCooldown);
