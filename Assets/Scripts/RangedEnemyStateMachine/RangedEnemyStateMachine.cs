@@ -142,6 +142,11 @@ public class RangedEnemyStateMachine : StateManager<RangedEnemyStateMachine.EEne
             {
                 TransitionToState(EEnemyState.Chasing);
             }
+            // Target is not in FOV, but Attacking
+            else if (CurrentState.StateKey.Equals(EEnemyState.Attacking))
+            {
+                TransitionToState(EEnemyState.Aiming);
+            }
         }
         // Abnormal behavior: go to Idle
         else
