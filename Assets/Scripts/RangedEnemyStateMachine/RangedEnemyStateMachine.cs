@@ -13,8 +13,6 @@ public class RangedEnemyStateMachine : StateManager<RangedEnemyStateMachine.EEne
         Aiming,
         Attacking
     }
-    
-    [SerializeField] private SphereCollider _spherecollider;
 
     [Header("Attack Parameters")]
     [SerializeField] protected float _attackCooldown;
