@@ -15,9 +15,7 @@ public class RangedEnemyStateMachine : StateManager<RangedEnemyStateMachine.EEne
     }
 
     [Header("Attack Parameters")]
-    [SerializeField] protected float _attackCooldown;
-    [SerializeField] protected float _attackDamage;
-    [SerializeField] protected float _attackRange;
+    [SerializeField] protected AttackStats _attackStats;
     
     [Header("Behavior Parameters")]
     [Tooltip("Distance at which the enemy will start chasing the target from the idle state. Making this value larger than the object's FieldOfView distance has no effect.")]
@@ -59,7 +57,7 @@ public class RangedEnemyStateMachine : StateManager<RangedEnemyStateMachine.EEne
         _endChaseDist = _startChaseDist + _chaseBuffer;
         _endAimDist = _startAimDist + _aimBuffer;
 
-        _context = new RangedEnemyContext(_attackDamage, _startChaseDist, _endChaseDist, _startAimDist, _endAimDist, 
+        _context = new RangedEnemyContext(_attackStats, _startChaseDist, _endChaseDist, _startAimDist, _endAimDist, 
             _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _material);
         _canAttack = true;
 
@@ -157,7 +155,7 @@ public class RangedEnemyStateMachine : StateManager<RangedEnemyStateMachine.EEne
 
     protected IEnumerator AttackCooldown()
     {
-        yield return new WaitForSeconds(_attackCooldown);
+        yield return new WaitForSeconds(_attackStats.AttackCooldown);
         _canAttack = true;
     }
     

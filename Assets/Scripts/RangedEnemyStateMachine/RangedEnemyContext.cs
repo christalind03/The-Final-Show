@@ -3,7 +3,7 @@ using UnityEngine.AI;
 
 public class RangedEnemyContext
 {
-    public readonly float AttackDamage;
+    public readonly AttackStats AttackStats;
     public readonly float StartChaseDist;
     public readonly float EndChaseDist;
     public readonly float StartAttackDist;
@@ -19,10 +19,10 @@ public class RangedEnemyContext
     public Transform TargetTransform;
     public Material Material;
 
-    public RangedEnemyContext(float attackDamage, float startChaseDist, float endChaseDist, float startAttackDist, float endAttackDist,
+    public RangedEnemyContext(AttackStats attackStats, float startChaseDist, float endChaseDist, float startAttackDist, float endAttackDist,
         Vector3 initialPosition, Quaternion initialRoatation, Transform transform, FieldOfView fieldOfView, NavMeshAgent navMeshAgent, Material material)
     {
-        AttackDamage = attackDamage;
+        AttackStats = attackStats;
         StartChaseDist = startChaseDist;
         EndChaseDist = endChaseDist;
         StartAttackDist = startAttackDist;
