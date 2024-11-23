@@ -19,17 +19,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
     [Header("Behavior Parameters")]
     [SerializeField] protected BehaviorStats _behaviorStats;
-    /*
-    [Header("Behavior Parameters")]
-    [Tooltip("Distance at which the enemy will start chasing the target from the idle state. Making this value larger than the object's FieldOfView distance has no effect.")]
-    [SerializeField] protected float _behaviorStats.StartChaseDist;
-    [Tooltip("Additional distance beyond the starting chase distance at which the enemy will stop chasing and return to idle.")]
-    [SerializeField] protected float _behaviorStats.ChaseBuffer;
-    [Tooltip("Distance at which the enemy will start aiming at the target from the chasing state. Should be no greater than the starting chase distance.")]
-    [SerializeField] protected float _behaviorStats.StartAimDist;
-    [Tooltip("Additional distance beyone the starting aim distance at which the enemy will stop aiming and return to chasing.")]
-    [SerializeField] protected float _behaviorStats.AimBuffer;
-*/
+
     protected float _endChaseDist;
     protected float _endAimDist;
 
@@ -60,8 +50,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         _endChaseDist = _behaviorStats.StartChaseDist + _behaviorStats.ChaseBuffer;
         _endAimDist = _behaviorStats.StartAimDist + _behaviorStats.AimBuffer;
 
-        _context = new EnemyContext(_attackStats, _behaviorStats.StartChaseDist, _endChaseDist, _behaviorStats.StartAimDist, _endAimDist, 
-            _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _material);
+        _context = new EnemyContext(_attackStats, _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _material);
         _canAttack = true;
 
         InitializeStates();

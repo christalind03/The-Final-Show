@@ -19,15 +19,10 @@ public class EnemyContext
     public Transform TargetTransform;
     public Material Material;
 
-    public EnemyContext(AttackStats attackStats, float startChaseDist, float endChaseDist, float startAttackDist, float endAttackDist,
-        Vector3 initialPosition, Quaternion initialRoatation, Transform transform, FieldOfView fieldOfView, NavMeshAgent navMeshAgent, Material material)
+    public EnemyContext(AttackStats attackStats, Vector3 initialPosition, Quaternion initialRoatation, Transform transform, 
+        FieldOfView fieldOfView, NavMeshAgent navMeshAgent, Material material)
     {
         AttackStats = attackStats;
-        StartChaseDist = startChaseDist;
-        EndChaseDist = endChaseDist;
-        StartAttackDist = startAttackDist;
-        EndAttackDist = endAttackDist;
-
         InitialPosition = initialPosition;
         InitialRotation = initialRoatation;
         Transform = transform;
