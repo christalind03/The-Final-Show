@@ -374,14 +374,14 @@ MonoBehaviour:
   - Key: 3
     Value: {fileID: 11400000, guid: cf0eb6033cc4573439550dfb17f63cd1, type: 2}
   _defaultState: 0
-  _spherecollider: {fileID: 839155274}
-  _attackCooldown: 3
-  _attackDamage: 0
-  _attackRange: 0
-  _startChaseDist: 10
-  _chaseBuffer: 5
-  _startAimDist: 5
-  _aimBuffer: 2.5
+  _attackStats:
+    _attackCooldown: 1
+    _attackDamage: 0
+  _behaviorStats:
+    _startChaseDist: 10
+    _chaseBuffer: 5
+    _startAimDist: 5
+    _aimBuffer: 2.5
 --- !u!1 &803734127
 GameObject:
   m_ObjectHideFlags: 0
