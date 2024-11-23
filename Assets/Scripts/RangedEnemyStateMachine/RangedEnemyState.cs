@@ -1,11 +1,11 @@
 using System;
 using UnityEngine;
 
-public abstract class RangedEnemyState : BaseState<RangedEnemyStateMachine.EEnemyState>
+public abstract class EnemyState : BaseState<EnemyStateMachine.EEnemyState>
 {
-    protected RangedEnemyContext Context;
+    protected EnemyContext Context;
 
-    public void Initialize(RangedEnemyContext context, RangedEnemyStateMachine.EEnemyState stateKey)
+    public void Initialize(EnemyContext context, EnemyStateMachine.EEnemyState stateKey)
     {
         Context = context;
         base.Initialize(stateKey);

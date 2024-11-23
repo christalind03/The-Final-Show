@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(FieldOfView), typeof(NavMeshAgent))]
-public class RangedEnemyStateMachine : StateManager<RangedEnemyStateMachine.EEnemyState>
+public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 {
     public enum EEnemyState
     {
@@ -39,7 +39,7 @@ public class RangedEnemyStateMachine : StateManager<RangedEnemyStateMachine.EEne
     protected Transform _targetTransform;
     protected bool _hasTarget;
 
-    protected RangedEnemyContext _context;
+    protected EnemyContext _context;
     protected bool _canAttack;
 
     protected Material _material;
@@ -57,7 +57,7 @@ public class RangedEnemyStateMachine : StateManager<RangedEnemyStateMachine.EEne
         _endChaseDist = _startChaseDist + _chaseBuffer;
         _endAimDist = _startAimDist + _aimBuffer;
 
-        _context = new RangedEnemyContext(_attackStats, _startChaseDist, _endChaseDist, _startAimDist, _endAimDist, 
+        _context = new EnemyContext(_attackStats, _startChaseDist, _endChaseDist, _startAimDist, _endAimDist, 
             _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _material);
         _canAttack = true;
 
@@ -66,12 +66,12 @@ public class RangedEnemyStateMachine : StateManager<RangedEnemyStateMachine.EEne
 
     private void InitializeStates()
     {
-        foreach (StateMapping<RangedEnemyStateMachine.EEnemyState> stateMapping in StateMappings)
+        foreach (StateMapping<EnemyStateMachine.EEnemyState> stateMapping in StateMappings)
         {
-            RangedEnemyStateMachine.EEnemyState stateMappingKey = stateMapping.Key;
-            BaseState<RangedEnemyStateMachine.EEnemyState> stateMappingValue = stateMapping.Value;
+            EnemyStateMachine.EEnemyState stateMappingKey = stateMapping.Key;
+            BaseState<EnemyStateMachine.EEnemyState> stateMappingValue = stateMapping.Value;
 
-            var stateInstance = (RangedEnemyState)ScriptableObject.CreateInstance(stateMappingValue.GetType());
+            var stateInstance = (EnemyState)ScriptableObject.CreateInstance(stateMappingValue.GetType());
             stateInstance.Initialize(_context, stateMappingKey);
 
             States.Add(stateMappingKey, stateInstance);

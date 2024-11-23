@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class RangedEnemyContext
+public class EnemyContext
 {
     public readonly AttackStats AttackStats;
     public readonly float StartChaseDist;
@@ -19,7 +19,7 @@ public class RangedEnemyContext
     public Transform TargetTransform;
     public Material Material;
 
-    public RangedEnemyContext(AttackStats attackStats, float startChaseDist, float endChaseDist, float startAttackDist, float endAttackDist,
+    public EnemyContext(AttackStats attackStats, float startChaseDist, float endChaseDist, float startAttackDist, float endAttackDist,
         Vector3 initialPosition, Quaternion initialRoatation, Transform transform, FieldOfView fieldOfView, NavMeshAgent navMeshAgent, Material material)
     {
         AttackStats = attackStats;

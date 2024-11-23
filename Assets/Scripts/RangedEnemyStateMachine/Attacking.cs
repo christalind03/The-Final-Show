@@ -1,10 +1,10 @@
 using System;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "BaseState/RangedEnemy/Attacking")]
-public class AttackingState : RangedEnemyState
+[CreateAssetMenu(menuName = "BaseState/Enemy/Attacking")]
+public class AttackingState : EnemyState
 {
-    public void Initialize(RangedEnemyContext context, RangedEnemyStateMachine.EEnemyState stateKey)
+    public void Initialize(EnemyContext context, EnemyStateMachine.EEnemyState stateKey)
     {
         Context = context;
         base.Initialize(context, stateKey);

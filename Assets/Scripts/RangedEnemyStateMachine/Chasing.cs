@@ -2,10 +2,10 @@ using System;
 using UnityEngine;
 using UnityEngine.AI;
 
-[CreateAssetMenu(menuName = "BaseState/RangedEnemy/Chasing")]
-public class ChasingState : RangedEnemyState
+[CreateAssetMenu(menuName = "BaseState/Enemy/Chasing")]
+public class ChasingState : EnemyState
 {
-    public void Initialize(RangedEnemyContext context, RangedEnemyStateMachine.EEnemyState stateKey)
+    public void Initialize(EnemyContext context, EnemyStateMachine.EEnemyState stateKey)
     {
         Context = context;
         base.Initialize(context, stateKey);
