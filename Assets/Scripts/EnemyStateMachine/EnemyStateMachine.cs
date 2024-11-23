@@ -20,9 +20,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     [Header("Behavior Parameters")]
     [SerializeField] protected BehaviorStats _behaviorStats;
 
-    protected float _endChaseDist;
-    protected float _endAimDist;
-
     protected Vector3 _initialPosition;
     protected Quaternion _initialRotation;
 
@@ -46,9 +43,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         _navMeshAgent = GetComponent<NavMeshAgent>();
         _fieldOfView = GetComponent<FieldOfView>();
         _material = GetComponentsInChildren<Renderer>()[0].material;
-
-        _endChaseDist = _behaviorStats.StartChaseDist + _behaviorStats.ChaseBuffer;
-        _endAimDist = _behaviorStats.StartAimDist + _behaviorStats.AimBuffer;
 
         _context = new EnemyContext(_attackStats, _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _material);
         _canAttack = true;
@@ -99,7 +93,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
                 TransitionToState(EEnemyState.Aiming);
             }
             // If Aiming and target is out of aim range, start Chasing
-            else if (CurrentState.StateKey.Equals(EEnemyState.Aiming) && distToTarget > _endAimDist)
+            else if (CurrentState.StateKey.Equals(EEnemyState.Aiming) && distToTarget > _behaviorStats.EndAimDist)
             {
                 TransitionToState(EEnemyState.Chasing);
             }
@@ -122,7 +116,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         {
             distToTarget = Vector3.Distance(transform.position, _targetTransform.position); // recalculate distToTarget
             // If target is farther than endChaseDist, stop chasing, no longer have a target
-            if (CurrentState.StateKey.Equals(EEnemyState.Chasing) && distToTarget > _endChaseDist)
+            if (CurrentState.StateKey.Equals(EEnemyState.Chasing) && distToTarget > _behaviorStats.EndChaseDist)
             {
                 _hasTarget = false;
                 TransitionToState(EEnemyState.Idle);

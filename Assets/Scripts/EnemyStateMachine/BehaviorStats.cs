@@ -14,8 +14,14 @@ public class BehaviorStats
     [Tooltip("Additional distance beyone the starting aim distance at which the enemy will stop aiming and return to chasing.")]
     [SerializeField] private float _aimBuffer;
 
+    private float _endChaseDist;
+    private float _endAimDist;
+
     public float StartChaseDist => _startChaseDist;
     public float ChaseBuffer => _chaseBuffer;
     public float StartAimDist => _startAimDist;
     public float AimBuffer => _aimBuffer;
+
+    public float EndChaseDist => _startChaseDist + _chaseBuffer;
+    public float EndAimDist => _startAimDist + _aimBuffer;
 }
