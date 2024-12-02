@@ -11,7 +11,9 @@ public class PlayerInventory
 {
     private string _currentSlot;
     private string _elementName;
-    private Dictionary<string, GameObject> _inventorySlots;
+    ///***for new PlayerInventoryItem logic
+    ///private Dictionary<string, GameObject> _inventorySlots;
+    private Dictionary<string, PlayerInventoryItem> _inventorySlots;
     private VisualElement _uiDocument;
 
     /// <summary>
@@ -20,7 +22,9 @@ public class PlayerInventory
     public PlayerInventory(VisualElement uiDocument)
     {
         _currentSlot = "Slot 1"; // Default to Slot 1
-        _inventorySlots = new Dictionary<string, GameObject>
+        ///***
+        ///_inventorySlots = new Dictionary<string, GameObject>
+        _inventorySlots = new Dictionary<string, PlayerInventoryItem>
         {
             { "Slot 1", null },
             { "Slot 2", null },
@@ -63,7 +67,7 @@ public class PlayerInventory
             // This involves possibly converting the _inventorySlots type from a Dictionary to a List in order to utilize indices for cycling.
         }
     }
-    
+
     /// <summary>
     /// Resets the styles of all slots to the default style.
     /// </summary>
@@ -93,10 +97,10 @@ public class PlayerInventory
     public GameObject RemoveItem()
     {
         GameObject removedItem = _inventorySlots[_currentSlot];
-        
+
         _inventorySlots[_currentSlot] = null;
         _uiDocument.Q<VisualElement>(_elementName).RemoveFromClassList("containsItem");
-     
+
         return removedItem;
     }
 
@@ -108,4 +112,48 @@ public class PlayerInventory
     {
         return _inventorySlots[_currentSlot] != null;
     }
+
+    /// <summary>
+    /// Added item logic
+    /// </summary>
+    public void EquipCurrentItem()
+    {
+        if (_inventorySlots[_currentSlot] != null)
+        {
+            _inventorySlots[_currentSlot].Equip();
+        }
+    }
+
+    public void UnequipCurrentItem()
+    {
+        if (_inventorySlots[_currentSlot] != null)
+        {
+            _inventorySlots[_currentSlot].Unequip();
+        }
+    }
+
+    public void AttackWithCurrentItem()
+    {
+        if (_inventorySlots[_currentSlot] != null)
+        {
+            _inventorySlots[_currentSlot].Attack();
+        }
+    }
+
+    public void AlternateAttackWithCurrentItem()
+    {
+        if (_inventorySlots[_currentSlot] != null)
+        {
+            _inventorySlots[_currentSlot].AlternateAttack();
+        }
+    }
+
+    public void AddItemToSlot(string slot, PlayerInventoryItem item)
+    {
+        if (_inventorySlots.ContainsKey(slot))
+        {
+            _inventorySlots[slot] = item;
+        }
+    }
+    ///End item logic
 }

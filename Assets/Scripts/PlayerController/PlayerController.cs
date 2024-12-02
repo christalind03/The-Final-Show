@@ -289,4 +289,45 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(_staminaCooldown);
         _canSprint = true;
     }
+
+    /// <summary>
+    ///  Added in logic for weapons, attacking, altattack, equip/unequip
+    /// </summary>
+    [SerializeField] private Weapon equippedWeapon; // Base class reference
+
+    private void Attack(InputAction.CallbackContext context)
+    {
+        if (equippedWeapon != null)
+        {
+            equippedWeapon.Attack();
+        }
+        else
+        {
+            Debug.Log("No weapon equipped!");
+        }
+    }
+
+    private void AlternateAttack(InputAction.CallbackContext context)
+    {
+        if (equippedWeapon != null)
+        {
+            equippedWeapon.AlternateAttack();
+        }
+        else
+        {
+            Debug.Log("No weapon equipped!");
+        }
+    }
+
+    public void EquipWeapon(Weapon weapon)
+    {
+        if (equippedWeapon != null)
+        {
+            equippedWeapon.Unequip();
+        }
+        equippedWeapon = weapon;
+        equippedWeapon.Equip();
+    }
+    /// End of weapons logic
+
 }
