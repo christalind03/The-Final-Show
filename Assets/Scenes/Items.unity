@@ -122,6 +122,119 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1001 &1298341578
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 260e53f9edda3e04b95f7667057d0077,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.6017113
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 260e53f9edda3e04b95f7667057d0077,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.382979
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 260e53f9edda3e04b95f7667057d0077,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 6.828933
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 260e53f9edda3e04b95f7667057d0077,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 260e53f9edda3e04b95f7667057d0077,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 260e53f9edda3e04b95f7667057d0077,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 260e53f9edda3e04b95f7667057d0077,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 260e53f9edda3e04b95f7667057d0077,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 260e53f9edda3e04b95f7667057d0077,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 260e53f9edda3e04b95f7667057d0077,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 260e53f9edda3e04b95f7667057d0077,
+        type: 3}
+      propertyPath: m_Name
+      value: Sword
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 260e53f9edda3e04b95f7667057d0077,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1298341581}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 260e53f9edda3e04b95f7667057d0077,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1298341580}
+  m_SourcePrefab: {fileID: 100100000, guid: 260e53f9edda3e04b95f7667057d0077, type: 3}
+--- !u!1 &1298341579 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 260e53f9edda3e04b95f7667057d0077,
+    type: 3}
+  m_PrefabInstance: {fileID: 1298341578}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1298341580
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1298341579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9802a57bb0f0cc4e85139b44150e09d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1298341581
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1298341579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d09806f828d5e3a4e8cad9101e6480fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  WeaponName: Sword
+  Damage: 5
+  DamageType: Melee
+  Cooldown: 2
+  IsEquipped: 1
+  Range: 2
+  SwingSpeed: 2
 --- !u!1 &1372805070 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3233045660875188808, guid: 644b5bfb57c3e1043a8d2b1499b90696,
@@ -772,3 +885,4 @@ SceneRoots:
   - {fileID: 7180892240696671729}
   - {fileID: 1519949672}
   - {fileID: 1859936768}
+  - {fileID: 1298341578}

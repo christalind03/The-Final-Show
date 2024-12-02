@@ -87,7 +87,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Handle the logic for continuous input such as the camera and movement.
+    /// Handle the logic for continuous input such as the camera and movement. ***Added logic for detecting IInteractable objects
     /// </summary>
     private void Update()
     {
@@ -177,24 +177,6 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Handle the player's input for attacking.
-    /// </summary>
-    /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
-    private void Attack(InputAction.CallbackContext context)
-    {
-        Debug.Log("Attack");
-    }
-
-    /// <summary>
-    /// Handle the player's input for the alternate attack on any given weapon.
-    /// </summary>
-    /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
-    private void AlternateAttack(InputAction.CallbackContext context)
-    {
-        Debug.Log("Alternate Attack");
-    }
-
-    /// <summary>
     /// Handle the player's input for dropping an object from their inventory.
     /// </summary>
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
@@ -204,7 +186,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Drop an item from the player's inventory into the game world.
+    /// Drop an item from the player's inventory into the game world. ***edited for PlayerInventoryItem logic
     /// </summary>
     /// <param name="targetPosition">The target position to set the dropped item to.</param>
     private void Drop(Vector3? targetPosition = null)
@@ -213,6 +195,12 @@ public class PlayerController : MonoBehaviour
 
         if (_raycastHit.collider != null && droppedItem != null)
         {
+            //***call OnRemovedFromInventory logic for PlayerInventoryItem
+            if (droppedItem.TryGetComponent<PlayerInventoryItem>(out PlayerInventoryItem inventoryItem))
+            {
+                inventoryItem.OnRemovedFromInventory();
+            }
+
             // Determine how far the dropped item should be from the player
             Vector3 dropOffset = targetPosition ?? transform.position + transform.forward * 3;
 
@@ -222,7 +210,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Handle the player's input for interacting with interactable objects.
+    /// Handle the player's input for interacting with interactable objects. ***edited to ensure that only items with PlayerInventoryItem component areadded
     /// </summary>
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void Interact(InputAction.CallbackContext context)
@@ -234,13 +222,20 @@ public class PlayerController : MonoBehaviour
         {
             interactableObj.Interact();
 
-            // TODO: Before adding an item to the inventory, we should check whether or not this item is equippable
             if (_playerInventory.HasItem())
             {
                 Drop(hitGameObject.transform.position);
             }
 
-            _playerInventory.AddItem(hitCollider.gameObject);
+            // Add the item to the inventory if it has a PlayerInventoryItem component
+            if (hitGameObject.TryGetComponent<PlayerInventoryItem>(out PlayerInventoryItem inventoryItem))
+            {
+                _playerInventory.AddItem(inventoryItem.gameObject);
+            }
+            else
+            {
+                Debug.LogWarning($"{hitGameObject.name} does not have a PlayerInventoryItem component and cannot be added to the inventory.");
+            }
         }
     }
 
@@ -293,41 +288,26 @@ public class PlayerController : MonoBehaviour
     /// <summary>
     ///  Added in logic for weapons, attacking, altattack, equip/unequip
     /// </summary>
-    [SerializeField] private Weapon equippedWeapon; // Base class reference
+    [SerializeField] private PlayerInventory playerInventory;
 
     private void Attack(InputAction.CallbackContext context)
     {
-        if (equippedWeapon != null)
-        {
-            equippedWeapon.Attack();
-        }
-        else
-        {
-            Debug.Log("No weapon equipped!");
-        }
+        playerInventory.AttackWithCurrentItem();
     }
 
     private void AlternateAttack(InputAction.CallbackContext context)
     {
-        if (equippedWeapon != null)
-        {
-            equippedWeapon.AlternateAttack();
-        }
-        else
-        {
-            Debug.Log("No weapon equipped!");
-        }
+        playerInventory.AlternateAttackWithCurrentItem();
     }
 
-    public void EquipWeapon(Weapon weapon)
+    private void EquipItem(InputAction.CallbackContext context)
     {
-        if (equippedWeapon != null)
-        {
-            equippedWeapon.Unequip();
-        }
-        equippedWeapon = weapon;
-        equippedWeapon.Equip();
+        playerInventory.EquipCurrentItem();
+    }
+
+    private void UnequipItem(InputAction.CallbackContext context)
+    {
+        playerInventory.UnequipCurrentItem();
     }
     /// End of weapons logic
-
 }
