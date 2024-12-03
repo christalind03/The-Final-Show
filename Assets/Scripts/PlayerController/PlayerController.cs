@@ -262,7 +262,6 @@ public class PlayerController : MonoBehaviour
         if (hitGameObject.TryGetComponent(out Weapon weapon))
         {
             EquipWeapon(weapon);
-            hitGameObject.SetActive(false); // disable the weapon in the scene once picked up
             Debug.Log($"{weapon.WeaponName} equipped.");
         }
         else
@@ -319,7 +318,6 @@ public class PlayerController : MonoBehaviour
     /// <summary>
     /// Connects Weapon class, equips weapon and unequips previous weapon if need be, positions weapon in hand
     /// </summary>
-    /// <param name="weapon"></param>
     public void EquipWeapon(Weapon weapon)
     {
         if (_currentWeapon != null)
@@ -330,12 +328,17 @@ public class PlayerController : MonoBehaviour
         _currentWeapon = weapon;
         _currentWeapon.Equip();
 
+        // Make sure the bow is active
+        weapon.gameObject.SetActive(true);
+
         // Attach the weapon to the player's hand
         weapon.transform.SetParent(playerHandTransform);
 
         // Reset local position and rotation to fit in the hand
         weapon.transform.localPosition = Vector3.zero;
         weapon.transform.localRotation = Quaternion.identity;
+        weapon.transform.localScale = Vector3.one; // Reset the scale to 1,1,1 to make sure it's visible
+
 
         // Make sure the Rigidbody is set to kinematic to avoid physics issues while holding it
         Rigidbody weaponRb = weapon.GetComponent<Rigidbody>();

@@ -12,6 +12,7 @@ public class RangedWeapon : Weapon
     [Header("Projectile Settings")]
     [SerializeField] private GameObject arrowPrefab;  // Reference to the arrow prefab
     [SerializeField] private Transform firePoint;      // Point where the arrow is instantiated
+    public float shootingForce = 20f;
 
     private void Start()
     {
@@ -53,7 +54,10 @@ public class RangedWeapon : Weapon
             Rigidbody rb = arrow.GetComponent<Rigidbody>();
             if (rb != null)
             {
-                rb.AddForce(firePoint.forward * ProjectileSpeed, ForceMode.Impulse);
+                rb.AddForce(firePoint.forward * shootingForce, ForceMode.Impulse);
+          
+                Debug.Log("Arrow shot with force: " + (firePoint.forward * shootingForce));
+                Debug.Log("Arrow velocity after shot: " + rb.velocity);
             }
             else
             {
