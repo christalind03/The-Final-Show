@@ -38,6 +38,9 @@ public class PlayerController : MonoBehaviour
     
     [Header("Weapon Parameters")]
     [SerializeField] private Weapon _currentWeapon;
+   
+    [Header("Hand Transform")]
+    public Transform playerHandTransform; // Reference for the player's hand position
 
     private bool _isGrounded;
     private bool _isSprinting;
@@ -314,7 +317,7 @@ public class PlayerController : MonoBehaviour
         _canSprint = true;
     }
     /// <summary>
-    /// Connects Weapon class, equips weapon and unequips previous weapon if need be
+    /// Connects Weapon class, equips weapon and unequips previous weapon if need be, positions weapon in hand
     /// </summary>
     /// <param name="weapon"></param>
     public void EquipWeapon(Weapon weapon)
@@ -326,6 +329,22 @@ public class PlayerController : MonoBehaviour
 
         _currentWeapon = weapon;
         _currentWeapon.Equip();
+
+        // Attach the weapon to the player's hand
+        weapon.transform.SetParent(playerHandTransform);
+
+        // Reset local position and rotation to fit in the hand
+        weapon.transform.localPosition = Vector3.zero;
+        weapon.transform.localRotation = Quaternion.identity;
+
+        // Make sure the Rigidbody is set to kinematic to avoid physics issues while holding it
+        Rigidbody weaponRb = weapon.GetComponent<Rigidbody>();
+        if (weaponRb != null)
+        {
+            weaponRb.isKinematic = true; // Disable physics on the weapon while it is being held
+        }
+
+        Debug.Log($"{weapon.WeaponName} has been equipped and attached to the player's hand.");
     }
 
     /// <summary>
