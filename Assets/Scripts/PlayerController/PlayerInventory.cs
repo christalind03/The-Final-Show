@@ -11,9 +11,7 @@ public class PlayerInventory
 {
     private string _currentSlot;
     private string _elementName;
-    ///***private Dictionary<string, GameObject> _inventorySlots;
-    ///***now handles PlayerInventoryItem instead of GameObject
-    private Dictionary<string, PlayerInventoryItem> _inventorySlots = new Dictionary<string, PlayerInventoryItem>();
+    private Dictionary<string, GameObject> _inventorySlots;
     private VisualElement _uiDocument;
 
     /// <summary>
@@ -22,7 +20,6 @@ public class PlayerInventory
     public PlayerInventory(VisualElement uiDocument)
     {
         _currentSlot = "Slot 1"; // Default to Slot 1
-        ///***
         _inventorySlots = new Dictionary<string, GameObject>
         {
             { "Slot 1", null },
@@ -85,48 +82,22 @@ public class PlayerInventory
     /// <param name="equippableItem">The item to add to the inventory slot.</param>
     public void AddItem(GameObject equippableItem)
     {
-        ///*** get PlayerInventoryItem component from GameObject
-        var inventoryItem = equippableItem.GetComponent<PlayerInventoryItem>();
-        if (inventoryItem == null)
-        {
-            Debug.LogError($"The GameObject {equippableItem.name} does not have a PlayerInventoryItem component!");
-            return;
-        }
-        ///***
-
         _inventorySlots[_currentSlot] = equippableItem;
         _uiDocument.Q<VisualElement>(_elementName).AddToClassList("containsItem");
     }
 
     /// <summary>
-    /// Removes the item from the currently selected inventory slot. ***edited for debug/check for PlayerInventoryItem
+    /// Removes the item from the currently selected inventory slot.
     /// </summary>
     /// <returns>The gameObject that was removed from the inventory slot if it exists.</returns>
     public GameObject RemoveItem()
     {
-  
         GameObject removedItem = _inventorySlots[_currentSlot];
 
-        if (removedItem != null)
-        {
-            ///***check for PlayerInventoryItem
-            if (removedItem.TryGetComponent<PlayerInventoryItem>(out var inventoryItem))
-            {
+        _inventorySlots[_currentSlot] = null;
+        _uiDocument.Q<VisualElement>(_elementName).RemoveFromClassList("containsItem");
 
-                inventoryItem.OnRemovedFromInventory();
-            }
-
-            _inventorySlots[_currentSlot] = null;
-            _uiDocument.Q<VisualElement>(_elementName).RemoveFromClassList("containsItem");
-
-            Debug.Log($"{removedItem.name} removed from slot {_currentSlot}.");
-        }
-        else
-        {
-            Debug.LogWarning($"No item to remove from slot {_currentSlot}.");
-        }
-
-        return removedItem; //***return the GameObject regardless of whether it has PlayerInventoryItem or not
+        return removedItem;
     }
 
     /// <summary>
@@ -137,48 +108,4 @@ public class PlayerInventory
     {
         return _inventorySlots[_currentSlot] != null;
     }
-
-    /// <summary>
-    ///*** Added item logic
-    /// </summary>
-    public void EquipCurrentItem()
-    {
-        if (_inventorySlots[_currentSlot] != null)
-        {
-            _inventorySlots[_currentSlot].Equip();
-        }
-    }
-
-    public void UnequipCurrentItem()
-    {
-        if (_inventorySlots[_currentSlot] != null)
-        {
-            _inventorySlots[_currentSlot].Unequip();
-        }
-    }
-
-    public void AttackWithCurrentItem()
-    {
-        if (_inventorySlots[_currentSlot] != null)
-        {
-            _inventorySlots[_currentSlot].Attack();
-        }
-    }
-
-    public void AlternateAttackWithCurrentItem()
-    {
-        if (_inventorySlots[_currentSlot] != null)
-        {
-            _inventorySlots[_currentSlot].AlternateAttack();
-        }
-    }
-
-    public void AddItemToSlot(string slot, PlayerInventoryItem item)
-    {
-        if (_inventorySlots.ContainsKey(slot))
-        {
-            _inventorySlots[slot] = item;
-        }
-    }
-    ///***End item logic
 }
