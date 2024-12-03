@@ -4,15 +4,16 @@ using UnityEngine;
 
 public class RangedWeapon : Weapon
 {
+    [Header("Projectile Settings")]
+    [SerializeField] private GameObject ProjectilePrefab;  // Reference to the Projectile prefab
+    [SerializeField] private Transform firePoint;      // Point where the Projectile is instantiated
+    public float shootingForce = 20f;
+
     public int AmmoCapacity;
     public int CurrentAmmo;
     public float ReloadTime;
     public float ProjectileSpeed;
 
-    [Header("Projectile Settings")]
-    [SerializeField] private GameObject arrowPrefab;  // Reference to the arrow prefab
-    [SerializeField] private Transform firePoint;      // Point where the arrow is instantiated
-    public float shootingForce = 20f;
 
     private void Start()
     {
@@ -24,8 +25,8 @@ public class RangedWeapon : Weapon
         if (IsEquipped && CurrentAmmo > 0)
         {
             CurrentAmmo--;
-            Debug.Log($"{WeaponName} fires an arrow!");
-            ShootArrow();  // Call the method to shoot an arrow
+            Debug.Log($"{WeaponName} fires an Projectile!");
+            ShootProjectile();  // Call the method to shoot an Projectile
         }
         else if (CurrentAmmo <= 0)
         {
@@ -43,30 +44,30 @@ public class RangedWeapon : Weapon
         // Implement charged shot logic
     }
 
-    private void ShootArrow()
+    private void ShootProjectile()
     {
-        if (arrowPrefab != null && firePoint != null)
+        if (ProjectilePrefab != null && firePoint != null)
         {
-            // Instantiate the arrow at the fire point position and rotation
-            GameObject arrow = Instantiate(arrowPrefab, firePoint.position, firePoint.rotation);
+            // Instantiate the Projectile at the fire point position and rotation
+            GameObject Projectile = Instantiate(ProjectilePrefab, firePoint.position, firePoint.rotation);
 
-            // Get the Rigidbody component from the arrow to add force
-            Rigidbody rb = arrow.GetComponent<Rigidbody>();
+            // Get the Rigidbody component from the Projectile to add force
+            Rigidbody rb = Projectile.GetComponent<Rigidbody>();
             if (rb != null)
             {
                 rb.AddForce(firePoint.forward * shootingForce, ForceMode.Impulse);
           
-                Debug.Log("Arrow shot with force: " + (firePoint.forward * shootingForce));
-                Debug.Log("Arrow velocity after shot: " + rb.velocity);
+                Debug.Log("Projectile shot with force: " + (firePoint.forward * shootingForce));
+                Debug.Log("Projectile velocity after shot: " + rb.velocity);
             }
             else
             {
-                Debug.LogError("Arrow prefab is missing a Rigidbody component.");
+                Debug.LogError("Projectile prefab is missing a Rigidbody component.");
             }
         }
         else
         {
-            Debug.LogError("Arrow prefab or fire point is not set.");
+            Debug.LogError("Projectile prefab or fire point is not set.");
         }
     }
 

@@ -336,7 +336,7 @@ public class PlayerController : MonoBehaviour
 
         // Reset local position and rotation to fit in the hand
         weapon.transform.localPosition = Vector3.zero;
-        weapon.transform.localRotation = Quaternion.identity;
+        weapon.transform.localRotation = Quaternion.Euler(0, -90, 0); // Set the correct rotation for the weapon when held
         weapon.transform.localScale = Vector3.one; // Reset the scale to 1,1,1 to make sure it's visible
 
 
