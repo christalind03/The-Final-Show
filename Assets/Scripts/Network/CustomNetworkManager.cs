@@ -32,4 +32,28 @@ public class CustomNetworkManager : NetworkManager
             }
         }
     }
+
+    /// <summary>
+    /// When the host disconnects/stops, will unlock cursor and scene will be changed to the offlien scene (Network-Lobby)
+    /// </summary>
+    /// <param name="none"> </param>
+    public override void OnStopHost(){
+        base.OnStopHost();
+        if(mode == NetworkManagerMode.Offline){
+            UnityEngine.Cursor.lockState = CursorLockMode.None;
+            UnityEngine.Cursor.visible = true;
+        }
+    }
+
+    /// <summary>
+    /// When the client disconnects/stops, will unlock cursor and scene will be changed to the offlien scene (Network-Lobby)
+    /// </summary>
+    /// <param name="none"> </param>
+    public override void OnStopClient(){
+        base.OnStopClient();
+        if(mode == NetworkManagerMode.Offline){
+            UnityEngine.Cursor.lockState = CursorLockMode.None;
+            UnityEngine.Cursor.visible = true;
+        }
+    }
 }
