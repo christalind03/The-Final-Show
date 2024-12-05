@@ -236,7 +236,7 @@ public class PlayerControllerNetwork : NetworkBehaviour
     /// the positions and gives it to the server. Not very safe if cheater that manipulate 
     /// the calculation if we care about security.  
     /// </summary>
-    /// <param name="position">Position of the player</param>
+    /// <param name="position">Position of the player </param>
     [Command]
     private void CmdMovePlayer(Vector3 position){
         _playerTransform.position = position;
@@ -248,7 +248,8 @@ public class PlayerControllerNetwork : NetworkBehaviour
     /// <summary>
     /// Server code for updating player's rotation, similar to CmdMovePlayer but with rotation
     /// </summary>
-    /// <param name="rotation">Player rotation</param>
+    /// <param name="rotationPlayer">Player rotation</param>
+    /// <param name="rotationFollow">Follow camera rotation</param>
     [Command]
     private void CmdLook(Quaternion rotationPlayer, Quaternion rotationFollow){
         _playerTransform.rotation = rotationPlayer;
@@ -303,7 +304,8 @@ public class PlayerControllerNetwork : NetworkBehaviour
     /// <summary>
     /// Update player rotation to all clients
     /// </summary>
-    /// <param name="rotation">Player rotation</param>
+    /// <param name="rotationPlayer">Player rotation</param>
+    /// <param name="rotationFollow">Follow Camera rotation</param>
     [ClientRpc]
     private void RpcUpdatePlayerLook(Quaternion rotationPlayer, Quaternion rotationFollow){
         if (isLocalPlayer) return;
