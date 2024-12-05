@@ -10,8 +10,8 @@ using System.Collections.Generic;
 /// </summary>
 public class CameraController : NetworkBehaviour
 {
-    public GameObject cameraHolder;
     public bool alive = true;
+    [SerializeField] private GameObject cameraHolder;
     [SerializeField] private CinemachineVirtualCamera vc;
     [SerializeField] private UIDocument uIDocument;
     private CinemachineVirtualCamera[] vcameras;

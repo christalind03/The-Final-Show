@@ -104,7 +104,7 @@ public class PlayerControllerNetwork : NetworkBehaviour
 
         Physics.Raycast(_cameraTransform.position, _cameraTransform.forward * _interactableDistance, out _raycastHit);
 
-        CmdLook(_playerTransform.rotation);
+        CmdLook(_playerTransform.rotation, _followTransform.rotation);
     }
 
     private void HandleMovement()
@@ -250,11 +250,12 @@ public class PlayerControllerNetwork : NetworkBehaviour
     /// </summary>
     /// <param name="rotation">Player rotation</param>
     [Command]
-    private void CmdLook(Quaternion rotation){
-        _playerTransform.rotation = rotation;
+    private void CmdLook(Quaternion rotationPlayer, Quaternion rotationFollow){
+        _playerTransform.rotation = rotationPlayer;
+        _followTransform.rotation = rotationFollow;
 
         // Propagates the changes to all client
-        RpcUpdatePlayerLook(_playerTransform.rotation);
+        RpcUpdatePlayerLook(_playerTransform.rotation, _followTransform.rotation);
     }
 
     /// <summary>
@@ -304,9 +305,10 @@ public class PlayerControllerNetwork : NetworkBehaviour
     /// </summary>
     /// <param name="rotation">Player rotation</param>
     [ClientRpc]
-    private void RpcUpdatePlayerLook(Quaternion rotation){
+    private void RpcUpdatePlayerLook(Quaternion rotationPlayer, Quaternion rotationFollow){
         if (isLocalPlayer) return;
-        _playerTransform.rotation = rotation;
+        _playerTransform.rotation = rotationPlayer;
+        _followTransform.rotation = rotationFollow;
     }
 
     /// <summary>
