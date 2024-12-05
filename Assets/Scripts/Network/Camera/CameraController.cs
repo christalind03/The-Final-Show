@@ -123,7 +123,7 @@ public class CameraController : NetworkBehaviour
     /// Update the client's players list with the list of all players' name from the server. 
     /// Also sets the current player text of the UI.
     /// </summary>
-    /// <param name="updatedPlayers"> updatePlayers is the list of player names </param>
+    /// <param name="updatedPlayers">updatePlayers is the list of player names</param>
     [TargetRpc]
     private void TargetUpdatePlayerList(List<string> updatedPlayers) {
         players = updatedPlayers;
@@ -154,7 +154,7 @@ public class CameraController : NetworkBehaviour
     /// <summary>
     /// Updates the target client's camIdx with the index found by the server
     /// </summary>
-    /// <param name="cam"> Camera index in the camera list </param>
+    /// <param name="cam">Camera index in the camera list</param>
     [TargetRpc]
     private void TargetUpdateCamIdx(int cam) {
         camIdx = cam;
