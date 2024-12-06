@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Mirror;
 
 /// <summary>
 /// A sensor representing the field of view for any given gameObject.
@@ -8,7 +7,7 @@ using Mirror;
 /// https://www.youtube.com/watch?v=znZXmmyBF-o
 /// </summary>
 [ExecuteInEditMode]
-public class FieldOfView : NetworkBehaviour
+public class FieldOfView : MonoBehaviour
 {
     [Header("Field of View Properties")]
     [SerializeField]
@@ -44,21 +43,12 @@ public class FieldOfView : NetworkBehaviour
     private Color _visibleObject;
 
     private Mesh _mesh;
+    private List<GameObject> _detectedObjects = new List<GameObject>();
+    private Collider[] _detectedColliders = new Collider[1]; // Define some arbitrary number to ensure we have enough space to store results from Physics operations.
+    private int _colliderCount;
     private float _scanInterval;
     private float _scanTimer;
 
-    //private List<GameObject> _detectedObjects = new List<GameObject>();
-    //[SyncVar(hook = nameof(OnDetectedObjectsChanged))]
-    [SyncVar]
-    private List<NetworkIdentity> _detectedNetworkObjects = new List<NetworkIdentity>();
-    
-    private List<GameObject> _localDetectedObjects = new List<GameObject>();
-    
-    private Collider[] _detectedColliders = new Collider[10]; // Define some arbitrary number to ensure we have enough space to store results from Physics operations.
-    private int _colliderCount;
-    public List<GameObject> DetectedObjects => _localDetectedObjects;
-
-    /*
     public List<GameObject> DetectedObjects
     {
         get
@@ -67,22 +57,18 @@ public class FieldOfView : NetworkBehaviour
             return _detectedObjects;
         }
     }
-    */
 
     /// <summary>
     /// Called once per frame to update the scan timer and periodically scan for objects within the vision cone's range.
     /// </summary>
     private void Update()
     {
-        //Debug.Log($"Detected objects count: {DetectedObjects.Count}");
-        if(!Application.isPlaying || !isServer) { return; }
         _scanTimer -= Time.deltaTime;
 
         if (_scanTimer < 0)
         {
             _scanTimer += _scanInterval;
             ScanObjects();
-            Debug.Log($"Detected objects count: {DetectedObjects.Count}");
         }
     }
 
@@ -225,29 +211,20 @@ public class FieldOfView : NetworkBehaviour
 
     /// <summary>
     /// Scan for objects within a certain radius of the current gameObject.
-    /// Only scan on the server, and only store objects with a network identity.
     /// </summary>
-    [Server]
     private void ScanObjects()
     {
         _colliderCount = Physics.OverlapSphereNonAlloc(transform.position, _distance, _detectedColliders, _interestedLayers, QueryTriggerInteraction.Collide);
-        _localDetectedObjects.Clear();
-        List<NetworkIdentity> detectedNetworkIds = new List<NetworkIdentity>();
+        _detectedObjects.Clear();
 
         for (int i = 0; i < _colliderCount; ++i)
         {
             GameObject detectedObject = _detectedColliders[i].gameObject;
             if (IsInSight(detectedObject))
             {
-                _localDetectedObjects.Add(detectedObject);
-                NetworkIdentity identity = detectedObject.GetComponent<NetworkIdentity>();
-                if (identity != null)
-                {
-                    detectedNetworkIds.Add(identity);
-                }
+                _detectedObjects.Add(detectedObject);
             }
         }
-        _detectedNetworkObjects = detectedNetworkIds;
     }
 
     /// <summary>
@@ -299,7 +276,7 @@ public class FieldOfView : NetworkBehaviour
         int layerNum = LayerMask.NameToLayer(layerName);
         int targetIndex = 0;
 
-        foreach (var obj in _localDetectedObjects)
+        foreach (var obj in _detectedObjects)
         {
             if (obj.layer == layerNum)
             {
@@ -313,22 +290,5 @@ public class FieldOfView : NetworkBehaviour
         }
 
         return targetIndex;
-    }
-
-    /// <summary>
-    /// Called on clients when the list of detected objects changes.
-    /// </summary>
-    /// 
-    [Client]
-    private void OnDetectedObjectsChanged(List<NetworkIdentity> oldList, List<NetworkIdentity> newList)
-    {
-        _localDetectedObjects.Clear();
-        foreach (var networkId in newList)
-        {
-            if (networkId != null && networkId.gameObject != null)
-            {
-                _localDetectedObjects.Add(networkId.gameObject);
-            }
-        }
     }
 }
