@@ -67,6 +67,8 @@ public class NetworkEnemyStateMachine : NetworkStateManager<NetworkEnemyStateMac
 
     private void FixedUpdate()
     {
+        //if(!isServer) { return; } //only run on the server
+        //Debug.Log($"Detected objects count: {_fieldOfView.DetectedObjects.Count}");
         // _fieldOfView's interested layers should only be player
         float distToTarget = 0f;
         // When a target is within the FOV
