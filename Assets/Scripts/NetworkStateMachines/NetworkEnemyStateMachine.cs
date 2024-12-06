@@ -35,7 +35,7 @@ public class NetworkEnemyStateMachine : NetworkStateManager<NetworkEnemyStateMac
 
     protected Material _material;
 
-
+    [Server]
     private void Awake()
     {
         _initialPosition = transform.position;
@@ -51,6 +51,7 @@ public class NetworkEnemyStateMachine : NetworkStateManager<NetworkEnemyStateMac
         InitializeStates();
     }
 
+    [Server]
     private void InitializeStates()
     {
         foreach (StateMapping<NetworkEnemyStateMachine.EEnemyState> stateMapping in StateMappings)
@@ -65,12 +66,15 @@ public class NetworkEnemyStateMachine : NetworkStateManager<NetworkEnemyStateMac
         }
     }
 
+    [Server]
     private void FixedUpdate()
     {
         // _fieldOfView's interested layers should only be player
         float distToTarget = 0f;
         // When a target is within the FOV
-        if (0 < _fieldOfView.DetectedObjects.Count)
+        int numObjects = _fieldOfView.DetectedObjects.Count;
+        Debug.Log($"number of detected objects: {numObjects}");
+        if (0 < numObjects)
         {
             // Choose one target, keep that target until it leaves chase radius
             // If a different target is within FOV, switch to that target
@@ -140,6 +144,7 @@ public class NetworkEnemyStateMachine : NetworkStateManager<NetworkEnemyStateMac
         }
     }
 
+    [Server]
     protected IEnumerator AttackCooldown()
     {
         yield return new WaitForSeconds(_attackStats.AttackCooldown);

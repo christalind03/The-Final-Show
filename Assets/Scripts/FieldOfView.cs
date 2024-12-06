@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Mirror;
 
 /// <summary>
 /// A sensor representing the field of view for any given gameObject.
@@ -7,7 +8,7 @@ using UnityEngine;
 /// https://www.youtube.com/watch?v=znZXmmyBF-o
 /// </summary>
 [ExecuteInEditMode]
-public class FieldOfView : MonoBehaviour
+public class FieldOfView : NetworkBehaviour
 {
     [Header("Field of View Properties")]
     [SerializeField]
@@ -44,7 +45,8 @@ public class FieldOfView : MonoBehaviour
 
     private Mesh _mesh;
     private List<GameObject> _detectedObjects = new List<GameObject>();
-    private Collider[] _detectedColliders = new Collider[1]; // Define some arbitrary number to ensure we have enough space to store results from Physics operations.
+    private static int maxColliders = 10; // Define some arbitrary number to ensure we have enough space to store results from Physics operations.
+    private Collider[] _detectedColliders = new Collider[maxColliders]; 
     private int _colliderCount;
     private float _scanInterval;
     private float _scanTimer;
@@ -61,8 +63,10 @@ public class FieldOfView : MonoBehaviour
     /// <summary>
     /// Called once per frame to update the scan timer and periodically scan for objects within the vision cone's range.
     /// </summary>
+    [Server]
     private void Update()
     {
+        if(!Application.isPlaying) return;
         _scanTimer -= Time.deltaTime;
 
         if (_scanTimer < 0)
@@ -97,8 +101,9 @@ public class FieldOfView : MonoBehaviour
     /// <summary>
     /// Called when the script is loaded or when a value changes in the inspector.
     /// </summary>
-    private void OnValidate()
+    protected override void OnValidate()
     {
+        base.OnValidate();
         _mesh = CreateMesh();
         _scanInterval = 1 / _scanFrequency;
     }
@@ -212,6 +217,7 @@ public class FieldOfView : MonoBehaviour
     /// <summary>
     /// Scan for objects within a certain radius of the current gameObject.
     /// </summary>
+    [Server]
     private void ScanObjects()
     {
         _colliderCount = Physics.OverlapSphereNonAlloc(transform.position, _distance, _detectedColliders, _interestedLayers, QueryTriggerInteraction.Collide);
@@ -222,7 +228,7 @@ public class FieldOfView : MonoBehaviour
             GameObject detectedObject = _detectedColliders[i].gameObject;
             if (IsInSight(detectedObject))
             {
-                _detectedObjects.Add(detectedObject);
+                _detectedObjects.Add(detectedObject.gameObject);
             }
         }
     }
