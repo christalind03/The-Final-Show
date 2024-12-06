@@ -5,19 +5,22 @@ using UnityEngine;
 public class Health : MonoBehaviour
 {
     public float MaxHealth = 100f;
-    private float currentHealth;
+    public float CurrentHealth { get; private set; }
+    public bool IsInvulnerable { get; set; } = false;
 
     private void Start()
     {
-        currentHealth = MaxHealth;
+        CurrentHealth = MaxHealth;
     }
 
     public void TakeDamage(float damage)
     {
-        currentHealth -= damage;
-        Debug.Log($"{gameObject.name} took {damage} damage. Remaining health: {currentHealth}");
+        if (IsInvulnerable) return;
 
-        if (currentHealth <= 0)
+        CurrentHealth -= damage;
+        Debug.Log($"{gameObject.name} took {damage} damage. Remaining health: {CurrentHealth}");
+
+        if (CurrentHealth <= 0)
         {
             Die();
         }
