@@ -89,9 +89,15 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void Update()
     {
-        if(!isLocalPlayer) {return;}
+        if (!isLocalPlayer)
+        {
+            return;
+        }
+
+        // Check to see if the player is on the ground or not.
         _isGrounded = Physics.Raycast(_playerTransform.position, Vector3.down, 1f) && _playerVelocity.y <= 0f;
 
+        // Update the player's y-axis position to account for gravity
         _playerVelocity.y += _gravity * Time.deltaTime;
         _playerController.Move(_playerVelocity * Time.deltaTime);
 
@@ -107,13 +113,20 @@ public class PlayerController : NetworkBehaviour
     {
         Vector2 lookInput = _cameraSensitivity * Time.deltaTime * _playerControls.Player.Look.ReadValue<Vector2>();
 
+        // Since the axes in which we move our input device are opposite in Unity, we must swap them to ensure correct behavior.
+        // For example, moving the mouse up and/or down corresponds to side-to-side mouse movement in Unity, so we need to adjust for this.
         _yRotation += lookInput.x;
-        _xRotation = Mathf.Clamp(_xRotation - lookInput.y, -45f, 45f); 
+        _xRotation = Mathf.Clamp(_xRotation - lookInput.y, -45f, 45f);
 
+        // "Revert" _xRotation as the controls are inverted.
+        // Without this, moving the controller down causes the camera to look up.
         _followTransform.rotation = Quaternion.Euler(_xRotation, _yRotation, 0);
 
+        // Since we have not yet implemented character models, we will only rotate the entire character on the y-axis.
+        // This logic may change to display the character looking upwards once a character model is implemented.
         _playerTransform.rotation = Quaternion.Euler(0, _yRotation, 0);
 
+        // Check to see if we're looking at anything of importance.
         Physics.Raycast(_cameraTransform.position, _cameraTransform.forward * _interactableDistance, out _raycastHit);
 
         CmdLook(_playerTransform.rotation);
@@ -126,6 +139,7 @@ public class PlayerController : NetworkBehaviour
     {
         float totalSpeed = _isSprinting ? _sprintSpeed : _walkSpeed;
 
+        // Ensure we always move relative to the direction we are looking at.
         Vector2 moveInput = _playerControls.Player.Movement.ReadValue<Vector2>();
         Vector3 moveDirection = _playerTransform.forward * moveInput.y + _playerTransform.right * moveInput.x;
 
@@ -141,11 +155,13 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void HandleSprint()
     {
+        // Only sprint if the we are moving forward.
         Vector2 moveInput = _playerControls.Player.Movement.ReadValue<Vector2>();
         bool isForward = 0 < moveInput.y;
 
         _isSprinting = _canSprint && isForward && 0 < _staminaPoints.CurrentValue && _playerControls.Player.Sprint.IsPressed();
 
+        // Decrease/Increase stamina based on whether or not we are currently sprinting.
         if (_isSprinting)
         {
             _staminaPoints.Decrease(_staminaCost * Time.deltaTime);
@@ -156,6 +172,7 @@ public class PlayerController : NetworkBehaviour
             _staminaPoints.Increase(_staminaRestoration * Time.deltaTime);
         }
 
+        // If the current stamina is zero, wait until the stamina bar fills up again.
         if (_staminaPoints.CurrentValue == 0f)
         {
             _canSprint = false;
@@ -171,7 +188,11 @@ public class PlayerController : NetworkBehaviour
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void Attack(InputAction.CallbackContext context)
     {
-        if(!isLocalPlayer) {return;}
+        if (!isLocalPlayer)
+        {
+            return;
+        }
+
         Debug.Log("Attack");
     }
 
@@ -181,7 +202,11 @@ public class PlayerController : NetworkBehaviour
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void AlternateAttack(InputAction.CallbackContext context)
     {
-        if(!isLocalPlayer) {return;}
+        if (!isLocalPlayer)
+        {
+            return;
+        }
+
         Debug.Log("Alternate Attack");
     }
 
@@ -191,7 +216,11 @@ public class PlayerController : NetworkBehaviour
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void Drop(InputAction.CallbackContext context)
     {
-        if(!isLocalPlayer) {return;}
+        if (!isLocalPlayer)
+        {
+            return;
+        }
+        
         Drop();
     }
 
@@ -205,9 +234,9 @@ public class PlayerController : NetworkBehaviour
 
         if (_raycastHit.collider != null && droppedItem != null)
         {
-            if(targetPosition.HasValue){
+            if (targetPosition.HasValue) {
                 CmdDrop(droppedItem, targetPosition.Value, true);
-            }else{
+            } else {
                 CmdDrop(droppedItem, new Vector3(0,0,0), false);
             }
         }
@@ -219,18 +248,27 @@ public class PlayerController : NetworkBehaviour
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void Interact(InputAction.CallbackContext context)
     {
-        if(!isLocalPlayer) {return;}
+        if(!isLocalPlayer)
+        {
+            return;
+        }
+
         Collider hitCollider = _raycastHit.collider;
         GameObject hitGameObject = hitCollider.gameObject;
 
         if (hitCollider != null && hitGameObject.GetComponent<IInteractable>() != null)
         {
-            if (_playerInventory.HasItem())
+            // Check to see if we can add this item to our inventory.
+            if (hitGameObject.GetComponent<IInventoryItem>() != null)
             {
-                Drop(hitGameObject.transform.position);
+                if (_playerInventory.HasItem())
+                {
+                    Drop(hitGameObject.transform.position);
+                }
+
+                _playerInventory.AddItem(hitGameObject);
             }
 
-            _playerInventory.AddItem(hitGameObject);
             CmdInteract(hitGameObject);
         }
     }
@@ -313,7 +351,8 @@ public class PlayerController : NetworkBehaviour
     /// <param name="targetPosition">Position that the item should be dropped at</param>
     /// <param name="hasValue">Bool for make sure if targetPosition exist since Commands can't have nullable Vector3</param>
     [Command]
-    private void CmdDrop(GameObject dropItem, Vector3 targetPosition, bool hasValue){
+    private void CmdDrop(GameObject dropItem, Vector3 targetPosition, bool hasValue) {
+        // Determine how far the dropped item should be from the player
         Vector3 dropOffset = hasValue ? targetPosition : transform.position + transform.forward * 3;
         dropItem.transform.position = dropOffset;
         dropItem.SetActive(true);
@@ -328,8 +367,9 @@ public class PlayerController : NetworkBehaviour
     /// <param name="hitObj">The object that is being interacted</param>
     [Command]
     private void CmdInteract(GameObject hitObj){
-        if(hitObj.TryGetComponent(out IInteractable interactableObj)){
-            interactableObj.Interact();
+        if (hitObj.TryGetComponent(out IInteractable interactableObj))
+        {
+            interactableObj.Interact(gameObject);
         }
 
         // Propagates the changes to all client
@@ -379,8 +419,9 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     private void RpcInteract(GameObject hitObj){
         // Same reasoning as RpcDrop with the added component of getting the component "IInteractable"
-        if(!isServer && hitObj.TryGetComponent(out IInteractable interactableObj)){
-            interactableObj.Interact();
+        if(!isServer && hitObj.TryGetComponent(out IInteractable interactableObj))
+        {
+            interactableObj.Interact(gameObject);
         }
     }
 }

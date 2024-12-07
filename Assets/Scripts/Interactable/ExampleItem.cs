@@ -3,12 +3,13 @@ using UnityEngine;
 /// <summary>
 /// An example component to showcase the implementation of the IInteractable interface.
 /// </summary>
-public class ExampleItem : MonoBehaviour, IInteractable
+public class ExampleItem : MonoBehaviour, IInventoryItem
 {
     /// <summary>
     /// Disable the current gameObject this component is tied to after the player interacts with it.
     /// </summary>
-    public void Interact()
+    /// <param name="playerObject">The player interacting with the object</param>
+    public void Interact(GameObject playerObject)
     {
         gameObject.SetActive(false);
         Debug.Log($"Picked up {transform.name}");
