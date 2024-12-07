@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using Mirror;
 
 [RequireComponent(typeof(FieldOfView), typeof(NavMeshAgent))]
 public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
@@ -34,7 +35,8 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
     protected Material _material;
 
-    
+
+    [Server]
     private void Awake()
     {
         _initialPosition = transform.position;
@@ -50,6 +52,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         InitializeStates();
     }
 
+    [Server]
     private void InitializeStates()
     {
         foreach (StateMapping<EnemyStateMachine.EEnemyState> stateMapping in StateMappings)
@@ -64,6 +67,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         }
     }
 
+    [Server]
     private void FixedUpdate()
     {
         // _fieldOfView's interested layers should only be player
@@ -139,6 +143,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         }
     }
 
+    [Server]
     protected IEnumerator AttackCooldown()
     {
         yield return new WaitForSeconds(_attackStats.AttackCooldown);

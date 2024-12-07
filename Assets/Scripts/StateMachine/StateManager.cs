@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Mirror;
 
 /// <summary>
 /// A reusable state machine manager to apply to various objects that requires a state machine.
@@ -9,7 +10,7 @@ using UnityEngine;
 /// </summary>
 /// <typeparam name="EState">The enumerable type representing the possible states</typeparam>
 [System.Serializable]
-public abstract class StateManager<EState> : MonoBehaviour where EState : Enum
+public abstract class StateManager<EState> : NetworkBehaviour where EState : Enum
 {
     [Header("State Paramaters")]
     [Tooltip("Associates each state with its corresponding behavior.")]
@@ -24,6 +25,7 @@ public abstract class StateManager<EState> : MonoBehaviour where EState : Enum
     /// <summary>
     /// Enter the current state.
     /// </summary>
+    [Server]
     private void Start()
     {
         CurrentState = States[_defaultState];
@@ -33,6 +35,7 @@ public abstract class StateManager<EState> : MonoBehaviour where EState : Enum
     /// <summary>
     /// Trigger the update loop for the current state.
     /// </summary>
+    [Server]
     private void Update()
     {
         if (!_isTransitioningState)
@@ -45,6 +48,7 @@ public abstract class StateManager<EState> : MonoBehaviour where EState : Enum
     /// Called when another collider enters the trigger attached to the current gameObject.
     /// </summary>
     /// <param name="otherCollider">The other collider involved in this collision</param>
+    [Server]
     private void OnTriggerEnter(Collider otherCollider)
     {
         CurrentState.OnTriggerEnter(otherCollider);
@@ -54,6 +58,7 @@ public abstract class StateManager<EState> : MonoBehaviour where EState : Enum
     /// Called when another collider exits the trigger attached to the current gameObject.
     /// </summary>
     /// <param name="otherCollider">The other collider involved in this collision</param>
+    [Server]
     private void OnTriggerExit(Collider otherCollider)
     {
         CurrentState.OnTriggerExit(otherCollider);
@@ -63,6 +68,7 @@ public abstract class StateManager<EState> : MonoBehaviour where EState : Enum
     /// Called when another collider continues to enable the trigger attached to the current gameObject.
     /// </summary>
     /// <param name="otherCollider">The other collider involved in this collision</param>
+    [Server]
     private void OnTriggerStay(Collider otherCollider)
     {
         CurrentState.OnTriggerStay(otherCollider);
@@ -72,6 +78,7 @@ public abstract class StateManager<EState> : MonoBehaviour where EState : Enum
     /// Transition from the current state to the given state.
     /// </summary>
     /// <param name="stateKey">The enumerable member to transition to</param>
+    [Server]
     protected void TransitionToState(EState stateKey)
     {
         if (!CurrentState.StateKey.Equals(stateKey))
