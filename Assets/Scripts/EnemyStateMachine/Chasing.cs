@@ -5,7 +5,7 @@ using UnityEngine.AI;
 [CreateAssetMenu(menuName = "BaseState/Enemy/Chasing")]
 public class ChasingState : EnemyState
 {
-    public void Initialize(EnemyContext context, EnemyStateMachine.EEnemyState stateKey)
+    public override void Initialize(EnemyContext context, EnemyStateMachine.EEnemyState stateKey)
     {
         Context = context;
         base.Initialize(context, stateKey);

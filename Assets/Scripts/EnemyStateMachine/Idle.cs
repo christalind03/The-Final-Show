@@ -10,7 +10,7 @@ public class IdleState : EnemyState
     private bool _hasTargetRotation;
     private bool _isReset;
     
-    public void Initialize(EnemyContext context, EnemyStateMachine.EEnemyState stateKey)
+    public override void Initialize(EnemyContext context, EnemyStateMachine.EEnemyState stateKey)
     {
         Context = context;
         base.Initialize(context, stateKey);

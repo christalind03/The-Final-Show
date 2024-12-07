@@ -4,7 +4,7 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "BaseState/Enemy/Attacking")]
 public class AttackingState : EnemyState
 {
-    public void Initialize(EnemyContext context, EnemyStateMachine.EEnemyState stateKey)
+    public override void Initialize(EnemyContext context, EnemyStateMachine.EEnemyState stateKey)
     {
         Context = context;
         base.Initialize(context, stateKey);
