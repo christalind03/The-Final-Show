@@ -25,7 +25,7 @@ public class RangedWeapon : Weapon
         if (IsEquipped && CurrentAmmo > 0)
         {
             CurrentAmmo--;
-            ShootProjectile();  // Call the method to shoot an Projectile
+            ShootProjectile();
         }
         else if (CurrentAmmo <= 0)
         {
@@ -40,7 +40,6 @@ public class RangedWeapon : Weapon
     public override void AlternateAttack()
     {
         Debug.Log($"{WeaponName} fires a charged shot!");
-        // Implement charged shot logic
     }
 
     private void ShootProjectile()
@@ -48,9 +47,17 @@ public class RangedWeapon : Weapon
         if (ProjectilePrefab != null && firePoint != null)
         {
             // Instantiate the Projectile at the fire point position and rotation
+            Vector3 spawnPosition = firePoint.position + firePoint.forward * 0.5f; // Offset by 0.5 units to avoid collision
             GameObject projectileInstance = Instantiate(ProjectilePrefab, firePoint.position, firePoint.rotation);
-            Debug.Log($"Projectile instantiated at {firePoint.position} with rotation {firePoint.rotation}");
             Debug.DrawRay(firePoint.position, firePoint.forward * 0.5f, Color.green, 2f);
+
+            // Ensure the projectile doesn't collide with the bow
+            Collider bowCollider = GetComponent<Collider>();
+            Collider projectileCollider = projectileInstance.GetComponent<Collider>();
+            if (bowCollider != null && projectileCollider != null)
+            {
+                Physics.IgnoreCollision(bowCollider, projectileCollider);
+            }
 
             // Add force to projectile to shoot it forward
             Rigidbody rb = projectileInstance.GetComponent<Rigidbody>();
@@ -64,11 +71,10 @@ public class RangedWeapon : Weapon
                 Debug.LogError("Projectile prefab is missing a Rigidbody component.");
             }
 
-            // Assign the projectile's damage and target tag
+            // Assign the projectile's damage
             if (projectileInstance.TryGetComponent(out Projectile projectileScript))
             {
-                projectileScript.Damage = Damage;         // Assign damage
-                projectileScript.TargetTag = "Enemy";    // Assign target tag
+                projectileScript.ProjectileDamage = this.Damage;
             }
         }
         else
