@@ -35,10 +35,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform _followTransform;
     [SerializeField] private Transform _playerTransform;
     [SerializeField] private CharacterController _playerController;
-    
+
     [Header("Weapon Parameters")]
     [SerializeField] private Weapon _currentWeapon;
-   
+
     [Header("Hand Transform")]
     public Transform playerHandTransform; // Reference for the player's hand position
 
@@ -330,7 +330,7 @@ public class PlayerController : MonoBehaviour
     {
         if (_currentWeapon != null)
         {
-            _currentWeapon.Unequip();
+            DropWeapon();
         }
 
         _currentWeapon = weapon;
@@ -369,4 +369,46 @@ public class PlayerController : MonoBehaviour
             _currentWeapon = null;
         }
     }
+    /// <summary>
+    /// Handles dropping a player's weapon in the ingame world.
+    /// </summary>
+    /// <param name="context"></param>
+    private void DropCurrentWeapon(InputAction.CallbackContext context)
+    {
+        DropWeapon();
+    }
+
+    /// <summary>
+    /// The logic for dropping a player's weapon in the ingame world.
+    /// </summary>
+    private void DropWeapon()
+    {
+        if (_currentWeapon == null)
+        {
+            Debug.Log("No weapon to drop.");
+            return;
+        }
+
+        // Detach the weapon from the player's hand
+        GameObject droppedWeapon = _currentWeapon.gameObject;
+        _currentWeapon.transform.SetParent(null);
+
+        // Enable physics on the dropped weapon
+        Rigidbody weaponRb = _currentWeapon.GetComponent<Rigidbody>();
+        if (weaponRb != null)
+        {
+            weaponRb.isKinematic = false; // Enable physics
+            weaponRb.AddForce(transform.forward * 2f, ForceMode.Impulse); // Push the weapon slightly forward
+        }
+
+        // Position the dropped weapon
+        droppedWeapon.transform.position = transform.position + transform.forward * 2f;
+
+        // Log the dropped weapon
+        Debug.Log($"{_currentWeapon.WeaponName} has been dropped.");
+
+        // Clear the current weapon reference
+        _currentWeapon = null;
+    }
+
 }
