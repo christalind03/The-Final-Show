@@ -10,6 +10,8 @@ public class ChangeStatus : MonoBehaviour
     /// </summary>
     /// <param name="other"></param>
     private void OnCollisionEnter(Collision other) {
+        Debug.Log($"{other.gameObject.name}");
+
         if (other.gameObject.name != "Floor"){
             ccontroller = other.gameObject.GetComponentInParent<CameraController>();
             ccontroller.alive = false;

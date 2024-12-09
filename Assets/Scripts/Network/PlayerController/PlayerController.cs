@@ -3,13 +3,11 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
+using Mirror;
 
-/// <summary>
-/// Controls the player's actions, interactions, and movement within the game world.
-/// </summary>
-// Ensure we have a CharacterController component as it is required to move the player.
+
 [RequireComponent(typeof(CharacterController))]
-public class PlayerController : MonoBehaviour
+public class PlayerController : NetworkBehaviour
 {
     [Header("Camera Parameters")]
     [SerializeField] private float _cameraSensitivity;
@@ -55,7 +53,7 @@ public class PlayerController : MonoBehaviour
     {
         _canSprint = true;
         UnityEngine.Cursor.visible = false;
-        UnityEngine.Cursor.lockState = CursorLockMode.Locked; // Keep the cursor locked to the center of the game view.
+        UnityEngine.Cursor.lockState = CursorLockMode.Locked; 
 
         _uiDocument = GetComponent<UIDocument>().rootVisualElement;
 
@@ -91,6 +89,11 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Update()
     {
+        if (!isLocalPlayer)
+        {
+            return;
+        }
+
         // Check to see if the player is on the ground or not.
         _isGrounded = Physics.Raycast(_playerTransform.position, Vector3.down, 1f) && _playerVelocity.y <= 0f;
 
@@ -113,11 +116,11 @@ public class PlayerController : MonoBehaviour
         // Since the axes in which we move our input device are opposite in Unity, we must swap them to ensure correct behavior.
         // For example, moving the mouse up and/or down corresponds to side-to-side mouse movement in Unity, so we need to adjust for this.
         _yRotation += lookInput.x;
-        _xRotation = Mathf.Clamp(_xRotation - lookInput.y, -45f, 45f); // Prevent the player from rotating their head backwards.
+        _xRotation = Mathf.Clamp(_xRotation - lookInput.y, -45f, 45f);
 
         // "Revert" _xRotation as the controls are inverted.
         // Without this, moving the controller down causes the camera to look up.
-        _followTransform.rotation = Quaternion.Euler(-_xRotation, _yRotation, 0);
+        _followTransform.rotation = Quaternion.Euler(_xRotation, _yRotation, 0);
 
         // Since we have not yet implemented character models, we will only rotate the entire character on the y-axis.
         // This logic may change to display the character looking upwards once a character model is implemented.
@@ -125,6 +128,8 @@ public class PlayerController : MonoBehaviour
 
         // Check to see if we're looking at anything of importance.
         Physics.Raycast(_cameraTransform.position, _cameraTransform.forward * _interactableDistance, out _raycastHit);
+
+        CmdLook(_playerTransform.rotation, _followTransform.rotation);
     }
 
     /// <summary>
@@ -142,6 +147,7 @@ public class PlayerController : MonoBehaviour
 
         _playerController.Move(totalSpeed * Time.deltaTime * moveDirection);
         _playerController.Move(_playerVelocity * Time.deltaTime);
+        CmdMovePlayer(_playerTransform.position);
     }
 
     /// <summary>
@@ -182,6 +188,11 @@ public class PlayerController : MonoBehaviour
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void Attack(InputAction.CallbackContext context)
     {
+        if (!isLocalPlayer)
+        {
+            return;
+        }
+
         Debug.Log("Attack");
     }
 
@@ -191,6 +202,11 @@ public class PlayerController : MonoBehaviour
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void AlternateAttack(InputAction.CallbackContext context)
     {
+        if (!isLocalPlayer)
+        {
+            return;
+        }
+
         Debug.Log("Alternate Attack");
     }
 
@@ -200,6 +216,11 @@ public class PlayerController : MonoBehaviour
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void Drop(InputAction.CallbackContext context)
     {
+        if (!isLocalPlayer)
+        {
+            return;
+        }
+        
         Drop();
     }
 
@@ -213,11 +234,11 @@ public class PlayerController : MonoBehaviour
 
         if (_raycastHit.collider != null && droppedItem != null)
         {
-            // Determine how far the dropped item should be from the player
-            Vector3 dropOffset = targetPosition ?? transform.position + transform.forward * 3;
-
-            droppedItem.transform.position = dropOffset;
-            droppedItem.SetActive(true);
+            if (targetPosition.HasValue) {
+                CmdDrop(droppedItem, targetPosition.Value, true);
+            } else {
+                CmdDrop(droppedItem, new Vector3(0,0,0), false);
+            }
         }
     }
 
@@ -227,20 +248,28 @@ public class PlayerController : MonoBehaviour
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void Interact(InputAction.CallbackContext context)
     {
+        if(!isLocalPlayer)
+        {
+            return;
+        }
+
         Collider hitCollider = _raycastHit.collider;
         GameObject hitGameObject = hitCollider.gameObject;
 
-        if (hitCollider != null && hitGameObject.TryGetComponent(out IInteractable interactableObj))
+        if (hitCollider != null && hitGameObject.GetComponent<IInteractable>() != null)
         {
-            interactableObj.Interact();
-
-            // TODO: Before adding an item to the inventory, we should check whether or not this item is equippable
-            if (_playerInventory.HasItem())
+            // Check to see if we can add this item to our inventory.
+            if (hitGameObject.GetComponent<IInventoryItem>() != null)
             {
-                Drop(hitGameObject.transform.position);
+                if (_playerInventory.HasItem())
+                {
+                    Drop(hitGameObject.transform.position);
+                }
+
+                _playerInventory.AddItem(hitGameObject);
             }
 
-            _playerInventory.AddItem(hitCollider.gameObject);
+            CmdInteract(hitGameObject);
         }
     }
 
@@ -250,9 +279,9 @@ public class PlayerController : MonoBehaviour
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void Jump(InputAction.CallbackContext context)
     {
+        if(!isLocalPlayer) {return;}
         if (_isGrounded)
         {
-            // Physics equation to calculate the initial jump velocity for reaching a specific height.
             _playerVelocity.y = (float)Math.Sqrt(-2f * _gravity * _jumpHeight);
         }
     }
@@ -270,7 +299,6 @@ public class PlayerController : MonoBehaviour
         _playerControls.Player.Interact.performed -= Interact;
         _playerControls.Player.Jump.performed -= Jump;
 
-        // Unsubscribe from inventory slot selection for all slots.
         _playerControls.Inventory.CycleSlots.performed -= _playerInventory.SelectSlot;
         InputActionMap inventoryActions = _playerControls.asset.FindActionMap("Inventory");
 
@@ -288,5 +316,116 @@ public class PlayerController : MonoBehaviour
     {
         yield return new WaitForSeconds(_staminaCooldown);
         _canSprint = true;
+    }
+
+    /// <summary>
+    /// Server code for updating player's movement, as of right now the client calculates 
+    /// the positions and gives it to the server. Not very safe if cheater that manipulate 
+    /// the calculation if we care about security.  
+    /// </summary>
+    /// <param name="position">Position of the player </param>
+    [Command]
+    private void CmdMovePlayer(Vector3 position){
+        _playerTransform.position = position;
+
+        // Propagates the changes to all client
+        RpcUpdatePlayerPosition(position);
+    }
+
+    /// <summary>
+    /// Server code for updating player's rotation, similar to CmdMovePlayer but with rotation
+    /// </summary>
+    /// <param name="rotationPlayer">Player rotation</param>
+    /// <param name="rotationFollow">Follow camera rotation</param>
+    [Command]
+    private void CmdLook(Quaternion rotationPlayer, Quaternion rotationFollow){
+        _playerTransform.rotation = rotationPlayer;
+        _followTransform.rotation = rotationFollow;
+
+        // Propagates the changes to all client
+        RpcUpdatePlayerLook(_playerTransform.rotation, _followTransform.rotation);
+    }
+
+    /// <summary>
+    /// Calculate the drop position and set the drop item to that position and activate it. 
+    /// </summary>
+    /// <param name="dropItem">The item that is being dropped</param>
+    /// <param name="targetPosition">Position that the item should be dropped at</param>
+    /// <param name="hasValue">Bool for make sure if targetPosition exist since Commands can't have nullable Vector3</param>
+    [Command]
+    private void CmdDrop(GameObject dropItem, Vector3 targetPosition, bool hasValue) {
+        // Determine how far the dropped item should be from the player
+        Vector3 dropOffset = hasValue ? targetPosition : transform.position + transform.forward * 3;
+        dropItem.transform.position = dropOffset;
+        dropItem.SetActive(true);
+        
+        // Propagates the changes to all client
+        RpcDrop(dropItem, dropOffset);
+    }
+
+    /// <summary>
+    /// Interact with the GameObject if it has IInteractable script
+    /// </summary>
+    /// <param name="hitObj">The object that is being interacted</param>
+    [Command]
+    private void CmdInteract(GameObject hitObj){
+        if (hitObj.TryGetComponent(out IInteractable interactableObj))
+        {
+            interactableObj.Interact(gameObject);
+        }
+
+        // Propagates the changes to all client
+        RpcInteract(hitObj);
+    }
+    
+    /// <summary>
+    /// Update player position to all clients
+    /// </summary>
+    /// <param name="position">Player position</param>
+    [ClientRpc]
+    private void RpcUpdatePlayerPosition(Vector3 position)
+    {
+        // Local player will not run this code since they've already calculated their own position in HandleMovement
+        if (isLocalPlayer) return;
+        _playerTransform.position = position;
+    }
+
+    /// <summary>
+    /// Update player rotation to all clients
+    /// </summary>
+    /// <param name="rotationPlayer">Player rotation</param>
+    /// <param name="rotationFollow">Follow Camera rotation</param>
+    [ClientRpc]
+    private void RpcUpdatePlayerLook(Quaternion rotationPlayer, Quaternion rotationFollow){
+        if (isLocalPlayer) return;
+        _playerTransform.rotation = rotationPlayer;
+        _followTransform.rotation = rotationFollow;
+    }
+
+    /// <summary>
+    /// Update the item that is being dropped in world view to all client
+    /// </summary>
+    /// <param name="dropItem">Item that is being dropped</param>
+    /// <param name="dropPos">Location to be dropped at</param>
+    [ClientRpc]
+    private void RpcDrop(GameObject dropItem, Vector3 dropPos){
+        // Since we are using a Host-Client network structure, there will be one player that acts as the server and they don't have to run the code again
+        if(!isServer){
+            dropItem.transform.position = dropPos;
+            dropItem.SetActive(true);
+        }
+    }
+
+    /// <summary>
+    /// Update the object that is being interacted to all client
+    /// </summary>
+    /// <param name="hitObj">Item that is being interacted</param>
+    [ClientRpc]
+    private void RpcInteract(GameObject hitObj){
+        // Same reasoning as RpcDrop with the added component of getting the component "IInteractable"
+        if(!isServer && hitObj.TryGetComponent(out IInteractable interactableObj))
+        {
+            interactableObj.Interact(gameObject);
+        }
     }
 }

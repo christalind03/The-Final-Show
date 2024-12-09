@@ -64,7 +64,7 @@ public class CameraController : NetworkBehaviour
             UnityEngine.Cursor.lockState = CursorLockMode.None;
             uIDocument.visualTreeAsset = specUI;
 
-            GetComponent<PlayerControllerNetwork>().enabled = false;
+            GetComponent<PlayerController>().enabled = false;
 
             ui = uIDocument.rootVisualElement;
             currentPlayer = ui.Q<VisualElement>("Tools").Q<TextElement>("Current");
