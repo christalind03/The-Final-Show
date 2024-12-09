@@ -42,6 +42,10 @@ public class PlayerController : MonoBehaviour
     [Header("Hand Transform")]
     public Transform playerHandTransform; // Reference for the player's hand position
 
+    [Header("Armor Components")]
+    [SerializeField] private ArmorManager armorManager;
+
+
     private bool _isGrounded;
     private bool _isSprinting;
 
@@ -258,15 +262,19 @@ public class PlayerController : MonoBehaviour
         }
 
         // Checks if item is a weapon and equips it: we can take this out later
-      
         if (hitGameObject.TryGetComponent(out Weapon weapon))
         {
             EquipWeapon(weapon);
             Debug.Log($"{weapon.WeaponName} equipped.");
         }
+        else if (hitCollider != null && hitCollider.TryGetComponent(out Armor armor))
+        {
+            armorManager.EquipArmor(armor);
+            Debug.Log($"{armor.ArmorName} equipped.");
+        }
         else
         {
-            Debug.Log($"{hitGameObject.name} is not a weapon.");
+            Debug.Log($"{hitGameObject.name} is neither a weapon nor armor.");
         }
     }
 

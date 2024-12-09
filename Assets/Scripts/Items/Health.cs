@@ -4,23 +4,30 @@ using UnityEngine;
 
 public class Health : MonoBehaviour
 {
-    public float MaxHealth = 100f;
-    public float CurrentHealth { get; private set; }
-    public bool IsInvulnerable { get; set; } = false;
+    [Header("Health Properties")]
+    public float maxHealth = 100f;
+    private float currentHealth;
 
+    [Header("Dependencies")]
+    [SerializeField] private ArmorManager armorManager;
+    public bool IsInvulnerable { get; set; } = false;
     private void Start()
     {
-        CurrentHealth = MaxHealth;
+        currentHealth = maxHealth;
     }
 
     public void TakeDamage(float damage)
     {
         if (IsInvulnerable) return;
 
-        CurrentHealth -= damage;
-        Debug.Log($"{gameObject.name} took {damage} damage. Remaining health: {CurrentHealth}");
+        // Use ArmorManager to calculate reduced damage
+        float reducedDamage = armorManager != null ? armorManager.ApplyArmorDefense(damage) : damage;
 
-        if (CurrentHealth <= 0)
+        currentHealth -= reducedDamage;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth); // Helps to ensure health stays in valid bounds
+        Debug.Log($"{gameObject.name} took {damage} damage. Remaining health: {currentHealth}");
+
+        if (currentHealth <= 0)
         {
             Die();
         }
