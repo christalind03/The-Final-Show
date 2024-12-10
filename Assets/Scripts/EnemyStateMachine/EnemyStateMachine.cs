@@ -35,7 +35,11 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
 
     protected Material _material;
 
-
+    /// <summary>
+    /// Stores the enemy's initial position and rotation for later use
+    /// Gets relevant components from the GameObject
+    /// Initializes the context shared by concrete states
+    /// </summary>
     [Server]
     private void Awake()
     {
@@ -52,6 +56,9 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         InitializeStates();
     }
 
+    /// <summary>
+    /// Initializes the mapping of state keys from EEnemyState to an instance of an EnemyState object
+    /// </summary>
     [Server]
     private void InitializeStates()
     {
@@ -67,6 +74,9 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         }
     }
 
+    /// <summary>
+    /// Contains logic for keeping track of the target and transitioning between states
+    /// </summary>
     [Server]
     private void FixedUpdate()
     {
@@ -143,6 +153,9 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         }
     }
 
+    /// <summary>
+    /// Used to control how often the enemy can attack
+    /// </summary>
     [Server]
     protected IEnumerator AttackCooldown()
     {
