@@ -1,5 +1,11 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Represents an armor piece that can be equipped by an entity.
+/// Gives defensive capabilities and special effects.
+/// </summary>
 public class Armor : MonoBehaviour
 {
     public enum ArmorType
@@ -17,13 +23,17 @@ public class Armor : MonoBehaviour
 
     private bool isEquipped;
 
+    // Getters
     public string ArmorName => armorName;
     public float Defense => defense;
     public string SpecialEffect => specialEffect;
     public bool IsEquipped => isEquipped;
     public ArmorType Type => armorType;
 
-
+    /// <summary>
+    /// Equips the armor to the specified equip point.
+    /// </summary>
+    /// <param name="equipPoint">The transform representing the equip point.</param>
     public void Equip(Transform equipPoint)
     {
         // Attach to the equip point
@@ -34,12 +44,20 @@ public class Armor : MonoBehaviour
         Debug.Log($"{armorName} equipped on {equipPoint.name}.");
     }
 
+    /// <summary>
+    /// Unequips the armor by detaching it from its equip point.
+    /// </summary>
     public void Unequip()
     {
         transform.SetParent(null);
         Debug.Log($"{armorName} unequipped.");
     }
 
+    /// <summary>
+    /// Reduces incoming damage based on the armor's defense value.
+    /// </summary>
+    /// <param name="incomingDamage">The original damage value.</param>
+    /// <returns>The reduced damage value.</returns>
     public float ModifyDamage(float incomingDamage)
     {
         float reducedDamage = Mathf.Max(incomingDamage - defense, 0);

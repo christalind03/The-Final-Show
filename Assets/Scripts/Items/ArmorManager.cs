@@ -1,5 +1,11 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Manages the equipping and unequipping of armor for an entity.
+/// Also calculates damage reduction based on equipped armor.
+/// </summary>
 public class ArmorManager : MonoBehaviour
 {
     [Header("Armor Equip Points")]
@@ -14,6 +20,7 @@ public class ArmorManager : MonoBehaviour
     /// <summary>
     /// Equips the armor and unequips the currently equipped armor of the same type.
     /// </summary>
+    /// <param name="armor">The armor to equip.</param>
     public void EquipArmor(Armor armor)
     {
         switch (armor.Type) // armor.Type references the ArmorType enum in Armor.cs
@@ -55,8 +62,9 @@ public class ArmorManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Unequips armor of the specified type.
+    /// Unequips the armor of the specified type.
     /// </summary>
+    /// <param name="armorType">The type of armor to unequip.</param>
     public void UnequipArmor(Armor.ArmorType armorType)
     {
         switch (armorType)
@@ -94,10 +102,11 @@ public class ArmorManager : MonoBehaviour
         }
     }
 
-
     /// <summary>
-    /// Modifies the incoming damage based on equipped armor.
+    /// Modifies incoming damage based on the currently equipped armor.
     /// </summary>
+    /// <param name="incomingDamage">The original damage value.</param>
+    /// <returns>The reduced damage value.</returns>
     public float ApplyArmorDefense(float incomingDamage)
     {
         float reducedDamage = incomingDamage;

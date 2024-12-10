@@ -2,16 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Represents a ranged weapon that fires projectiles.
+/// </summary>
 public class RangedWeapon : Weapon
 {
     [Header("Projectile Settings")]
     [SerializeField] private GameObject ProjectilePrefab;  // Reference to the Projectile prefab
     [SerializeField] private Transform firePoint;      // Point where the Projectile is instantiated
-    public float shootingForce = 20f;
+    public float shootingForce = 20f;                  // Force applied to the projectile when fired
 
     public int AmmoCapacity;
     public int CurrentAmmo;
-    public float ReloadTime;
+    public float ReloadTime;      // In seconds
     public float ProjectileSpeed;
 
 
@@ -20,6 +23,9 @@ public class RangedWeapon : Weapon
         CurrentAmmo = AmmoCapacity;
     }
 
+    /// <summary>
+    /// Executes the primary attack by firing a projectile.
+    /// </summary>
     public override void Attack()
     {
         if (IsEquipped && CurrentAmmo > 0)
@@ -37,17 +43,66 @@ public class RangedWeapon : Weapon
         }
     }
 
+    /// <summary>
+    /// Executes a secondary (alternate) attack by firing a projectile with increased damage.
+    /// </summary>
     public override void AlternateAttack()
     {
-        Debug.Log($"{WeaponName} fires a charged shot!");
+        if (IsEquipped && CurrentAmmo > 0)
+        {
+            CurrentAmmo--;
+            ShootAlternateProjectile();
+            Debug.Log($"{WeaponName} performed an alternate attack!");
+        }
+        else if (CurrentAmmo <= 0)
+        {
+            Debug.Log($"{WeaponName} is out of ammo!");
+        }
+        else
+        {
+            Debug.Log("Weapon not equipped!");
+        }
     }
 
+    /// <summary>
+    /// Fires an alternate projectile with increased damage.
+    /// </summary>
+    private void ShootAlternateProjectile()
+    {
+        if (ProjectilePrefab != null && firePoint != null)
+        {
+            // Instantiate the Projectile at the fire point position and rotation
+            Vector3 spawnPosition = firePoint.position + firePoint.forward * 0.5f; // Offset to avoid self-collision
+            GameObject projectileInstance = Instantiate(ProjectilePrefab, spawnPosition, firePoint.rotation);
+
+            // Add force to the projectile
+            Rigidbody rb = projectileInstance.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.AddForce(firePoint.forward * shootingForce, ForceMode.Impulse);
+            }
+
+            // Assign alternate damage to the projectile
+            if (projectileInstance.TryGetComponent(out Projectile projectileScript))
+            {
+                projectileScript.ProjectileDamage = this.Damage * 2; // Double the base damage
+            }
+        }
+        else
+        {
+            Debug.LogError("Projectile prefab or fire point is not set.");
+        }
+    }
+
+    /// <summary>
+    /// Fires the primary projectile from the weapon.
+    /// </summary>
     private void ShootProjectile()
     {
         if (ProjectilePrefab != null && firePoint != null)
         {
             // Instantiate the Projectile at the fire point position and rotation
-            Vector3 spawnPosition = firePoint.position + firePoint.forward * 0.5f; // Offset by 0.5 units to avoid collision
+            Vector3 spawnPosition = firePoint.position + firePoint.forward * 0.5f; // Offset by 0.5 units to avoid collision with bow
             GameObject projectileInstance = Instantiate(ProjectilePrefab, firePoint.position, firePoint.rotation);
             Debug.DrawRay(firePoint.position, firePoint.forward * 0.5f, Color.green, 2f);
 
@@ -83,6 +138,9 @@ public class RangedWeapon : Weapon
         }
     }
 
+    /// <summary>
+    /// Reloads the weapon to its maximum ammo capacity.
+    /// </summary>
     public void Reload()
     {
         Debug.Log($"{WeaponName} is reloading...");

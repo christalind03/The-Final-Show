@@ -240,7 +240,7 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// Handle the player's input for interacting with interactable objects.
+    /// Handle the player's input for interacting with interactable objects and weapons
     /// </summary>
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void Interact(InputAction.CallbackContext context)
@@ -323,6 +323,7 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(_staminaCooldown);
         _canSprint = true;
     }
+
     /// <summary>
     /// Connects Weapon class, equips weapon and unequips previous weapon if need be, positions weapon in hand
     /// </summary>
@@ -393,18 +394,32 @@ public class PlayerController : MonoBehaviour
         GameObject droppedWeapon = _currentWeapon.gameObject;
         _currentWeapon.transform.SetParent(null);
 
+        // Hardcoded drop position slightly in front of and above the player
+        Vector3 dropPosition = transform.position + transform.forward * 2f;
+
+        // Adjust position to be slightly above the ground
+        RaycastHit hit;
+        if (Physics.Raycast(dropPosition + Vector3.up * 1f, Vector3.down, out hit, 5f))
+        {
+            dropPosition.y = hit.point.y + 0.3f; // Set slightly above the ground
+        }
+        else
+        {
+            dropPosition.y += 0.5f; // Fallback height if no ground detected
+        }
+
+        // Set the weapon's position and reset its rotation
+        droppedWeapon.transform.position = dropPosition;
+        droppedWeapon.transform.rotation = Quaternion.identity;
+
         // Enable physics on the dropped weapon
         Rigidbody weaponRb = _currentWeapon.GetComponent<Rigidbody>();
         if (weaponRb != null)
         {
-            weaponRb.isKinematic = false; // Enable physics
+            weaponRb.isKinematic = false;
             weaponRb.AddForce(transform.forward * 2f, ForceMode.Impulse); // Push the weapon slightly forward
         }
 
-        // Position the dropped weapon
-        droppedWeapon.transform.position = transform.position + transform.forward * 2f;
-
-        // Log the dropped weapon
         Debug.Log($"{_currentWeapon.WeaponName} has been dropped.");
 
         // Clear the current weapon reference
