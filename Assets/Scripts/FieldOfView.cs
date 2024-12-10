@@ -45,7 +45,7 @@ public class FieldOfView : NetworkBehaviour
 
     private Mesh _mesh;
     private List<GameObject> _detectedObjects = new List<GameObject>();
-    private static int maxColliders = 10; // Define some arbitrary number to ensure we have enough space to store results from Physics operations.
+    private static int maxColliders = 5; // Define some arbitrary number to ensure we have enough space to store results from Physics operations.
     private Collider[] _detectedColliders = new Collider[maxColliders]; 
     private int _colliderCount;
     private float _scanInterval;
