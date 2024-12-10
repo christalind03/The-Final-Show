@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Mirror;
 
 /// <summary>
 /// Represents a stat that can be modified and adjusted dynamically.

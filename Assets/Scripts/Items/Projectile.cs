@@ -1,14 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Mirror;
 
 /// <summary>
 /// Represents a projectile that deals damage when collinding with a target.
 /// </summary>
-public class Projectile : MonoBehaviour
+public class Projectile : NetworkBehaviour
 {
-    public float ProjectileDamage { get; set; } // Damage dealt
-  
+    [SyncVar]
+    public float ProjectileDamage; // Damage dealt
+
     /// <summary>
     /// Called when the projectile collides with another object.
     /// Checks for a <see cref="Health"/> component and applies damage if found.
@@ -16,15 +18,25 @@ public class Projectile : MonoBehaviour
     /// <param name="collision">The collision data </param>
     private void OnCollisionEnter(Collision collision)
     {
-        // Check if the collided object has a Health component
-        if (collision.gameObject.TryGetComponent(out Health health))
+        if (isServer)
         {
-            // Apply damage
-            health.TakeDamage(ProjectileDamage);
+            // Check if the collided object has a Health component
+            if (collision.gameObject.TryGetComponent(out Health health))
+            {
+                // Apply damage
+                health.TakeDamage(ProjectileDamage);
+            }
         }
+        // Notify all clients to destroy the projectile
+        RpcDestroyProjectile();
+    }
 
-        // Destroy projectile after collision
+    /// <summary>
+    /// Destroys the projectile across all clients.
+    /// </summary>
+    [ClientRpc]
+    private void RpcDestroyProjectile()
+    {
         Destroy(gameObject);
     }
 }
-

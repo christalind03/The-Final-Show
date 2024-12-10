@@ -12,7 +12,7 @@ public class CustomNetworkManager : NetworkManager
     /// <param name="sceneName">Scene that is being transitioned to</param>
     public override void OnServerSceneChanged(string sceneName){
         base.OnServerSceneChanged(sceneName);
-        if(sceneName == "Gameplay" && NetworkServer.active){
+        if(sceneName == "Items" && NetworkServer.active){
             foreach(NetworkConnectionToClient conn in NetworkServer.connections.Values){
                 if (!NetworkClient.ready) {NetworkClient.Ready();}
 

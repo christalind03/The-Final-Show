@@ -1,21 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Mirror;
 
 /// <summary>
 /// Represents the health system for an entity in the game.
 /// Handles damage, health reduction, and death behavior.
 /// </summary>
-public class Health : MonoBehaviour
+public class Health : NetworkBehaviour
 {
     [Header("Health Properties")]
     public float maxHealth = 100f;
+
+    [SyncVar(hook = nameof(OnHealthChanged))]
     private float currentHealth;
 
     [Header("Dependencies")]
-    /// <summary>
-    /// Reference to the <see cref="ArmorManager"/> to calculate damage reduction.
-    /// </summary>
     [SerializeField] private ArmorManager armorManager;
     public bool IsInvulnerable { get; set; } = false;
     private void Start()
@@ -25,6 +25,7 @@ public class Health : MonoBehaviour
     /// <summary>
     /// Applies damage to the entity. Factors in armor defense.
     /// </summary>
+    [Server]
     public void TakeDamage(float damage)
     {
         if (IsInvulnerable) return;
@@ -45,9 +46,30 @@ public class Health : MonoBehaviour
     /// <summary>
     /// Handles the death of the entity.
     /// </summary>
+    [Server]
     private void Die()
     {
         Debug.Log($"{gameObject.name} has died.");
         Destroy(gameObject);
+    }
+
+    /// <summary>
+    /// Called on all clients when health changes.
+    /// </summary>
+    /// <param name="oldHealth">The old health value.</param>
+    /// <param name="newHealth">The new health value.</param>
+    private void OnHealthChanged(float oldHealth, float newHealth)
+    {
+        Debug.Log($"{gameObject.name} health changed: {oldHealth} -> {newHealth}");
+        // We can add in our visual health updates like health bars here
+    }
+
+    /// <summary>
+    /// Called on all clients when the entity dies.
+    /// </summary>
+    [ClientRpc]
+    private void RpcOnDeath()
+    {
+        Debug.Log($"{gameObject.name} death broadcasted to all clients.");
     }
 }

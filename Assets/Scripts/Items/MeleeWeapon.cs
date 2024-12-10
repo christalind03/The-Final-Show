@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Mirror;
+
 /// <summary>
 /// Represents a melee weapon type in the game.
 /// Inherits from the <see cref="Weapon"/> base class.
@@ -13,6 +15,7 @@ public class MeleeWeapon : Weapon
     /// <summary>
     /// Executes the primary attack of the weapon
     /// </summary>
+    [Command]
     public override void Attack()
     {
         if (IsEquipped)
@@ -28,6 +31,7 @@ public class MeleeWeapon : Weapon
     /// <summary>
     /// Executes the alternative (secondary) attack of the weapon. Deals more damage
     /// </summary>
+    [Command]
     public override void AlternateAttack()
     {
         if (IsEquipped)
@@ -44,6 +48,7 @@ public class MeleeWeapon : Weapon
     /// <summary>
     /// Performs the primary attack logic, applying damage to targets in range.
     /// </summary>
+    [Server]
     private void PerformAttack()
     {
         Collider[] hitTargets = Physics.OverlapSphere(transform.position, Range);
@@ -59,6 +64,7 @@ public class MeleeWeapon : Weapon
     /// <summary>
     /// Performs the alternate attack logic, applying increased damage to targets in range.
     /// </summary>
+    [Server]
     private void PerformAlternateAttack()
     {
         Collider[] hitTargets = Physics.OverlapSphere(transform.position, Range);

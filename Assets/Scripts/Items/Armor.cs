@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Mirror;
 
 /// <summary>
 /// Represents an armor piece that can be equipped by an entity.
 /// Gives defensive capabilities and special effects.
 /// </summary>
-public class Armor : MonoBehaviour
+public class Armor : NetworkBehaviour
 {
     public enum ArmorType
     {
@@ -30,24 +31,24 @@ public class Armor : MonoBehaviour
     public bool IsEquipped => isEquipped;
     public ArmorType Type => armorType;
 
-    /// <summary>
-    /// Equips the armor to the specified equip point.
-    /// </summary>
-    /// <param name="equipPoint">The transform representing the equip point.</param>
-    public void Equip(Transform equipPoint)
+    [Command]
+    public void CmdEquip(Transform equipPoint)
     {
-        // Attach to the equip point
+        RpcEquip(equipPoint);
+    }
+
+    [ClientRpc]
+    private void RpcEquip(Transform equipPoint)
+    {
         transform.SetParent(equipPoint);
         transform.localPosition = Vector3.zero;
         transform.localRotation = Quaternion.identity;
 
         Debug.Log($"{armorName} equipped on {equipPoint.name}.");
+        isEquipped = true;
     }
-
-    /// <summary>
-    /// Unequips the armor by detaching it from its equip point.
-    /// </summary>
-    public void Unequip()
+    [Command]
+    public void CmdUnequip()
     {
         transform.SetParent(null);
         Debug.Log($"{armorName} unequipped.");

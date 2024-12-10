@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Mirror;
 
 /// <summary>
 /// Represents a ranged weapon that fires projectiles.
@@ -20,7 +21,10 @@ public class RangedWeapon : Weapon
 
     private void Start()
     {
-        CurrentAmmo = AmmoCapacity;
+        if (isServer)
+        {
+            CurrentAmmo = AmmoCapacity;
+        }
     }
 
     /// <summary>
@@ -31,7 +35,7 @@ public class RangedWeapon : Weapon
         if (IsEquipped && CurrentAmmo > 0)
         {
             CurrentAmmo--;
-            ShootProjectile();
+            CmdShootProjectile();
         }
         else if (CurrentAmmo <= 0)
         {
@@ -51,7 +55,7 @@ public class RangedWeapon : Weapon
         if (IsEquipped && CurrentAmmo > 0)
         {
             CurrentAmmo--;
-            ShootAlternateProjectile();
+            CmdShootAlternateProjectile();
             Debug.Log($"{WeaponName} performed an alternate attack!");
         }
         else if (CurrentAmmo <= 0)
@@ -65,46 +69,17 @@ public class RangedWeapon : Weapon
     }
 
     /// <summary>
-    /// Fires an alternate projectile with increased damage.
-    /// </summary>
-    private void ShootAlternateProjectile()
-    {
-        if (ProjectilePrefab != null && firePoint != null)
-        {
-            // Instantiate the Projectile at the fire point position and rotation
-            Vector3 spawnPosition = firePoint.position + firePoint.forward * 0.5f; // Offset to avoid self-collision
-            GameObject projectileInstance = Instantiate(ProjectilePrefab, spawnPosition, firePoint.rotation);
-
-            // Add force to the projectile
-            Rigidbody rb = projectileInstance.GetComponent<Rigidbody>();
-            if (rb != null)
-            {
-                rb.AddForce(firePoint.forward * shootingForce, ForceMode.Impulse);
-            }
-
-            // Assign alternate damage to the projectile
-            if (projectileInstance.TryGetComponent(out Projectile projectileScript))
-            {
-                projectileScript.ProjectileDamage = this.Damage * 2; // Double the base damage
-            }
-        }
-        else
-        {
-            Debug.LogError("Projectile prefab or fire point is not set.");
-        }
-    }
-
-    /// <summary>
     /// Fires the primary projectile from the weapon.
     /// </summary>
-    private void ShootProjectile()
+    [Command]
+    private void CmdShootProjectile()
     {
         if (ProjectilePrefab != null && firePoint != null)
         {
             // Instantiate the Projectile at the fire point position and rotation
             Vector3 spawnPosition = firePoint.position + firePoint.forward * 0.5f; // Offset by 0.5 units to avoid collision with bow
             GameObject projectileInstance = Instantiate(ProjectilePrefab, firePoint.position, firePoint.rotation);
-            Debug.DrawRay(firePoint.position, firePoint.forward * 0.5f, Color.green, 2f);
+            NetworkServer.Spawn(projectileInstance);
 
             // Ensure the projectile doesn't collide with the bow
             Collider bowCollider = GetComponent<Collider>();
@@ -114,22 +89,54 @@ public class RangedWeapon : Weapon
                 Physics.IgnoreCollision(bowCollider, projectileCollider);
             }
 
+            // Assign the projectile's damage
+            if (projectileInstance.TryGetComponent(out Projectile projectileScript))
+            {
+                projectileScript.ProjectileDamage = this.Damage;
+            }
+
             // Add force to projectile to shoot it forward
             Rigidbody rb = projectileInstance.GetComponent<Rigidbody>();
             if (rb != null)
             {
                 rb.AddForce(firePoint.forward * shootingForce, ForceMode.Impulse);
-          
+
             }
             else
             {
                 Debug.LogError("Projectile prefab is missing a Rigidbody component.");
             }
+        }
+        else
+        {
+            Debug.LogError("Projectile prefab or fire point is not set.");
+        }
+    }
 
-            // Assign the projectile's damage
+    /// <summary>
+    /// Fires an alternate projectile with increased damage.
+    /// </summary>
+    [Command]
+    private void CmdShootAlternateProjectile()
+    {
+        if (ProjectilePrefab != null && firePoint != null)
+        {
+            // Instantiate the Projectile at the fire point position and rotation
+            Vector3 spawnPosition = firePoint.position + firePoint.forward * 0.5f; // Offset to avoid self-collision
+            GameObject projectileInstance = Instantiate(ProjectilePrefab, spawnPosition, firePoint.rotation);
+            NetworkServer.Spawn(projectileInstance);
+
+            // Assign alternate damage to the projectile
             if (projectileInstance.TryGetComponent(out Projectile projectileScript))
             {
-                projectileScript.ProjectileDamage = this.Damage;
+                projectileScript.ProjectileDamage = this.Damage * 2; // Double the base damage
+            }
+
+            // Add force to the projectile
+            Rigidbody rb = projectileInstance.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.AddForce(firePoint.forward * shootingForce, ForceMode.Impulse);
             }
         }
         else
@@ -147,4 +154,3 @@ public class RangedWeapon : Weapon
         CurrentAmmo = AmmoCapacity;
     }
 }
-
