@@ -68,7 +68,7 @@ public class MeleeWeapon : Weapon
     [Server]
     private void PerformAlternateAttack()
     {
-        Collider[] hitTargets = Physics.OverlapSphere(transform.position, Range);
+        Collider[] hitTargets = Physics.OverlapSphere(transform.position, Range, targetMask);
 
         foreach (Collider target in hitTargets)
         {
