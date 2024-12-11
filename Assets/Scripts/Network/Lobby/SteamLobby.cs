@@ -164,7 +164,7 @@ public class SteamLobby : MonoBehaviour
             return;
         }
 
-        manager.ServerChangeScene("Items");
+        manager.ServerChangeScene("Dungeon1");
     }
 
     /// <summary>
