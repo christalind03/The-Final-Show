@@ -60,11 +60,12 @@ public class Health : NetworkBehaviour
             gameObject.transform.Find("Capsule").gameObject.layer = 0;
             CameraController cc = gameObject.GetComponent<CameraController>();
             cc.alive = false;
-            cc.Spectate();  
+            cc.Spectate(); 
         }else{
             Destroy(gameObject);
         }
-        Debug.Log($"{gameObject.name} has died.");
+        Debug.Log($"{gameObject.name} has died.")   ;
+        RpcOnDeath();
     }
 
     /// <summary>
@@ -79,11 +80,18 @@ public class Health : NetworkBehaviour
     }
 
     /// <summary>
-    /// Called on all clients when the entity dies.
+    /// Camera switching on death
     /// </summary>
     [ClientRpc]
     private void RpcOnDeath()
     {
+        if(!isLocalPlayer || isServer){return;}
+        if(gameObject.tag == "Player"){
+            gameObject.transform.Find("Capsule").gameObject.layer = 0;
+            CameraController cc = gameObject.GetComponent<CameraController>();
+            cc.alive = false;
+            cc.Spectate(); 
+        }
         Debug.Log($"{gameObject.name} death broadcasted to all clients.");
     }
 }
