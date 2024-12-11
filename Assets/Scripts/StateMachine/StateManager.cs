@@ -25,7 +25,6 @@ public abstract class StateManager<EState> : NetworkBehaviour where EState : Enu
     /// <summary>
     /// Enter the current state.
     /// </summary>
-    [Server]
     private void Start()
     {
         CurrentState = States[_defaultState];
@@ -35,9 +34,9 @@ public abstract class StateManager<EState> : NetworkBehaviour where EState : Enu
     /// <summary>
     /// Trigger the update loop for the current state.
     /// </summary>
-    [Server]
     private void Update()
     {
+        if(!isServer){return;}
         if (!_isTransitioningState)
         {
             CurrentState.UpdateState();
@@ -48,7 +47,6 @@ public abstract class StateManager<EState> : NetworkBehaviour where EState : Enu
     /// Called when another collider enters the trigger attached to the current gameObject.
     /// </summary>
     /// <param name="otherCollider">The other collider involved in this collision</param>
-    [Server]
     private void OnTriggerEnter(Collider otherCollider)
     {
         CurrentState.OnTriggerEnter(otherCollider);
@@ -58,7 +56,6 @@ public abstract class StateManager<EState> : NetworkBehaviour where EState : Enu
     /// Called when another collider exits the trigger attached to the current gameObject.
     /// </summary>
     /// <param name="otherCollider">The other collider involved in this collision</param>
-    [Server]
     private void OnTriggerExit(Collider otherCollider)
     {
         CurrentState.OnTriggerExit(otherCollider);
@@ -68,7 +65,6 @@ public abstract class StateManager<EState> : NetworkBehaviour where EState : Enu
     /// Called when another collider continues to enable the trigger attached to the current gameObject.
     /// </summary>
     /// <param name="otherCollider">The other collider involved in this collision</param>
-    [Server]
     private void OnTriggerStay(Collider otherCollider)
     {
         CurrentState.OnTriggerStay(otherCollider);
@@ -78,7 +74,6 @@ public abstract class StateManager<EState> : NetworkBehaviour where EState : Enu
     /// Transition from the current state to the given state.
     /// </summary>
     /// <param name="stateKey">The enumerable member to transition to</param>
-    [Server]
     protected void TransitionToState(EState stateKey)
     {
         if (!CurrentState.StateKey.Equals(stateKey))

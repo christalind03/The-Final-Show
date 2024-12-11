@@ -63,9 +63,9 @@ public class FieldOfView : NetworkBehaviour
     /// <summary>
     /// Called once per frame to update the scan timer and periodically scan for objects within the vision cone's range.
     /// </summary>
-    [Server]
     private void Update()
     {
+        if(!isServer){return;}
         if(!Application.isPlaying) return;
         _scanTimer -= Time.deltaTime;
 

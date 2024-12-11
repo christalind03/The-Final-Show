@@ -40,7 +40,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     /// Gets relevant components from the GameObject
     /// Initializes the context shared by concrete states
     /// </summary>
-    [Server]
     private void Awake()
     {
         _initialPosition = transform.position;
@@ -59,7 +58,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     /// <summary>
     /// Initializes the mapping of state keys from EEnemyState to an instance of an EnemyState object
     /// </summary>
-    [Server]
     private void InitializeStates()
     {
         foreach (StateMapping<EnemyStateMachine.EEnemyState> stateMapping in StateMappings)
@@ -77,7 +75,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     /// <summary>
     /// Contains logic for keeping track of the target and transitioning between states
     /// </summary>
-    [Server]
     private void FixedUpdate()
     {
         // _fieldOfView's interested layers should only be player
