@@ -506,7 +506,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (hitObj.TryGetComponent(out IInteractable interactableObj))
         {
-            interactableObj.Interact();
+            interactableObj.Interact(gameObject);
         }
 
         // Propagates the changes to all client
@@ -563,7 +563,7 @@ public class PlayerController : NetworkBehaviour
         // Same reasoning as RpcDrop with the added component of getting the component "IInteractable"
         if (!isServer && hitObj.TryGetComponent(out IInteractable interactableObj))
         {
-            interactableObj.Interact();
+            interactableObj.Interact(gameObject);
         }
     }
 
