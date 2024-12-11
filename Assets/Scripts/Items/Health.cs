@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
+using UnityEditor.Timeline;
 
 /// <summary>
 /// Represents the health system for an entity in the game.
@@ -49,8 +50,15 @@ public class Health : NetworkBehaviour
     [Server]
     private void Die()
     {
+        if(gameObject.tag == "Player"){
+            gameObject.transform.Find("Capsule").gameObject.layer = 0;
+            CameraController cc = gameObject.GetComponent<CameraController>();
+            cc.alive = false;
+            cc.Spectate();  
+        }else{
+            Destroy(gameObject);
+        }
         Debug.Log($"{gameObject.name} has died.");
-        Destroy(gameObject);
     }
 
     /// <summary>
