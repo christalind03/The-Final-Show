@@ -65,8 +65,9 @@ public class FieldOfView : NetworkBehaviour
     /// </summary>
     private void Update()
     {
-        if(!isServer){return;}
-        if(!Application.isPlaying) return;
+        if (!Application.isPlaying) return;
+        if (!isServer){return;}
+        
         _scanTimer -= Time.deltaTime;
 
         if (_scanTimer < 0)
