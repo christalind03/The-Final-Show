@@ -57,6 +57,7 @@ public class SteamLobby : MonoBehaviour
         // Make sure the lobby is actually create
         if (callback.m_eResult != EResult.k_EResultOK) { return; }
 
+        manager.LobbyId = callback.m_ulSteamIDLobby;
         manager.StartHost();
 
         // Assign the metadata, HostAddressKey and "name"
