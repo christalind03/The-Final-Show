@@ -19,6 +19,12 @@ public class Health : NetworkBehaviour
     [Header("Dependencies")]
     [SerializeField] private ArmorManager armorManager;
     public bool IsInvulnerable { get; set; } = false;
+
+    public float CurrentHealth
+    {
+        get => currentHealth;
+    }
+
     private void Start()
     {
         currentHealth = maxHealth;
