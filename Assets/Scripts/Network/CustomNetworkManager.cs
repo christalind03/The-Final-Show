@@ -23,7 +23,7 @@ public class CustomNetworkManager : NetworkManager
                 if (!NetworkClient.ready) {NetworkClient.Ready();}
 
                 if (conn.identity == null){
-                    GameObject player = Instantiate(playerPrefab);
+                    GameObject player = Instantiate(playerPrefab, GetStartPosition());
                     CSteamID steamId = SteamMatchmaking.GetLobbyMemberByIndex(new CSteamID(LobbyId), numPlayer);
                     player.name = SteamFriends.GetFriendPersonaName(steamId);
                     numPlayer++; 
