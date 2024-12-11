@@ -77,6 +77,14 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     /// </summary>
     private void FixedUpdate()
     {
+        // if the current target has been destroyed, go to idle
+        if (_hasTarget && _context.TargetTransform == null)
+        {
+            TransitionToState(EEnemyState.Idle);
+            _hasTarget = false;
+            return;
+        }
+        
         // _fieldOfView's interested layers should only be player
         float distToTarget = 0f;
         // When a target is within the FOV

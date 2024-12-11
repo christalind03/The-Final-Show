@@ -15,6 +15,18 @@ public class AttackingState : EnemyState
         Debug.Log("Entering Attacking State");
         Context.Material.SetColor("_BaseColor", Color.magenta);
         // Need to actually damage player
+        //Context.TargetTransform.GetComponent<Health>().TakeDamage(Context.AttackStats.AttackDamage);
+        
+        if (Context.TargetTransform.root.TryGetComponent(out Health targetHealth))
+        {
+            targetHealth.TakeDamage(Context.AttackStats.AttackDamage);
+            Debug.Log("did damage");
+        }
+        else
+        {
+            Debug.Log("NO damage");
+        }
+        
     }
 
     public override void ExitState() 

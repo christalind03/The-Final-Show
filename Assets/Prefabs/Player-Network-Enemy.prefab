@@ -271,6 +271,7 @@ GameObject:
   - component: {fileID: 8052617947524927007}
   - component: {fileID: 7720085641231836243}
   - component: {fileID: 231704842366156892}
+  - component: {fileID: -5692037576244786893}
   m_Layer: 6
   m_Name: Player-Network-Enemy
   m_TagString: Untagged
@@ -353,6 +354,9 @@ MonoBehaviour:
   _followTransform: {fileID: 3686861163434509560}
   _playerTransform: {fileID: 1206253589982362535}
   _playerController: {fileID: 1959349147992529759}
+  _currentWeapon: {fileID: 0}
+  playerHandTransform: {fileID: 0}
+  armorManager: {fileID: 0}
 --- !u!114 &8052617947524927007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -402,8 +406,27 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  alive: 1
   cameraHolder: {fileID: 148883709153697523}
   vc: {fileID: 3115284272375496375}
+  uIDocument: {fileID: 0}
+--- !u!114 &-5692037576244786893
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4864858780521669099}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ab21dbda7025ca41be37f1d67ce1e09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  maxHealth: 100
+  armorManager: {fileID: 0}
 --- !u!1 &7218310050663478101
 GameObject:
   m_ObjectHideFlags: 0

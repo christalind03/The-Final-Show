@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 2824819207866110183}
   - component: {fileID: 5514443342915142905}
   - component: {fileID: 6143908776311191133}
-  - component: {fileID: 4959854932617644712}
+  - component: {fileID: 7227478627238771143}
   m_Layer: 6
   m_Name: Capsule
   m_TagString: Untagged
@@ -169,7 +169,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &4959854932617644712
+--- !u!136 &7227478627238771143
 CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -380,6 +380,7 @@ GameObject:
   - component: {fileID: 4434578188930889017}
   - component: {fileID: 2873006661348008412}
   - component: {fileID: 8628792477167078385}
+  - component: {fileID: 7206835829060474261}
   m_Layer: 6
   m_Name: Player-Network
   m_TagString: Untagged
@@ -538,6 +539,23 @@ MonoBehaviour:
   headEquipPoint: {fileID: 4210479445952513072}
   chestEquipPoint: {fileID: 0}
   legsEquipPoint: {fileID: 0}
+--- !u!114 &7206835829060474261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3233045660875188808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ab21dbda7025ca41be37f1d67ce1e09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  maxHealth: 20
+  armorManager: {fileID: 0}
 --- !u!1 &5965713402515774538
 GameObject:
   m_ObjectHideFlags: 0
