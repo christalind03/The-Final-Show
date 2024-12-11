@@ -9,6 +9,7 @@ public class MeleeWeapon : Weapon
 {
     public float Range;
     public float SwingSpeed;
+    public LayerMask targetMask;
 
     /// <summary>
     /// Executes the primary attack of the weapon
@@ -49,8 +50,8 @@ public class MeleeWeapon : Weapon
     [Server]
     private void PerformAttack()
     {
-        Collider[] hitTargets = Physics.OverlapSphere(transform.position, Range);
-
+        Collider[] hitTargets = Physics.OverlapSphere(transform.position, Range, targetMask);
+            // target.transform.parent.gameObject.TryGetComponent(out Health targetHealth)
         foreach (Collider target in hitTargets)
         {
             if (target.TryGetComponent(out Health targetHealth))
@@ -65,7 +66,7 @@ public class MeleeWeapon : Weapon
     [Server]
     private void PerformAlternateAttack()
     {
-        Collider[] hitTargets = Physics.OverlapSphere(transform.position, Range);
+        Collider[] hitTargets = Physics.OverlapSphere(transform.position, Range, targetMask);
 
         foreach (Collider target in hitTargets)
         {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Mirror;
 
 /// <summary>
 /// A reusable state machine manager to apply to various objects that requires a state machine.
@@ -9,7 +10,7 @@ using UnityEngine;
 /// </summary>
 /// <typeparam name="EState">The enumerable type representing the possible states</typeparam>
 [System.Serializable]
-public abstract class StateManager<EState> : MonoBehaviour where EState : Enum
+public abstract class StateManager<EState> : NetworkBehaviour where EState : Enum
 {
     [Header("State Paramaters")]
     [Tooltip("Associates each state with its corresponding behavior.")]
@@ -35,6 +36,7 @@ public abstract class StateManager<EState> : MonoBehaviour where EState : Enum
     /// </summary>
     private void Update()
     {
+        if(!isServer){return;}
         if (!_isTransitioningState)
         {
             CurrentState.UpdateState();
