@@ -52,7 +52,7 @@ public class MeleeWeapon : Weapon
     private void PerformAttack()
     {
         Collider[] hitTargets = Physics.OverlapSphere(transform.position, Range);
-
+            // target.transform.parent.gameObject.TryGetComponent(out Health targetHealth)
         foreach (Collider target in hitTargets)
         {
             if (target.TryGetComponent(out Health targetHealth))

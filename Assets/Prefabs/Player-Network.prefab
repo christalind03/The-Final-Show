@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7846344713269944110}
   - component: {fileID: 5422184307093843967}
   - component: {fileID: 5264870925697463125}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,8 @@ GameObject:
   - component: {fileID: 2824819207866110183}
   - component: {fileID: 5514443342915142905}
   - component: {fileID: 6143908776311191133}
-  m_Layer: 0
+  - component: {fileID: 4959854932617644712}
+  m_Layer: 6
   m_Name: Capsule
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -168,6 +169,29 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!136 &4959854932617644712
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1310588637199128199}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2164522494138621449
 GameObject:
   m_ObjectHideFlags: 0
@@ -177,7 +201,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4210479445952513072}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: headEquipPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -210,7 +234,7 @@ GameObject:
   - component: {fileID: 103120818524795355}
   - component: {fileID: 3722646166315641881}
   - component: {fileID: 933908488270745726}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: cm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -279,7 +303,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1025035789335363843}
   - component: {fileID: 8799199552286307878}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Virtual Camera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -356,7 +380,7 @@ GameObject:
   - component: {fileID: 4434578188930889017}
   - component: {fileID: 2873006661348008412}
   - component: {fileID: 8628792477167078385}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Player-Network
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -492,8 +516,10 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  alive: 1
   cameraHolder: {fileID: 8072066830265649567}
   vc: {fileID: 8799199552286307878}
+  uIDocument: {fileID: 0}
 --- !u!114 &8628792477167078385
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -521,7 +547,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1279517964111326137}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Follow Target
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -556,7 +582,7 @@ GameObject:
   - component: {fileID: 8140325255417611529}
   - component: {fileID: 792375819895646748}
   - component: {fileID: 2621432178560140096}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Camera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -724,7 +750,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9054766179748878592}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: CameraHolder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -756,7 +782,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7671284931563572099}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: HandTransform
   m_TagString: Untagged
   m_Icon: {fileID: 0}

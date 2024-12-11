@@ -115,8 +115,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8673900043215183835}
+  - component: {fileID: 7217266000178955503}
   - component: {fileID: 8737431828506552504}
   - component: {fileID: 295693870632516509}
+  - component: {fileID: 8667152180243350679}
   - component: {fileID: 5495646602855486127}
   - component: {fileID: 5662344163914639575}
   - component: {fileID: 275199480956971714}
@@ -143,6 +145,27 @@ Transform:
   - {fileID: 3311777533438656229}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &7217266000178955503
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4915136552179181740}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &8737431828506552504
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -205,6 +228,23 @@ MonoBehaviour:
     m_Bits: 1
   _meshColor: {r: 1, g: 0, b: 0, a: 0.5019608}
   _visibleObject: {r: 0, g: 0, b: 1, a: 0.5019608}
+--- !u!114 &8667152180243350679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4915136552179181740}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ab21dbda7025ca41be37f1d67ce1e09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  maxHealth: 100
+  armorManager: {fileID: 0}
 --- !u!195 &5495646602855486127
 NavMeshAgent:
   m_ObjectHideFlags: 0
