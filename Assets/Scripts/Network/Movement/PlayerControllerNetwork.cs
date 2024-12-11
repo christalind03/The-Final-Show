@@ -222,7 +222,7 @@ public class PlayerControllerNetwork : NetworkBehaviour
         }
         else if (hitCollider != null && hitCollider.TryGetComponent(out Armor armor))
         {
-            armorManager.CmdEquipArmor(armor);
+            armorManager.CmdEquipArmor(armor.gameObject);
             Debug.Log($"{armor.ArmorName} equipped.");
         }
         else
@@ -265,6 +265,10 @@ public class PlayerControllerNetwork : NetworkBehaviour
         _canSprint = true;
     }
 
+    /// <summary>
+    /// Equips a weapon to the player's hand and synchronizes with the server
+    /// </summary>
+    /// <param name="weapon">The weapon to equip</param>
     [Command]
     public void CmdEquipWeapon(Weapon weapon)
     {
@@ -289,9 +293,9 @@ public class PlayerControllerNetwork : NetworkBehaviour
             weaponIdentity.AssignClientAuthority(connectionToClient);
         }
 
-        _currentWeapon.CmdEquip();
+        _currentWeapon.CmdEquip(playerHandTransform);
 
-        // Make sure the bow is active
+        // Make sure the weapon is active
         weapon.gameObject.SetActive(true);
 
         // Attach the weapon to the player's hand
@@ -311,6 +315,9 @@ public class PlayerControllerNetwork : NetworkBehaviour
         RpcEquipWeapon(weapon);
     }
 
+    /// <summary>
+    /// Unequips the currently equipped weapon and synchronizes with the server
+    /// </summary>
     [Command]
     public void CmdUnequipWeapon()
     {
@@ -322,7 +329,9 @@ public class PlayerControllerNetwork : NetworkBehaviour
         }
     }
 
-
+    /// <summary>
+    /// Drops (swaps?) the currently equipped weapon and synchronizes the drop position with all clients
+    /// </summary>
     [Command]
     private void CmdDropWeapon()
     {
@@ -368,7 +377,7 @@ public class PlayerControllerNetwork : NetworkBehaviour
 
             // Clear the weapon reference
             _currentWeapon = null;
-            }
+        }
     }
 
     /// <summary>
@@ -485,6 +494,10 @@ public class PlayerControllerNetwork : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Updates the equipped weapon on all clients
+    /// </summary>
+    /// <param name="weapon">The weapon being equipped</param>
     [ClientRpc]
     private void RpcEquipWeapon(Weapon weapon)
     {
@@ -499,6 +512,10 @@ public class PlayerControllerNetwork : NetworkBehaviour
         Debug.Log($"[Client] Weapon {weapon.WeaponName} equipped.");
     }
 
+    /// <summary>
+    /// Updates the unequipped weapon state on all clients
+    /// </summary>
+    /// <param name="weapon">The weapon being unequipped</param>
     [ClientRpc]
     private void RpcUnequipWeapon(Weapon weapon)
     {
@@ -509,6 +526,10 @@ public class PlayerControllerNetwork : NetworkBehaviour
 
     }
 
+    /// <summary>
+    /// Updates the dropped weapon position on all clients
+    /// </summary>
+    /// <param name="dropPosition">The drop position of the weapon</param>
     [ClientRpc]
     private void RpcDropWeapon(Vector3 dropPosition)
     {

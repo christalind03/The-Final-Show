@@ -18,17 +18,25 @@ public abstract class Weapon : NetworkBehaviour
     /// Equips the weapon
     /// </summary>
     [Command]
-    public virtual void CmdEquip()
+    public virtual void CmdEquip(Transform equipPoint)
     {
-        IsEquipped = true;
-        RpcEquip();
+        RpcEquip(equipPoint);
         Debug.Log($"{WeaponName} equipped.");
     }
 
+    /// <summary>
+    /// Synchronizes the equipped weapon's visual state across all clients
+    /// </summary>
+    /// <param name="equipPoint"></param>
     [ClientRpc]
-    private void RpcEquip()
+    private void RpcEquip(Transform equipPoint)
     {
-        IsEquipped = true;
+        if (equipPoint != null)
+        {
+            transform.SetParent(equipPoint);
+            transform.localPosition = Vector3.zero;
+            transform.localRotation = Quaternion.identity;
+        }
         Debug.Log($"{WeaponName} equipped on all clients.");
     }
 
@@ -43,6 +51,9 @@ public abstract class Weapon : NetworkBehaviour
         Debug.Log($"{WeaponName} unequipped.");
     }
 
+    /// <summary>
+    /// Synchronizes unequipping of the weapon across all clients
+    /// </summary>
     [ClientRpc]
     private void RpcUnequip()
     {

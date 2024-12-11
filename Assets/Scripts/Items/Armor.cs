@@ -30,13 +30,20 @@ public class Armor : NetworkBehaviour
     public string SpecialEffect => specialEffect;
     public bool IsEquipped => isEquipped;
     public ArmorType Type => armorType;
-
+    /// <summary>
+    /// Equips the armor piece by attaching it to the specified equip point
+    /// </summary>
+    /// <param name="equipPoint"></param>
     [Command]
     public void CmdEquip(Transform equipPoint)
     {
         RpcEquip(equipPoint);
     }
 
+    /// <summary>
+    /// Synchronizes the armor's equipped state visually across all clients
+    /// </summary>
+    /// <param name="equipPoint"></param>
     [ClientRpc]
     private void RpcEquip(Transform equipPoint)
     {
@@ -47,6 +54,10 @@ public class Armor : NetworkBehaviour
         Debug.Log($"{armorName} equipped on {equipPoint.name}.");
         isEquipped = true;
     }
+
+    /// <summary>
+    /// Unequips the armor piece and detaches it from its parent
+    /// </summary>
     [Command]
     public void CmdUnequip()
     {
@@ -57,8 +68,8 @@ public class Armor : NetworkBehaviour
     /// <summary>
     /// Reduces incoming damage based on the armor's defense value.
     /// </summary>
-    /// <param name="incomingDamage">The original damage value.</param>
-    /// <returns>The reduced damage value.</returns>
+    /// <param name="incomingDamage">The original damage value</param>
+    /// <returns>The reduced damage value</returns>
     public float ModifyDamage(float incomingDamage)
     {
         float reducedDamage = Mathf.Max(incomingDamage - defense, 0);

@@ -1,8 +1,8 @@
+// ArmorManager.cs
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
-using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using static Armor;
 
 /// <summary>
@@ -16,164 +16,119 @@ public class ArmorManager : NetworkBehaviour
     [SerializeField] private Transform chestEquipPoint;
     [SerializeField] private Transform legsEquipPoint;
 
-    private Armor _currentHeadArmor;
-    private Armor _currentChestArmor;
-    private Armor _currentLegArmor;
+    [SyncVar(hook = nameof(OnHeadArmorChanged))]
+    private GameObject currentHeadArmor;
+
+    [SyncVar(hook = nameof(OnChestArmorChanged))]
+    private GameObject currentChestArmor;
+
+    [SyncVar(hook = nameof(OnLegArmorChanged))]
+    private GameObject currentLegArmor;
 
     /// <summary>
-    /// Equips the armor and unequips the currently equipped armor of the same type.
+    /// Equips the armor and unequips the currently equipped armor of the same type
     /// </summary>
-    /// <param name="armor">The armor to equip.</param>
+    /// <param name="armor">The armor to equip</param>
     [Command]
-    public void CmdEquipArmor(Armor armor)
+    public void CmdEquipArmor(GameObject armorObject)
     {
-        if (armor == null)
-        {
-            Debug.LogError("Armor is null. Cannot equip.");
-            return;
-        }
+        if (armorObject == null) return;
+
+        Armor armor = armorObject.GetComponent<Armor>();
+        if (armor == null) return;
 
         Transform equipPoint = null;
-
-        // Determine the equip point based on the armor type
         switch (armor.Type)
         {
-            case Armor.ArmorType.Head:
-                equipPoint = headEquipPoint;
-                if (_currentHeadArmor != null)
+            case ArmorType.Head:
+                if (currentHeadArmor != null)
                 {
-                    _currentHeadArmor.CmdUnequip();
+                    RpcUnequipArmor(currentHeadArmor);
                 }
-                _currentHeadArmor = armor;
-                break;
-
-            case Armor.ArmorType.Chest:
-                if (chestEquipPoint != null)
-                {
-                    equipPoint = chestEquipPoint;
-                    if (_currentChestArmor != null)
-                    {
-                        _currentChestArmor.CmdUnequip();
-                    }
-                    _currentChestArmor = armor;
-                }
-                break;
-
-            case Armor.ArmorType.Legs:
-                if (legsEquipPoint != null)
-                {
-                    equipPoint = legsEquipPoint;
-                    if (_currentLegArmor != null)
-                    {
-                        _currentLegArmor.CmdUnequip();
-                    }
-                    _currentLegArmor = armor;
-                }
-                break;
-
-            default:
-                Debug.LogError($"Unsupported armor type: {armor.Type}");
-                return;
-        }
-
-        if (equipPoint == null)
-        {
-            Debug.LogWarning($"Equip point for {armor.Type} is null. Cannot visually attach armor.");
-            return;
-        }
-
-        // Equip the armor visually and sync
-        armor.transform.SetParent(equipPoint);
-        armor.transform.localPosition = Vector3.zero;
-        armor.transform.localRotation = Quaternion.identity;
-        RpcEquipArmor(armor.Type);
-
-        Debug.Log($"Equipped {armor.ArmorName} on {equipPoint.name}.");
-    }
-
-    [ClientRpc]
-    private void RpcEquipArmor(Armor.ArmorType type)
-    {
-        Armor armorToEquip = null;
-        Transform equipPoint = null;
-
-        switch (type)
-        {
-            case Armor.ArmorType.Head:
-                armorToEquip = _currentHeadArmor;
+                currentHeadArmor = armorObject;
                 equipPoint = headEquipPoint;
                 break;
-
-            case Armor.ArmorType.Chest:
-                armorToEquip = _currentChestArmor;
+            case ArmorType.Chest:
+                if (currentChestArmor != null)
+                {
+                    RpcUnequipArmor(currentChestArmor);
+                }
+                currentChestArmor = armorObject;
                 equipPoint = chestEquipPoint;
                 break;
-
-            case Armor.ArmorType.Legs:
-                armorToEquip = _currentLegArmor;
+            case ArmorType.Legs:
+                if (currentLegArmor != null)
+                {
+                    RpcUnequipArmor(currentLegArmor);
+                }
+                currentLegArmor = armorObject;
                 equipPoint = legsEquipPoint;
                 break;
         }
 
-        if (armorToEquip != null && equipPoint != null)
+        if (equipPoint != null)
         {
-            armorToEquip.transform.SetParent(equipPoint);
-            armorToEquip.transform.localPosition = Vector3.zero;
-            armorToEquip.transform.localRotation = Quaternion.identity;
-            Debug.Log($"[Client] Equipped {armorToEquip.ArmorName} on {equipPoint.name}.");
+            armorObject.GetComponent<Armor>().CmdEquip(equipPoint);
         }
     }
-
 
     /// <summary>
-    /// Unequips the armor of the specified type.
+    /// Synchronizes unequipping of an armor piece across all clients
     /// </summary>
-    /// <param name="armorType">The type of armor to unequip.</param>
-    [Command]
-    public void CmdUnequipArmor(Armor.ArmorType armorType)
-    {
-        switch (armorType)
-        {
-            case Armor.ArmorType.Head:
-                if (_currentHeadArmor != null)
-                {
-                    _currentHeadArmor.CmdUnequip();
-                    Debug.Log($"Unequipped {_currentHeadArmor.ArmorName} from the head.");
-                    _currentHeadArmor = null;
-                }
-                break;
-
-            case Armor.ArmorType.Chest:
-                if (_currentChestArmor != null)
-                {
-                    _currentChestArmor.CmdUnequip();
-                    Debug.Log($"Unequipped {_currentChestArmor.ArmorName} from the chest.");
-                    _currentChestArmor = null;
-                }
-                break;
-
-            case Armor.ArmorType.Legs:
-                if (_currentLegArmor != null)
-                {
-                    _currentLegArmor.CmdUnequip();
-                    Debug.Log($"Unequipped {_currentLegArmor.ArmorName} from the legs.");
-                    _currentLegArmor = null;
-                }
-                break;
-
-            default:
-                Debug.LogError("Unsupported armor type.");
-                break;
-        }
-    }
-
+    /// <param name="armorObject"></param>
     [ClientRpc]
     private void RpcUnequipArmor(GameObject armorObject)
     {
         if (armorObject.TryGetComponent(out Armor armor))
         {
             armor.CmdUnequip();
-            Debug.Log($"[Client] Unequipped {armor.ArmorName}.");
+        }
+    }
+
+    /// <summary>
+    /// Updates the visual representation of equipped head armor when changed
+    /// </summary>
+    /// <param name="oldArmor"></param>
+    /// <param name="newArmor"></param>
+    private void OnHeadArmorChanged(GameObject oldArmor, GameObject newArmor)
+    {
+        UpdateArmorVisual(newArmor, headEquipPoint);
+    }
+    /// <summary>
+    /// Updates the visual representation of equipped chest armor when changed
+    /// </summary>
+    /// <param name="oldArmor"></param>
+    /// <param name="newArmor"></param>
+    private void OnChestArmorChanged(GameObject oldArmor, GameObject newArmor)
+    {
+        UpdateArmorVisual(newArmor, chestEquipPoint);
+    }
+
+    /// <summary>
+    /// Updates the visual representation of equipped leg armor when changed
+    /// </summary>
+    /// <param name="oldArmor"></param>
+    /// <param name="newArmor"></param>
+    private void OnLegArmorChanged(GameObject oldArmor, GameObject newArmor)
+    {
+        UpdateArmorVisual(newArmor, legsEquipPoint);
+    }
+
+    /// <summary>
+    /// Updates the parent transform and position of an armor piece visually
+    /// </summary>
+    /// <param name="armorObject"></param>
+    /// <param name="equipPoint"></param>
+    private void UpdateArmorVisual(GameObject armorObject, Transform equipPoint)
+    {
+        if (armorObject == null || equipPoint == null) return;
+
+        Armor armor = armorObject.GetComponent<Armor>();
+        if (armor != null)
+        {
+            armor.transform.SetParent(equipPoint);
+            armor.transform.localPosition = Vector3.zero;
+            armor.transform.localRotation = Quaternion.identity;
         }
     }
 
@@ -186,14 +141,27 @@ public class ArmorManager : NetworkBehaviour
     {
         float reducedDamage = incomingDamage;
 
-        if (_currentHeadArmor != null)
-            reducedDamage = _currentHeadArmor.ModifyDamage(reducedDamage);
-        if (_currentChestArmor != null)
-            reducedDamage = _currentChestArmor.ModifyDamage(reducedDamage);
-        if (_currentLegArmor != null)
-            reducedDamage = _currentLegArmor.ModifyDamage(reducedDamage);
+        if (currentHeadArmor != null)
+        {
+            Armor headArmor = currentHeadArmor.GetComponent<Armor>();
+            if (headArmor != null)
+                reducedDamage = headArmor.ModifyDamage(reducedDamage);
+        }
+
+        if (currentChestArmor != null)
+        {
+            Armor chestArmor = currentChestArmor.GetComponent<Armor>();
+            if (chestArmor != null)
+                reducedDamage = chestArmor.ModifyDamage(reducedDamage);
+        }
+
+        if (currentLegArmor != null)
+        {
+            Armor legArmor = currentLegArmor.GetComponent<Armor>();
+            if (legArmor != null)
+                reducedDamage = legArmor.ModifyDamage(reducedDamage);
+        }
 
         return reducedDamage;
     }
-
 }
