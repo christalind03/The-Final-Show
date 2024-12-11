@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
+using UnityEditor.Timeline;
 
 /// <summary>
 /// Represents the health system for an entity in the game.
@@ -18,6 +19,12 @@ public class Health : NetworkBehaviour
     [Header("Dependencies")]
     [SerializeField] private ArmorManager armorManager;
     public bool IsInvulnerable { get; set; } = false;
+
+    public float CurrentHealth
+    {
+        get => currentHealth;
+    }
+
     private void Start()
     {
         currentHealth = maxHealth;
@@ -49,8 +56,16 @@ public class Health : NetworkBehaviour
     [Server]
     private void Die()
     {
-        Debug.Log($"{gameObject.name} has died.");
-        Destroy(gameObject);
+        if(gameObject.tag == "Player"){
+            gameObject.transform.Find("Capsule").gameObject.layer = 0;
+            CameraController cc = gameObject.GetComponent<CameraController>();
+            cc.alive = false;
+            cc.Spectate(); 
+        }else{
+            Destroy(gameObject);
+        }
+        Debug.Log($"{gameObject.name} has died.")   ;
+        RpcOnDeath();
     }
 
     /// <summary>
@@ -65,11 +80,18 @@ public class Health : NetworkBehaviour
     }
 
     /// <summary>
-    /// Called on all clients when the entity dies.
+    /// Camera switching on death
     /// </summary>
     [ClientRpc]
     private void RpcOnDeath()
     {
+        if(!isLocalPlayer || isServer){return;}
+        if(gameObject.tag == "Player"){
+            gameObject.transform.Find("Capsule").gameObject.layer = 0;
+            CameraController cc = gameObject.GetComponent<CameraController>();
+            cc.alive = false;
+            cc.Spectate(); 
+        }
         Debug.Log($"{gameObject.name} death broadcasted to all clients.");
     }
 }
