@@ -4,9 +4,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 using Mirror;
-using Org.BouncyCastle.Utilities.IO.Pem;
-using static UnityEngine.Rendering.VirtualTexturing.Debugging;
-using Unity.VisualScripting.Antlr3.Runtime.Misc;
 
 
 [RequireComponent(typeof(CharacterController))]
@@ -40,7 +37,7 @@ public class PlayerController : NetworkBehaviour
 
     [Header("Weapon Parameters")]
     [SerializeField] private Weapon _currentWeapon;
-    public Transform playerHandTransform;
+    public GameObject playerHand;
 
     [Header("Armor Components")]
     [SerializeField] private ArmorManager armorManager;
@@ -235,6 +232,13 @@ public class PlayerController : NetworkBehaviour
     private void Drop(Vector3? targetPosition = null)
     {
         GameObject droppedItem = _playerInventory.RemoveItem();
+        
+        if(droppedItem.GetComponent<MeleeWeapon>() != null || droppedItem.GetComponent<RangedWeapon>() != null){
+            UnequipWeapon();
+        }
+        else if(droppedItem.GetComponent<Armor>() != null){
+            armorManager.UnequipArmor(droppedItem);
+        }
 
         if (_raycastHit.collider != null && droppedItem != null)
         {
@@ -264,30 +268,31 @@ public class PlayerController : NetworkBehaviour
             // Check to see if we can add this item to our inventory.
             if (hitGameObject.GetComponent<IInventoryItem>() != null)
             {
-                if (_playerInventory.HasItem())
-                {
-                    Drop(hitGameObject.transform.position);
+                if(hitGameObject.transform.parent == null){
+                    if (_playerInventory.HasItem())
+                    {
+                        Drop(hitGameObject.transform.position);
+                    }
+
+                    if (hitGameObject.TryGetComponent(out Weapon weapon))
+                    {
+                        CmdEquipWeapon(weapon);
+                        _playerInventory.AddItem(hitGameObject);
+                        CmdInteract(hitGameObject);
+                    }
+                    else if (hitCollider != null && hitCollider.TryGetComponent(out Armor armor))
+                    {
+                        armorManager.CmdEquipArmor(armor.gameObject);
+                        _playerInventory.AddItem(hitGameObject);
+                        CmdInteract(hitGameObject);
+                    }
+                    else
+                    {
+                        Debug.Log($"{hitGameObject.name} is neither a weapon nor armor.");
+                    }                    
                 }
 
-                _playerInventory.AddItem(hitGameObject);
             }
-
-            CmdInteract(hitGameObject);
-        }
-
-        if (hitGameObject.TryGetComponent(out Weapon weapon))
-        {
-            CmdEquipWeapon(weapon);
-            Debug.Log($"{weapon.WeaponName} equipped.");
-        }
-        else if (hitCollider != null && hitCollider.TryGetComponent(out Armor armor))
-        {
-            armorManager.CmdEquipArmor(armor.gameObject);
-            Debug.Log($"{armor.ArmorName} equipped.");
-        }
-        else
-        {
-            Debug.Log($"{hitGameObject.name} is neither a weapon nor armor.");
         }
     }
 
@@ -343,16 +348,6 @@ public class PlayerController : NetworkBehaviour
     [Command]
     public void CmdEquipWeapon(Weapon weapon)
     {
-        // If there is a currently equipped weapon, drop it and remove authority
-        if (_currentWeapon != null)
-        {
-            CmdDropWeapon(); // Drop the currently equipped weapon
-
-            if (_currentWeapon.TryGetComponent<NetworkIdentity>(out NetworkIdentity currentWeaponIdentity))
-            {
-                currentWeaponIdentity.RemoveClientAuthority(); // Remove authority from the old weapon
-            }
-        }
 
         // Set the new weapon
         _currentWeapon = weapon;
@@ -364,16 +359,10 @@ public class PlayerController : NetworkBehaviour
             weaponIdentity.AssignClientAuthority(connectionToClient);
         }
 
-        _currentWeapon.CmdEquip(playerHandTransform);
+        _currentWeapon.Interact(playerHand);
 
         // Make sure the weapon is active
         weapon.gameObject.SetActive(true);
-
-        // Attach the weapon to the player's hand
-        weapon.transform.SetParent(playerHandTransform);
-        weapon.transform.localPosition = Vector3.zero;
-        weapon.transform.localRotation = Quaternion.Euler(0, -90, 0); // Set the correct rotation for the weapon when held
-        weapon.transform.localScale = Vector3.one; // Reset the scale to 1,1,1 to make sure it's visible
 
         // Make sure the Rigidbody is set to kinematic to avoid physics issues while holding it
         Rigidbody weaponRb = weapon.GetComponent<Rigidbody>();
@@ -382,71 +371,18 @@ public class PlayerController : NetworkBehaviour
             weaponRb.isKinematic = true; // Disable physics on the weapon while it is being held
         }
 
-        Debug.Log($"{weapon.WeaponName} has been equipped and attached to the player's hand.");
         RpcEquipWeapon(weapon);
     }
 
     /// <summary>
     /// Unequips the currently equipped weapon and synchronizes with the server
     /// </summary>
-    [Command]
-    public void CmdUnequipWeapon()
+    
+    public void UnequipWeapon()
     {
         if (_currentWeapon != null)
         {
-            RpcUnequipWeapon(_currentWeapon);
             _currentWeapon.CmdUnequip();
-            _currentWeapon = null;
-        }
-    }
-
-    /// <summary>
-    /// Drops (swaps?) the currently equipped weapon and synchronizes the drop position with all clients
-    /// </summary>
-    [Command]
-    private void CmdDropWeapon()
-    {
-        if (_currentWeapon == null)
-        {
-            Debug.Log("No weapon to drop.");
-            return;
-        }
-        else
-        {
-            // Calculate the drop position
-            Vector3 dropPosition = transform.position + transform.forward * 2;
-
-            // Detach the weapon
-            _currentWeapon.IsEquipped = false;
-            _currentWeapon.transform.SetParent(null);
-            _currentWeapon.transform.position = dropPosition;
-
-            // Enable physics for the weapon
-            Rigidbody weaponRb = _currentWeapon.GetComponent<Rigidbody>();
-            if (weaponRb != null)
-            {
-                weaponRb.isKinematic = false;
-            }
-
-            // Remove authority if possible
-            if (_currentWeapon.TryGetComponent<NetworkIdentity>(out NetworkIdentity weaponIdentity))
-            {
-                if (NetworkServer.active)
-                {
-                    weaponIdentity.RemoveClientAuthority();
-                }
-                else
-                {
-                    Debug.LogWarning("Cannot remove client authority as the server is not active.");
-                }
-            }
-
-            // Propagate the drop to all clients
-            RpcDropWeapon(dropPosition);
-
-            Debug.Log($"{_currentWeapon.WeaponName} has been dropped.");
-
-            // Clear the weapon reference
             _currentWeapon = null;
         }
     }
@@ -576,52 +512,5 @@ public class PlayerController : NetworkBehaviour
     {
         // Set the current weapon on all clients
         _currentWeapon = weapon;
-
-        // Attach to the player's hand visually
-        weapon.transform.SetParent(playerHandTransform);
-        weapon.transform.localPosition = Vector3.zero;
-        weapon.transform.localRotation = Quaternion.identity;
-
-        Debug.Log($"[Client] Weapon {weapon.WeaponName} equipped.");
-    }
-
-    /// <summary>
-    /// Updates the unequipped weapon state on all clients
-    /// </summary>
-    /// <param name="weapon">The weapon being unequipped</param>
-    [ClientRpc]
-    private void RpcUnequipWeapon(Weapon weapon)
-    {
-        // Detach on all clients visually
-        weapon.transform.SetParent(null);
-
-        Debug.Log($"[Client] Weapon {weapon.WeaponName} unequipped.");
-
-    }
-
-    /// <summary>
-    /// Updates the dropped weapon position on all clients
-    /// </summary>
-    /// <param name="dropPosition">The drop position of the weapon</param>
-    [ClientRpc]
-    private void RpcDropWeapon(Vector3 dropPosition)
-    {
-        if (_currentWeapon == null)
-        {
-            Debug.LogWarning("RpcDropWeapon called but _currentWeapon is null.");
-            return;
-        }
-
-        // Update weapon position on all clients
-        _currentWeapon.transform.SetParent(null);
-        _currentWeapon.transform.position = dropPosition;
-
-        Rigidbody weaponRb = _currentWeapon.GetComponent<Rigidbody>();
-        if (weaponRb != null)
-        {
-            weaponRb.isKinematic = false; // Ensure physics is applied
-        }
-
-        Debug.Log($"[Client] Weapon dropped at position: {dropPosition}");
     }
 }

@@ -1,12 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
+using UnityEngine.XR;
+using UnityEngine.UIElements;
 
 /// <summary>
 /// An abstract base class for melee weapon types in the game
 /// </summary>
-public abstract class Weapon : NetworkBehaviour
+public abstract class Weapon : NetworkBehaviour, IInventoryItem
 {
     public string WeaponName;
     public float Damage;
@@ -17,48 +17,41 @@ public abstract class Weapon : NetworkBehaviour
     /// <summary>
     /// Equips the weapon
     /// </summary>
-    [Command]
-    public virtual void CmdEquip(Transform equipPoint)
+    public void Interact(GameObject gameObject)
     {
-        RpcEquip(equipPoint);
-        Debug.Log($"{WeaponName} equipped.");
-    }
-
-    /// <summary>
-    /// Synchronizes the equipped weapon's visual state across all clients
-    /// </summary>
-    /// <param name="equipPoint"></param>
-    [ClientRpc]
-    private void RpcEquip(Transform equipPoint)
-    {
-        if (equipPoint != null)
+        IsEquipped = true;
+        Transform handTransform = gameObject.transform.Find("HandTransform");
+        if (handTransform != null)
         {
-            transform.SetParent(equipPoint);
+            transform.SetParent(handTransform);
             transform.localPosition = Vector3.zero;
-            transform.localRotation = Quaternion.identity;
+            transform.localRotation = Quaternion.identity; // Set the correct rotation for the weapon when held
+            transform.localScale = Vector3.one; // Reset the scale to 1,1,1 to make sure it's visible
         }
-        Debug.Log($"{WeaponName} equipped on all clients.");
     }
 
     /// <summary>
-    /// Unequips the weapon
+    /// Unequips the weapon on server
     /// </summary>
     [Command]
     public virtual void CmdUnequip()
     {
+        NetworkIdentity weaponIdentity = GetComponent<NetworkIdentity>();
+        if (weaponIdentity != null)
+        {
+            weaponIdentity.RemoveClientAuthority();
+        }
         IsEquipped = false;
+        transform.SetParent(null);
         RpcUnequip();
-        Debug.Log($"{WeaponName} unequipped.");
     }
 
     /// <summary>
-    /// Synchronizes unequipping of the weapon across all clients
+    /// Updates the unequipped weapon state on all clients
     /// </summary>
     [ClientRpc]
-    private void RpcUnequip()
-    {
-        IsEquipped = false;
-        Debug.Log($"{WeaponName} unequipped on all clients.");
+    public virtual void RpcUnequip(){
+        transform.SetParent(null);
     }
 
     /// <summary>

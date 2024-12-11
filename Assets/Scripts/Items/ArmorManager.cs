@@ -37,13 +37,19 @@ public class ArmorManager : NetworkBehaviour
         Armor armor = armorObject.GetComponent<Armor>();
         if (armor == null) return;
 
+        NetworkIdentity armorIdentity = armor.GetComponent<NetworkIdentity>();
+        if (armorIdentity != null)
+        {
+            armorIdentity.AssignClientAuthority(connectionToClient);
+        }
+
         Transform equipPoint = null;
         switch (armor.Type)
         {
             case ArmorType.Head:
                 if (currentHeadArmor != null)
                 {
-                    RpcUnequipArmor(currentHeadArmor);
+                    UnequipArmor(currentHeadArmor);
                 }
                 currentHeadArmor = armorObject;
                 equipPoint = headEquipPoint;
@@ -51,7 +57,7 @@ public class ArmorManager : NetworkBehaviour
             case ArmorType.Chest:
                 if (currentChestArmor != null)
                 {
-                    RpcUnequipArmor(currentChestArmor);
+                    UnequipArmor(currentChestArmor);
                 }
                 currentChestArmor = armorObject;
                 equipPoint = chestEquipPoint;
@@ -59,7 +65,7 @@ public class ArmorManager : NetworkBehaviour
             case ArmorType.Legs:
                 if (currentLegArmor != null)
                 {
-                    RpcUnequipArmor(currentLegArmor);
+                    UnequipArmor(currentLegArmor);
                 }
                 currentLegArmor = armorObject;
                 equipPoint = legsEquipPoint;
@@ -68,21 +74,46 @@ public class ArmorManager : NetworkBehaviour
 
         if (equipPoint != null)
         {
-            armorObject.GetComponent<Armor>().CmdEquip(equipPoint);
+            armorObject.GetComponent<Armor>().Interact(equipPoint.gameObject);
         }
     }
 
     /// <summary>
-    /// Synchronizes unequipping of an armor piece across all clients
+    /// Server unequipping of an armor piece across all clients
     /// </summary>
     /// <param name="armorObject"></param>
-    [ClientRpc]
-    private void RpcUnequipArmor(GameObject armorObject)
+    public void UnequipArmor(GameObject armorObject)
     {
         if (armorObject.TryGetComponent(out Armor armor))
         {
+            switch (armor.Type)
+            {
+                case ArmorType.Head:
+                    currentHeadArmor = null;
+                    break;
+                case ArmorType.Chest:
+                    currentChestArmor = null;
+                    break;
+                case ArmorType.Legs:
+                    currentLegArmor = null;
+                    break;
+            }
             armor.CmdUnequip();
+            CmdUpdateArmorStatus(currentHeadArmor, currentChestArmor, currentLegArmor);
         }
+    }
+
+    /// <summary>
+    /// Let the server know about the updates to the client's armor status
+    /// </summary>
+    /// <param name="head">Head armor piece</param>
+    /// <param name="chest">Chest armor piece</param>
+    /// <param name="leg">Leg armor piece</param>
+    [Command]
+    private void CmdUpdateArmorStatus(GameObject head, GameObject chest, GameObject leg){
+        currentHeadArmor =  head;
+        currentChestArmor = chest;
+        currentLegArmor = leg;
     }
 
     /// <summary>
