@@ -11,7 +11,6 @@ public class ExampleItem : MonoBehaviour, IInventoryItem
     /// <param name="playerObject">The player interacting with the object</param>
     public void Interact(GameObject playerObject)
     {
-        gameObject.SetActive(false);
-        Debug.Log($"Picked up {transform.name}");
+        // 
     }
 }
