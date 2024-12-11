@@ -2,6 +2,7 @@ using UnityEngine;
 using Mirror;
 using Steamworks;
 using UnityEditor;
+using System.Diagnostics.Tracing;
 
 /// <summary>
 /// Network Manager that controls all the server and client processing
@@ -24,7 +25,7 @@ public class CustomNetworkManager : NetworkManager
 
                 if (conn.identity == null){
                     int random = UnityEngine.Random.Range(0, startPositions.Count);
-                    GameObject player = Instantiate(playerPrefab, startPositions[random]);
+                    GameObject player = Instantiate(playerPrefab, startPositions[random].position, startPositions[random].rotation);
                     CSteamID steamId = SteamMatchmaking.GetLobbyMemberByIndex(new CSteamID(LobbyId), numPlayer);
                     player.name = SteamFriends.GetFriendPersonaName(steamId);
                     numPlayer++; 
