@@ -63,7 +63,7 @@ public class PlayerInventory
             // This involves possibly converting the _inventorySlots type from a Dictionary to a List in order to utilize indices for cycling.
         }
     }
-    
+
     /// <summary>
     /// Resets the styles of all slots to the default style.
     /// </summary>
@@ -93,10 +93,10 @@ public class PlayerInventory
     public GameObject RemoveItem()
     {
         GameObject removedItem = _inventorySlots[_currentSlot];
-        
+
         _inventorySlots[_currentSlot] = null;
         _uiDocument.Q<VisualElement>(_elementName).RemoveFromClassList("containsItem");
-     
+
         return removedItem;
     }
 

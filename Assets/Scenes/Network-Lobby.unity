@@ -356,7 +356,7 @@ MonoBehaviour:
   autoStartServerBuild: 0
   autoConnectClientBuild: 0
   offlineScene: Assets/Scenes/Network-Lobby.unity
-  onlineScene: Assets/Scenes/Gameplay.unity
+  onlineScene: Assets/Scenes/Items.unity
   transport: {fileID: 647847493}
   networkAddress: localhost
   maxConnections: 100
@@ -367,7 +367,11 @@ MonoBehaviour:
     type: 3}
   autoCreatePlayer: 1
   playerSpawnMethod: 0
-  spawnPrefabs: []
+  spawnPrefabs:
+  - {fileID: 8008949534658289046, guid: 3a024f90a8215294891cf4864a734506, type: 3}
+  - {fileID: 4676705519949754717, guid: a1cb2037d8e847c4682d8f3408744742, type: 3}
+  - {fileID: 5025439335427194619, guid: c68a56081a21b664999a3f9e34482bf0, type: 3}
+  - {fileID: 8047876632819396388, guid: 367112a43490a2245acdc1414b85bd99, type: 3}
   exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2
