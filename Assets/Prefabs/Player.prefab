@@ -1251,6 +1251,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7955851783128785994}
+  - component: {fileID: 7372049794734602661}
   - component: {fileID: 4073771807305465392}
   m_Layer: 6
   m_Name: BaseCharacter
@@ -1276,6 +1277,23 @@ Transform:
   - {fileID: 2468018052199638076}
   m_Father: {fileID: 8203241780073711057}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7372049794734602661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7287683636713553648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f6f3bf89aa97405989c802ba270f815, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 1
+  syncMode: 0
+  syncInterval: 0
+  clientAuthority: 1
+  animator: {fileID: 4073771807305465392}
 --- !u!95 &4073771807305465392
 Animator:
   serializedVersion: 5
