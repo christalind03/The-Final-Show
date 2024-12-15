@@ -44,6 +44,7 @@ public class PlayerController : NetworkBehaviour
     
     private bool _isGrounded;
     private bool _isSprinting;
+    private bool _canJump;
     private bool _canSprint;
 
     private float _xRotation;
@@ -56,6 +57,7 @@ public class PlayerController : NetworkBehaviour
     private VisualElement _uiDocument;
 
     private Animator _playerAnimator;
+    private int _animatorIsJumping;
     private int _animatorMovementX;
     private int _animatorMovementZ;
 
@@ -64,7 +66,9 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void Awake()
     {
+        _canJump = true;
         _canSprint = true;
+
         UnityEngine.Cursor.visible = false;
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
 
@@ -76,6 +80,7 @@ public class PlayerController : NetworkBehaviour
         // To access the animator, we must retrieve the child gameObject that is rendering the player's mesh.
         // This should be the first child of the current gameObject, `BaseCharacter`
         _playerAnimator = transform.GetChild(0).GetComponent<Animator>();
+        _animatorIsJumping = Animator.StringToHash("Is Jumping");
         _animatorMovementX = Animator.StringToHash("Movement X");
         _animatorMovementZ = Animator.StringToHash("Movement Z");
     }
@@ -248,10 +253,12 @@ public class PlayerController : NetworkBehaviour
     {
         GameObject droppedItem = _playerInventory.RemoveItem();
         
-        if(droppedItem.GetComponent<MeleeWeapon>() != null || droppedItem.GetComponent<RangedWeapon>() != null){
+        if (droppedItem.GetComponent<MeleeWeapon>() != null || droppedItem.GetComponent<RangedWeapon>() != null)
+        {
             UnequipWeapon();
         }
-        else if(droppedItem.GetComponent<Armor>() != null){
+        else if (droppedItem.GetComponent<Armor>() != null)
+        {
             armorManager.UnequipArmor(droppedItem);
         }
 
@@ -318,10 +325,36 @@ public class PlayerController : NetworkBehaviour
     private void Jump(InputAction.CallbackContext context)
     {
         if (!isLocalPlayer) { return; }
+        if (_canJump)
+        {
+            StartCoroutine(Jump());
+        }
+    }
+
+    /// <summary>
+    /// Adjust the player's current height and display animations.
+    /// </summary>
+    /// <remarks>
+    /// In the case any jump parameters within the PlayerController script or in the animation controller are changed, this function may need to be updated.
+    /// This is not the most effiicent or optimal solution in regards to timing an animation to sync with the action itself, but this will do for now.
+    /// </remarks>
+    /// <returns>An enumerator to be used by Unity's coroutine system.</returns>
+    private IEnumerator Jump()
+    {
+        _canJump = false;
+        _playerAnimator.SetBool(_animatorIsJumping, true);
+
+        yield return new WaitForSeconds(0.45f); // Arbitrary number to account for the wind-up time on the jump animation.
+
         if (_isGrounded)
         {
             _playerVelocity.y = (float)Math.Sqrt(-2f * _gravity * _jumpHeight);
         }
+
+        yield return new WaitForSeconds(0.65f); // Arbitrary number to account for the air time on the jump animation.
+
+        _playerAnimator.SetBool(_animatorIsJumping, false);
+        _canJump = true;
     }
 
     /// <summary>
