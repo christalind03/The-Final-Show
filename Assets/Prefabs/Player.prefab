@@ -90,7 +90,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Damping: {x: 0.1, y: 0.5, z: 0.3}
-  ShoulderOffset: {x: 1.75, y: 0, z: 0}
+  ShoulderOffset: {x: 1.95, y: 0, z: 0}
   VerticalArmLength: 0.4
   CameraSide: 1
   CameraDistance: 4.25
@@ -112,7 +112,7 @@ GameObject:
   - component: {fileID: 1025035789335363843}
   - component: {fileID: 8799199552286307878}
   m_Layer: 0
-  m_Name: Virtual Camera
+  m_Name: VirtualCamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -211,8 +211,8 @@ Transform:
   m_Children:
   - {fileID: 7955851783128785994}
   - {fileID: 1279517964111326137}
-  - {fileID: 1025035789335363843}
   - {fileID: 9054766179748878592}
+  - {fileID: 1025035789335363843}
   - {fileID: 4210479445952513072}
   - {fileID: 7671284931563572099}
   m_Father: {fileID: 0}
@@ -262,12 +262,12 @@ MonoBehaviour:
   _interactableDistance: 3
   _gravity: -12.5
   _jumpHeight: 1.5
-  _sprintSpeed: 15.5
-  _walkSpeed: 5
+  _sprintSpeed: 8.5
+  _walkSpeed: 3.5
   _staminaPoints:
     _baseValue: 100
-    _currentValue: 150
-  _staminaCost: 50
+    _currentValue: 100
+  _staminaCost: 15.5
   _staminaRestoration: 5
   _staminaCooldown: 5
   _cameraTransform: {fileID: 8102490668816230080}
@@ -375,7 +375,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1279517964111326137}
   m_Layer: 0
-  m_Name: Follow Target
+  m_Name: FollowTarget
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -714,6 +714,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: BaseCharacter
       objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: ab24eae35c6270644bbc0793e1630cf0,
+        type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 892916c7c4e334a499e44f8ff4d6dcd9, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
