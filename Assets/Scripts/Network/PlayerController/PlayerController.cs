@@ -168,8 +168,8 @@ public class PlayerController : NetworkBehaviour
         // Display the player's movement animation.
         // Since the player can move in four different directions, we have animations associated with each direction.
         // To prevent repeated if-else statements, we instead have a ternary operator to trigger the correct animation with its respective direction.
-        _playerAnimator.SetFloat(_animatorMovementX, moveInput.x == 0 ? 0 : totalSpeed * Mathf.Sign(moveInput.x), 0.15f, Time.deltaTime); // 0.15 is an arbitrary dampening value to transition between different animations.
-        _playerAnimator.SetFloat(_animatorMovementZ, moveInput.y == 0 ? 0 : totalSpeed * Mathf.Sign(moveInput.y), 0.15f, Time.deltaTime);
+        _playerAnimator.SetFloat(_animatorMovementX, moveInput.x == 0 ? 0 : totalSpeed * Mathf.Sign(moveInput.x), 0.1f, Time.deltaTime); // 0.1f is an arbitrary dampening value to transition between different animations.
+        _playerAnimator.SetFloat(_animatorMovementZ, moveInput.y == 0 ? 0 : totalSpeed * Mathf.Sign(moveInput.y), 0.1f, Time.deltaTime);
     }
 
     /// <summary>
