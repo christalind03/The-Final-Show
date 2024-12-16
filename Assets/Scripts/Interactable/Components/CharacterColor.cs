@@ -8,9 +8,9 @@ public class CharacterColor : MonoBehaviour, IInteractable
     /// <param name="playerObject">The player interacting with the object</param>
     public void Interact(GameObject playerObject)
     {
-        // NOTE: After adding in assets for player characters, we'll need to convert the playerRenderer from MeshRenderer to SkinnedMeshRenderer
+        // Since the `Player` gameObject is a container for everything related to the player, we must retrieve the player's actual mesh by traversing the hierarchy.
         MeshRenderer objectRenderer = gameObject.GetComponent<MeshRenderer>();
-        MeshRenderer playerRenderer = playerObject.GetComponentInChildren<MeshRenderer>();
+        SkinnedMeshRenderer playerRenderer = playerObject.transform.GetChild(0).GetComponentInChildren<SkinnedMeshRenderer>();
 
         playerRenderer.material.SetColor("_BaseColor", objectRenderer.material.color);
     }
