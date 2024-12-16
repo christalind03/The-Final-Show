@@ -15,8 +15,8 @@ public class Health : NetworkBehaviour
     [SyncVar(hook = nameof(OnHealthChanged))]
     private float currentHealth;
 
-    [Header("Dependencies")]
-    [SerializeField] private ArmorManager armorManager;
+    //[Header("Dependencies")]
+    //[SerializeField] private ArmorManager armorManager;
     public bool IsInvulnerable { get; set; } = false;
 
     public float CurrentHealth
@@ -37,9 +37,9 @@ public class Health : NetworkBehaviour
         if (IsInvulnerable) return;
 
         // Use ArmorManager to calculate reduced damage
-        float reducedDamage = armorManager != null ? armorManager.ApplyArmorDefense(damage) : damage;
+        //float reducedDamage = armorManager != null ? armorManager.ApplyArmorDefense(damage) : damage;
+        //currentHealth -= reducedDamage;
 
-        currentHealth -= reducedDamage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth); // Helps to ensure health stays in valid bounds
         Debug.Log($"{gameObject.name} took {damage} damage. Remaining health: {currentHealth}");
 
