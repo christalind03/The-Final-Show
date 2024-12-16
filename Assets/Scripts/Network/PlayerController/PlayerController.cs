@@ -168,13 +168,14 @@ public class PlayerController : NetworkBehaviour
 
         _playerController.Move(totalSpeed * Time.deltaTime * moveDirection);
         _playerController.Move(_playerVelocity * Time.deltaTime);
-        CmdMovePlayer(_playerTransform.position);
 
         // Display the player's movement animation.
         // Since the player can move in four different directions, we have animations associated with each direction.
         // To prevent repeated if-else statements, we instead have a ternary operator to trigger the correct animation with its respective direction.
         _playerAnimator.SetFloat(_animatorMovementX, moveInput.x == 0 ? 0 : totalSpeed * Mathf.Sign(moveInput.x), 0.1f, Time.deltaTime); // 0.1f is an arbitrary dampening value to transition between different animations.
         _playerAnimator.SetFloat(_animatorMovementZ, moveInput.y == 0 ? 0 : totalSpeed * Mathf.Sign(moveInput.y), 0.1f, Time.deltaTime);
+        
+        CmdMovePlayer(_playerTransform.position);
     }
 
     /// <summary>
@@ -251,6 +252,18 @@ public class PlayerController : NetworkBehaviour
     /// <param name="targetPosition">The target position to set the dropped item to.</param>
     private void Drop(Vector3? targetPosition = null)
     {
+        if (!isLocalPlayer) { return; }
+
+        InventoryItem droppedItem = _playerInventory.RemoveItem();
+
+        if (_raycastHit.collider != null && droppedItem != null)
+        {
+            // 3 is an arbitrary value representing how far away the dropped item should be from the player.
+            Vector3 droppedPosition = targetPosition ?? transform.position + transform.forward * 3;
+
+            CmdDrop(droppedItem, droppedPosition);
+        }
+
         //GameObject droppedItem = _playerInventory.RemoveItem();
         
         //if (droppedItem.GetComponent<MeleeWeapon>() != null || droppedItem.GetComponent<RangedWeapon>() != null)
@@ -284,7 +297,7 @@ public class PlayerController : NetworkBehaviour
         if (!isLocalPlayer) { return; }
 
         Collider hitCollider = _raycastHit.collider;
-        GameObject targetObject = hitCollider.transform.root.gameObject;
+        GameObject targetObject = hitCollider.transform.root.gameObject; // Interactable objects should always have their interactable script at the top-most level.
 
         if (hitCollider != null && targetObject.TryGetComponent(out IInteractable interactableComponent))
         {
@@ -475,25 +488,28 @@ public class PlayerController : NetworkBehaviour
         _playerTransform.rotation = rotationPlayer;
         _followTransform.rotation = rotationFollow;
 
-        // Propagates the changes to all client
+        // Propagates the changes to all clients
         RpcUpdatePlayerLook(_playerTransform.rotation, _followTransform.rotation);
     }
 
+    // TODO: Update documentation
     /// <summary>
     /// Calculate the drop position and set the drop item to that position and activate it. 
     /// </summary>
-    /// <param name="dropItem">The item that is being dropped</param>
-    /// <param name="targetPosition">Position that the item should be dropped at</param>
-    /// <param name="hasValue">Bool for make sure if targetPosition exist since Commands can't have nullable Vector3</param>
+    /// <param name="droppedObject">The item that is being dropped</param>
+    /// <param name="droppedPosition">Position that the item should be dropped at</param>
     [Command]
-    private void CmdDrop(GameObject dropItem, Vector3 targetPosition, bool hasValue)
+    private void CmdDrop(InventoryItem droppedItem, Vector3 droppedPosition)
     {
-        Vector3 dropOffset = hasValue ? targetPosition : transform.position + transform.forward * 3;
-        dropItem.transform.position = dropOffset;
-        dropItem.SetActive(true);
+        GameObject droppedObject = Instantiate(Resources.Load<GameObject>("Items/Inventory Item"));
 
-        // Propagates the changes to all client
-        RpcDrop(dropItem, dropOffset);
+        droppedObject.transform.position = droppedPosition;
+        droppedObject.GetComponent<InventoryItemObject>().InventoryItem = droppedItem;
+
+        NetworkServer.Spawn(droppedObject);
+
+        // Ensure the inventory item is rendered across all clients.
+        RpcDrop(droppedItem, droppedObject);
     }
 
     /// <summary>
@@ -508,7 +524,7 @@ public class PlayerController : NetworkBehaviour
             interactableComponent.Interact(gameObject);
         }
 
-        // Propagates the changes to all client
+        // Propagates the changes to all clients
         RpcInteract(hitObject);
     }
 
@@ -536,19 +552,19 @@ public class PlayerController : NetworkBehaviour
         _followTransform.rotation = rotationFollow;
     }
 
+    // TODO: Update documentation
     /// <summary>
     /// Update the item that is being dropped in world view to all client
     /// </summary>
-    /// <param name="dropItem">Item that is being dropped</param>
+    /// <param name="droppedObject">Item that is being dropped</param>
     /// <param name="dropPos">Location to be dropped at</param>
     [ClientRpc]
-    private void RpcDrop(GameObject dropItem, Vector3 dropPos)
+    private void RpcDrop(InventoryItem droppedItem, GameObject droppedObject)
     {
         // Since we are using a Host-Client network structure, there will be one player that acts as the server and they don't have to run the code again
         if (!isServer)
         {
-            dropItem.transform.position = dropPos;
-            dropItem.SetActive(true);
+            droppedObject.GetComponent<InventoryItemObject>().InventoryItem = droppedItem;
         }
     }
 
