@@ -11,7 +11,7 @@ public class PlayerInventory
 {
     private string _currentSlot;
     private string _elementName;
-    private Dictionary<string, GameObject> _inventorySlots;
+    private Dictionary<string, InventoryItem> _inventorySlots;
     private VisualElement _uiDocument;
 
     /// <summary>
@@ -20,7 +20,7 @@ public class PlayerInventory
     public PlayerInventory(VisualElement uiDocument)
     {
         _currentSlot = "Slot 1"; // Default to Slot 1
-        _inventorySlots = new Dictionary<string, GameObject>
+        _inventorySlots = new Dictionary<string, InventoryItem>
         {
             { "Slot 1", null },
             { "Slot 2", null },
@@ -80,7 +80,7 @@ public class PlayerInventory
     /// Add an item to the currently selected inventory slot.
     /// </summary>
     /// <param name="equippableItem">The item to add to the inventory slot.</param>
-    public void AddItem(GameObject equippableItem)
+    public void AddItem(InventoryItem equippableItem)
     {
         _inventorySlots[_currentSlot] = equippableItem;
         _uiDocument.Q<VisualElement>(_elementName).AddToClassList("containsItem");
@@ -90,9 +90,9 @@ public class PlayerInventory
     /// Removes the item from the currently selected inventory slot.
     /// </summary>
     /// <returns>The gameObject that was removed from the inventory slot if it exists.</returns>
-    public GameObject RemoveItem()
+    public InventoryItem RemoveItem()
     {
-        GameObject removedItem = _inventorySlots[_currentSlot];
+        InventoryItem removedItem = _inventorySlots[_currentSlot];
 
         _inventorySlots[_currentSlot] = null;
         _uiDocument.Q<VisualElement>(_elementName).RemoveFromClassList("containsItem");

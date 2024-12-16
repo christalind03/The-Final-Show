@@ -188,7 +188,6 @@ GameObject:
   - component: {fileID: 2873006661348008412}
   - component: {fileID: 2413865861525508875}
   - component: {fileID: 4434578188930889017}
-  - component: {fileID: 8628792477167078385}
   - component: {fileID: 7206835829060474261}
   m_Layer: 6
   m_Name: Player
@@ -301,8 +300,7 @@ MonoBehaviour:
   syncInterval: 0
   alive: 1
   cameraHolder: {fileID: 8072066830265649567}
-  vc: {fileID: 8799199552286307878}
-  uIDocument: {fileID: 0}
+  virtualCamera: {fileID: 8799199552286307878}
 --- !u!114 &2413865861525508875
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -334,9 +332,6 @@ MonoBehaviour:
   _followTransform: {fileID: 1279517964111326137}
   _playerTransform: {fileID: 8203241780073711057}
   _playerController: {fileID: 8053147996298278901}
-  _currentWeapon: {fileID: 0}
-  playerHand: {fileID: 8320345390989787544}
-  armorManager: {fileID: 8628792477167078385}
 --- !u!114 &4434578188930889017
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -354,24 +349,6 @@ MonoBehaviour:
   sourceAsset: {fileID: 9197481963319205126, guid: 1ca2cb09a03821e428953505e1384a08,
     type: 3}
   m_SortingOrder: 0
---- !u!114 &8628792477167078385
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3233045660875188808}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bfdffeda66152154fa251cc2236d0e91, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  headEquipPoint: {fileID: 4210479445952513072}
-  chestEquipPoint: {fileID: 0}
-  legsEquipPoint: {fileID: 0}
 --- !u!114 &7206835829060474261
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -388,7 +365,6 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   maxHealth: 100
-  armorManager: {fileID: 0}
 --- !u!1 &5965713402515774538
 GameObject:
   m_ObjectHideFlags: 0

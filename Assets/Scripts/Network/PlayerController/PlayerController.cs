@@ -281,6 +281,22 @@ public class PlayerController : NetworkBehaviour
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     private void Interact(InputAction.CallbackContext context)
     {
+        if (!isLocalPlayer) { return; }
+
+        Collider hitCollider = _raycastHit.collider;
+        GameObject targetObject = hitCollider.transform.root.gameObject;
+
+        if (hitCollider != null && targetObject.TryGetComponent(out IInteractable interactableComponent))
+        {
+            // Check to see if we can add this item to our inventory.
+            if (targetObject.TryGetComponent(out InventoryItemObject inventoryItemObject))
+            {
+                _playerInventory.AddItem(inventoryItemObject.InventoryItem);
+            }
+
+            CmdInteract(targetObject);
+        }
+
         //if (!isLocalPlayer) { return; }
         //Collider hitCollider = _raycastHit.collider;
         //GameObject hitGameObject = hitCollider.gameObject;
@@ -483,17 +499,17 @@ public class PlayerController : NetworkBehaviour
     /// <summary>
     /// Interact with the GameObject if it has IInteractable script
     /// </summary>
-    /// <param name="hitObj">The object that is being interacted</param>
+    /// <param name = "hitObject">The object that is being interacted</param>
     [Command]
-    private void CmdInteract(GameObject hitObj)
+    private void CmdInteract(GameObject hitObject)
     {
-        if (hitObj.TryGetComponent(out IInteractable interactableObj))
+        if (hitObject.TryGetComponent(out IInteractable interactableComponent))
         {
-            interactableObj.Interact(gameObject);
+            interactableComponent.Interact(gameObject);
         }
 
         // Propagates the changes to all client
-        RpcInteract(hitObj);
+        RpcInteract(hitObject);
     }
 
     /// <summary>
@@ -539,14 +555,14 @@ public class PlayerController : NetworkBehaviour
     /// <summary>
     /// Update the object that is being interacted to all client
     /// </summary>
-    /// <param name="hitObj">Item that is being interacted</param>
+    /// <param name="hitObject">Item that is being interacted</param>
     [ClientRpc]
-    private void RpcInteract(GameObject hitObj)
+    private void RpcInteract(GameObject hitObject)
     {
         // Same reasoning as RpcDrop with the added component of getting the component "IInteractable"
-        if (!isServer && hitObj.TryGetComponent(out IInteractable interactableObj))
+        if (!isServer && hitObject.TryGetComponent(out IInteractable interactableComponent))
         {
-            interactableObj.Interact(gameObject);
+            interactableComponent.Interact(gameObject);
         }
     }
 

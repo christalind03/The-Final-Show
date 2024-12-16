@@ -10,15 +10,17 @@ using System.Collections.Generic;
 public class CameraController : NetworkBehaviour
 {
     public bool alive = true;
+
     [SerializeField] private GameObject cameraHolder;
     [SerializeField] private CinemachineVirtualCamera virtualCamera;
-    private UIDocument uiDocument;
-    private CinemachineVirtualCamera[] virtualCameras;
     [SyncVar] private List<string> players = new List<string>();
+
+    private UIDocument uiDocument;
     private VisualTreeAsset spectatorUI;
+    private CinemachineVirtualCamera[] virtualCameras;
     int cameraIndex;
 
-    //UI stuff
+    // UI Stuff
     private VisualElement ui;
     private TextElement currentPlayer;
     private Button Previous;
@@ -27,10 +29,11 @@ public class CameraController : NetworkBehaviour
     /// <summary>
     /// On the start of the client connection, only enable the uidocument that is owned by the current player so other uidocuments are not shown
     /// </summary>
-    public override void OnStartClient() {
+    public override void OnStartClient()
+    {
         uiDocument = GetComponent<UIDocument>();
         cameraIndex = -1;
-        
+
         if (isOwned)
         {
             uiDocument.enabled = true;
@@ -46,7 +49,8 @@ public class CameraController : NetworkBehaviour
     /// <summary>
     /// Similar to unity start function but will only run for objects that the player has authority over
     /// </summary>
-    public override void OnStartAuthority() {
+    public override void OnStartAuthority()
+    {
         spectatorUI = Resources.Load<VisualTreeAsset>("UI/SpectateUI");
         
         // Checks if the camera is owned by the player, enables the gameobject and set the priority of the different cinemachine
@@ -59,17 +63,17 @@ public class CameraController : NetworkBehaviour
         {
             virtualCamera.Priority = 0;
         }
-        
+
         base.OnStartAuthority();
     }
 
     /// <summary>
     /// Switch the player's gameplay mode into spectator made after they've died. Player controller will be completely disabled since 
-    /// the player should not be able to move. The ui for spectator mode will also be replacing the gameplay UI.
+    /// the player should not be able to move. The UI for spectator mode will also be replacing the gameplay UI.
     /// </summary>
-    public void Spectate() {
-        virtualCameras = FindObjectsOfType<CinemachineVirtualCamera>(); //get all cinemachine vc in the gamespace and save them into an list to loop through
-        
+    public void Spectate()
+    {
+        virtualCameras = FindObjectsOfType<CinemachineVirtualCamera>(); // Get all CineMachine virtual cameras in the gamespace and save them into an list to loop through
         if (isOwned && !alive)
         {
             UnityEngine.Cursor.visible = true;
@@ -82,25 +86,27 @@ public class CameraController : NetworkBehaviour
             currentPlayer = ui.Q<VisualElement>("Tools").Q<TextElement>("Current");
             Previous = ui.Q<VisualElement>("Tools").Q<Button>("Pre");
             Next = ui.Q<VisualElement>("Tools").Q<Button>("Next");
-            
-            getCamIdx(); //all cameras are stored in a list, this gets the index of the camera associated with the local player 
-            getAllPlayers(); //get the list of all names of current players in the game so it can be displayed on the bar
 
-            // Subscribe the ui buttons 
+            GetCameraIndex(); // All cameras are stored in a list, this gets the index of the camera associated with the local player 
+            GetAllPlayers(); // Get the list of all names of current players in the game so it can be displayed on the bar
+
+            // Subscribe the UI buttons 
             Previous.clicked += OnPreviousClicked;
             Next.clicked += OnNextClicked;
+
         }
     }
 
     /// <summary>
     /// When clicking on the previous button, the camera will rotation to the previous player's camera on the list of all cameras
     /// </summary>
-    private void OnPreviousClicked(){
-        if (cameraIndex < 0 || cameraIndex > virtualCameras.Length - 1) { cameraIndex = 0;} // Make sure the cameraIndex is located within the range of the array, if not assign it the first camera
+    private void OnPreviousClicked()
+    {
+        if (cameraIndex < 0 || cameraIndex > virtualCameras.Length - 1) { cameraIndex = 0; } // Make sure the cameraIndex is located within the range of the array, if not assign it the first camera
         virtualCameras[cameraIndex].Priority = 0;
         cameraIndex--;
 
-        if (cameraIndex < 0){ cameraIndex = virtualCameras.Length - 1;} // Circular loop back to the top of the list
+        if (cameraIndex < 0) { cameraIndex = virtualCameras.Length - 1; } // Circular loop back to the top of the list
         virtualCameras[cameraIndex].Priority = 1;
         currentPlayer.text = players[cameraIndex];
     }
@@ -108,12 +114,13 @@ public class CameraController : NetworkBehaviour
     /// <summary>
     /// When clicking the next button, the camera will rotation to the next player's camera on the list of all cameras
     /// </summary>
-    private void OnNextClicked(){
-        if (cameraIndex < 0 || cameraIndex > virtualCameras.Length - 1) { cameraIndex = 0;} //make sure the cameraIdex is located within the range of the array, if not assign it the first camera
+    private void OnNextClicked()
+    {
+        if (cameraIndex < 0 || cameraIndex > virtualCameras.Length - 1) { cameraIndex = 0; } //make sure the camIdx is located within the range of the array, if not assign it the first camera
 
         virtualCameras[cameraIndex].Priority = 0;
         cameraIndex++;
-        cameraIndex%=virtualCameras.Length; //circular loop back to the bottom of the list
+        cameraIndex %= virtualCameras.Length; // Circular loop back to the bottom of the list
         virtualCameras[cameraIndex].Priority = 1;
         currentPlayer.text = players[cameraIndex];
     }
@@ -122,14 +129,15 @@ public class CameraController : NetworkBehaviour
     /// Calls the server and makes the server fill out the list of all players' name 
     /// </summary>
     [Command]
-    private void getAllPlayers() {
+    private void GetAllPlayers()
+    {
         players.Clear();
         
-        foreach (CinemachineVirtualCamera cam in virtualCameras)
+        foreach (CinemachineVirtualCamera camera in virtualCameras)
         {
-            players.Add(cam.transform.parent.name);
+            players.Add(camera.transform.parent.name);
         }
-        
+
         TargetUpdatePlayerList(players);
     }
 
@@ -139,7 +147,8 @@ public class CameraController : NetworkBehaviour
     /// </summary>
     /// <param name="updatedPlayers">updatePlayers is the list of player names</param>
     [TargetRpc]
-    private void TargetUpdatePlayerList(List<string> updatedPlayers) {
+    private void TargetUpdatePlayerList(List<string> updatedPlayers)
+    {
         players = updatedPlayers;
         currentPlayer.text = players[cameraIndex];
     }
@@ -148,16 +157,18 @@ public class CameraController : NetworkBehaviour
     /// Using network identity, this finds the index of the local player's camera in the list of cameras
     /// </summary>
     [Command]
-    private void getCamIdx() {
+    private void GetCameraIndex()
+    {
         NetworkIdentity identity = connectionToClient.identity;
+
         if (identity != null)
         {
             // Access the GameObject associated with the NetworkIdentity
             GameObject playerGameObject = identity.gameObject;
-            foreach (CinemachineVirtualCamera cam in virtualCameras)
+            foreach (CinemachineVirtualCamera camera in virtualCameras)
             {
                 cameraIndex++;
-                if (cam.transform.parent.name == playerGameObject.name) { break; }
+                if (camera.transform.parent.name == playerGameObject.name) { break; }
             }
         }
         else
@@ -165,15 +176,16 @@ public class CameraController : NetworkBehaviour
             Debug.LogWarning("No NetworkIdentity found for this connection.");
         }
 
-        TargetUpdateCamIdx(cameraIndex);
+        TargetUpdateCameraIndex(cameraIndex);
     }
 
     /// <summary>
-    /// Updates the target client's cameraIndex with the index found by the server
+    /// Updates the target client's camIdx with the index found by the server
     /// </summary>
-    /// <param name="cam">Camera index in the camera list</param>
+    /// <param name="camera">Camera index in the camera list</param>
     [TargetRpc]
-    private void TargetUpdateCamIdx(int cam) {
-        cameraIndex = cam;
+    private void TargetUpdateCameraIndex(int camera)
+    {
+        cameraIndex = camera;
     }
 }
