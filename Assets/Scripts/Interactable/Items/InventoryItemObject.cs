@@ -25,9 +25,9 @@ public class InventoryItemObject : MonoBehaviour, IInteractable
     /// <param name="playerObject">The player interacting with the object</param>
     public void Interact(GameObject playerObject)
     {
-        if (playerObject.TryGetComponent(out PlayerController playerController))
+        if (playerObject.TryGetComponent(out PlayerInventory playerInventory))
         {
-            if (playerController.PlayerInventory.AddItem(InventoryItem))
+            if (playerInventory.AddItem(InventoryItem))
             {
                 Destroy(gameObject);
             }

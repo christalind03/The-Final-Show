@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 /// <summary>
 /// Represent's a player's inventory with  multiple slots to storage and manage items.
 /// </summary>
-public class PlayerInventory
+public class PlayerInventory : MonoBehaviour
 {
     private struct PlayerInventoryRestriction
     {
@@ -22,15 +22,18 @@ public class PlayerInventory
         }
     }
 
+    [Header("Player Items")]
+    [SerializeField] private Transform _headTransform;
+
     private string _currentSlot;
     private Dictionary<string, InventoryItem> _inventorySlots;
     private Dictionary<string, PlayerInventoryRestriction> _inventoryRestrictions;
-    private VisualElement _uiDocument;
+    private VisualElement _inventoryHotbar;
 
     /// <summary>
     /// Sets up the default slot and creates an empty inventory.
     /// </summary>
-    public PlayerInventory(VisualElement uiDocument)
+    public void Start()
     {
         // Default to Slot 1
         _currentSlot = "Slot-1";
@@ -54,8 +57,8 @@ public class PlayerInventory
             { "Slot-3", new PlayerInventoryRestriction(Armor.ArmorCategory.Head, typeof(Armor)) },
         };
 
-        _uiDocument = uiDocument;
-        _uiDocument.Q<VisualElement>(_currentSlot).AddToClassList("active");
+        _inventoryHotbar = gameObject.GetComponent<UIDocument>().rootVisualElement;
+        _inventoryHotbar.Q<VisualElement>(_currentSlot).AddToClassList("active");
     }
 
     /// <summary>
@@ -72,7 +75,7 @@ public class PlayerInventory
         {
             ResetSlots();
             _currentSlot = actionName;
-            _uiDocument.Q<VisualElement>(_currentSlot).AddToClassList("active");
+            _inventoryHotbar.Q<VisualElement>(_currentSlot).AddToClassList("active");
         }
 
         // Handle input from mouse scroll wheel.
@@ -90,7 +93,7 @@ public class PlayerInventory
     {
         foreach (string actionName in _inventorySlots.Keys)
         {
-            _uiDocument.Q<VisualElement>(actionName).RemoveFromClassList("active");
+            _inventoryHotbar.Q<VisualElement>(actionName).RemoveFromClassList("active");
         }
     }
 
@@ -106,7 +109,7 @@ public class PlayerInventory
         if (availableSlot != null)
         {
             _inventorySlots[availableSlot] = inventoryItem;
-            _uiDocument.Q<VisualElement>(availableSlot).AddToClassList("containsItem");
+            _inventoryHotbar.Q<VisualElement>(availableSlot).AddToClassList("containsItem");
             return true;
         }
 
@@ -124,7 +127,7 @@ public class PlayerInventory
         InventoryItem removedItem = _inventorySlots[_currentSlot];
 
         _inventorySlots[_currentSlot] = null;
-        _uiDocument.Q<VisualElement>(_currentSlot).RemoveFromClassList("containsItem");
+        _inventoryHotbar.Q<VisualElement>(_currentSlot).RemoveFromClassList("containsItem");
 
         return removedItem;
     }

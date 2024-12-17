@@ -26,7 +26,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float _staminaRestoration;
     [SerializeField] private float _staminaCooldown;
 
-    [Header("Player Parameters")]
+    [Header("Player References")]
     [Tooltip("The scene's main camera.")]
     [SerializeField] private Transform _cameraTransform;
 
@@ -54,14 +54,12 @@ public class PlayerController : NetworkBehaviour
     private RaycastHit _raycastHit;
     private PlayerControls _playerControls;
     private PlayerInventory _playerInventory;
-    private VisualElement _uiDocument;
+    //private VisualElement _uiDocument;
 
     private Animator _playerAnimator;
     private int _animatorIsJumping;
     private int _animatorMovementX;
     private int _animatorMovementZ;
-
-    public PlayerInventory PlayerInventory => _playerInventory;
 
     /// <summary>
     /// Configure the cursor settings and initialize a new instance of PlayerControls when the script is first loaded.
@@ -74,10 +72,8 @@ public class PlayerController : NetworkBehaviour
         UnityEngine.Cursor.visible = false;
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
 
-        _uiDocument = GetComponent<UIDocument>().rootVisualElement;
-
         _playerControls = new PlayerControls();
-        _playerInventory = new PlayerInventory(_uiDocument);
+        _playerInventory = gameObject.GetComponent<PlayerInventory>();
 
         // To access the animator, we must retrieve the child gameObject that is rendering the player's mesh.
         // This should be the first child of the current gameObject, `BaseCharacter`
