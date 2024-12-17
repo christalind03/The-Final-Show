@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
@@ -9,9 +10,21 @@ using UnityEngine.UIElements;
 /// </summary>
 public class PlayerInventory
 {
+    private struct PlayerInventoryRestriction
+    {
+        public Enum ItemCategory {  get; private set; }
+        public Type ItemType {  get; private set; }
+
+        public PlayerInventoryRestriction(Enum itemCategory, Type itemType)
+        {
+            ItemCategory = itemCategory;
+            ItemType = itemType;
+        }
+    }
+
     private string _currentSlot;
-    private string _elementName;
     private Dictionary<string, InventoryItem> _inventorySlots;
+    private Dictionary<string, PlayerInventoryRestriction> _inventoryRestrictions;
     private VisualElement _uiDocument;
 
     /// <summary>
@@ -19,23 +32,30 @@ public class PlayerInventory
     /// </summary>
     public PlayerInventory(VisualElement uiDocument)
     {
-        _currentSlot = "Slot 1"; // Default to Slot 1
+        // Default to Slot 1
+        _currentSlot = "Slot-1";
+
+        // Define inventory slots and their respective restrictions
         _inventorySlots = new Dictionary<string, InventoryItem>
         {
-            { "Slot 1", null },
-            { "Slot 2", null },
-            { "Slot 3", null },
-            { "Slot 4", null },
-            { "Slot 5", null },
-            { "Slot 6", null },
-            { "Slot 7", null },
-            { "Slot 8", null },
-            { "Slot 9", null },
+            { "Slot-1", null }, // Melee
+            { "Slot-2", null }, // Ranged
+            { "Slot-3", null }, // Armor (Head)
+            { "Slot-4", null }, // Armor (Chest)
+            { "Slot-5", null }, // Armor (Legs)
+            { "Slot-6", null }, // Armor (Feet)
+            { "Slot-7", null }, // Undefined (Reserved for non-armor/weapon types)
+            { "Slot-8", null }, // Undefined (Reserved for non-armor/weapon types)
+            { "Slot-9", null }, // Undefined (Reserved for non-armor/weapon types)
+        };
+
+        _inventoryRestrictions = new Dictionary<string, PlayerInventoryRestriction>
+        {
+            { "Slot-3", new PlayerInventoryRestriction(Armor.ArmorCategory.Head, typeof(Armor)) },
         };
 
         _uiDocument = uiDocument;
-        _elementName = _currentSlot.Replace(" ", "-");
-        _uiDocument.Q<VisualElement>(_elementName).AddToClassList("active");
+        _uiDocument.Q<VisualElement>(_currentSlot).AddToClassList("active");
     }
 
     /// <summary>
@@ -52,8 +72,7 @@ public class PlayerInventory
         {
             ResetSlots();
             _currentSlot = actionName;
-            _elementName = actionName.Replace(" ", "-");
-            _uiDocument.Q<VisualElement>(_elementName).AddToClassList("active");
+            _uiDocument.Q<VisualElement>(_currentSlot).AddToClassList("active");
         }
 
         // Handle input from mouse scroll wheel.
@@ -71,19 +90,29 @@ public class PlayerInventory
     {
         foreach (string actionName in _inventorySlots.Keys)
         {
-            string elementName = actionName.Replace(" ", "-");
-            _uiDocument.Q<VisualElement>(elementName).RemoveFromClassList("active");
+            _uiDocument.Q<VisualElement>(actionName).RemoveFromClassList("active");
         }
     }
 
+    // TODO: Update documentation?
     /// <summary>
     /// Add an item to the currently selected inventory slot.
     /// </summary>
-    /// <param name="equippableItem">The item to add to the inventory slot.</param>
-    public void AddItem(InventoryItem equippableItem)
+    /// <param name="inventoryItem">The item to add to the inventory slot.</param>
+    public bool AddItem(InventoryItem inventoryItem)
     {
-        _inventorySlots[_currentSlot] = equippableItem;
-        _uiDocument.Q<VisualElement>(_elementName).AddToClassList("containsItem");
+        string availableSlot = FindAvailableSlot(inventoryItem);
+
+        if (availableSlot != null)
+        {
+            _inventorySlots[availableSlot] = inventoryItem;
+            _uiDocument.Q<VisualElement>(availableSlot).AddToClassList("containsItem");
+            return true;
+        }
+
+        // TODO: Display some sort of error to the user through the Game UI
+        Debug.Log("All inventory slots are full!");
+        return false;
     }
 
     /// <summary>
@@ -95,7 +124,7 @@ public class PlayerInventory
         InventoryItem removedItem = _inventorySlots[_currentSlot];
 
         _inventorySlots[_currentSlot] = null;
-        _uiDocument.Q<VisualElement>(_elementName).RemoveFromClassList("containsItem");
+        _uiDocument.Q<VisualElement>(_currentSlot).RemoveFromClassList("containsItem");
 
         return removedItem;
     }
@@ -107,5 +136,45 @@ public class PlayerInventory
     public bool HasItem()
     {
         return _inventorySlots[_currentSlot] != null;
+    }
+
+    // TODO: Documentation
+    private string FindAvailableSlot(InventoryItem inventoryItem)
+    {
+        // Check to see if there is a specialized slot this item can go into.
+        foreach (var inventoryRestriction in _inventoryRestrictions)
+        {
+            string restrictionCategory = inventoryRestriction.Value.ItemCategory.ToString();
+            Type restrictionType = inventoryRestriction.Value.ItemType;
+
+            if (inventoryItem.GetType() == restrictionType)
+            {
+                // Ensure that the item category is present within the item.
+                // This is designed to be highly generic so that it can work with different armor and weapon categories without the need to hardcode it.
+                var itemFields = restrictionType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+                for (int i = 0; i < itemFields.Length; i++)
+                {
+                    // If the item category matches with the restricted category, then we can attempt to assign this item to the specified slot.
+                    if (restrictionCategory == itemFields[i].GetValue(inventoryItem).ToString())
+                    {
+                        // If the target slot is empty, then return the slot key. Otherwise, return null.
+                        return _inventorySlots[inventoryRestriction.Key] == null ? inventoryRestriction.Key : null;
+                    }
+                }
+            }
+        }
+
+        // If the item cannot go into a specialized slot, then find the closest available slot.
+        foreach (var inventorySlot in _inventorySlots)
+        {
+            if (inventorySlot.Value == null)
+            {
+                return inventorySlot.Key;
+            }
+        }
+
+        // There are no slots available.
+        return null;
     }
 }

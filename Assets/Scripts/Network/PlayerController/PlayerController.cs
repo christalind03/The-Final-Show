@@ -61,6 +61,8 @@ public class PlayerController : NetworkBehaviour
     private int _animatorMovementX;
     private int _animatorMovementZ;
 
+    public PlayerInventory PlayerInventory => _playerInventory;
+
     /// <summary>
     /// Configure the cursor settings and initialize a new instance of PlayerControls when the script is first loaded.
     /// </summary>
@@ -301,12 +303,6 @@ public class PlayerController : NetworkBehaviour
 
         if (hitCollider != null && targetObject.TryGetComponent(out IInteractable interactableComponent))
         {
-            // Check to see if we can add this item to our inventory.
-            if (targetObject.TryGetComponent(out InventoryItemObject inventoryItemObject))
-            {
-                _playerInventory.AddItem(inventoryItemObject.InventoryItem);
-            }
-
             CmdInteract(targetObject);
         }
 

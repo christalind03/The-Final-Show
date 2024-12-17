@@ -240,7 +240,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             ""id"": ""1a41d7a2-60c5-4c4e-a2b1-aec1b674d749"",
             ""actions"": [
                 {
-                    ""name"": ""Slot 1"",
+                    ""name"": ""Slot-1"",
                     ""type"": ""Button"",
                     ""id"": ""c84ba968-2a70-4913-9a55-2a1d1efb8e31"",
                     ""expectedControlType"": ""Button"",
@@ -249,7 +249,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Slot 2"",
+                    ""name"": ""Slot-2"",
                     ""type"": ""Button"",
                     ""id"": ""c9ab4d82-b565-460b-bd7a-5cdbecc3b26c"",
                     ""expectedControlType"": ""Button"",
@@ -258,7 +258,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Slot 3"",
+                    ""name"": ""Slot-3"",
                     ""type"": ""Button"",
                     ""id"": ""8e3d5689-702f-42fe-ab89-5baca7dc5949"",
                     ""expectedControlType"": ""Button"",
@@ -267,7 +267,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Slot 4"",
+                    ""name"": ""Slot-4"",
                     ""type"": ""Button"",
                     ""id"": ""722cc60c-49a4-41ec-ae00-cc794699d53f"",
                     ""expectedControlType"": ""Button"",
@@ -276,7 +276,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Slot 5"",
+                    ""name"": ""Slot-5"",
                     ""type"": ""Button"",
                     ""id"": ""bd11093b-d2b2-49e7-9f3c-08b2b7880e10"",
                     ""expectedControlType"": ""Button"",
@@ -285,7 +285,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Slot 6"",
+                    ""name"": ""Slot-6"",
                     ""type"": ""Button"",
                     ""id"": ""92c2550d-0613-494b-a431-b9210c2ba185"",
                     ""expectedControlType"": ""Button"",
@@ -294,7 +294,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Slot 7"",
+                    ""name"": ""Slot-7"",
                     ""type"": ""Button"",
                     ""id"": ""7cee67cc-9cb0-4336-8993-e88f22d364bd"",
                     ""expectedControlType"": ""Button"",
@@ -303,7 +303,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Slot 8"",
+                    ""name"": ""Slot-8"",
                     ""type"": ""Button"",
                     ""id"": ""b8214767-75c0-4460-a7a6-f9011d4ff7b6"",
                     ""expectedControlType"": ""Button"",
@@ -312,7 +312,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Slot 9"",
+                    ""name"": ""Slot-9"",
                     ""type"": ""Button"",
                     ""id"": ""02662254-4c51-4453-a3ad-75f52350d0f5"",
                     ""expectedControlType"": ""Button"",
@@ -338,7 +338,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard and Mouse"",
-                    ""action"": ""Slot 1"",
+                    ""action"": ""Slot-1"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -349,7 +349,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard and Mouse"",
-                    ""action"": ""Slot 2"",
+                    ""action"": ""Slot-2"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -360,7 +360,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard and Mouse"",
-                    ""action"": ""Slot 3"",
+                    ""action"": ""Slot-3"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -371,7 +371,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard and Mouse"",
-                    ""action"": ""Slot 4"",
+                    ""action"": ""Slot-4"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -382,7 +382,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard and Mouse"",
-                    ""action"": ""Slot 5"",
+                    ""action"": ""Slot-5"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -393,7 +393,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard and Mouse"",
-                    ""action"": ""Slot 6"",
+                    ""action"": ""Slot-6"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -404,7 +404,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard and Mouse"",
-                    ""action"": ""Slot 7"",
+                    ""action"": ""Slot-7"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -415,7 +415,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard and Mouse"",
-                    ""action"": ""Slot 8"",
+                    ""action"": ""Slot-8"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -426,7 +426,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard and Mouse"",
-                    ""action"": ""Slot 9"",
+                    ""action"": ""Slot-9"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -475,15 +475,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Player_Sprint = m_Player.FindAction("Sprint", throwIfNotFound: true);
         // Inventory
         m_Inventory = asset.FindActionMap("Inventory", throwIfNotFound: true);
-        m_Inventory_Slot1 = m_Inventory.FindAction("Slot 1", throwIfNotFound: true);
-        m_Inventory_Slot2 = m_Inventory.FindAction("Slot 2", throwIfNotFound: true);
-        m_Inventory_Slot3 = m_Inventory.FindAction("Slot 3", throwIfNotFound: true);
-        m_Inventory_Slot4 = m_Inventory.FindAction("Slot 4", throwIfNotFound: true);
-        m_Inventory_Slot5 = m_Inventory.FindAction("Slot 5", throwIfNotFound: true);
-        m_Inventory_Slot6 = m_Inventory.FindAction("Slot 6", throwIfNotFound: true);
-        m_Inventory_Slot7 = m_Inventory.FindAction("Slot 7", throwIfNotFound: true);
-        m_Inventory_Slot8 = m_Inventory.FindAction("Slot 8", throwIfNotFound: true);
-        m_Inventory_Slot9 = m_Inventory.FindAction("Slot 9", throwIfNotFound: true);
+        m_Inventory_Slot1 = m_Inventory.FindAction("Slot-1", throwIfNotFound: true);
+        m_Inventory_Slot2 = m_Inventory.FindAction("Slot-2", throwIfNotFound: true);
+        m_Inventory_Slot3 = m_Inventory.FindAction("Slot-3", throwIfNotFound: true);
+        m_Inventory_Slot4 = m_Inventory.FindAction("Slot-4", throwIfNotFound: true);
+        m_Inventory_Slot5 = m_Inventory.FindAction("Slot-5", throwIfNotFound: true);
+        m_Inventory_Slot6 = m_Inventory.FindAction("Slot-6", throwIfNotFound: true);
+        m_Inventory_Slot7 = m_Inventory.FindAction("Slot-7", throwIfNotFound: true);
+        m_Inventory_Slot8 = m_Inventory.FindAction("Slot-8", throwIfNotFound: true);
+        m_Inventory_Slot9 = m_Inventory.FindAction("Slot-9", throwIfNotFound: true);
         m_Inventory_CycleSlots = m_Inventory.FindAction("Cycle Slots", throwIfNotFound: true);
     }
 
