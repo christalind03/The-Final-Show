@@ -23,7 +23,7 @@ public class MeleeWeapon : Weapon
 
             if (hitCollider.TryGetComponent(out Health healthComponent) && withinRange)
             {
-                healthComponent.TakeDamage(_attackDamage);
+                healthComponent.CmdTakeDamage(_attackDamage);
             }
         }
     }

@@ -31,8 +31,8 @@ public class Health : NetworkBehaviour
     /// <summary>
     /// Applies damage to the entity. Factors in armor defense.
     /// </summary>
-    [Server]
-    public void TakeDamage(float damage)
+    [Command(requiresAuthority = false)]
+    public void CmdTakeDamage(float damage)
     {
         if (IsInvulnerable) return;
 
