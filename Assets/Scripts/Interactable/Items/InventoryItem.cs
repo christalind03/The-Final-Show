@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class InventoryItem : ScriptableObject
 {
-    [Header("Inventory Item Data")]
-    [SerializeField] private GameObject _objectPrefab;
+    [Header("Item Data")]
+    [SerializeField] protected GameObject _objectPrefab;
 
     public GameObject ObjectPrefab { get { return _objectPrefab; } }
 }

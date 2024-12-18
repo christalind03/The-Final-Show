@@ -1,11 +1,8 @@
 using Mirror;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.PackageManager;
 using UnityEngine;
 
 [RequireComponent(typeof(NetworkIdentity))]
-public class InventoryItemObject : MonoBehaviour, IInteractable
+public class InventoryItemObject : NetworkBehaviour, IInteractable
 {
     public InventoryItem InventoryItem;
 
@@ -29,8 +26,16 @@ public class InventoryItemObject : MonoBehaviour, IInteractable
         {
             if (playerInventory.AddItem(InventoryItem))
             {
-                Destroy(gameObject);
+                CmdDestroy();
             }
         }
+    }
+
+    // TODO: Documentation
+    [Command(requiresAuthority = false)]
+    private void CmdDestroy()
+    {
+        NetworkServer.Destroy(gameObject);
+        Destroy(gameObject);
     }
 }

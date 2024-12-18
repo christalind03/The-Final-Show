@@ -1,3 +1,4 @@
+using Mirror;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -5,15 +6,16 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
+// TODO: Update class documentation
 /// <summary>
 /// Represent's a player's inventory with  multiple slots to storage and manage items.
 /// </summary>
-public class PlayerInventory : MonoBehaviour
+public class PlayerInventory : NetworkBehaviour
 {
     private struct PlayerInventoryRestriction
     {
-        public Enum ItemCategory {  get; private set; }
-        public Type ItemType {  get; private set; }
+        public Enum ItemCategory { get; private set; }
+        public Type ItemType { get; private set; }
 
         public PlayerInventoryRestriction(Enum itemCategory, Type itemType)
         {
@@ -22,8 +24,8 @@ public class PlayerInventory : MonoBehaviour
         }
     }
 
-    [Header("Player Items")]
-    [SerializeField] private Transform _headTransform;
+    [Header("Equippable References")]
+    [SerializeField] private GameObject _headReference;
 
     private string _currentSlot;
     private Dictionary<string, InventoryItem> _inventorySlots;
@@ -33,7 +35,7 @@ public class PlayerInventory : MonoBehaviour
     /// <summary>
     /// Sets up the default slot and creates an empty inventory.
     /// </summary>
-    public void Start()
+    public override void OnStartAuthority()
     {
         // Default to Slot 1
         _currentSlot = "Slot-1";
@@ -54,11 +56,13 @@ public class PlayerInventory : MonoBehaviour
 
         _inventoryRestrictions = new Dictionary<string, PlayerInventoryRestriction>
         {
-            { "Slot-3", new PlayerInventoryRestriction(Armor.ArmorCategory.Head, typeof(Armor)) },
+            { "Slot-3", new PlayerInventoryRestriction(EquippableItem.EquippableCategory.Head, typeof(Armor)) },
         };
 
         _inventoryHotbar = gameObject.GetComponent<UIDocument>().rootVisualElement;
         _inventoryHotbar.Q<VisualElement>(_currentSlot).AddToClassList("active");
+
+        base.OnStartAuthority();
     }
 
     /// <summary>
@@ -67,8 +71,9 @@ public class PlayerInventory : MonoBehaviour
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
     public void SelectSlot(InputAction.CallbackContext context)
     {
+        if (!isLocalPlayer) { return; }
+
         // Handle hotkey input for inventory slots.
-        // NOTE: The actionName includes whitespace
         string actionName = context.action.name;
 
         if (_inventorySlots.ContainsKey(actionName))
@@ -104,10 +109,17 @@ public class PlayerInventory : MonoBehaviour
     /// <param name="inventoryItem">The item to add to the inventory slot.</param>
     public bool AddItem(InventoryItem inventoryItem)
     {
+        if (!isLocalPlayer) { return false; }
+
         string availableSlot = FindAvailableSlot(inventoryItem);
 
         if (availableSlot != null)
         {
+            if (inventoryItem is EquippableItem equippableItem)
+            {
+                CmdEquip(equippableItem);
+            }
+
             _inventorySlots[availableSlot] = inventoryItem;
             _inventoryHotbar.Q<VisualElement>(availableSlot).AddToClassList("containsItem");
             return true;
@@ -124,7 +136,14 @@ public class PlayerInventory : MonoBehaviour
     /// <returns>The gameObject that was removed from the inventory slot if it exists.</returns>
     public InventoryItem RemoveItem()
     {
+        if (!isLocalPlayer) { return null; }
+
         InventoryItem removedItem = _inventorySlots[_currentSlot];
+
+        if (removedItem is EquippableItem equippableItem)
+        {
+            CmdUnequip(equippableItem);
+        }
 
         _inventorySlots[_currentSlot] = null;
         _inventoryHotbar.Q<VisualElement>(_currentSlot).RemoveFromClassList("containsItem");
@@ -153,13 +172,13 @@ public class PlayerInventory : MonoBehaviour
             if (inventoryItem.GetType() == restrictionType)
             {
                 // Ensure that the item category is present within the item.
-                // This is designed to be highly generic so that it can work with different armor and weapon categories without the need to hardcode it.
-                var itemFields = restrictionType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                // This is designed to be highly generic so that it can work with different equippable items without the need to hardcode it.                
+                var itemProperties = restrictionType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
-                for (int i = 0; i < itemFields.Length; i++)
+                for (int i = 0; i < itemProperties.Length; i++)
                 {
                     // If the item category matches with the restricted category, then we can attempt to assign this item to the specified slot.
-                    if (restrictionCategory == itemFields[i].GetValue(inventoryItem).ToString())
+                    if (restrictionCategory == itemProperties[i].GetValue(inventoryItem).ToString())
                     {
                         // If the target slot is empty, then return the slot key. Otherwise, return null.
                         return _inventorySlots[inventoryRestriction.Key] == null ? inventoryRestriction.Key : null;
@@ -179,5 +198,60 @@ public class PlayerInventory : MonoBehaviour
 
         // There are no slots available.
         return null;
+    }
+
+    // TODO: Documentation
+    [Command]
+    private void CmdEquip(EquippableItem equippableItem)
+    {
+        GameObject equippableReference = FindEquippableReference(equippableItem.Category);
+
+        if (equippableReference != null)
+        {
+            Vector3 spawnPosition = equippableReference.transform.position + equippableItem.PositionOffset;
+            Quaternion spawnRotation = equippableReference.transform.rotation * equippableItem.ObjectPrefab.transform.rotation;
+
+            GameObject equippedObject = Instantiate(equippableItem.ObjectPrefab, spawnPosition, spawnRotation);            
+            NetworkServer.Spawn(equippedObject);
+
+            RpcEquip(equippableItem, equippedObject);
+        }
+    }
+
+    // TODO: Documentation
+    [Command]
+    private void CmdUnequip(EquippableItem equippableItem)
+    {
+        GameObject equippableReference = FindEquippableReference(equippableItem.Category);
+
+        if (equippableReference != null)
+        {
+            GameObject targetObject = equippableReference.transform.GetChild(0).gameObject;
+            
+            NetworkServer.Destroy(targetObject);
+            Destroy(targetObject);
+        }
+    }
+
+    // TODO: Documentation
+    [ClientRpc]
+    private void RpcEquip(EquippableItem equippableItem, GameObject equippedObject)
+    {
+        GameObject equippableReference = FindEquippableReference(equippableItem.Category);
+        equippedObject.transform.SetParent(equippableReference.transform);
+    }
+
+    // TODO: Documentation
+    private GameObject FindEquippableReference(EquippableItem.EquippableCategory equippableCategory)
+    {
+        switch (equippableCategory)
+        {
+            case EquippableItem.EquippableCategory.Head:
+                return _headReference;
+
+            default:
+                Debug.LogWarning($"CmdEquip() support for {equippableCategory} has not yet been implemented.");
+                return null;
+        }
     }
 }

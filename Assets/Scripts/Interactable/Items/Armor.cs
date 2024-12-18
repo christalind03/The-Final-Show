@@ -1,18 +1,9 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Armor", menuName = "Inventory Item/Armor")]
-public class Armor : InventoryItem
+public class Armor : EquippableItem
 {
-   public enum ArmorCategory
-    {
-        Head,
-        Chest,
-        Legs,
-        Feet
-    }
-
     [Header("Armor Details")]
-    [SerializeField] private ArmorCategory _armorCategory;
     [SerializeField] private float _attack;
     [SerializeField] private float _defense;
     [SerializeField] private float _healthPoints;
