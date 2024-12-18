@@ -11,37 +11,20 @@ using Mirror;
 public class FieldOfView : NetworkBehaviour
 {
     [Header("Field of View Properties")]
-    [SerializeField]
-    private float _angle;
-
-    [SerializeField]
-    private float _distance;
-
-    [SerializeField]
-    private float _height;
-
-    [SerializeField]
-    private float _heightOffset;
-
-    [SerializeField]
-    private int _subdivisionFactor;
+    [SerializeField] private float _angle;
+    [SerializeField] private float _distance;
+    [SerializeField] private float _height;
+    [SerializeField] private float _heightOffset;
+    [SerializeField] private int _subdivisionFactor;
 
     [Header("Scanning Properties")]
-    [SerializeField]
-    private float _scanFrequency;
-
-    [SerializeField]
-    private LayerMask _interestedLayers;
-
-    [SerializeField]
-    private LayerMask _occlusionLayers;
+    [SerializeField] private float _scanFrequency;
+    [SerializeField] private LayerMask _interestedLayers;
+    [SerializeField] private LayerMask _occlusionLayers;
 
     [Header("Debugging Properties")]
-    [SerializeField]
-    private Color _meshColor;
-
-    [SerializeField]
-    private Color _visibleObject;
+    [SerializeField] private Color _meshColor;
+    [SerializeField] private Color _visibleObject;
 
     private Mesh _mesh;
     private List<GameObject> _detectedObjects = new List<GameObject>();
@@ -65,8 +48,8 @@ public class FieldOfView : NetworkBehaviour
     /// </summary>
     private void Update()
     {
-        if (!Application.isPlaying) return;
-        if (!isServer){return;}
+        if (!Application.isPlaying) { return; }
+        if (!isServer) { return; }
         
         _scanTimer -= Time.deltaTime;
 

@@ -125,6 +125,27 @@ public class PlayerController : NetworkBehaviour
         HandleSprint();
     }
 
+    // TODO: Documentation
+    private void OnDrawGizmos()
+    {
+        InventoryItem inventoryItem = _playerInventory.GetItem();
+
+        if (inventoryItem is MeleeWeapon meleeWeapon)
+        {
+            // Draw the overlapping sphere used to detect targets
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(transform.position, meleeWeapon.AttackRange);
+
+            // Draw lines to visually represent the boundaries of the attack cone
+            Vector3 forwardLeft = Quaternion.Euler(0, -meleeWeapon.AttackAngle / 2, 0) * transform.forward * meleeWeapon.AttackRange;
+            Vector3 forwardRight = Quaternion.Euler(0, meleeWeapon.AttackAngle / 2, 0) * transform.forward * meleeWeapon.AttackRange;
+
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawLine(transform.position, transform.position + forwardLeft);
+            Gizmos.DrawLine(transform.position, transform.position + forwardRight);
+        }
+    }
+
     /// <summary>
     /// Handle the player's camera and character rotation based on the player's input.
     /// </summary>
@@ -215,6 +236,14 @@ public class PlayerController : NetworkBehaviour
     private void Attack(InputAction.CallbackContext context)
     {
         if (!isLocalPlayer) { return; }
+
+        InventoryItem inventoryItem = _playerInventory.GetItem();
+
+        if (inventoryItem != null && inventoryItem is Weapon weaponItem)
+        {
+            weaponItem.Attack(gameObject);
+        }
+
         //if (_currentWeapon != null)
         //{
         //    _currentWeapon.Attack();

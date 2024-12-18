@@ -5,9 +5,8 @@ public class EquippableItem : InventoryItem
 {
     public enum EquippableCategory
     {
+        Hand,
         Head,
-        Chest,
-        Legs,
     }
 
     [Header("Transform Adjustments")]

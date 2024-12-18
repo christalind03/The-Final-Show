@@ -25,6 +25,7 @@ public class PlayerInventory : NetworkBehaviour
     }
 
     [Header("Equippable References")]
+    [SerializeField] private GameObject _handReference;
     [SerializeField] private GameObject _headReference;
 
     private string _currentSlot;
@@ -152,12 +153,12 @@ public class PlayerInventory : NetworkBehaviour
     }
 
     /// <summary>
-    /// Checks to see if the currently selected inventory slot contains an item.
+    /// Retrieve the InventoryItem within the currently selected inventory slot.
     /// </summary>
-    /// <returns>True if the current slot contains an item; otherwise, false.</returns>
-    public bool HasItem()
+    /// <returns>The InventoryItem within the currently selected inventory slot.</returns>
+    public InventoryItem GetItem()
     {
-        return _inventorySlots[_currentSlot] != null;
+        return _inventorySlots[_currentSlot];
     }
 
     // TODO: Documentation
@@ -246,6 +247,9 @@ public class PlayerInventory : NetworkBehaviour
     {
         switch (equippableCategory)
         {
+            case EquippableItem.EquippableCategory.Hand:
+                return _handReference;
+
             case EquippableItem.EquippableCategory.Head:
                 return _headReference;
 

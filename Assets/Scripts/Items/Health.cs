@@ -39,6 +39,7 @@ public class Health : NetworkBehaviour
         // Use ArmorManager to calculate reduced damage
         //float reducedDamage = armorManager != null ? armorManager.ApplyArmorDefense(damage) : damage;
         //currentHealth -= reducedDamage;
+        currentHealth -= damage;
 
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth); // Helps to ensure health stays in valid bounds
         Debug.Log($"{gameObject.name} took {damage} damage. Remaining health: {currentHealth}");
@@ -55,14 +56,15 @@ public class Health : NetworkBehaviour
     [Server]
     private void Die()
     {
-        if(gameObject.tag == "Player"){
-            gameObject.transform.Find("Capsule").gameObject.layer = 0;
-            CameraController cc = gameObject.GetComponent<CameraController>();
-            cc.alive = false;
-            cc.Spectate(); 
-        }else{
+        if (gameObject.tag == "Player")
+        {
+            Spectate(); 
+        }
+        else
+        {
             Destroy(gameObject);
         }
+        
         Debug.Log($"{gameObject.name} has died.")   ;
         RpcOnDeath();
     }
@@ -79,18 +81,23 @@ public class Health : NetworkBehaviour
     }
 
     /// <summary>
-    /// Camera switching on death
+    /// In the case the object is a player, automatically switch cameras upon death.
     /// </summary>
     [ClientRpc]
     private void RpcOnDeath()
     {
-        if(!isLocalPlayer || isServer){return;}
-        if(gameObject.tag == "Player"){
-            gameObject.transform.Find("Capsule").gameObject.layer = 0;
-            CameraController cc = gameObject.GetComponent<CameraController>();
-            cc.alive = false;
-            cc.Spectate(); 
-        }
+        if (!isLocalPlayer || isServer) { return; }
+        if (gameObject.tag == "Player") { Spectate(); }
+
         Debug.Log($"{gameObject.name} death broadcasted to all clients.");
+    }
+
+    // TODO: Document
+    private void Spectate()
+    {
+        gameObject.transform.Find("Capsule").gameObject.layer = 0;
+        CameraController cameraController = gameObject.GetComponent<CameraController>();
+        cameraController.alive = false;
+        cameraController.Spectate();
     }
 }
