@@ -6,7 +6,7 @@ public class InventoryItem : ScriptableObject
     [Header("Item Data")]
     [SerializeField] protected GameObject _objectPrefab;
 
-    public GameObject ObjectPrefab { get { return _objectPrefab; } }
+    public GameObject ObjectPrefab => _objectPrefab;
 }
 
 public static class InventoryItemSerializer

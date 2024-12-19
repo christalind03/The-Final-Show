@@ -205,7 +205,7 @@ public class PlayerInventory : NetworkBehaviour
     [Command]
     private void CmdEquip(EquippableItem equippableItem)
     {
-        GameObject equippableReference = FindEquippableReference(equippableItem.Category);
+        GameObject equippableReference = FindEquippableReference(equippableItem.EquipmentCategory);
 
         if (equippableReference != null)
         {
@@ -223,7 +223,7 @@ public class PlayerInventory : NetworkBehaviour
     [Command]
     private void CmdUnequip(EquippableItem equippableItem)
     {
-        GameObject equippableReference = FindEquippableReference(equippableItem.Category);
+        GameObject equippableReference = FindEquippableReference(equippableItem.EquipmentCategory);
 
         if (equippableReference != null)
         {
@@ -238,7 +238,7 @@ public class PlayerInventory : NetworkBehaviour
     [ClientRpc]
     private void RpcEquip(EquippableItem equippableItem, GameObject equippedObject)
     {
-        GameObject equippableReference = FindEquippableReference(equippableItem.Category);
+        GameObject equippableReference = FindEquippableReference(equippableItem.EquipmentCategory);
         equippedObject.transform.SetParent(equippableReference.transform);
     }
 

@@ -2,12 +2,9 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
 using Mirror;
-using System.Security.Cryptography;
 
-
-[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(CharacterController), typeof(CombatController), typeof(PlayerInventory))]
 public class PlayerController : NetworkBehaviour
 {
     [Header("Camera Parameters")]
@@ -54,6 +51,7 @@ public class PlayerController : NetworkBehaviour
     private RaycastHit _raycastHit;
     private PlayerControls _playerControls;
     private PlayerInventory _playerInventory;
+    private CombatController _combatController;
     //private VisualElement _uiDocument;
 
     private Animator _playerAnimator;
@@ -74,6 +72,7 @@ public class PlayerController : NetworkBehaviour
 
         _playerControls = new PlayerControls();
         _playerInventory = gameObject.GetComponent<PlayerInventory>();
+        _combatController = gameObject.GetComponent<CombatController>();
 
         // To access the animator, we must retrieve the child gameObject that is rendering the player's mesh.
         // This should be the first child of the current gameObject, `BaseCharacter`
@@ -128,22 +127,27 @@ public class PlayerController : NetworkBehaviour
     // TODO: Documentation
     private void OnDrawGizmos()
     {
-        InventoryItem inventoryItem = _playerInventory.GetItem();
-
-        if (inventoryItem is MeleeWeapon meleeWeapon)
+        // TODO: Explain why this is within a try-catch statement (hint: OnDrawGizmos() runs within the editor)
+        try
         {
-            // Draw the overlapping sphere used to detect targets
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(transform.position, meleeWeapon.AttackRange);
+            InventoryItem inventoryItem = _playerInventory.GetItem();
 
-            // Draw lines to visually represent the boundaries of the attack cone
-            Vector3 forwardLeft = Quaternion.Euler(0, -meleeWeapon.AttackAngle / 2, 0) * transform.forward * meleeWeapon.AttackRange;
-            Vector3 forwardRight = Quaternion.Euler(0, meleeWeapon.AttackAngle / 2, 0) * transform.forward * meleeWeapon.AttackRange;
+            if (inventoryItem is MeleeWeapon meleeWeapon)
+            {
+                // Draw the overlapping sphere used to detect targets
+                Gizmos.color = Color.green;
+                Gizmos.DrawWireSphere(transform.position, meleeWeapon.AttackRange);
 
-            Gizmos.color = Color.magenta;
-            Gizmos.DrawLine(transform.position, transform.position + forwardLeft);
-            Gizmos.DrawLine(transform.position, transform.position + forwardRight);
+                // Draw lines to visually represent the boundaries of the attack cone
+                Vector3 forwardLeft = Quaternion.Euler(0, -meleeWeapon.AttackAngle / 2, 0) * transform.forward * meleeWeapon.AttackRange;
+                Vector3 forwardRight = Quaternion.Euler(0, meleeWeapon.AttackAngle / 2, 0) * transform.forward * meleeWeapon.AttackRange;
+
+                Gizmos.color = Color.magenta;
+                Gizmos.DrawLine(transform.position, transform.position + forwardLeft);
+                Gizmos.DrawLine(transform.position, transform.position + forwardRight);
+            }
         }
+        catch (Exception) { }
     }
 
     /// <summary>
@@ -239,9 +243,9 @@ public class PlayerController : NetworkBehaviour
 
         InventoryItem inventoryItem = _playerInventory.GetItem();
 
-        if (inventoryItem != null && inventoryItem is Weapon weaponItem)
+        if (inventoryItem != null && inventoryItem is Weapon playerWeapon)
         {
-            weaponItem.Attack(gameObject);
+            _combatController.Attack(playerWeapon);
         }
 
         //if (_currentWeapon != null)

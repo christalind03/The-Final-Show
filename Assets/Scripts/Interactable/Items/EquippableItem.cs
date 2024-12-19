@@ -10,10 +10,10 @@ public class EquippableItem : InventoryItem
     }
 
     [Header("Transform Adjustments")]
-    [SerializeField] private EquippableCategory _category;
+    [SerializeField] private EquippableCategory _equipmentCategory;
     [SerializeField] private Vector3 _positionOffset;
 
-    public EquippableCategory Category => _category;
+    public EquippableCategory EquipmentCategory => _equipmentCategory;
     public Vector3 PositionOffset => _positionOffset;
 }
 
