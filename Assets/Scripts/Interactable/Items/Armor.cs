@@ -1,3 +1,4 @@
+using Mirror;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Armor", menuName = "Inventory Item/Armor")]
@@ -13,4 +14,17 @@ public class Armor : EquippableItem
     public float Defense => _defense;
     public float HealthPoints => _healthPoints;
     public float Stamina => _stamina;
+}
+
+public static class ArmorSerializer
+{
+    public static void WriteArmor(this NetworkWriter networkWriter, Armor armor)
+    {
+        networkWriter.WriteString(armor.name);
+    }
+
+    public static Armor ReadInventoryItem(this NetworkReader networkReader)
+    {
+        return Resources.Load<Armor>($"Items/{networkReader.ReadString()}");
+    }
 }

@@ -119,6 +119,7 @@ public class PlayerController : NetworkBehaviour
         _playerVelocity.y += _gravity * Time.deltaTime;
         _playerController.Move(_playerVelocity * Time.deltaTime);
 
+        //Attack();
         HandleLook();
         HandleMovement();
         HandleSprint();
@@ -171,7 +172,7 @@ public class PlayerController : NetworkBehaviour
         _playerTransform.rotation = Quaternion.Euler(0, _yRotation, 0);
 
         // Check to see if we're looking at anything of importance.
-        Physics.Raycast(_cameraTransform.position, _cameraTransform.forward * _interactableDistance, out _raycastHit);
+        Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out _raycastHit, _interactableDistance);
 
         CmdLook(_playerTransform.rotation, _followTransform.rotation);
     }
@@ -287,7 +288,7 @@ public class PlayerController : NetworkBehaviour
 
         InventoryItem droppedItem = _playerInventory.RemoveItem();
 
-        if (_raycastHit.collider != null && droppedItem != null)
+        if (droppedItem != null)
         {
             // 3 is an arbitrary value representing how far away the dropped item should be from the player.
             Vector3 droppedPosition = targetPosition ?? transform.position + transform.forward * 3;
@@ -328,11 +329,15 @@ public class PlayerController : NetworkBehaviour
         if (!isLocalPlayer) { return; }
 
         Collider hitCollider = _raycastHit.collider;
-        GameObject targetObject = hitCollider.transform.root.gameObject; // Interactable objects should always have their interactable script at the top-most level.
 
-        if (hitCollider != null && targetObject.TryGetComponent(out IInteractable interactableComponent))
+        if (hitCollider != null)
         {
-            CmdInteract(targetObject);
+            GameObject targetObject = hitCollider.transform.root.gameObject; // Interactable objects should always have their interactable script at the top-most level.
+            
+            if (targetObject.TryGetComponent(out IInteractable interactableComponent))
+            {
+                CmdInteract(targetObject);
+            }
         }
 
         //if (!isLocalPlayer) { return; }
