@@ -272,17 +272,13 @@ public class PlayerInventory : NetworkBehaviour
     // TODO: Documentation
     private void ApplyStats(Armor armorItem)
     {
-        _playerHealth.MaxHealth += armorItem.HealthPoints;
-        _playerHealth.AddHealth(armorItem.HealthPoints);
+        //_playerHealth.MaxHealth += armorItem.HealthPoints;
+        //_playerHealth.AddHealth(armorItem.HealthPoints);
 
+        _playerHealth.CmdAddModifier(armorItem.Health);
         _playerStats.Attack.AddModifier(armorItem.Attack);
-        _playerStats.Attack.Increase(armorItem.Attack);
-
         _playerStats.Defense.AddModifier(armorItem.Defense);
-        _playerStats.Defense.Increase(armorItem.Defense);
-        
         _playerStats.Stamina.AddModifier(armorItem.Stamina);
-        _playerStats.Stamina.Increase(armorItem.Stamina);
 
         DebugStats();
     }
@@ -290,17 +286,13 @@ public class PlayerInventory : NetworkBehaviour
     // TODO: Documentation
     private void RemoveStats(Armor armorItem)
     {
-        _playerHealth.MaxHealth -= armorItem.HealthPoints;
-        _playerHealth.CmdRemoveHealth(armorItem.HealthPoints);
+        //_playerHealth.MaxHealth -= armorItem.HealthPoints;
+        //_playerHealth.CmdRemoveHealth(armorItem.HealthPoints);
 
+        _playerHealth.CmdRemoveModifier(armorItem.Health);
         _playerStats.Attack.RemoveModifier(armorItem.Attack);
-        _playerStats.Attack.Decrease(armorItem.Attack);
-
         _playerStats.Defense.RemoveModifier(armorItem.Defense);
-        _playerStats.Defense.Decrease(armorItem.Defense);
-        
         _playerStats.Stamina.RemoveModifier(armorItem.Stamina);
-        _playerStats.Stamina.Decrease(armorItem.Stamina);
 
         DebugStats();
     }
@@ -310,7 +302,8 @@ public class PlayerInventory : NetworkBehaviour
     // Once we have a more defined UI system to do these changes for us, we can remove these logs.
     private void DebugStats()
     {
-        Debug.Log($"Player Health: {_playerHealth.MaxHealth}, {_playerHealth.CurrentHealth}");
+        //Debug.Log($"Player Health: {_playerHealth.MaxHealth}, {_playerHealth.CurrentHealth}");
+        Debug.Log($"Player Attack: {_playerHealth.BaseValue}, {_playerHealth.CurrentValue}");
         Debug.Log($"Player Attack: {_playerStats.Attack.BaseValue}, {_playerStats.Attack.CurrentValue}");
         Debug.Log($"Player Defense: {_playerStats.Defense.BaseValue}, {_playerStats.Defense.CurrentValue}");
         Debug.Log($"Player Stamina: {_playerStats.Stamina.BaseValue}, {_playerStats.Stamina.CurrentValue}");

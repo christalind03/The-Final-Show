@@ -16,7 +16,8 @@ public class Projectile : NetworkBehaviour
 
             if (UnityExtensions.ContainsLayer(AttackLayers, collisionObject.layer) && collisionObject.TryGetComponent(out Health healthComponent))
             {
-                healthComponent.CmdRemoveHealth(AttackDamage);
+                //healthComponent.CmdRemoveHealth(AttackDamage);
+                healthComponent.CmdDamage(AttackDamage);
             }
         }
 

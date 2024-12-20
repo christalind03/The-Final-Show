@@ -7,12 +7,12 @@ public class Armor : EquippableItem
     [Header("Armor Details")]
     [SerializeField] private float _attack;
     [SerializeField] private float _defense;
-    [SerializeField] private float _healthPoints;
+    [SerializeField] private float _health;
     [SerializeField] private float _stamina;
 
     public float Attack => _attack;
     public float Defense => _defense;
-    public float HealthPoints => _healthPoints;
+    public float Health => _health;
     public float Stamina => _stamina;
 }
 

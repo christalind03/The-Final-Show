@@ -1,95 +1,148 @@
 using Mirror;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// TODO: Redocument entire file
 /// <summary>
-/// Represents the health system for an entity in the game.
-/// Handles damage, health reduction, and death behavior.
+/// Represents a stat that can be modified and adjusted dynamically.
 /// </summary>
 public class Health : NetworkBehaviour
 {
-    [Header("Health Properties")]
-    public float MaxHealth = 100f;
+    [SerializeField] private float _baseValue;
 
-    [SyncVar(hook = nameof(OnHealthChanged))]
-    private float currentHealth;
+    [Header("Player Properties")]
+    [SerializeField] private GameObject _playerBody;
 
-    //[Header("Dependencies")]
-    //[SerializeField] private ArmorManager armorManager;
-    public bool IsInvulnerable { get; set; } = false;
-
-    public float CurrentHealth => currentHealth;
-
-    public override void OnStartAuthority()
-    {
-        currentHealth = MaxHealth;
-
-        base.OnStartAuthority();
-    }
-
-    public void AddHealth(float totalHealed)
-    {
-        currentHealth += totalHealed;
-        currentHealth = Mathf.Clamp(currentHealth, 0, MaxHealth);
-    }
+    [SyncVar(hook = nameof(OnHealthChange))]
+    private float _currentValue;
+    private List<float> _modifierList;
 
     /// <summary>
-    /// Applies damage to the entity. Factors in armor defense.
+    /// Get the base value of the stat, including any active modifiers into the final calculation.
     /// </summary>
-    [Command(requiresAuthority = false)]
-    public void CmdRemoveHealth(float totalDamage)
+    public float BaseValue
     {
-        if (IsInvulnerable) return;
-
-        currentHealth -= totalDamage;
-        currentHealth = Mathf.Clamp(currentHealth, 0, MaxHealth); // Helps to ensure health stays in valid bounds
-        Debug.Log($"{gameObject.name} took {totalDamage} damage. Remaining health: {currentHealth}");
-
-        if (currentHealth <= 0)
+        get
         {
-            Die();
+            float modifierSum = 0;
+
+            // Prevent null error messages in the console if the object was set without a constructor. 
+            _modifierList ??= new List<float>();
+            _modifierList.ForEach(modifierValue => modifierSum += modifierValue);
+
+            return _baseValue + modifierSum;
+        }
+        private set
+        {
+            _baseValue = value;
         }
     }
 
     /// <summary>
-    /// Handles the death of the entity.
+    /// Gets the current value of the stat, clamped between zero and the BaseValue (including modifiers).
     /// </summary>
-    [Server]
-    private void Die()
+    public float CurrentValue
     {
-        if (gameObject.tag == "Player")
+        get => _currentValue;
+        private set
         {
-            Spectate(); 
+            _currentValue = Mathf.Clamp(value, 0f, BaseValue);
+        }
+    }
+
+    /// <summary>
+    /// Initialize a new instance of the Stat class with a specified base value.
+    /// </summary>
+    /// <param name="baseValue">The initial value of the stat.</param>
+    private void Start()
+    {
+        _currentValue = _baseValue;
+        _modifierList = new List<float>();
+    }
+
+    /// <summary>
+    /// Increase the current value of the stat by the specified amount.
+    /// </summary>
+    /// <param name="increaseValue">The amount to increase the current value by.</param>
+    [Command(requiresAuthority = false)]
+    public void CmdHeal(float increaseValue)
+    {
+        CurrentValue += increaseValue;
+    }
+
+    /// <summary>
+    /// Decreases the current value of the stat by the specified amount.
+    /// </summary>
+    /// <param name="decreaseValue">The amount to decrease the current value by.</param>
+    [Command(requiresAuthority = false)]
+    public void CmdDamage(float decreaseValue)
+    {
+        CurrentValue -= decreaseValue;
+
+        Debug.Log($"{gameObject.name} took {decreaseValue} damage. Remaining health: {CurrentValue}/{BaseValue}");
+        if (CurrentValue <= 0f) { TriggerDeath(); }
+    }
+
+    /// <summary>
+    /// Adds a modifier to the modifier list.
+    /// Allows for temporary adjustments to the base value.
+    /// </summary>
+    /// <param name="modifierValue"></param>
+    [Command(requiresAuthority = false)]
+    public void CmdAddModifier(float modifierValue)
+    {
+        if (modifierValue != 0)
+        {
+            _modifierList.Add(modifierValue);
+            _currentValue += modifierValue;
+        }
+    }
+
+    /// <summary>
+    /// Removes a modifier from the modifier list.
+    /// Allows for the removal of temporary adjustments to the base value.
+    /// </summary>
+    /// <param name="modifierValue"></param>
+    [Command(requiresAuthority = false)]
+    public void CmdRemoveModifier(float modifierValue)
+    {
+        if (modifierValue != 0f)
+        {
+            _modifierList.Remove(modifierValue);
+            _currentValue -= modifierValue;
+        }
+    }
+
+    // TODO: Document
+    private void OnHealthChange(float oldHealth, float newHealth)
+    {
+        // We can add in our visual health updates like health bars here
+        Debug.Log($"{gameObject.name} health changed: {oldHealth}/{_baseValue} -> {newHealth}/{_baseValue}");
+    }
+
+    // TODO: Document
+    [Server]
+    private void TriggerDeath()
+    {
+        if (gameObject.CompareTag("Player"))
+        {
+            Spectate();
         }
         else
         {
             Destroy(gameObject);
         }
-        
+
         Debug.Log($"{gameObject.name} has died.");
         RpcOnDeath();
     }
 
-    /// <summary>
-    /// Called on all clients when health changes.
-    /// </summary>
-    /// <param name="oldHealth">The old health value.</param>
-    /// <param name="newHealth">The new health value.</param>
-    private void OnHealthChanged(float oldHealth, float newHealth)
-    {
-        Debug.Log($"{gameObject.name} health changed: {oldHealth} -> {newHealth}");
-        // We can add in our visual health updates like health bars here
-    }
-
-    /// <summary>
-    /// In the case the object is a player, automatically switch cameras upon death.
-    /// </summary>
+    // TODO: Document
     [ClientRpc]
     private void RpcOnDeath()
     {
         if (!isLocalPlayer || isServer) { return; }
-        if (gameObject.tag == "Player") { Spectate(); }
+        if (gameObject.CompareTag("Player")) { Spectate(); }
 
         Debug.Log($"{gameObject.name} death broadcasted to all clients.");
     }
@@ -97,7 +150,7 @@ public class Health : NetworkBehaviour
     // TODO: Document
     private void Spectate()
     {
-        gameObject.transform.Find("Capsule").gameObject.layer = 0;
+        _playerBody.layer = 0;
         CameraController cameraController = gameObject.GetComponent<CameraController>();
         cameraController.alive = false;
         cameraController.Spectate();

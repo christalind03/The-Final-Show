@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Mirror;
 
 /// <summary>
 /// Represents a stat that can be modified and adjusted dynamically.
@@ -80,9 +79,10 @@ public class Stat
     /// <param name="modifierValue"></param>
     public void AddModifier(float modifierValue)
     {
-        if (modifierValue != 0)
+        if (modifierValue != 0f)
         {
             _modifierList.Add(modifierValue);
+            _currentValue += modifierValue;
         }
     }
 
@@ -96,6 +96,7 @@ public class Stat
         if (modifierValue != 0f)
         {
             _modifierList.Remove(modifierValue);
+            _currentValue -= modifierValue;
         }
     }
 }
