@@ -57,6 +57,8 @@ public class PlayerInventory : NetworkBehaviour
 
         _inventoryRestrictions = new Dictionary<string, PlayerInventoryRestriction>
         {
+            { "Slot-1", new PlayerInventoryRestriction(EquippableItem.EquippableCategory.Hand, typeof(MeleeWeapon)) },
+            { "Slot-2", new PlayerInventoryRestriction(EquippableItem.EquippableCategory.Hand, typeof(RangedWeapon)) },
             { "Slot-3", new PlayerInventoryRestriction(EquippableItem.EquippableCategory.Head, typeof(Armor)) },
         };
 
@@ -79,9 +81,13 @@ public class PlayerInventory : NetworkBehaviour
 
         if (_inventorySlots.ContainsKey(actionName))
         {
+            string previousSlot = _currentSlot;
+
             ResetSlots();
             _currentSlot = actionName;
             _inventoryHotbar.Q<VisualElement>(_currentSlot).AddToClassList("active");
+
+            UpdateSelectedItem(previousSlot);
         }
 
         // Handle input from mouse scroll wheel.
@@ -118,7 +124,10 @@ public class PlayerInventory : NetworkBehaviour
         {
             if (inventoryItem is EquippableItem equippableItem)
             {
-                CmdEquip(equippableItem);
+                if (ShouldEquip(equippableItem))
+                {
+                    CmdEquip(equippableItem);
+                }
             }
 
             _inventorySlots[availableSlot] = inventoryItem;
@@ -129,6 +138,15 @@ public class PlayerInventory : NetworkBehaviour
         // TODO: Display some sort of error to the user through the Game UI
         Debug.Log("All inventory slots are full!");
         return false;
+    }
+
+    /// <summary>
+    /// Retrieve the InventoryItem within the currently selected inventory slot.
+    /// </summary>
+    /// <returns>The InventoryItem within the currently selected inventory slot.</returns>
+    public InventoryItem GetItem(string slotKey = null)
+    {
+        return _inventorySlots[slotKey ?? _currentSlot];
     }
 
     /// <summary>
@@ -152,13 +170,22 @@ public class PlayerInventory : NetworkBehaviour
         return removedItem;
     }
 
-    /// <summary>
-    /// Retrieve the InventoryItem within the currently selected inventory slot.
-    /// </summary>
-    /// <returns>The InventoryItem within the currently selected inventory slot.</returns>
-    public InventoryItem GetItem()
+    // TODO: Documentation
+        // Update the currently selected item in the player's hand.
+    private void UpdateSelectedItem(string previousSlot)
     {
-        return _inventorySlots[_currentSlot];
+        InventoryItem previousItem = GetItem(previousSlot);
+        InventoryItem currentItem = GetItem();
+
+        if (previousItem is EquippableItem previousEquippableItem && previousEquippableItem.EquipmentCategory == EquippableItem.EquippableCategory.Hand)
+        {
+            CmdUnequip(previousEquippableItem);
+        }
+
+        if (currentItem is EquippableItem currentEquippableItem && currentEquippableItem.EquipmentCategory == EquippableItem.EquippableCategory.Hand)
+        {
+            CmdEquip(currentEquippableItem);
+        }
     }
 
     // TODO: Documentation
@@ -202,12 +229,38 @@ public class PlayerInventory : NetworkBehaviour
     }
 
     // TODO: Documentation
+    // Check to see if we should render this weapon, as the player should only be equipping items they are currently using.
+    private bool ShouldEquip(EquippableItem equippableItem)
+    {
+        GameObject equippableReference = FindEquippableReference(equippableItem.EquipmentCategory);
+
+        if (equippableItem.EquipmentCategory == EquippableItem.EquippableCategory.Hand)
+        {
+            if (equippableReference?.transform.childCount != 0)
+            {
+                return false;
+            }
+
+            if (GetItem() is EquippableItem selectedEquippableItem)
+            {
+                if (selectedEquippableItem.EquipmentCategory != EquippableItem.EquippableCategory.Hand)
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    // TODO: Documentation
     [Command]
     private void CmdEquip(EquippableItem equippableItem)
     {
         GameObject equippableReference = FindEquippableReference(equippableItem.EquipmentCategory);
 
-        if (equippableReference != null)
+        // Since it will take a small amount of time to swap between items, the total child count for this reference should be less than 2.
+        if (equippableReference != null && equippableReference.transform.childCount < 2)
         {
             Vector3 spawnPosition = equippableReference.transform.position + equippableItem.PositionOffset;
             Quaternion spawnRotation = equippableReference.transform.rotation * equippableItem.ObjectPrefab.transform.rotation;
@@ -225,7 +278,7 @@ public class PlayerInventory : NetworkBehaviour
     {
         GameObject equippableReference = FindEquippableReference(equippableItem.EquipmentCategory);
 
-        if (equippableReference != null)
+        if (equippableReference != null && equippableReference.transform.childCount > 0)
         {
             GameObject targetObject = equippableReference.transform.GetChild(0).gameObject;
             
