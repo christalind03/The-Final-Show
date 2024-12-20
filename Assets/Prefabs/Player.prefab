@@ -779,13 +779,13 @@ GameObject:
   - component: {fileID: 8203241780073711057}
   - component: {fileID: -760206781841849737}
   - component: {fileID: 8053147996298278901}
+  - component: {fileID: 5707889191988959549}
   - component: {fileID: 2873006661348008412}
   - component: {fileID: 3350290697159713969}
   - component: {fileID: 2413865861525508875}
   - component: {fileID: -1550303190723423835}
   - component: {fileID: 7673011111465674341}
   - component: {fileID: 4434578188930889017}
-  - component: {fileID: 5707889191988959549}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -855,6 +855,23 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &5707889191988959549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3233045660875188808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31910eaedc288d84d8500bbc6677aeda, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  _baseValue: 3
+  _playerBody: {fileID: 1805533672728415649}
 --- !u!114 &2873006661348008412
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -969,23 +986,6 @@ MonoBehaviour:
   sourceAsset: {fileID: 9197481963319205126, guid: 1ca2cb09a03821e428953505e1384a08,
     type: 3}
   m_SortingOrder: 0
---- !u!114 &5707889191988959549
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3233045660875188808}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 31910eaedc288d84d8500bbc6677aeda, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  _baseValue: 3
-  _playerBody: {fileID: 1805533672728415649}
 --- !u!1 &3283615129483415259
 GameObject:
   m_ObjectHideFlags: 0

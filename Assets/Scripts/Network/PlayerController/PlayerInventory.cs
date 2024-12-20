@@ -15,13 +15,25 @@ public class PlayerInventory : NetworkBehaviour
 {
     private struct PlayerInventoryRestriction
     {
-        public Enum ItemCategory { get; private set; }
+        public EquippableItem.EquippableCategory ItemCategory { get; private set; }
         public Type ItemType { get; private set; }
 
-        public PlayerInventoryRestriction(Enum itemCategory, Type itemType)
+        public PlayerInventoryRestriction(EquippableItem.EquippableCategory itemCategory, Type itemType)
         {
             ItemCategory = itemCategory;
             ItemType = itemType;
+        }
+
+        public override bool Equals(object otherObj)
+        {
+            return otherObj is PlayerInventoryRestriction otherInventoryRestriction && 
+                ItemCategory == otherInventoryRestriction.ItemCategory &&
+                ItemType == otherInventoryRestriction.ItemType;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(ItemCategory, ItemType);
         }
     }
 
@@ -252,18 +264,12 @@ public class PlayerInventory : NetworkBehaviour
 
         if (equippableItem.EquipmentCategory == EquippableItem.EquippableCategory.Hand)
         {
-            if (equippableReference?.transform.childCount != 0)
-            {
-                return false;
-            }
+            PlayerInventoryRestriction inventoryRestriction = new PlayerInventoryRestriction(EquippableItem.EquippableCategory.Hand, equippableItem.GetType());
+            bool isSlotValid = _currentSlot == UnityExtensions.FindKey(_inventoryRestrictions, inventoryRestriction);
+            bool isHandheld = GetItem() is not EquippableItem { EquipmentCategory: EquippableItem.EquippableCategory.Hand };
+            bool isEmpty = equippableReference?.transform.childCount == 0;
 
-            if (GetItem() is EquippableItem selectedEquippableItem)
-            {
-                if (selectedEquippableItem.EquipmentCategory != EquippableItem.EquippableCategory.Hand)
-                {
-                    return false;
-                }
-            }
+            return isSlotValid && isHandheld && isEmpty;
         }
 
         return true;
