@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 using Mirror;
+using System.Security.Cryptography;
 
 
 [RequireComponent(typeof(CharacterController))]
@@ -34,31 +35,40 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private Transform _playerTransform;
     [SerializeField] private CharacterController _playerController;
 
-
     [Header("Weapon Parameters")]
     [SerializeField] private Weapon _currentWeapon;
     public GameObject playerHand;
 
     [Header("Armor Components")]
     [SerializeField] private ArmorManager armorManager;
+    
     private bool _isGrounded;
     private bool _isSprinting;
-
+    private bool _canJump;
     private bool _canSprint;
+
     private float _xRotation;
     private float _yRotation;
     private Vector3 _playerVelocity;
+    
     private RaycastHit _raycastHit;
     private PlayerControls _playerControls;
     private PlayerInventory _playerInventory;
     private VisualElement _uiDocument;
+
+    private Animator _playerAnimator;
+    private int _animatorIsJumping;
+    private int _animatorMovementX;
+    private int _animatorMovementZ;
 
     /// <summary>
     /// Configure the cursor settings and initialize a new instance of PlayerControls when the script is first loaded.
     /// </summary>
     private void Awake()
     {
+        _canJump = true;
         _canSprint = true;
+
         UnityEngine.Cursor.visible = false;
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
 
@@ -66,6 +76,13 @@ public class PlayerController : NetworkBehaviour
 
         _playerControls = new PlayerControls();
         _playerInventory = new PlayerInventory(_uiDocument);
+
+        // To access the animator, we must retrieve the child gameObject that is rendering the player's mesh.
+        // This should be the first child of the current gameObject, `BaseCharacter`
+        _playerAnimator = transform.GetChild(0).GetComponent<Animator>();
+        _animatorIsJumping = Animator.StringToHash("Is Jumping");
+        _animatorMovementX = Animator.StringToHash("Movement X");
+        _animatorMovementZ = Animator.StringToHash("Movement Z");
     }
 
     /// <summary>
@@ -96,10 +113,7 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void Update()
     {
-        if (!isLocalPlayer)
-        {
-            return;
-        }
+        if (!isLocalPlayer) { return; }
 
         // Check to see if the player is on the ground or not.
         _isGrounded = Physics.Raycast(_playerTransform.position, Vector3.down, 1f) && _playerVelocity.y <= 0f;
@@ -155,6 +169,12 @@ public class PlayerController : NetworkBehaviour
         _playerController.Move(totalSpeed * Time.deltaTime * moveDirection);
         _playerController.Move(_playerVelocity * Time.deltaTime);
         CmdMovePlayer(_playerTransform.position);
+
+        // Display the player's movement animation.
+        // Since the player can move in four different directions, we have animations associated with each direction.
+        // To prevent repeated if-else statements, we instead have a ternary operator to trigger the correct animation with its respective direction.
+        _playerAnimator.SetFloat(_animatorMovementX, moveInput.x == 0 ? 0 : totalSpeed * Mathf.Sign(moveInput.x), 0.1f, Time.deltaTime); // 0.1f is an arbitrary dampening value to transition between different animations.
+        _playerAnimator.SetFloat(_animatorMovementZ, moveInput.y == 0 ? 0 : totalSpeed * Mathf.Sign(moveInput.y), 0.1f, Time.deltaTime);
     }
 
     /// <summary>
@@ -233,10 +253,12 @@ public class PlayerController : NetworkBehaviour
     {
         GameObject droppedItem = _playerInventory.RemoveItem();
         
-        if(droppedItem.GetComponent<MeleeWeapon>() != null || droppedItem.GetComponent<RangedWeapon>() != null){
+        if (droppedItem.GetComponent<MeleeWeapon>() != null || droppedItem.GetComponent<RangedWeapon>() != null)
+        {
             UnequipWeapon();
         }
-        else if(droppedItem.GetComponent<Armor>() != null){
+        else if (droppedItem.GetComponent<Armor>() != null)
+        {
             armorManager.UnequipArmor(droppedItem);
         }
 
@@ -303,10 +325,36 @@ public class PlayerController : NetworkBehaviour
     private void Jump(InputAction.CallbackContext context)
     {
         if (!isLocalPlayer) { return; }
+        if (_canJump)
+        {
+            StartCoroutine(Jump());
+        }
+    }
+
+    /// <summary>
+    /// Adjust the player's current height and display animations.
+    /// </summary>
+    /// <remarks>
+    /// In the case any jump parameters within the PlayerController script or in the animation controller are changed, this function may need to be updated.
+    /// This is not the most effiicent or optimal solution in regards to timing an animation to sync with the action itself, but this will do for now.
+    /// </remarks>
+    /// <returns>An enumerator to be used by Unity's coroutine system.</returns>
+    private IEnumerator Jump()
+    {
+        _canJump = false;
+        _playerAnimator.SetBool(_animatorIsJumping, true);
+
+        yield return new WaitForSeconds(0.45f); // Arbitrary number to account for the wind-up time on the jump animation.
+
         if (_isGrounded)
         {
             _playerVelocity.y = (float)Math.Sqrt(-2f * _gravity * _jumpHeight);
         }
+
+        yield return new WaitForSeconds(0.65f); // Arbitrary number to account for the air time on the jump animation.
+
+        _playerAnimator.SetBool(_animatorIsJumping, false);
+        _canJump = true;
     }
 
     /// <summary>
@@ -457,7 +505,7 @@ public class PlayerController : NetworkBehaviour
     private void RpcUpdatePlayerPosition(Vector3 position)
     {
         // Local player will not run this code since they've already calculated their own position in HandleMovement
-        if (isLocalPlayer) return;
+        if (isLocalPlayer) { return; }
         _playerTransform.position = position;
     }
 
@@ -468,7 +516,7 @@ public class PlayerController : NetworkBehaviour
     /// <param name="rotationFollow">Follow Camera rotation</param>
     [ClientRpc]
     private void RpcUpdatePlayerLook(Quaternion rotationPlayer, Quaternion rotationFollow){
-        if (isLocalPlayer) return;
+        if (isLocalPlayer) { return; }
         _playerTransform.rotation = rotationPlayer;
         _followTransform.rotation = rotationFollow;
     }

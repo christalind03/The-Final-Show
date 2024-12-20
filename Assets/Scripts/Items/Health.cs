@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
-using UnityEditor.Timeline;
 
 /// <summary>
 /// Represents the health system for an entity in the game.
