@@ -19,8 +19,6 @@ public class CombatController : NetworkBehaviour
     {
         if (_canAttack)
         {
-            Debug.Log("Attacking!");
-
             switch (playerWeapon)
             {
                 case MeleeWeapon meleeWeapon:
@@ -54,7 +52,7 @@ public class CombatController : NetworkBehaviour
 
             if (inRange && hitCollider.TryGetComponent(out Health healthComponent))
             {
-                healthComponent.CmdTakeDamage(playerWeapon.AttackDamage);
+                healthComponent.CmdRemoveHealth(playerWeapon.AttackDamage);
             }
         }
     }
@@ -62,8 +60,6 @@ public class CombatController : NetworkBehaviour
     // TODO: Document
     private void Shoot(RangedWeapon rangedWeapon)
     {
-        Debug.Log("Attempting to shoot...");
-
         if (0 < rangedWeapon.AmmoCount)
         {
             rangedWeapon.AmmoCount--;
@@ -78,6 +74,7 @@ public class CombatController : NetworkBehaviour
             }
             else
             {
+                // TODO: Play some sort of sound indicator notifying the user that their ammo is out.
                 Debug.Log($"{rangedWeapon.name} ran out of ammunition!");
             }
         }

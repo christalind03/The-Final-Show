@@ -5,12 +5,10 @@ using Mirror;
 /// <summary>
 /// Represents a stat that can be modified and adjusted dynamically.
 /// </summary>
-[System.Serializable]
 public class Stat
 {
-    [SerializeField] private float _baseValue;
-    [SerializeField] private float _currentValue;
-
+    private float _baseValue;
+    private float _currentValue;
     private List<float> _modifierList;
 
     /// <summary>

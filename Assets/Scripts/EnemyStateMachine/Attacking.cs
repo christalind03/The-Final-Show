@@ -17,7 +17,7 @@ public class AttackingState : EnemyState
         // Deal damage
         if (Context.TargetTransform.root.TryGetComponent(out Health targetHealth))
         {
-            targetHealth.CmdTakeDamage(Context.AttackStats.AttackDamage);
+            targetHealth.CmdRemoveHealth(Context.AttackStats.AttackDamage);
         }
     }
 

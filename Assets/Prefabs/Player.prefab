@@ -779,12 +779,13 @@ GameObject:
   - component: {fileID: 8203241780073711057}
   - component: {fileID: -760206781841849737}
   - component: {fileID: 8053147996298278901}
+  - component: {fileID: 7206835829060474261}
   - component: {fileID: 2873006661348008412}
   - component: {fileID: 3350290697159713969}
   - component: {fileID: 2413865861525508875}
   - component: {fileID: -1550303190723423835}
+  - component: {fileID: 7673011111465674341}
   - component: {fileID: 4434578188930889017}
-  - component: {fileID: 7206835829060474261}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -854,6 +855,22 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &7206835829060474261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3233045660875188808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ab21dbda7025ca41be37f1d67ce1e09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  MaxHealth: 100
 --- !u!114 &2873006661348008412
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -909,9 +926,6 @@ MonoBehaviour:
   _jumpHeight: 1.25
   _sprintSpeed: 8.5
   _walkSpeed: 3.5
-  _staminaPoints:
-    _baseValue: 100
-    _currentValue: 100
   _staminaCost: 15.5
   _staminaRestoration: 5
   _staminaCooldown: 5
@@ -936,6 +950,33 @@ MonoBehaviour:
   syncInterval: 0
   _handReference: {fileID: 8391953671341777991}
   _headReference: {fileID: 3130340847665837597}
+--- !u!114 &7673011111465674341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3233045660875188808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 372182107fadba9479402fa5ac6bafc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  _attack: 0
+  _defense: 0
+  _stamina: 100
+  Attack:
+    _baseValue: 0
+    _currentValue: 0
+  Defense:
+    _baseValue: 0
+    _currentValue: 0
+  Stamina:
+    _baseValue: 0
+    _currentValue: 0
 --- !u!114 &4434578188930889017
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -953,22 +994,6 @@ MonoBehaviour:
   sourceAsset: {fileID: 9197481963319205126, guid: 1ca2cb09a03821e428953505e1384a08,
     type: 3}
   m_SortingOrder: 0
---- !u!114 &7206835829060474261
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3233045660875188808}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ab21dbda7025ca41be37f1d67ce1e09, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  maxHealth: 100
 --- !u!1 &3283615129483415259
 GameObject:
   m_ObjectHideFlags: 0

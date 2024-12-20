@@ -10,6 +10,7 @@ using UnityEngine.UIElements;
 /// <summary>
 /// Represent's a player's inventory with  multiple slots to storage and manage items.
 /// </summary>
+[RequireComponent(typeof(PlayerStats))]
 public class PlayerInventory : NetworkBehaviour
 {
     private struct PlayerInventoryRestriction
@@ -32,6 +33,8 @@ public class PlayerInventory : NetworkBehaviour
     private Dictionary<string, InventoryItem> _inventorySlots;
     private Dictionary<string, PlayerInventoryRestriction> _inventoryRestrictions;
     private VisualElement _inventoryHotbar;
+    private PlayerStats _playerStats;
+    private Health _playerHealth;
 
     /// <summary>
     /// Sets up the default slot and creates an empty inventory.
@@ -64,6 +67,9 @@ public class PlayerInventory : NetworkBehaviour
 
         _inventoryHotbar = gameObject.GetComponent<UIDocument>().rootVisualElement;
         _inventoryHotbar.Q<VisualElement>(_currentSlot).AddToClassList("active");
+
+        _playerStats = gameObject.GetComponent<PlayerStats>();
+        _playerHealth = gameObject.GetComponent<Health>();
 
         base.OnStartAuthority();
     }
@@ -124,6 +130,11 @@ public class PlayerInventory : NetworkBehaviour
         {
             if (inventoryItem is EquippableItem equippableItem)
             {
+                if (equippableItem is Armor armorItem)
+                {
+                    ApplyStats(armorItem);
+                }
+
                 if (ShouldEquip(equippableItem))
                 {
                     CmdEquip(equippableItem);
@@ -161,6 +172,11 @@ public class PlayerInventory : NetworkBehaviour
 
         if (removedItem is EquippableItem equippableItem)
         {
+            if (equippableItem is Armor armorItem)
+            {
+                RemoveStats(armorItem);
+            }
+
             CmdUnequip(equippableItem);
         }
 
@@ -251,6 +267,53 @@ public class PlayerInventory : NetworkBehaviour
         }
 
         return true;
+    }
+
+    // TODO: Documentation
+    private void ApplyStats(Armor armorItem)
+    {
+        _playerHealth.MaxHealth += armorItem.HealthPoints;
+        _playerHealth.AddHealth(armorItem.HealthPoints);
+
+        _playerStats.Attack.AddModifier(armorItem.Attack);
+        _playerStats.Attack.Increase(armorItem.Attack);
+
+        _playerStats.Defense.AddModifier(armorItem.Defense);
+        _playerStats.Defense.Increase(armorItem.Defense);
+        
+        _playerStats.Stamina.AddModifier(armorItem.Stamina);
+        _playerStats.Stamina.Increase(armorItem.Stamina);
+
+        DebugStats();
+    }
+    
+    // TODO: Documentation
+    private void RemoveStats(Armor armorItem)
+    {
+        _playerHealth.MaxHealth -= armorItem.HealthPoints;
+        _playerHealth.CmdRemoveHealth(armorItem.HealthPoints);
+
+        _playerStats.Attack.RemoveModifier(armorItem.Attack);
+        _playerStats.Attack.Decrease(armorItem.Attack);
+
+        _playerStats.Defense.RemoveModifier(armorItem.Defense);
+        _playerStats.Defense.Decrease(armorItem.Defense);
+        
+        _playerStats.Stamina.RemoveModifier(armorItem.Stamina);
+        _playerStats.Stamina.Decrease(armorItem.Stamina);
+
+        DebugStats();
+    }
+
+    // TODO: Document
+    // These are debug placeholders to ensure that these changes are being applied.
+    // Once we have a more defined UI system to do these changes for us, we can remove these logs.
+    private void DebugStats()
+    {
+        Debug.Log($"Player Health: {_playerHealth.MaxHealth}, {_playerHealth.CurrentHealth}");
+        Debug.Log($"Player Attack: {_playerStats.Attack.BaseValue}, {_playerStats.Attack.CurrentValue}");
+        Debug.Log($"Player Defense: {_playerStats.Defense.BaseValue}, {_playerStats.Defense.CurrentValue}");
+        Debug.Log($"Player Stamina: {_playerStats.Stamina.BaseValue}, {_playerStats.Stamina.CurrentValue}");
     }
 
     // TODO: Documentation

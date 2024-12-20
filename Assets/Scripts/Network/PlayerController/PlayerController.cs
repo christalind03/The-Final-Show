@@ -4,7 +4,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Mirror;
 
-[RequireComponent(typeof(CharacterController), typeof(CombatController), typeof(PlayerInventory))]
+[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(CombatController))]
+[RequireComponent(typeof(PlayerInventory))]
+[RequireComponent(typeof(PlayerStats))]
 public class PlayerController : NetworkBehaviour
 {
     [Header("Camera Parameters")]
@@ -17,8 +20,8 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float _sprintSpeed;
     [SerializeField] private float _walkSpeed;
 
-    [Header("Stat Parameters")]
-    [SerializeField] private Stat _staminaPoints;
+    [Header("Stamina Parameters")]
+    //[SerializeField] private Stat _staminaPoints;
     [SerializeField] private float _staminaCost;
     [SerializeField] private float _staminaRestoration;
     [SerializeField] private float _staminaCooldown;
@@ -52,6 +55,7 @@ public class PlayerController : NetworkBehaviour
     private PlayerControls _playerControls;
     private PlayerInventory _playerInventory;
     private CombatController _combatController;
+    private PlayerStats _playerStats;
     //private VisualElement _uiDocument;
 
     private Animator _playerAnimator;
@@ -73,6 +77,7 @@ public class PlayerController : NetworkBehaviour
         _playerControls = new PlayerControls();
         _playerInventory = gameObject.GetComponent<PlayerInventory>();
         _combatController = gameObject.GetComponent<CombatController>();
+        _playerStats = gameObject.GetComponent<PlayerStats>();
 
         // To access the animator, we must retrieve the child gameObject that is rendering the player's mesh.
         // This should be the first child of the current gameObject, `BaseCharacter`
@@ -207,25 +212,27 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void HandleSprint()
     {
+        Stat playerStamina = _playerStats.Stamina;
+
         // Only sprint if the we are moving forward.
         Vector2 moveInput = _playerControls.Player.Movement.ReadValue<Vector2>();
         bool isForward = 0 < moveInput.y;
 
-        _isSprinting = _canSprint && isForward && 0 < _staminaPoints.CurrentValue && _playerControls.Player.Sprint.IsPressed();
+        _isSprinting = _canSprint && isForward && 0 < playerStamina.CurrentValue && _playerControls.Player.Sprint.IsPressed();
 
         // Decrease/Increase stamina based on whether or not we are currently sprinting.
         if (_isSprinting)
         {
-            _staminaPoints.Decrease(_staminaCost * Time.deltaTime);
+            playerStamina.Decrease(_staminaCost * Time.deltaTime);
         }
 
-        if (!_isSprinting && _staminaPoints.CurrentValue < _staminaPoints.BaseValue)
+        if (!_isSprinting && playerStamina.CurrentValue < playerStamina.BaseValue)
         {
-            _staminaPoints.Increase(_staminaRestoration * Time.deltaTime);
+            playerStamina.Increase(_staminaRestoration * Time.deltaTime);
         }
 
         // If the current stamina is zero, wait until the stamina bar fills up again.
-        if (_staminaPoints.CurrentValue == 0f)
+        if (playerStamina.CurrentValue == 0f)
         {
             _canSprint = false;
             _isSprinting = false;

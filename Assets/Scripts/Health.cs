@@ -1,7 +1,7 @@
+using Mirror;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Mirror;
 
 /// <summary>
 /// Represents the health system for an entity in the game.
@@ -10,7 +10,7 @@ using Mirror;
 public class Health : NetworkBehaviour
 {
     [Header("Health Properties")]
-    public float maxHealth = 100f;
+    public float MaxHealth = 100f;
 
     [SyncVar(hook = nameof(OnHealthChanged))]
     private float currentHealth;
@@ -19,30 +19,32 @@ public class Health : NetworkBehaviour
     //[SerializeField] private ArmorManager armorManager;
     public bool IsInvulnerable { get; set; } = false;
 
-    public float CurrentHealth
+    public float CurrentHealth => currentHealth;
+
+    public override void OnStartAuthority()
     {
-        get => currentHealth;
+        currentHealth = MaxHealth;
+
+        base.OnStartAuthority();
     }
 
-    private void Start()
+    public void AddHealth(float totalHealed)
     {
-        currentHealth = maxHealth;
+        currentHealth += totalHealed;
+        currentHealth = Mathf.Clamp(currentHealth, 0, MaxHealth);
     }
+
     /// <summary>
     /// Applies damage to the entity. Factors in armor defense.
     /// </summary>
     [Command(requiresAuthority = false)]
-    public void CmdTakeDamage(float damage)
+    public void CmdRemoveHealth(float totalDamage)
     {
         if (IsInvulnerable) return;
 
-        // Use ArmorManager to calculate reduced damage
-        //float reducedDamage = armorManager != null ? armorManager.ApplyArmorDefense(damage) : damage;
-        //currentHealth -= reducedDamage;
-        currentHealth -= damage;
-
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth); // Helps to ensure health stays in valid bounds
-        Debug.Log($"{gameObject.name} took {damage} damage. Remaining health: {currentHealth}");
+        currentHealth -= totalDamage;
+        currentHealth = Mathf.Clamp(currentHealth, 0, MaxHealth); // Helps to ensure health stays in valid bounds
+        Debug.Log($"{gameObject.name} took {totalDamage} damage. Remaining health: {currentHealth}");
 
         if (currentHealth <= 0)
         {
@@ -65,7 +67,7 @@ public class Health : NetworkBehaviour
             Destroy(gameObject);
         }
         
-        Debug.Log($"{gameObject.name} has died.")   ;
+        Debug.Log($"{gameObject.name} has died.");
         RpcOnDeath();
     }
 
