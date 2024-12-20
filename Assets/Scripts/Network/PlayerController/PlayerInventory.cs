@@ -278,9 +278,6 @@ public class PlayerInventory : NetworkBehaviour
     // TODO: Documentation
     private void ApplyStats(Armor armorItem)
     {
-        //_playerHealth.MaxHealth += armorItem.HealthPoints;
-        //_playerHealth.AddHealth(armorItem.HealthPoints);
-
         _playerHealth.CmdAddModifier(armorItem.Health);
         _playerStats.Attack.AddModifier(armorItem.Attack);
         _playerStats.Defense.AddModifier(armorItem.Defense);
@@ -292,9 +289,6 @@ public class PlayerInventory : NetworkBehaviour
     // TODO: Documentation
     private void RemoveStats(Armor armorItem)
     {
-        //_playerHealth.MaxHealth -= armorItem.HealthPoints;
-        //_playerHealth.CmdRemoveHealth(armorItem.HealthPoints);
-
         _playerHealth.CmdRemoveModifier(armorItem.Health);
         _playerStats.Attack.RemoveModifier(armorItem.Attack);
         _playerStats.Defense.RemoveModifier(armorItem.Defense);
@@ -308,7 +302,6 @@ public class PlayerInventory : NetworkBehaviour
     // Once we have a more defined UI system to do these changes for us, we can remove these logs.
     private void DebugStats()
     {
-        //Debug.Log($"Player Health: {_playerHealth.MaxHealth}, {_playerHealth.CurrentHealth}");
         Debug.Log($"Player Attack: {_playerHealth.BaseValue}, {_playerHealth.CurrentValue}");
         Debug.Log($"Player Attack: {_playerStats.Attack.BaseValue}, {_playerStats.Attack.CurrentValue}");
         Debug.Log($"Player Defense: {_playerStats.Defense.BaseValue}, {_playerStats.Defense.CurrentValue}");

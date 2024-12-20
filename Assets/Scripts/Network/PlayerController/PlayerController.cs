@@ -34,13 +34,6 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private Transform _followTransform;
     [SerializeField] private Transform _playerTransform;
     [SerializeField] private CharacterController _playerController;
-
-    //[Header("Weapon Parameters")]
-    //[SerializeField] private Weapon _currentWeapon;
-    //public GameObject playerHand;
-
-    //[Header("Armor Components")]
-    //[SerializeField] private ArmorManager armorManager;
     
     private bool _isGrounded;
     private bool _isSprinting;
@@ -56,7 +49,6 @@ public class PlayerController : NetworkBehaviour
     private PlayerInventory _playerInventory;
     private CombatController _combatController;
     private PlayerStats _playerStats;
-    //private VisualElement _uiDocument;
 
     private Animator _playerAnimator;
     private int _animatorIsJumping;
@@ -255,11 +247,6 @@ public class PlayerController : NetworkBehaviour
         {
             _combatController.Attack(playerWeapon);
         }
-
-        //if (_currentWeapon != null)
-        //{
-        //    _currentWeapon.Attack();
-        //}
     }
 
     /// <summary>
@@ -269,10 +256,6 @@ public class PlayerController : NetworkBehaviour
     private void AlternateAttack(InputAction.CallbackContext context)
     {
         if (!isLocalPlayer) { return; }
-        //if (_currentWeapon != null)
-        //{
-        //    _currentWeapon.AlternateAttack();
-        //}
     }
 
     /// <summary>
@@ -302,29 +285,6 @@ public class PlayerController : NetworkBehaviour
 
             CmdDrop(droppedItem, droppedPosition);
         }
-
-        //GameObject droppedItem = _playerInventory.RemoveItem();
-        
-        //if (droppedItem.GetComponent<MeleeWeapon>() != null || droppedItem.GetComponent<RangedWeapon>() != null)
-        //{
-        //    UnequipWeapon();
-        //}
-        //else if (droppedItem.GetComponent<Armor>() != null)
-        //{
-        //    armorManager.UnequipArmor(droppedItem);
-        //}
-
-        //if (_raycastHit.collider != null && droppedItem != null)
-        //{
-        //    if (targetPosition.HasValue)
-        //    {
-        //        CmdDrop(droppedItem, targetPosition.Value, true);
-        //    }
-        //    else
-        //    {
-        //        CmdDrop(droppedItem, new Vector3(0, 0, 0), false);
-        //    }
-        //}
     }
 
     /// <summary>
@@ -346,42 +306,6 @@ public class PlayerController : NetworkBehaviour
                 CmdInteract(targetObject);
             }
         }
-
-        //if (!isLocalPlayer) { return; }
-        //Collider hitCollider = _raycastHit.collider;
-        //GameObject hitGameObject = hitCollider.gameObject;
-
-        //if (hitCollider != null && hitGameObject.GetComponent<IInteractable>() != null)
-        //{
-        //    // Check to see if we can add this item to our inventory.
-        //    if (hitGameObject.GetComponent<IInventoryItem>() != null)
-        //    {
-        //        if(hitGameObject.transform.parent == null){
-        //            if (_playerInventory.HasItem())
-        //            {
-        //                Drop(hitGameObject.transform.position);
-        //            }
-
-        //            if (hitGameObject.TryGetComponent(out Weapon weapon))
-        //            {
-        //                CmdEquipWeapon(weapon);
-        //                _playerInventory.AddItem(hitGameObject);
-        //                CmdInteract(hitGameObject);
-        //            }
-        //            else if (hitCollider != null && hitCollider.TryGetComponent(out Armor armor))
-        //            {
-        //                armorManager.CmdEquipArmor(armor.gameObject);
-        //                _playerInventory.AddItem(hitGameObject);
-        //                CmdInteract(hitGameObject);
-        //            }
-        //            else
-        //            {
-        //                Debug.Log($"{hitGameObject.name} is neither a weapon nor armor.");
-        //            }                    
-        //        }
-
-        //    }
-        //}
     }
 
     /// <summary>
@@ -453,51 +377,6 @@ public class PlayerController : NetworkBehaviour
     {
         yield return new WaitForSeconds(_staminaCooldown);
         _canSprint = true;
-    }
-
-    ///// <summary>
-    ///// Equips a weapon to the player's hand and synchronizes with the server
-    ///// </summary>
-    ///// <param name="weapon">The weapon to equip</param>
-    //[Command]
-    //public void CmdEquipWeapon(Weapon weapon)
-    //{
-    //    //// Set the new weapon
-    //    //_currentWeapon = weapon;
-
-    //    //// Assign authority to the new weapon
-    //    //NetworkIdentity weaponIdentity = weapon.GetComponent<NetworkIdentity>();
-    //    //if (weaponIdentity != null)
-    //    //{
-    //    //    weaponIdentity.AssignClientAuthority(connectionToClient);
-    //    //}
-
-    //    //_currentWeapon.Interact(playerHand);
-
-    //    //// Make sure the weapon is active
-    //    //weapon.gameObject.SetActive(true);
-
-    //    //// Make sure the Rigidbody is set to kinematic to avoid physics issues while holding it
-    //    //Rigidbody weaponRb = weapon.GetComponent<Rigidbody>();
-    //    //if (weaponRb != null)
-    //    //{
-    //    //    weaponRb.isKinematic = true; // Disable physics on the weapon while it is being held
-    //    //}
-
-    //    //RpcEquipWeapon(weapon);
-    //}
-
-    /// <summary>
-    /// Unequips the currently equipped weapon and synchronizes with the server
-    /// </summary>
-    
-    public void UnequipWeapon()
-    {
-        //if (_currentWeapon != null)
-        //{
-        //    _currentWeapon.CmdUnequip();
-        //    _currentWeapon = null;
-        //}
     }
 
     /// <summary>
@@ -618,15 +497,4 @@ public class PlayerController : NetworkBehaviour
             interactableComponent.Interact(gameObject);
         }
     }
-
-    ///// <summary>
-    ///// Updates the equipped weapon on all clients
-    ///// </summary>
-    ///// <param name="weapon">The weapon being equipped</param>
-    //[ClientRpc]
-    //private void RpcEquipWeapon(Weapon weapon)
-    //{
-    //    //// Set the current weapon on all clients
-    //    //_currentWeapon = weapon;
-    //}
 }

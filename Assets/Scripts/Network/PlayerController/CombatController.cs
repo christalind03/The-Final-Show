@@ -52,7 +52,6 @@ public class CombatController : NetworkBehaviour
 
             if (inRange && hitCollider.TryGetComponent(out Health healthComponent))
             {
-                //healthComponent.CmdRemoveHealth(playerWeapon.AttackDamage);
                 healthComponent.CmdDamage(playerWeapon.AttackDamage);
             }
         }
