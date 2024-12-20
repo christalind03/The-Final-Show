@@ -2,9 +2,9 @@ using Mirror;
 using System.Collections.Generic;
 using UnityEngine;
 
-// TODO: Redocument entire file
 /// <summary>
-/// Represents a stat that can be modified and adjusted dynamically.
+/// Represents the health system for an entity in the game.
+/// Handles incoming damage/healing and death behavior.
 /// </summary>
 public class Health : NetworkBehaviour
 {
@@ -72,6 +72,7 @@ public class Health : NetworkBehaviour
 
     /// <summary>
     /// Decreases the current value of the stat by the specified amount.
+    /// If the current value is below zero, then call <c>TriggerDeath()</c>.
     /// </summary>
     /// <param name="decreaseValue">The amount to decrease the current value by.</param>
     [Command(requiresAuthority = false)]
@@ -87,14 +88,13 @@ public class Health : NetworkBehaviour
     /// Adds a modifier to the modifier list.
     /// Allows for temporary adjustments to the base value.
     /// </summary>
-    /// <param name="modifierValue"></param>
+    /// <param name="modifierValue">The amount to increase the base value by.</param>
     [Command(requiresAuthority = false)]
     public void CmdAddModifier(float modifierValue)
     {
         if (modifierValue != 0)
         {
             _modifierList.Add(modifierValue);
-            _currentValue += modifierValue;
         }
     }
 
@@ -102,25 +102,31 @@ public class Health : NetworkBehaviour
     /// Removes a modifier from the modifier list.
     /// Allows for the removal of temporary adjustments to the base value.
     /// </summary>
-    /// <param name="modifierValue"></param>
+    /// <param name="modifierValue">The amount to decrease the base value by.</param>
     [Command(requiresAuthority = false)]
     public void CmdRemoveModifier(float modifierValue)
     {
         if (modifierValue != 0f)
         {
             _modifierList.Remove(modifierValue);
-            _currentValue -= modifierValue;
         }
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Called on all clients when the current health value changes.
+    /// This is performed with the <c>SyncVar</c> hook attached to <c>_currentValue</c>.
+    /// </summary>
+    /// <param name="oldHealth">The previous health value.</param>
+    /// <param name="newHealth">The current health value.</param>
     private void OnHealthChange(float oldHealth, float newHealth)
     {
         // We can add in our visual health updates like health bars here
         Debug.Log($"{gameObject.name} health changed: {oldHealth}/{_baseValue} -> {newHealth}/{_baseValue}");
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Handles the death of an entity.
+    /// </summary>
     [Server]
     private void TriggerDeath()
     {
@@ -137,7 +143,9 @@ public class Health : NetworkBehaviour
         RpcOnDeath();
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Handles the player's death and updates clients with appropriate actions.
+    /// </summary>
     [ClientRpc]
     private void RpcOnDeath()
     {
@@ -147,7 +155,9 @@ public class Health : NetworkBehaviour
         Debug.Log($"{gameObject.name} death broadcasted to all clients.");
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Switches the player to spectate mode by modifying the player's layer and camera behavior.
+    /// </summary>
     private void Spectate()
     {
         _playerBody.layer = 0;

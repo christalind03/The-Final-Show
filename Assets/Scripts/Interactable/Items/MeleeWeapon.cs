@@ -1,6 +1,9 @@
 using Mirror;
 using UnityEngine;
 
+/// <summary>
+/// Represents a melee weapon that can be equipped by a player or entity.
+/// </summary>
 [CreateAssetMenu(fileName = "New Melee Weapon", menuName = "Inventory Item/Melee Weapon")]
 public class MeleeWeapon : Weapon
 {
@@ -12,6 +15,9 @@ public class MeleeWeapon : Weapon
     public float AttackRange => _attackRange;
 }
 
+/// <summary>
+/// Provides serialization and deserialization methods for <see cref="MeleeWeapon"/> objects over a network.
+/// </summary>
 public static class MeleeWeaponSerializer
 {
     public static void WriteMeleeWeapon(this NetworkWriter networkWriter, MeleeWeapon meeleeWeapon)

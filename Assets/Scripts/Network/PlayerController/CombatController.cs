@@ -2,6 +2,9 @@ using Mirror;
 using System.Collections;
 using UnityEngine;
 
+/// <summary>
+/// Controls the player's combat actions including melee attacks, ranged shooting, and weapon cooldown management.
+/// </summary>
 public class CombatController : NetworkBehaviour
 {
     [Header("Combat References")]
@@ -9,12 +12,18 @@ public class CombatController : NetworkBehaviour
 
     private bool _canAttack;
 
+    /// <summary>
+    /// Initializes the combat controller, enabling attacks.
+    /// </summary>
     private void Awake()
     {
         _canAttack = true;        
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Executes an attack using the specified weapon, depending on its type.
+    /// </summary>
+    /// <param name="playerWeapon">The current weapon being used for the attack.</param>
     public void Attack(Weapon playerWeapon)
     {
         if (_canAttack)
@@ -38,7 +47,10 @@ public class CombatController : NetworkBehaviour
         }
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Performs a melee attack using the specified melee weapon, damaging all valid targets within range.
+    /// </summary>
+    /// <param name="playerWeapon">The melee weapon being used for the attack.</param>
     private void MeleeAttack(MeleeWeapon playerWeapon)
     {
         Collider[] hitTargets = Physics.OverlapSphere(transform.position, playerWeapon.AttackRange, playerWeapon.AttackLayers);
@@ -57,7 +69,11 @@ public class CombatController : NetworkBehaviour
         }
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Fires a ranged weapon, consuming ammunition and spawning projectiles if available.
+    /// Automatically reloads the weapon if the clip is empty.
+    /// </summary>
+    /// <param name="rangedWeapon">The ranged weapon used for shooting.</param>
     private void Shoot(RangedWeapon rangedWeapon)
     {
         if (0 < rangedWeapon.AmmoCount)
@@ -80,7 +96,10 @@ public class CombatController : NetworkBehaviour
         }
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Spawns and launches a projectile on the server for a ranged weapon attack.
+    /// </summary>
+    /// <param name="rangedWeapon">The ranged weapon being used for the attack.</param>
     [Command]
     private void CmdShoot(RangedWeapon rangedWeapon)
     {
@@ -95,7 +114,13 @@ public class CombatController : NetworkBehaviour
         RpcShoot(rangedWeapon, projectileObject, initialPosition, finalPosition);
     }
 
-    // TODO: Documentation
+    /// <summary>
+    /// Updates all the clients with the projectile spawn and trajectory information for a ranged weapon attack.
+    /// </summary>
+    /// <param name="rangedWeapon">The ranged weapon being used for the attack.</param>
+    /// <param name="projectileObject">The spawned projectile GameObject.</param>
+    /// <param name="initialPosition">The starting position of the projectile.</param>
+    /// <param name="finalPosition">The target position of the projectile.</param>
     [ClientRpc]
     private void RpcShoot(RangedWeapon rangedWeapon, GameObject projectileObject, Vector3 initialPosition, Vector3 finalPosition)
     {
@@ -110,13 +135,20 @@ public class CombatController : NetworkBehaviour
         projectileRigidbody.velocity = targetDirection * rangedWeapon.ProjectileSpeed;
     }
 
-    // TODO: Documentation
+    /// <summary>
+    /// Reloads a ranged weapon by refilling its ammunition count from its clip capacity.
+    /// </summary>
+    /// <param name="rangedWeapon">The ranged weapon to reload.</param>
     private void Reload(RangedWeapon rangedWeapon)
     {
         rangedWeapon.AmmoCount = rangedWeapon.ClipCapacity;
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Prevents the player from attacking for the duration of the weapon's cooldown.
+    /// </summary>
+    /// <param name="attackCooldown">The cooldown duration in seconds.</param>
+    /// <returns>An <c>IEnumerator</c> for coroutine execution.</returns>
     private IEnumerator TriggerCooldown(float attackCooldown)
     {
         _canAttack = false;

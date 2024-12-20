@@ -7,7 +7,11 @@ public class Projectile : NetworkBehaviour
     public float AttackDamage;
     public LayerMask AttackLayers;
 
-    // TODO: Document
+    /// <summary>
+    /// Handles collision events for the object.
+    /// Applies damage to any valid targets and destroys the object upon collision.
+    /// </summary>
+    /// <param name="collisionEvent">The collision event data provided by Unity.</param>
     private void OnCollisionEnter(Collision collisionEvent)
     {
         if (isServer)

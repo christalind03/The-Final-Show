@@ -75,6 +75,7 @@ public class Stat
     /// <summary>
     /// Adds a modifier to the modifier list.
     /// Allows for temporary adjustments to the base value.
+    /// Additionally adds the modifier value to the current value to maintain value scaling.
     /// </summary>
     /// <param name="modifierValue"></param>
     public void AddModifier(float modifierValue)
@@ -89,6 +90,7 @@ public class Stat
     /// <summary>
     /// Removes a modifier from the modifier list.
     /// Allows for the removal of temporary adjustments to the base value.
+    /// Additionally removes the modifier value from the current value to maintain value scaling.
     /// </summary>
     /// <param name="modifierValue"></param>
     public void RemoveModifier(float modifierValue)

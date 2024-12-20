@@ -6,9 +6,9 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
-// TODO: Update class documentation
 /// <summary>
-/// Represent's a player's inventory with  multiple slots to storage and manage items.
+/// Represent's a player's inventory with multiple slots to storage and manage items.
+/// Additionally handles the displaying of items on the player's body across the network.
 /// </summary>
 [RequireComponent(typeof(PlayerStats))]
 public class PlayerInventory : NetworkBehaviour
@@ -49,7 +49,7 @@ public class PlayerInventory : NetworkBehaviour
     private Health _playerHealth;
 
     /// <summary>
-    /// Sets up the default slot and creates an empty inventory.
+    /// Sets up the default slot and creates an empty inventory with inventory restrictions.
     /// </summary>
     public override void OnStartAuthority()
     {
@@ -130,8 +130,12 @@ public class PlayerInventory : NetworkBehaviour
     // TODO: Update documentation?
     /// <summary>
     /// Add an item to the currently selected inventory slot.
+    /// If the item is equippable, it may be equipped automatically, and stats may be applied if the item is of the <see cref="Armor"/> type.
     /// </summary>
     /// <param name="inventoryItem">The item to add to the inventory slot.</param>
+    /// <returns>
+    /// <c>true</c> if the item was successfully added to the inventory; otherwise <c>false</c>.
+    /// </returns>
     public bool AddItem(InventoryItem inventoryItem)
     {
         if (!isLocalPlayer) { return false; }
@@ -166,7 +170,11 @@ public class PlayerInventory : NetworkBehaviour
     /// <summary>
     /// Retrieve the InventoryItem within the currently selected inventory slot.
     /// </summary>
-    /// <returns>The InventoryItem within the currently selected inventory slot.</returns>
+    /// <param name="slotKey">
+    /// The key representing the inventory slot to retrieve the item from.
+    /// If <c>null</c>, the item from the currently selected slot is returned.
+    /// </param>
+    /// <returns>The InventoryItem within the specified selected inventory slot, or currently selected slot if no key is provided.</returns>
     public InventoryItem GetItem(string slotKey = null)
     {
         return _inventorySlots[slotKey ?? _currentSlot];
@@ -174,8 +182,9 @@ public class PlayerInventory : NetworkBehaviour
 
     /// <summary>
     /// Removes the item from the currently selected inventory slot.
+    /// If the item is equippable, it is unequipped, and and associated stats are removed.
     /// </summary>
-    /// <returns>The gameObject that was removed from the inventory slot if it exists.</returns>
+    /// <returns>The gameObject that was removed from the inventory slot, or <c>null</c> if no item exists in the selected slot.</returns>
     public InventoryItem RemoveItem()
     {
         if (!isLocalPlayer) { return null; }
@@ -198,8 +207,10 @@ public class PlayerInventory : NetworkBehaviour
         return removedItem;
     }
 
-    // TODO: Documentation
-        // Update the currently selected item in the player's hand.
+    /// <summary>
+    /// Updates the currently selected, handheld inventory item.
+    /// </summary>
+    /// <param name="previousSlot">The inventory slot that was previously selected.</param>
     private void UpdateSelectedItem(string previousSlot)
     {
         InventoryItem previousItem = GetItem(previousSlot);
@@ -216,7 +227,11 @@ public class PlayerInventory : NetworkBehaviour
         }
     }
 
-    // TODO: Documentation
+    /// <summary>
+    /// Finds the first available inventory slot that can accomodate the given item.
+    /// </summary>
+    /// <param name="inventoryItem">The inventory item to be placed into a slot</param>
+    /// <returns>The key of the first available inventory slot that can hold the item, or <c>null</c> if no slots are available.</returns>
     private string FindAvailableSlot(InventoryItem inventoryItem)
     {
         // Check to see if there is a specialized slot this item can go into.
@@ -256,8 +271,12 @@ public class PlayerInventory : NetworkBehaviour
         return null;
     }
 
-    // TODO: Documentation
-    // Check to see if we should render this weapon, as the player should only be equipping items they are currently using.
+    /// <summary>
+    /// Determines whether the given equippable item should be equipped based on the player's current slot and the category of the item.
+    /// This ensures that items in the "Hand" category are only equipped if the player isn't already holding an item, and if the slot is valid.
+    /// </summary>
+    /// <param name="equippableItem">The equippable item to check.</param>
+    /// <returns><c>true</c> if the item should be equipped, otherwise <c>false</c>.</returns>
     private bool ShouldEquip(EquippableItem equippableItem)
     {
         GameObject equippableReference = FindEquippableReference(equippableItem.EquipmentCategory);
@@ -275,7 +294,10 @@ public class PlayerInventory : NetworkBehaviour
         return true;
     }
 
-    // TODO: Documentation
+    /// <summary>
+    /// Applies the stat modifiers from the given armor item to the player.
+    /// </summary>
+    /// <param name="armorItem">The armor item whose stats will be applied to the player.</param>
     private void ApplyStats(Armor armorItem)
     {
         _playerHealth.CmdAddModifier(armorItem.Health);
@@ -285,8 +307,11 @@ public class PlayerInventory : NetworkBehaviour
 
         DebugStats();
     }
-    
-    // TODO: Documentation
+
+    /// <summary>
+    /// Removes the stat modifiers from the given armor item from the player.
+    /// </summary>
+    /// <param name="armorItem">The armor item whose stats will be removed from the player.</param>
     private void RemoveStats(Armor armorItem)
     {
         _playerHealth.CmdRemoveModifier(armorItem.Health);
@@ -297,9 +322,11 @@ public class PlayerInventory : NetworkBehaviour
         DebugStats();
     }
 
-    // TODO: Document
-    // These are debug placeholders to ensure that these changes are being applied.
-    // Once we have a more defined UI system to do these changes for us, we can remove these logs.
+    /// <summary>
+    /// A debug method to log the current stats of the player.
+    /// This is used to verify that stat changes have been applied correctly.
+    /// This function will be removed once a more defined UI system is in place to display stat changes.
+    /// </summary>
     private void DebugStats()
     {
         Debug.Log($"Player Attack: {_playerHealth.BaseValue}, {_playerHealth.CurrentValue}");
@@ -308,7 +335,12 @@ public class PlayerInventory : NetworkBehaviour
         Debug.Log($"Player Stamina: {_playerStats.Stamina.BaseValue}, {_playerStats.Stamina.CurrentValue}");
     }
 
-    // TODO: Documentation
+    /// <summary>
+    /// Command to equip the given equippable item on the player.
+    /// This item is instantiated at the appropriate position and rotation.
+    /// This function is executed on the server and synchronizes the equipment action across all clients.
+    /// </summary>
+    /// <param name="equippableItem">The equippable item to equip.</param>
     [Command]
     private void CmdEquip(EquippableItem equippableItem)
     {
@@ -327,7 +359,12 @@ public class PlayerInventory : NetworkBehaviour
         }
     }
 
-    // TODO: Documentation
+    /// <summary>
+    /// Command to unequip the given equippable item from the player.
+    /// The item is destroyed from the reference slot and removed from the player.
+    /// This function is executed on the server and synchronizes the unequip action across all clients.
+    /// </summary>
+    /// <param name="equippableItem">The equippable item to unequip.</param>
     [Command]
     private void CmdUnequip(EquippableItem equippableItem)
     {
@@ -342,7 +379,12 @@ public class PlayerInventory : NetworkBehaviour
         }
     }
 
-    // TODO: Documentation
+    /// <summary>
+    /// ClientRpc method to synchronize the equipping of an item across clients.
+    /// This method is called to update the client's local state of the equipment.
+    /// </summary>
+    /// <param name="equippableItem">The equippable item to equip.</param>
+    /// <param name="equippedObject">The GameObject representing the equipped item.</param>
     [ClientRpc]
     private void RpcEquip(EquippableItem equippableItem, GameObject equippedObject)
     {
@@ -350,7 +392,13 @@ public class PlayerInventory : NetworkBehaviour
         equippedObject.transform.SetParent(equippableReference.transform);
     }
 
-    // TODO: Documentation
+    /// <summary>
+    /// Finds the reference GameObject where the given equippable item should be attached based on its category.
+    /// </summary>
+    /// <param name="equippableCategory">The category of the equippable item.</param>
+    /// <returns>
+    /// The GameObject reference where the equippable item should be attached, or <c>null</c> if no reference exists for the given category.
+    /// </returns>
     private GameObject FindEquippableReference(EquippableItem.EquippableCategory equippableCategory)
     {
         switch (equippableCategory)

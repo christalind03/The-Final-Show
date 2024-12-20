@@ -1,8 +1,8 @@
+using Mirror;
 using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Mirror;
 
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(CombatController))]
@@ -21,7 +21,6 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float _walkSpeed;
 
     [Header("Stamina Parameters")]
-    //[SerializeField] private Stat _staminaPoints;
     [SerializeField] private float _staminaCost;
     [SerializeField] private float _staminaRestoration;
     [SerializeField] private float _staminaCooldown;
@@ -116,16 +115,20 @@ public class PlayerController : NetworkBehaviour
         _playerVelocity.y += _gravity * Time.deltaTime;
         _playerController.Move(_playerVelocity * Time.deltaTime);
 
-        //Attack();
         HandleLook();
         HandleMovement();
         HandleSprint();
     }
 
-    // TODO: Documentation
+    /// <summary>
+    /// Display boundaries of the player's melee weapon, if equipped, in the scene view.
+    /// </summary>
+    /// <remarks>
+    /// This method is executed in the Unity Editor to provide visual aids for components in the scene.
+    /// It uses a try-catch block due to <c>OnDrawGizmos</c> running during the editor time, and exceptions could interfere with the editor's functioning.
+    /// </remarks>
     private void OnDrawGizmos()
     {
-        // TODO: Explain why this is within a try-catch statement (hint: OnDrawGizmos() runs within the editor)
         try
         {
             InventoryItem inventoryItem = _playerInventory.GetItem();
@@ -328,7 +331,7 @@ public class PlayerController : NetworkBehaviour
     /// In the case any jump parameters within the PlayerController script or in the animation controller are changed, this function may need to be updated.
     /// This is not the most effiicent or optimal solution in regards to timing an animation to sync with the action itself, but this will do for now.
     /// </remarks>
-    /// <returns>An enumerator to be used by Unity's coroutine system.</returns>
+    /// <returns>An <c>IEnumerator</c> for coroutine execution.</returns>
     private IEnumerator Jump()
     {
         _canJump = false;
@@ -372,7 +375,7 @@ public class PlayerController : NetworkBehaviour
     /// <summary>
     /// Handles the cooldown period after sprinting.
     /// </summary>
-    /// <returns>An IEnumerator for coroutine execution.</returns>
+    /// <returns>An <c>IEnumerator</c> for coroutine execution.</returns>
     private IEnumerator SprintCooldown()
     {
         yield return new WaitForSeconds(_staminaCooldown);
@@ -408,11 +411,10 @@ public class PlayerController : NetworkBehaviour
         RpcUpdatePlayerLook(_playerTransform.rotation, _followTransform.rotation);
     }
 
-    // TODO: Update documentation
     /// <summary>
-    /// Calculate the drop position and set the drop item to that position and activate it. 
+    /// Instantiate a gameObject in world space containing the logic to display an <c>InventoryItem</c>.
     /// </summary>
-    /// <param name="droppedObject">The item that is being dropped</param>
+    /// <param name="droppedItem">The item that is being dropped</param>
     /// <param name="droppedPosition">Position that the item should be dropped at</param>
     [Command]
     private void CmdDrop(InventoryItem droppedItem, Vector3 droppedPosition)
@@ -468,12 +470,11 @@ public class PlayerController : NetworkBehaviour
         _followTransform.rotation = rotationFollow;
     }
 
-    // TODO: Update documentation
     /// <summary>
-    /// Update the item that is being dropped in world view to all client
+    /// Set the <c>InventoryItem</c> to be displayed within world space.
     /// </summary>
-    /// <param name="droppedObject">Item that is being dropped</param>
-    /// <param name="dropPos">Location to be dropped at</param>
+    /// <param name="droppedItem">Item that is being dropped</param>
+    /// <param name="droppedObject">GameObject containing the logic to display the <c>InventoryItem</c></param>
     [ClientRpc]
     private void RpcDrop(InventoryItem droppedItem, GameObject droppedObject)
     {
@@ -485,7 +486,7 @@ public class PlayerController : NetworkBehaviour
     }
 
     /// <summary>
-    /// Update the object that is being interacted to all client
+    /// Update the object that is being interacted to all clients
     /// </summary>
     /// <param name="hitObject">Item that is being interacted</param>
     [ClientRpc]

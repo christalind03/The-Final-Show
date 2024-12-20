@@ -1,6 +1,9 @@
 using Mirror;
 using UnityEngine;
 
+/// <summary>
+/// Represents a ranged weapon that can be equipped by a player or entity.
+/// </summary>
 [CreateAssetMenu(fileName = "New Ranged Weapon", menuName = "Inventory Item/Ranged Weapon")]
 public class RangedWeapon : Weapon
 {
@@ -23,6 +26,9 @@ public class RangedWeapon : Weapon
     public float ProjectileSpeed => _projectileSpeed;
 }
 
+/// <summary>
+/// Provides serialization and deserialization methods for <see cref="RangedWeapon"/> objects over a network.
+/// </summary>
 public static class RangedWeaponSerializer
 {
     public static void WriteRangedWeapon(this NetworkWriter networkWriter, RangedWeapon rangedWeapon)
