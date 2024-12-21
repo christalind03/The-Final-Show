@@ -1,6 +1,7 @@
 using Mirror;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -42,6 +43,7 @@ public class PlayerInventory : NetworkBehaviour
     [SerializeField] private GameObject _headReference;
 
     private string _currentSlot;
+    private List<string> _inventoryKeys;
     private Dictionary<string, InventoryItem> _inventorySlots;
     private Dictionary<string, PlayerInventoryRestriction> _inventoryRestrictions;
     private VisualElement _inventoryHotbar;
@@ -77,6 +79,9 @@ public class PlayerInventory : NetworkBehaviour
             { "Slot-3", new PlayerInventoryRestriction(EquippableItem.EquippableCategory.Head, typeof(Armor)) },
         };
 
+        // Extract and sort the inventory keys to ensure proper cycling
+        _inventoryKeys = _inventorySlots.Keys.OrderBy(slotKey => int.Parse(slotKey.Split("-")[1])).ToList();
+
         _inventoryHotbar = gameObject.GetComponent<UIDocument>().rootVisualElement;
         _inventoryHotbar.Q<VisualElement>(_currentSlot).AddToClassList("active");
 
@@ -95,31 +100,69 @@ public class PlayerInventory : NetworkBehaviour
         if (!isLocalPlayer) { return; }
 
         // Handle hotkey input for inventory slots.
-        string actionName = context.action.name;
-
-        if (_inventorySlots.ContainsKey(actionName))
+        if (context.control.device is Keyboard)
         {
-            string previousSlot = _currentSlot;
+            string upcomingSlot = context.action.name;
 
-            ResetSlots();
-            _currentSlot = actionName;
-            _inventoryHotbar.Q<VisualElement>(_currentSlot).AddToClassList("active");
-
-            UpdateSelectedItem(previousSlot);
+            if (_inventorySlots.ContainsKey(upcomingSlot))
+            {
+                SelectSlot(upcomingSlot);
+            }
+            else
+            {
+                Debug.LogError($"{upcomingSlot} is not a valid inventory slot key.");
+            }
         }
-
+        
         // Handle input from mouse scroll wheel.
-        if (context.action.type == InputActionType.Value && context.action.expectedControlType == "Vector2")
+        if (context.control.device is Mouse)
         {
-            // TODO: Implement the scroll logic after we have items to reference.
-            // This involves possibly converting the _inventorySlots type from a Dictionary to a List in order to utilize indices for cycling.
+            Vector2 scrollValue = context.ReadValue<Vector2>();
+            int scrollDirection = 0 < scrollValue.y ? 1 : -1;
+
+            HandleScroll(scrollDirection);
         }
+    }
+
+    /// <summary>
+    /// Updates the currently active inventory slot and refreshes the UI.
+    /// </summary>
+    /// <param name="upcomingSlot">The key representing the inventory slot to activate.</param>
+    private void SelectSlot(string upcomingSlot)
+    {
+        string previousSlot = _currentSlot;
+
+        ResetSlots();
+        _currentSlot = upcomingSlot;
+        _inventoryHotbar.Q<VisualElement>(_currentSlot).AddToClassList("active");
+
+        UpdateSelectedItem(previousSlot);
+    }
+
+    /// <summary>
+    /// Handles cycling through inventory slots based on scroll wheel input.
+    /// </summary>
+    /// <param name="scrollDirection">
+    /// The direction of the scroll where 1 allows the user to cycle forward and -1 allows the user to cycle backwards.
+    /// </param>
+    private void HandleScroll(int scrollDirection)
+    {
+        int currentIndex = _inventoryKeys.IndexOf(_currentSlot);
+        if (currentIndex == -1)
+        {
+            Debug.LogError($"{_currentSlot} is not a valid inventory slot key.");
+            return;
+        }
+
+        int upcomingIndex = (currentIndex + scrollDirection + _inventoryKeys.Count) % _inventoryKeys.Count;
+
+        SelectSlot(_inventoryKeys[upcomingIndex]);
     }
 
     /// <summary>
     /// Resets the styles of all slots to the default style.
     /// </summary>
-    public void ResetSlots()
+    private void ResetSlots()
     {
         foreach (string actionName in _inventorySlots.Keys)
         {
