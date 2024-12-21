@@ -1,16 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Mirror;
 
 /// <summary>
 /// Represents a stat that can be modified and adjusted dynamically.
 /// </summary>
-[System.Serializable]
 public class Stat
 {
-    [SerializeField] private float _baseValue;
-    [SerializeField] private float _currentValue;
-
+    private float _baseValue;
+    private float _currentValue;
     private List<float> _modifierList;
 
     /// <summary>
@@ -78,19 +75,22 @@ public class Stat
     /// <summary>
     /// Adds a modifier to the modifier list.
     /// Allows for temporary adjustments to the base value.
+    /// Additionally adds the modifier value to the current value to maintain value scaling.
     /// </summary>
     /// <param name="modifierValue"></param>
     public void AddModifier(float modifierValue)
     {
-        if (modifierValue != 0)
+        if (modifierValue != 0f)
         {
             _modifierList.Add(modifierValue);
+            _currentValue += modifierValue;
         }
     }
 
     /// <summary>
     /// Removes a modifier from the modifier list.
     /// Allows for the removal of temporary adjustments to the base value.
+    /// Additionally removes the modifier value from the current value to maintain value scaling.
     /// </summary>
     /// <param name="modifierValue"></param>
     public void RemoveModifier(float modifierValue)
@@ -98,6 +98,7 @@ public class Stat
         if (modifierValue != 0f)
         {
             _modifierList.Remove(modifierValue);
+            _currentValue -= modifierValue;
         }
     }
 }

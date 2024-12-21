@@ -1,13 +1,13 @@
+using Mirror;
 using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
-using Mirror;
-using System.Security.Cryptography;
-
 
 [RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(CombatController))]
+[RequireComponent(typeof(PlayerInventory))]
+[RequireComponent(typeof(PlayerStats))]
 public class PlayerController : NetworkBehaviour
 {
     [Header("Camera Parameters")]
@@ -20,13 +20,12 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float _sprintSpeed;
     [SerializeField] private float _walkSpeed;
 
-    [Header("Stat Parameters")]
-    [SerializeField] private Stat _staminaPoints;
+    [Header("Stamina Parameters")]
     [SerializeField] private float _staminaCost;
     [SerializeField] private float _staminaRestoration;
     [SerializeField] private float _staminaCooldown;
 
-    [Header("Player Parameters")]
+    [Header("Player References")]
     [Tooltip("The scene's main camera.")]
     [SerializeField] private Transform _cameraTransform;
 
@@ -34,13 +33,6 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private Transform _followTransform;
     [SerializeField] private Transform _playerTransform;
     [SerializeField] private CharacterController _playerController;
-
-    [Header("Weapon Parameters")]
-    [SerializeField] private Weapon _currentWeapon;
-    public GameObject playerHand;
-
-    [Header("Armor Components")]
-    [SerializeField] private ArmorManager armorManager;
     
     private bool _isGrounded;
     private bool _isSprinting;
@@ -54,7 +46,8 @@ public class PlayerController : NetworkBehaviour
     private RaycastHit _raycastHit;
     private PlayerControls _playerControls;
     private PlayerInventory _playerInventory;
-    private VisualElement _uiDocument;
+    private CombatController _combatController;
+    private PlayerStats _playerStats;
 
     private Animator _playerAnimator;
     private int _animatorIsJumping;
@@ -72,10 +65,10 @@ public class PlayerController : NetworkBehaviour
         UnityEngine.Cursor.visible = false;
         UnityEngine.Cursor.lockState = CursorLockMode.Locked;
 
-        _uiDocument = GetComponent<UIDocument>().rootVisualElement;
-
         _playerControls = new PlayerControls();
-        _playerInventory = new PlayerInventory(_uiDocument);
+        _playerInventory = gameObject.GetComponent<PlayerInventory>();
+        _combatController = gameObject.GetComponent<CombatController>();
+        _playerStats = gameObject.GetComponent<PlayerStats>();
 
         // To access the animator, we must retrieve the child gameObject that is rendering the player's mesh.
         // This should be the first child of the current gameObject, `BaseCharacter`
@@ -128,6 +121,37 @@ public class PlayerController : NetworkBehaviour
     }
 
     /// <summary>
+    /// Display boundaries of the player's melee weapon, if equipped, in the scene view.
+    /// </summary>
+    /// <remarks>
+    /// This method is executed in the Unity Editor to provide visual aids for components in the scene.
+    /// It uses a try-catch block due to <c>OnDrawGizmos</c> running during the editor time, and exceptions could interfere with the editor's functioning.
+    /// </remarks>
+    private void OnDrawGizmos()
+    {
+        try
+        {
+            InventoryItem inventoryItem = _playerInventory.GetItem();
+
+            if (inventoryItem is MeleeWeapon meleeWeapon)
+            {
+                // Draw the overlapping sphere used to detect targets
+                Gizmos.color = Color.green;
+                Gizmos.DrawWireSphere(transform.position, meleeWeapon.AttackRange);
+
+                // Draw lines to visually represent the boundaries of the attack cone
+                Vector3 forwardLeft = Quaternion.Euler(0, -meleeWeapon.AttackAngle / 2, 0) * transform.forward * meleeWeapon.AttackRange;
+                Vector3 forwardRight = Quaternion.Euler(0, meleeWeapon.AttackAngle / 2, 0) * transform.forward * meleeWeapon.AttackRange;
+
+                Gizmos.color = Color.magenta;
+                Gizmos.DrawLine(transform.position, transform.position + forwardLeft);
+                Gizmos.DrawLine(transform.position, transform.position + forwardRight);
+            }
+        }
+        catch (Exception) { }
+    }
+
+    /// <summary>
     /// Handle the player's camera and character rotation based on the player's input.
     /// </summary>
     private void HandleLook()
@@ -148,7 +172,7 @@ public class PlayerController : NetworkBehaviour
         _playerTransform.rotation = Quaternion.Euler(0, _yRotation, 0);
 
         // Check to see if we're looking at anything of importance.
-        Physics.Raycast(_cameraTransform.position, _cameraTransform.forward * _interactableDistance, out _raycastHit);
+        Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out _raycastHit, _interactableDistance);
 
         CmdLook(_playerTransform.rotation, _followTransform.rotation);
     }
@@ -168,13 +192,14 @@ public class PlayerController : NetworkBehaviour
 
         _playerController.Move(totalSpeed * Time.deltaTime * moveDirection);
         _playerController.Move(_playerVelocity * Time.deltaTime);
-        CmdMovePlayer(_playerTransform.position);
 
         // Display the player's movement animation.
         // Since the player can move in four different directions, we have animations associated with each direction.
         // To prevent repeated if-else statements, we instead have a ternary operator to trigger the correct animation with its respective direction.
         _playerAnimator.SetFloat(_animatorMovementX, moveInput.x == 0 ? 0 : totalSpeed * Mathf.Sign(moveInput.x), 0.1f, Time.deltaTime); // 0.1f is an arbitrary dampening value to transition between different animations.
         _playerAnimator.SetFloat(_animatorMovementZ, moveInput.y == 0 ? 0 : totalSpeed * Mathf.Sign(moveInput.y), 0.1f, Time.deltaTime);
+        
+        CmdMovePlayer(_playerTransform.position);
     }
 
     /// <summary>
@@ -182,25 +207,27 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void HandleSprint()
     {
+        Stat playerStamina = _playerStats.Stamina;
+
         // Only sprint if the we are moving forward.
         Vector2 moveInput = _playerControls.Player.Movement.ReadValue<Vector2>();
         bool isForward = 0 < moveInput.y;
 
-        _isSprinting = _canSprint && isForward && 0 < _staminaPoints.CurrentValue && _playerControls.Player.Sprint.IsPressed();
+        _isSprinting = _canSprint && isForward && 0 < playerStamina.CurrentValue && _playerControls.Player.Sprint.IsPressed();
 
         // Decrease/Increase stamina based on whether or not we are currently sprinting.
         if (_isSprinting)
         {
-            _staminaPoints.Decrease(_staminaCost * Time.deltaTime);
+            playerStamina.Decrease(_staminaCost * Time.deltaTime);
         }
 
-        if (!_isSprinting && _staminaPoints.CurrentValue < _staminaPoints.BaseValue)
+        if (!_isSprinting && playerStamina.CurrentValue < playerStamina.BaseValue)
         {
-            _staminaPoints.Increase(_staminaRestoration * Time.deltaTime);
+            playerStamina.Increase(_staminaRestoration * Time.deltaTime);
         }
 
         // If the current stamina is zero, wait until the stamina bar fills up again.
-        if (_staminaPoints.CurrentValue == 0f)
+        if (playerStamina.CurrentValue == 0f)
         {
             _canSprint = false;
             _isSprinting = false;
@@ -216,9 +243,12 @@ public class PlayerController : NetworkBehaviour
     private void Attack(InputAction.CallbackContext context)
     {
         if (!isLocalPlayer) { return; }
-        if (_currentWeapon != null)
+
+        InventoryItem inventoryItem = _playerInventory.GetItem();
+
+        if (inventoryItem != null && inventoryItem is Weapon playerWeapon)
         {
-            _currentWeapon.Attack();
+            _combatController.Attack(playerWeapon);
         }
     }
 
@@ -229,10 +259,6 @@ public class PlayerController : NetworkBehaviour
     private void AlternateAttack(InputAction.CallbackContext context)
     {
         if (!isLocalPlayer) { return; }
-        if (_currentWeapon != null)
-        {
-            _currentWeapon.AlternateAttack();
-        }
     }
 
     /// <summary>
@@ -251,27 +277,16 @@ public class PlayerController : NetworkBehaviour
     /// <param name="targetPosition">The target position to set the dropped item to.</param>
     private void Drop(Vector3? targetPosition = null)
     {
-        GameObject droppedItem = _playerInventory.RemoveItem();
-        
-        if (droppedItem.GetComponent<MeleeWeapon>() != null || droppedItem.GetComponent<RangedWeapon>() != null)
-        {
-            UnequipWeapon();
-        }
-        else if (droppedItem.GetComponent<Armor>() != null)
-        {
-            armorManager.UnequipArmor(droppedItem);
-        }
+        if (!isLocalPlayer) { return; }
 
-        if (_raycastHit.collider != null && droppedItem != null)
+        InventoryItem droppedItem = _playerInventory.RemoveItem();
+
+        if (droppedItem != null)
         {
-            if (targetPosition.HasValue)
-            {
-                CmdDrop(droppedItem, targetPosition.Value, true);
-            }
-            else
-            {
-                CmdDrop(droppedItem, new Vector3(0, 0, 0), false);
-            }
+            // 3 is an arbitrary value representing how far away the dropped item should be from the player.
+            Vector3 droppedPosition = targetPosition ?? transform.position + transform.forward * 3;
+
+            CmdDrop(droppedItem, droppedPosition);
         }
     }
 
@@ -282,38 +297,16 @@ public class PlayerController : NetworkBehaviour
     private void Interact(InputAction.CallbackContext context)
     {
         if (!isLocalPlayer) { return; }
+
         Collider hitCollider = _raycastHit.collider;
-        GameObject hitGameObject = hitCollider.gameObject;
 
-        if (hitCollider != null && hitGameObject.GetComponent<IInteractable>() != null)
+        if (hitCollider != null)
         {
-            // Check to see if we can add this item to our inventory.
-            if (hitGameObject.GetComponent<IInventoryItem>() != null)
+            GameObject targetObject = hitCollider.transform.root.gameObject; // Interactable objects should always have their interactable script at the top-most level.
+            
+            if (targetObject.TryGetComponent(out IInteractable interactableComponent))
             {
-                if(hitGameObject.transform.parent == null){
-                    if (_playerInventory.HasItem())
-                    {
-                        Drop(hitGameObject.transform.position);
-                    }
-
-                    if (hitGameObject.TryGetComponent(out Weapon weapon))
-                    {
-                        CmdEquipWeapon(weapon);
-                        _playerInventory.AddItem(hitGameObject);
-                        CmdInteract(hitGameObject);
-                    }
-                    else if (hitCollider != null && hitCollider.TryGetComponent(out Armor armor))
-                    {
-                        armorManager.CmdEquipArmor(armor.gameObject);
-                        _playerInventory.AddItem(hitGameObject);
-                        CmdInteract(hitGameObject);
-                    }
-                    else
-                    {
-                        Debug.Log($"{hitGameObject.name} is neither a weapon nor armor.");
-                    }                    
-                }
-
+                CmdInteract(targetObject);
             }
         }
     }
@@ -338,7 +331,7 @@ public class PlayerController : NetworkBehaviour
     /// In the case any jump parameters within the PlayerController script or in the animation controller are changed, this function may need to be updated.
     /// This is not the most effiicent or optimal solution in regards to timing an animation to sync with the action itself, but this will do for now.
     /// </remarks>
-    /// <returns>An enumerator to be used by Unity's coroutine system.</returns>
+    /// <returns>An <c>IEnumerator</c> for coroutine execution.</returns>
     private IEnumerator Jump()
     {
         _canJump = false;
@@ -382,57 +375,11 @@ public class PlayerController : NetworkBehaviour
     /// <summary>
     /// Handles the cooldown period after sprinting.
     /// </summary>
-    /// <returns>An IEnumerator for coroutine execution.</returns>
+    /// <returns>An <c>IEnumerator</c> for coroutine execution.</returns>
     private IEnumerator SprintCooldown()
     {
         yield return new WaitForSeconds(_staminaCooldown);
         _canSprint = true;
-    }
-
-    /// <summary>
-    /// Equips a weapon to the player's hand and synchronizes with the server
-    /// </summary>
-    /// <param name="weapon">The weapon to equip</param>
-    [Command]
-    public void CmdEquipWeapon(Weapon weapon)
-    {
-
-        // Set the new weapon
-        _currentWeapon = weapon;
-
-        // Assign authority to the new weapon
-        NetworkIdentity weaponIdentity = weapon.GetComponent<NetworkIdentity>();
-        if (weaponIdentity != null)
-        {
-            weaponIdentity.AssignClientAuthority(connectionToClient);
-        }
-
-        _currentWeapon.Interact(playerHand);
-
-        // Make sure the weapon is active
-        weapon.gameObject.SetActive(true);
-
-        // Make sure the Rigidbody is set to kinematic to avoid physics issues while holding it
-        Rigidbody weaponRb = weapon.GetComponent<Rigidbody>();
-        if (weaponRb != null)
-        {
-            weaponRb.isKinematic = true; // Disable physics on the weapon while it is being held
-        }
-
-        RpcEquipWeapon(weapon);
-    }
-
-    /// <summary>
-    /// Unequips the currently equipped weapon and synchronizes with the server
-    /// </summary>
-    
-    public void UnequipWeapon()
-    {
-        if (_currentWeapon != null)
-        {
-            _currentWeapon.CmdUnequip();
-            _currentWeapon = null;
-        }
     }
 
     /// <summary>
@@ -460,41 +407,43 @@ public class PlayerController : NetworkBehaviour
         _playerTransform.rotation = rotationPlayer;
         _followTransform.rotation = rotationFollow;
 
-        // Propagates the changes to all client
+        // Propagates the changes to all clients
         RpcUpdatePlayerLook(_playerTransform.rotation, _followTransform.rotation);
     }
 
     /// <summary>
-    /// Calculate the drop position and set the drop item to that position and activate it. 
+    /// Instantiate a gameObject in world space containing the logic to display an <c>InventoryItem</c>.
     /// </summary>
-    /// <param name="dropItem">The item that is being dropped</param>
-    /// <param name="targetPosition">Position that the item should be dropped at</param>
-    /// <param name="hasValue">Bool for make sure if targetPosition exist since Commands can't have nullable Vector3</param>
+    /// <param name="droppedItem">The item that is being dropped</param>
+    /// <param name="droppedPosition">Position that the item should be dropped at</param>
     [Command]
-    private void CmdDrop(GameObject dropItem, Vector3 targetPosition, bool hasValue)
+    private void CmdDrop(InventoryItem droppedItem, Vector3 droppedPosition)
     {
-        Vector3 dropOffset = hasValue ? targetPosition : transform.position + transform.forward * 3;
-        dropItem.transform.position = dropOffset;
-        dropItem.SetActive(true);
+        GameObject droppedObject = Instantiate(Resources.Load<GameObject>("Items/Inventory Item"));
 
-        // Propagates the changes to all client
-        RpcDrop(dropItem, dropOffset);
+        droppedObject.transform.position = droppedPosition;
+        droppedObject.GetComponent<InventoryItemObject>().InventoryItem = droppedItem;
+
+        NetworkServer.Spawn(droppedObject);
+
+        // Ensure the inventory item is rendered across all clients.
+        RpcDrop(droppedItem, droppedObject);
     }
 
     /// <summary>
     /// Interact with the GameObject if it has IInteractable script
     /// </summary>
-    /// <param name="hitObj">The object that is being interacted</param>
+    /// <param name = "hitObject">The object that is being interacted</param>
     [Command]
-    private void CmdInteract(GameObject hitObj)
+    private void CmdInteract(GameObject hitObject)
     {
-        if (hitObj.TryGetComponent(out IInteractable interactableObj))
+        if (hitObject.TryGetComponent(out IInteractable interactableComponent))
         {
-            interactableObj.Interact(gameObject);
+            interactableComponent.Interact(gameObject);
         }
 
-        // Propagates the changes to all client
-        RpcInteract(hitObj);
+        // Propagates the changes to all clients
+        RpcInteract(hitObject);
     }
 
     /// <summary>
@@ -522,43 +471,31 @@ public class PlayerController : NetworkBehaviour
     }
 
     /// <summary>
-    /// Update the item that is being dropped in world view to all client
+    /// Set the <c>InventoryItem</c> to be displayed within world space.
     /// </summary>
-    /// <param name="dropItem">Item that is being dropped</param>
-    /// <param name="dropPos">Location to be dropped at</param>
+    /// <param name="droppedItem">Item that is being dropped</param>
+    /// <param name="droppedObject">GameObject containing the logic to display the <c>InventoryItem</c></param>
     [ClientRpc]
-    private void RpcDrop(GameObject dropItem, Vector3 dropPos)
+    private void RpcDrop(InventoryItem droppedItem, GameObject droppedObject)
     {
         // Since we are using a Host-Client network structure, there will be one player that acts as the server and they don't have to run the code again
         if (!isServer)
         {
-            dropItem.transform.position = dropPos;
-            dropItem.SetActive(true);
+            droppedObject.GetComponent<InventoryItemObject>().InventoryItem = droppedItem;
         }
     }
 
     /// <summary>
-    /// Update the object that is being interacted to all client
+    /// Update the object that is being interacted to all clients
     /// </summary>
-    /// <param name="hitObj">Item that is being interacted</param>
+    /// <param name="hitObject">Item that is being interacted</param>
     [ClientRpc]
-    private void RpcInteract(GameObject hitObj)
+    private void RpcInteract(GameObject hitObject)
     {
         // Same reasoning as RpcDrop with the added component of getting the component "IInteractable"
-        if (!isServer && hitObj.TryGetComponent(out IInteractable interactableObj))
+        if (!isServer && hitObject.TryGetComponent(out IInteractable interactableComponent))
         {
-            interactableObj.Interact(gameObject);
+            interactableComponent.Interact(gameObject);
         }
-    }
-
-    /// <summary>
-    /// Updates the equipped weapon on all clients
-    /// </summary>
-    /// <param name="weapon">The weapon being equipped</param>
-    [ClientRpc]
-    private void RpcEquipWeapon(Weapon weapon)
-    {
-        // Set the current weapon on all clients
-        _currentWeapon = weapon;
     }
 }

@@ -277,7 +277,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &647847493
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -368,10 +368,11 @@ MonoBehaviour:
   autoCreatePlayer: 1
   playerSpawnMethod: 1
   spawnPrefabs:
-  - {fileID: 8008949534658289046, guid: 3a024f90a8215294891cf4864a734506, type: 3}
-  - {fileID: 4676705519949754717, guid: a1cb2037d8e847c4682d8f3408744742, type: 3}
-  - {fileID: 5025439335427194619, guid: c68a56081a21b664999a3f9e34482bf0, type: 3}
-  - {fileID: 8047876632819396388, guid: 367112a43490a2245acdc1414b85bd99, type: 3}
+  - {fileID: 7794048910500161293, guid: 21029e95ee2ea6c48a611b62bbd91313, type: 3}
+  - {fileID: 7528500341229574384, guid: 06ab6014f424b7a45bafcba93586eb81, type: 3}
+  - {fileID: 7527249661742391385, guid: eb61ecee9ab761b419e3e326049106e0, type: 3}
+  - {fileID: 3767777009258638877, guid: 7f7013935ec70b646952cde741e0b431, type: 3}
+  - {fileID: 6104558407679189253, guid: 53f5ce6cfc841d04fb818dbbc77b60dc, type: 3}
   exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2
@@ -522,7 +523,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1135082683
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -586,7 +587,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1389958876
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -618,7 +619,12 @@ MonoBehaviour:
     type: 3}
   autoCreatePlayer: 0
   playerSpawnMethod: 1
-  spawnPrefabs: []
+  spawnPrefabs:
+  - {fileID: 7794048910500161293, guid: 21029e95ee2ea6c48a611b62bbd91313, type: 3}
+  - {fileID: 7528500341229574384, guid: 06ab6014f424b7a45bafcba93586eb81, type: 3}
+  - {fileID: 7527249661742391385, guid: eb61ecee9ab761b419e3e326049106e0, type: 3}
+  - {fileID: 3767777009258638877, guid: 7f7013935ec70b646952cde741e0b431, type: 3}
+  - {fileID: 6104558407679189253, guid: 53f5ce6cfc841d04fb818dbbc77b60dc, type: 3}
   exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2
