@@ -11,6 +11,7 @@ using UnityEngine.UIElements;
 /// Represent's a player's inventory with multiple slots to storage and manage items.
 /// Additionally handles the displaying of items on the player's body across the network.
 /// </summary>
+[RequireComponent(typeof(PlayerInterface))]
 [RequireComponent(typeof(PlayerStats))]
 public class PlayerInventory : NetworkBehaviour
 {
@@ -46,7 +47,7 @@ public class PlayerInventory : NetworkBehaviour
     private List<string> _inventoryKeys;
     private Dictionary<string, InventoryItem> _inventorySlots;
     private Dictionary<string, PlayerInventoryRestriction> _inventoryRestrictions;
-    private VisualElement _inventoryHotbar;
+    private PlayerInterface _playerInterface;
     private PlayerHealth _playerHealth;
     private PlayerStats _playerStats;
 
@@ -80,14 +81,13 @@ public class PlayerInventory : NetworkBehaviour
         _inventoryKeys = _inventorySlots.Keys.OrderBy(slotKey => int.Parse(slotKey.Split("-")[1])).ToList();
 
         // Retrieve references to player-related components
-        _inventoryHotbar = gameObject.GetComponent<UIDocument>().rootVisualElement;
+        _playerInterface = gameObject.GetComponent<PlayerInterface>();
         _playerHealth = gameObject.GetComponent<PlayerHealth>();
         _playerStats = gameObject.GetComponent<PlayerStats>();
 
-        // Default to Slot 1
-        string defaultSlot = "Slot-1";
-        _currentSlot = defaultSlot;
-        SelectSlot(defaultSlot);
+        // Default to "Slot-1"
+        _currentSlot = "Slot-1";
+        SelectSlot(_currentSlot);
 
         base.OnStartAuthority();
     }
@@ -111,7 +111,7 @@ public class PlayerInventory : NetworkBehaviour
             }
             else
             {
-                Debug.LogError($"{upcomingSlot} is not a valid inventory slot key.");
+                UnityExtensions.LogError($"{upcomingSlot} is not a valid inventory slot key.");
             }
         }
         
@@ -135,7 +135,7 @@ public class PlayerInventory : NetworkBehaviour
 
         ResetSlots();
         _currentSlot = upcomingSlot;
-        _inventoryHotbar.Q<VisualElement>(_currentSlot).AddToClassList("active");
+        _playerInterface.ActivateSlot(_currentSlot);
 
         UpdateSelectedItem(previousSlot);
     }
@@ -151,7 +151,7 @@ public class PlayerInventory : NetworkBehaviour
         int currentIndex = _inventoryKeys.IndexOf(_currentSlot);
         if (currentIndex == -1)
         {
-            Debug.LogError($"{_currentSlot} is not a valid inventory slot key.");
+            UnityExtensions.LogError($"{_currentSlot} is not a valid inventory slot key.");
             return;
         }
 
@@ -165,9 +165,9 @@ public class PlayerInventory : NetworkBehaviour
     /// </summary>
     private void ResetSlots()
     {
-        foreach (string actionName in _inventorySlots.Keys)
+        foreach (string slotKey in _inventorySlots.Keys)
         {
-            _inventoryHotbar.Q<VisualElement>(actionName).RemoveFromClassList("active");
+            _playerInterface.DeactivateSlot(slotKey);
         }
     }
 
@@ -202,7 +202,7 @@ public class PlayerInventory : NetworkBehaviour
             }
 
             _inventorySlots[availableSlot] = inventoryItem;
-            _inventoryHotbar.Q<VisualElement>(availableSlot).AddToClassList("containsItem");
+            _playerInterface.RenderInventoryIcon(availableSlot, inventoryItem);
             return true;
         }
 
@@ -246,7 +246,7 @@ public class PlayerInventory : NetworkBehaviour
         }
 
         _inventorySlots[_currentSlot] = null;
-        _inventoryHotbar.Q<VisualElement>(_currentSlot).RemoveFromClassList("containsItem");
+        _playerInterface.RenderInventoryIcon(_currentSlot, null);
 
         return removedItem;
     }
@@ -454,7 +454,7 @@ public class PlayerInventory : NetworkBehaviour
                 return _headReference;
 
             default:
-                Debug.LogWarning($"CmdEquip() support for {equippableCategory} has not yet been implemented.");
+                UnityExtensions.LogWarning($"CmdEquip() support for {equippableCategory} has not yet been implemented.");
                 return null;
         }
     }

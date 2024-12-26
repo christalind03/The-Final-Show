@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 
 /// <summary>
@@ -38,5 +39,25 @@ public static class UnityExtensions
         }
 
         return default;
+    }
+
+    // TODO: Document
+    public static void LogError(string errorMessage)
+    {
+        StackTrace stackTrace = new StackTrace();
+        StackFrame stackFrame = stackTrace.GetFrame(1);
+        string scriptName = stackFrame.GetMethod().DeclaringType.Name;
+
+        UnityEngine.Debug.LogError($"[{scriptName}] {errorMessage}");
+    }
+
+    // TODO: Document
+    public static void LogWarning(string warningMessage)
+    {
+        StackTrace stackTrace = new StackTrace();
+        StackFrame stackFrame = stackTrace.GetFrame(1);
+        string scriptName = stackFrame.GetMethod().DeclaringType.Name;
+
+        UnityEngine.Debug.LogWarning($"[{scriptName}] {warningMessage}");
     }
 }
