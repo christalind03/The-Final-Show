@@ -47,17 +47,14 @@ public class PlayerInventory : NetworkBehaviour
     private Dictionary<string, InventoryItem> _inventorySlots;
     private Dictionary<string, PlayerInventoryRestriction> _inventoryRestrictions;
     private VisualElement _inventoryHotbar;
+    private PlayerHealth _playerHealth;
     private PlayerStats _playerStats;
-    private Health _playerHealth;
 
     /// <summary>
     /// Sets up the default slot and creates an empty inventory with inventory restrictions.
     /// </summary>
     public override void OnStartAuthority()
     {
-        // Default to Slot 1
-        _currentSlot = "Slot-1";
-
         // Define inventory slots and their respective restrictions
         _inventorySlots = new Dictionary<string, InventoryItem>
         {
@@ -82,11 +79,15 @@ public class PlayerInventory : NetworkBehaviour
         // Extract and sort the inventory keys to ensure proper cycling
         _inventoryKeys = _inventorySlots.Keys.OrderBy(slotKey => int.Parse(slotKey.Split("-")[1])).ToList();
 
+        // Retrieve references to player-related components
         _inventoryHotbar = gameObject.GetComponent<UIDocument>().rootVisualElement;
-        _inventoryHotbar.Q<VisualElement>(_currentSlot).AddToClassList("active");
-
+        _playerHealth = gameObject.GetComponent<PlayerHealth>();
         _playerStats = gameObject.GetComponent<PlayerStats>();
-        _playerHealth = gameObject.GetComponent<Health>();
+
+        // Default to Slot 1
+        string defaultSlot = "Slot-1";
+        _currentSlot = defaultSlot;
+        SelectSlot(defaultSlot);
 
         base.OnStartAuthority();
     }

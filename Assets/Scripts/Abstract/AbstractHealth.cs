@@ -6,15 +6,15 @@ using UnityEngine;
 /// Represents the health system for an entity in the game.
 /// Handles incoming damage/healing and death behavior.
 /// </summary>
-public class Health : NetworkBehaviour
+public abstract class AbstractHealth : NetworkBehaviour
 {
-    [SerializeField] private float _baseValue;
+    [SerializeField]
+    [SyncVar(hook = nameof(OnBaseHealth))]
+    protected float _baseValue;
 
-    [Header("Player Properties")]
-    [SerializeField] private GameObject _playerBody;
+    [SyncVar(hook = nameof(OnCurrentHealth))]
+    protected float _currentValue;
 
-    [SyncVar(hook = nameof(OnHealthChange))]
-    private float _currentValue;
     private List<float> _modifierList;
 
     /// <summary>
@@ -113,56 +113,23 @@ public class Health : NetworkBehaviour
     }
 
     /// <summary>
+    /// Called on all clients when the base health value changes.
+    /// This is performed with the <c>SyncVar</c> hook attached to <c>_currentValue</c>.
+    /// </summary>
+    /// <param name="previousValue">The previous base health value.</param>
+    /// <param name="currentValue">The current base health value.</param>
+    protected abstract void OnBaseHealth(float previousValue, float currentValue);
+
+    /// </summary>
     /// Called on all clients when the current health value changes.
     /// This is performed with the <c>SyncVar</c> hook attached to <c>_currentValue</c>.
     /// </summary>
-    /// <param name="oldHealth">The previous health value.</param>
-    /// <param name="newHealth">The current health value.</param>
-    private void OnHealthChange(float oldHealth, float newHealth)
-    {
-        // We can add in our visual health updates like health bars here
-        Debug.Log($"{gameObject.name} health changed: {oldHealth}/{_baseValue} -> {newHealth}/{_baseValue}");
-    }
-
+    /// <param name="previousValue">The previous current health value.</param>
+    /// <param name="currentValue">The current current health value.</param>
+    protected abstract void OnCurrentHealth(float previousValue, float currentValue);
+    
     /// <summary>
-    /// Handles the death of an entity.
+    /// Handles the death of the object.
     /// </summary>
-    [Server]
-    private void TriggerDeath()
-    {
-        if (gameObject.CompareTag("Player"))
-        {
-            Spectate();
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-
-        Debug.Log($"{gameObject.name} has died.");
-        RpcOnDeath();
-    }
-
-    /// <summary>
-    /// Handles the player's death and updates clients with appropriate actions.
-    /// </summary>
-    [ClientRpc]
-    private void RpcOnDeath()
-    {
-        if (!isLocalPlayer || isServer) { return; }
-        if (gameObject.CompareTag("Player")) { Spectate(); }
-
-        Debug.Log($"{gameObject.name} death broadcasted to all clients.");
-    }
-
-    /// <summary>
-    /// Switches the player to spectate mode by modifying the player's layer and camera behavior.
-    /// </summary>
-    private void Spectate()
-    {
-        _playerBody.layer = 0;
-        CameraController cameraController = gameObject.GetComponent<CameraController>();
-        cameraController.alive = false;
-        cameraController.Spectate();
-    }
+    protected abstract void TriggerDeath();
 }

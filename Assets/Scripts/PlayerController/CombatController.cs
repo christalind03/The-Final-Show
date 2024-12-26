@@ -62,7 +62,7 @@ public class CombatController : NetworkBehaviour
             float attackRange = Mathf.Cos(playerWeapon.AttackAngle * Mathf.Rad2Deg / 2);
             bool inRange = attackRange < targetAngle;
 
-            if (inRange && hitCollider.TryGetComponent(out Health healthComponent))
+            if (inRange && hitCollider.TryGetComponent(out AbstractHealth healthComponent))
             {
                 healthComponent.CmdDamage(playerWeapon.AttackDamage);
             }

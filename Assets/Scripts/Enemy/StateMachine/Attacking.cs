@@ -15,7 +15,7 @@ public class AttackingState : EnemyState
         Debug.Log("Entering Attacking State");
         Context.Material.SetColor("_BaseColor", Color.magenta);
         // Deal damage
-        if (Context.TargetTransform.root.TryGetComponent(out Health targetHealth))
+        if (Context.TargetTransform.root.TryGetComponent(out AbstractHealth targetHealth))
         {
             //targetHealth.CmdRemoveHealth(Context.AttackStats.AttackDamage);
             targetHealth.CmdDamage(Context.AttackStats.AttackDamage);

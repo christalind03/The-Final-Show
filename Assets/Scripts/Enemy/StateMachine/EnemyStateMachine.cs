@@ -86,7 +86,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
             return;
         }
         // if the current target has no health, go to idle
-        if (_hasTarget && _context.TargetTransform.root.TryGetComponent(out Health targetHealth))
+        if (_hasTarget && _context.TargetTransform.root.TryGetComponent(out AbstractHealth targetHealth))
         {
             //if (targetHealth.CurrentHealth <= 0)
             if (targetHealth.CurrentValue <= 0)
