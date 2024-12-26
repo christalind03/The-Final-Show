@@ -131,11 +131,17 @@ public class PlayerInventory : NetworkBehaviour
     /// <param name="upcomingSlot">The key representing the inventory slot to activate.</param>
     private void SelectSlot(string upcomingSlot)
     {
+        InventoryItem inventoryItem = _inventorySlots[upcomingSlot];
         string previousSlot = _currentSlot;
 
         ResetSlots();
         _currentSlot = upcomingSlot;
         _playerInterface.ActivateSlot(_currentSlot);
+
+        if (inventoryItem != null)
+        {
+            _playerInterface.DisplayInventoryMessage(inventoryItem.name);
+        }
 
         UpdateSelectedItem(previousSlot);
     }
@@ -206,8 +212,7 @@ public class PlayerInventory : NetworkBehaviour
             return true;
         }
 
-        // TODO: Display some sort of error to the user through the Game UI
-        Debug.Log("All inventory slots are full!");
+        _playerInterface.DisplayInventoryMessage("INVENTORY FULL!");
         return false;
     }
 
