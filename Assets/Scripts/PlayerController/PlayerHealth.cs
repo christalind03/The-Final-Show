@@ -6,16 +6,26 @@ public class PlayerHealth : AbstractHealth
     [Header("Player References")]
     [SerializeField] private GameObject _playerBody;
 
+    private PlayerInterface _playerInterface;
+
+    // TODO: Document
+    public override void OnStartAuthority()
+    {
+        _playerInterface = gameObject.GetComponent<PlayerInterface>();
+
+        base.OnStartAuthority();
+    }
+
     // TODO: Document
     protected override void OnBaseHealth(float previousValue, float currentValue)
     {
-        Debug.Log($"[EntityHealth] {gameObject.name} base health changed from {previousValue} to {currentValue}");
+        _playerInterface?.RefreshHealth(_currentValue, currentValue);
     }
 
     // TODO: Document
     protected override void OnCurrentHealth(float previousValue, float currentValue)
     {
-        Debug.Log($"[EntityHealth] {gameObject.name} current health changed from {previousValue}/{_baseValue} to {currentValue}/{_baseValue}");
+        _playerInterface?.RefreshHealth(currentValue, _baseValue);
     }
 
     // TODO: Document

@@ -61,6 +61,27 @@ public class PlayerInterface : NetworkBehaviour
     }
 
     // TODO: Document
+    private IEnumerator DisplayInventoryMessageCoroutine(string inventoryMessage)
+    {
+        string elementName = "Message";
+        Label inventoryMessageElement = _rootVisualElement.Query<Label>(elementName);
+
+        if (inventoryMessageElement != null)
+        {
+            inventoryMessageElement.text = inventoryMessage;
+            inventoryMessageElement.style.opacity = 1;
+
+            yield return new WaitForSeconds(_inventoryMessageDuration);
+
+            inventoryMessageElement.style.opacity = 0;
+        }
+        else
+        {
+            MissingElementError(elementName);
+        }
+    }
+
+    // TODO: Document
     public void RenderInventoryIcon(string slotKey, InventoryItem inventoryItem)
     {
         // Retrieve the VisualElement that renders the item icon.
@@ -86,19 +107,16 @@ public class PlayerInterface : NetworkBehaviour
     }
 
     // TODO: Document
-    private IEnumerator DisplayInventoryMessageCoroutine(string inventoryMessage)
+    public void RefreshHealth(float currentHealth, float baseHealth)
     {
-        string elementName = "Message";
-        Label inventoryMessageElement = _rootVisualElement.Query<Label>(elementName);
+        string elementName = "Health-Foreground";
+        VisualElement healthInterface = _rootVisualElement.Query<VisualElement>(elementName);
 
-        if (inventoryMessageElement != null)
+        if (healthInterface != null)
         {
-            inventoryMessageElement.text = inventoryMessage;
-            inventoryMessageElement.style.opacity = 1;
+            float healthPercentage = Mathf.Clamp01(currentHealth / baseHealth);
 
-            yield return new WaitForSeconds(_inventoryMessageDuration);
-
-            inventoryMessageElement.style.opacity = 0;
+            healthInterface.style.width = new Length(healthPercentage * 100, LengthUnit.Percent);
         }
         else
         {
