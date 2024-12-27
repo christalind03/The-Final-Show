@@ -353,8 +353,6 @@ public class PlayerInventory : NetworkBehaviour
         _playerStats.Attack.AddModifier(armorItem.Attack);
         _playerStats.Defense.AddModifier(armorItem.Defense);
         _playerStats.Stamina.AddModifier(armorItem.Stamina);
-
-        DebugStats();
     }
 
     /// <summary>
@@ -367,21 +365,6 @@ public class PlayerInventory : NetworkBehaviour
         _playerStats.Attack.RemoveModifier(armorItem.Attack);
         _playerStats.Defense.RemoveModifier(armorItem.Defense);
         _playerStats.Stamina.RemoveModifier(armorItem.Stamina);
-
-        DebugStats();
-    }
-
-    /// <summary>
-    /// A debug method to log the current stats of the player.
-    /// This is used to verify that stat changes have been applied correctly.
-    /// This function will be removed once a more defined UI system is in place to display stat changes.
-    /// </summary>
-    private void DebugStats()
-    {
-        Debug.Log($"Player Attack: {_playerHealth.BaseValue}, {_playerHealth.CurrentValue}");
-        Debug.Log($"Player Attack: {_playerStats.Attack.BaseValue}, {_playerStats.Attack.CurrentValue}");
-        Debug.Log($"Player Defense: {_playerStats.Defense.BaseValue}, {_playerStats.Defense.CurrentValue}");
-        Debug.Log($"Player Stamina: {_playerStats.Stamina.BaseValue}, {_playerStats.Stamina.CurrentValue}");
     }
 
     /// <summary>

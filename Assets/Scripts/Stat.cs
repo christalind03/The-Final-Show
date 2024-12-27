@@ -9,6 +9,7 @@ public class Stat
 {
     private float _baseValue;
     private float _currentValue;
+    private float _modifierSum;
     private List<float> _modifierList;
 
     public event Action<float, float> OnBaseChange;
@@ -31,8 +32,10 @@ public class Stat
         }
         private set
         {
-            OnBaseChange?.Invoke(_baseValue, value);
-            _baseValue = value;
+            if (_baseValue != value)
+            {
+                _baseValue = value;
+            }
         }
     }
 
@@ -48,8 +51,11 @@ public class Stat
 
             if (_currentValue != clampedValue)
             {
-                OnCurrentChange?.Invoke(_currentValue, clampedValue);
-                _currentValue = clampedValue;
+                float previousValue = _currentValue;
+                float currentValue = clampedValue;
+
+                OnCurrentChange?.Invoke(previousValue, currentValue);
+                _currentValue = currentValue;
             }
         }
     }
@@ -94,7 +100,7 @@ public class Stat
         if (modifierValue != 0f)
         {
             _modifierList.Add(modifierValue);
-            _currentValue += modifierValue;
+            SimulateBaseChange();
         }
     }
 
@@ -109,7 +115,23 @@ public class Stat
         if (modifierValue != 0f)
         {
             _modifierList.Remove(modifierValue);
-            _currentValue -= modifierValue;
+            SimulateBaseChange();
+        }
+    }
+
+    // TODO: Document
+    private void SimulateBaseChange()
+    {
+        float previousValue = _modifierSum;
+        float currentValue = 0;
+
+        // Prevent null error messages in the console if the object was set without a constructor.
+        _modifierList.ForEach(modifierValue => currentValue += modifierValue);
+
+        if (previousValue != currentValue)
+        {
+            OnBaseChange?.Invoke(previousValue, currentValue);
+            _modifierSum = currentValue;
         }
     }
 }

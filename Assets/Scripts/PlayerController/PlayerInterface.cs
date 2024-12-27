@@ -107,6 +107,38 @@ public class PlayerInterface : NetworkBehaviour
     }
 
     // TODO: Document
+    public void RefreshAttack(float totalAttack)
+    {
+        string elementName = "Attack-Value";
+        Label attackLabel = _rootVisualElement.Query<Label>(elementName);
+
+        if (attackLabel != null)
+        {
+            attackLabel.text = totalAttack.ToString();
+        }
+        else
+        {
+            MissingElementError(elementName);
+        }
+    }
+    
+    // TODO: Document
+    public void RefreshDefense(float totalDefense)
+    {
+        string elementName = "Defense-Value";
+        Label defenseLabel = _rootVisualElement.Query<Label>(elementName);
+
+        if (defenseLabel != null)
+        {
+            defenseLabel.text = totalDefense.ToString();
+        }
+        else
+        {
+            MissingElementError(elementName);
+        }
+    }
+
+    // TODO: Document
     public void RefreshHealth(float currentHealth, float baseHealth)
     {
         string elementName = "Health-Foreground";

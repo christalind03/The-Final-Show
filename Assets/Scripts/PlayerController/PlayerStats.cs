@@ -7,6 +7,7 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerInterface))]
 public class PlayerStats : NetworkBehaviour
 {
+    [Header("Default Values")]
     [SerializeField] private float _attack;
     [SerializeField] private float _defense;
     [SerializeField] private float _stamina;
@@ -29,6 +30,8 @@ public class PlayerStats : NetworkBehaviour
 
         _playerInterface = gameObject.GetComponent<PlayerInterface>();
 
+        Attack.OnBaseChange += (float previousValue, float currentValue) => _playerInterface.RefreshAttack(currentValue);
+        Defense.OnBaseChange += (float previousValue, float currentValue) => _playerInterface.RefreshDefense(currentValue);
         Stamina.OnBaseChange += (float previousValue, float currentValue) => RefreshStamina(true, previousValue, currentValue);
         Stamina.OnCurrentChange += (float previousValue, float currentValue) => RefreshStamina(false, previousValue, currentValue);
 
