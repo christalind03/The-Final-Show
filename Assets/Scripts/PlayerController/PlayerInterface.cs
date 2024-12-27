@@ -125,6 +125,24 @@ public class PlayerInterface : NetworkBehaviour
     }
 
     // TODO: Document
+    public void RefreshStamina(float currentStamina, float baseStamina)
+    {
+        string elementName = "Stamina-Foreground";
+        VisualElement staminaInterface = _rootVisualElement.Query<VisualElement>(elementName);
+
+        if ( staminaInterface != null)
+        {
+            float staminaPercentage = Mathf.Clamp01(currentStamina / baseStamina);
+
+            staminaInterface.style.width = new Length(staminaPercentage * 100, LengthUnit.Percent);
+        }
+        else
+        {
+            MissingElementError(elementName);
+        }
+    }
+
+    // TODO: Document
     private void MissingElementError(string elementName)
     {
         UnityExtensions.LogError($"Unable to locate VisualElement titled '{elementName}'");

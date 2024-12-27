@@ -4,6 +4,7 @@ using UnityEngine;
 /// <summary>
 /// Manages a player's core stats, including attack, defense, and stamina.
 /// </summary>
+[RequireComponent(typeof(PlayerInterface))]
 public class PlayerStats : NetworkBehaviour
 {
     [SerializeField] private float _attack;
@@ -13,6 +14,8 @@ public class PlayerStats : NetworkBehaviour
     public Stat Attack;
     public Stat Defense;
     public Stat Stamina;
+
+    private PlayerInterface _playerInterface;
 
     /// <summary>
     /// Called when the player gains authority over this object.
@@ -24,6 +27,24 @@ public class PlayerStats : NetworkBehaviour
         Defense = new Stat(_defense);
         Stamina = new Stat(_stamina);
 
+        _playerInterface = gameObject.GetComponent<PlayerInterface>();
+
+        Stamina.OnBaseChange += (float previousValue, float currentValue) => RefreshStamina(true, previousValue, currentValue);
+        Stamina.OnCurrentChange += (float previousValue, float currentValue) => RefreshStamina(false, previousValue, currentValue);
+
         base.OnStartAuthority();
+    }
+
+    // TODO: Document
+    private void RefreshStamina(bool isBaseChange, float previousValue, float currentValue)
+    {
+        if (isBaseChange)
+        {
+            _playerInterface?.RefreshStamina(Stamina.CurrentValue, currentValue);
+        }
+        else
+        {
+            _playerInterface?.RefreshStamina(currentValue, Stamina.BaseValue);
+        }
     }
 }

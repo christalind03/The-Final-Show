@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,6 +10,9 @@ public class Stat
     private float _baseValue;
     private float _currentValue;
     private List<float> _modifierList;
+
+    public event Action<float, float> OnBaseChange;
+    public event Action<float, float> OnCurrentChange;
 
     /// <summary>
     /// Get the base value of the stat, including any active modifiers into the final calculation.
@@ -27,6 +31,7 @@ public class Stat
         }
         private set
         {
+            OnBaseChange?.Invoke(_baseValue, value);
             _baseValue = value;
         }
     }
@@ -39,7 +44,13 @@ public class Stat
         get => _currentValue;
         private set
         {
-            _currentValue = Mathf.Clamp(value, 0f, BaseValue);
+            float clampedValue = Mathf.Clamp(value, 0f, BaseValue);
+
+            if (_currentValue != clampedValue)
+            {
+                OnCurrentChange?.Invoke(_currentValue, clampedValue);
+                _currentValue = clampedValue;
+            }
         }
     }
 
