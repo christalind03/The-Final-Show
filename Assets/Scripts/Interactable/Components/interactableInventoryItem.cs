@@ -6,7 +6,7 @@ using UnityEngine;
 /// This object can be picked up by a player and added to their inventory.
 /// </summary>
 [RequireComponent(typeof(NetworkIdentity))]
-public class interactableInventoryItem : NetworkBehaviour, IInteractable
+public class InteractableInventoryItem : NetworkBehaviour, IInteractable
 {
     public InventoryItem InventoryItem;
 

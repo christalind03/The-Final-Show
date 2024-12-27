@@ -422,7 +422,7 @@ public class PlayerController : NetworkBehaviour
         GameObject droppedObject = Instantiate(Resources.Load<GameObject>("Items/Interactable Inventory Item"));
 
         droppedObject.transform.position = droppedPosition;
-        droppedObject.GetComponent<interactableInventoryItem>().InventoryItem = droppedItem;
+        droppedObject.GetComponent<InteractableInventoryItem>().InventoryItem = droppedItem;
 
         NetworkServer.Spawn(droppedObject);
 
@@ -481,7 +481,7 @@ public class PlayerController : NetworkBehaviour
         // Since we are using a Host-Client network structure, there will be one player that acts as the server and they don't have to run the code again
         if (!isServer)
         {
-            droppedObject.GetComponent<interactableInventoryItem>().InventoryItem = droppedItem;
+            droppedObject.GetComponent<InteractableInventoryItem>().InventoryItem = droppedItem;
         }
     }
 
