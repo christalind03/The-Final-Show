@@ -21,6 +21,9 @@ public class PlayerInterface : NetworkBehaviour
         Label inventoryMessageElement = _rootVisualElement.Query<Label>("Message");
         inventoryMessageElement.style.opacity = 0;
 
+        VisualElement ammunitionElement = _rootVisualElement.Query<VisualElement>("Ammo");
+        ammunitionElement.style.opacity = 0;
+
         base.OnStartAuthority();
     }
 
@@ -35,7 +38,7 @@ public class PlayerInterface : NetworkBehaviour
         }
         else
         {
-            MissingElementError(slotKey);
+            MissingElementError("VisualElement", slotKey);
         }
     }
 
@@ -50,7 +53,39 @@ public class PlayerInterface : NetworkBehaviour
         }
         else
         {
-            MissingElementError(slotKey);
+            MissingElementError("VisualElement", slotKey);
+        }
+    }
+
+    // TODO: Document
+    public void DisplayAmmo()
+    {
+        string elementName = "Ammo";
+        VisualElement ammoElement = _rootVisualElement.Query<VisualElement>(elementName);
+
+        if (ammoElement != null)
+        {
+            ammoElement.style.opacity = 1;
+        }
+        else
+        {
+            MissingElementError("VisualElement", elementName);
+        }
+    }
+
+    // TODO: Document
+    public void HideAmmo()
+    {
+        string elementName = "Ammo";
+        VisualElement ammoElement = _rootVisualElement.Query<VisualElement>(elementName);
+
+        if (ammoElement != null)
+        {
+            ammoElement.style.opacity = 0;
+        }
+        else
+        {
+            MissingElementError("VisualElement", elementName);
         }
     }
 
@@ -77,7 +112,7 @@ public class PlayerInterface : NetworkBehaviour
         }
         else
         {
-            MissingElementError(elementName);
+            MissingElementError("Label", elementName);
         }
     }
 
@@ -118,7 +153,7 @@ public class PlayerInterface : NetworkBehaviour
         }
         else
         {
-            MissingElementError(elementName);
+            MissingElementError("Label", elementName);
         }
     }
     
@@ -134,7 +169,7 @@ public class PlayerInterface : NetworkBehaviour
         }
         else
         {
-            MissingElementError(elementName);
+            MissingElementError("Label", elementName);
         }
     }
 
@@ -152,7 +187,7 @@ public class PlayerInterface : NetworkBehaviour
         }
         else
         {
-            MissingElementError(elementName);
+            MissingElementError("VisualElement", elementName);
         }
     }
 
@@ -170,13 +205,13 @@ public class PlayerInterface : NetworkBehaviour
         }
         else
         {
-            MissingElementError(elementName);
+            MissingElementError("VisualElement", elementName);
         }
     }
 
     // TODO: Document
-    private void MissingElementError(string elementName)
+    private void MissingElementError(string elementType, string elementName)
     {
-        UnityExtensions.LogError($"Unable to locate VisualElement titled '{elementName}'");
+        UnityExtensions.LogError($"Unable to locate {elementType} titled '{elementName}'");
     }
 }

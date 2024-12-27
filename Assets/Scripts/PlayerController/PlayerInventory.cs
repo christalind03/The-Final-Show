@@ -381,6 +381,11 @@ public class PlayerInventory : NetworkBehaviour
         // Since it will take a small amount of time to swap between items, the total child count for this reference should be less than 2.
         if (equippableReference != null && equippableReference.transform.childCount < 2)
         {
+            if (equippableItem is RangedWeapon)
+            {
+                TargetToggleAmmunitionVisibility(connectionToClient, true);
+            }
+
             Vector3 spawnPosition = equippableReference.transform.position + equippableItem.PositionOffset;
             Quaternion spawnRotation = equippableReference.transform.rotation * equippableItem.ObjectPrefab.transform.rotation;
 
@@ -404,6 +409,11 @@ public class PlayerInventory : NetworkBehaviour
 
         if (equippableReference != null && equippableReference.transform.childCount > 0)
         {
+            if (equippableItem is RangedWeapon)
+            {
+                TargetToggleAmmunitionVisibility(connectionToClient, false);
+            }
+
             GameObject targetObject = equippableReference.transform.GetChild(0).gameObject;
             
             NetworkServer.Destroy(targetObject);
@@ -444,6 +454,20 @@ public class PlayerInventory : NetworkBehaviour
             default:
                 UnityExtensions.LogWarning($"CmdEquip() support for {equippableCategory} has not yet been implemented.");
                 return null;
+        }
+    }
+
+    // TODO: Documentation
+    [TargetRpc]
+    private void TargetToggleAmmunitionVisibility(NetworkConnectionToClient targetClient, bool displayAmmo)
+    {
+        if (displayAmmo)
+        {
+            _playerInterface.DisplayAmmo();
+        }
+        else
+        {
+            _playerInterface.HideAmmo();
         }
     }
 }
