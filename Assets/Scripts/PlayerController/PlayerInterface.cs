@@ -58,38 +58,6 @@ public class PlayerInterface : NetworkBehaviour
     }
 
     // TODO: Document
-    public void DisplayAmmo()
-    {
-        string elementName = "Ammo";
-        VisualElement ammoElement = _rootVisualElement.Query<VisualElement>(elementName);
-
-        if (ammoElement != null)
-        {
-            ammoElement.style.opacity = 1;
-        }
-        else
-        {
-            MissingElementError("VisualElement", elementName);
-        }
-    }
-
-    // TODO: Document
-    public void HideAmmo()
-    {
-        string elementName = "Ammo";
-        VisualElement ammoElement = _rootVisualElement.Query<VisualElement>(elementName);
-
-        if (ammoElement != null)
-        {
-            ammoElement.style.opacity = 0;
-        }
-        else
-        {
-            MissingElementError("VisualElement", elementName);
-        }
-    }
-
-    // TODO: Document
     public void DisplayInventoryMessage(string inventoryMessage)
     {
         StartCoroutine(DisplayInventoryMessageCoroutine(inventoryMessage));
@@ -144,64 +112,36 @@ public class PlayerInterface : NetworkBehaviour
     // TODO: Document
     public void RefreshAttack(float totalAttack)
     {
-        string elementName = "Attack-Value";
-        Label attackLabel = _rootVisualElement.Query<Label>(elementName);
-
-        if (attackLabel != null)
-        {
-            attackLabel.text = totalAttack.ToString();
-        }
-        else
-        {
-            MissingElementError("Label", elementName);
-        }
+        RefreshStatus("Attack-Value", totalAttack);
     }
     
     // TODO: Document
     public void RefreshDefense(float totalDefense)
     {
-        string elementName = "Defense-Value";
-        Label defenseLabel = _rootVisualElement.Query<Label>(elementName);
-
-        if (defenseLabel != null)
-        {
-            defenseLabel.text = totalDefense.ToString();
-        }
-        else
-        {
-            MissingElementError("Label", elementName);
-        }
+        RefreshStatus("Defense-Value", totalDefense);
     }
 
     // TODO: Document
-    public void RefreshHealth(float currentHealth, float baseHealth)
+    public void RefreshHealth(float baseHealth, float currentHealth)
     {
-        string elementName = "Health-Foreground";
-        VisualElement healthInterface = _rootVisualElement.Query<VisualElement>(elementName);
-
-        if (healthInterface != null)
-        {
-            float healthPercentage = Mathf.Clamp01(currentHealth / baseHealth);
-
-            healthInterface.style.width = new Length(healthPercentage * 100, LengthUnit.Percent);
-        }
-        else
-        {
-            MissingElementError("VisualElement", elementName);
-        }
+        RefreshStatusBar("Health-Foreground", baseHealth, currentHealth);
     }
 
     // TODO: Document
-    public void RefreshStamina(float currentStamina, float baseStamina)
+    public void RefreshStamina(float baseStamina, float currentStamina)
     {
-        string elementName = "Stamina-Foreground";
-        VisualElement staminaInterface = _rootVisualElement.Query<VisualElement>(elementName);
+        RefreshStatusBar("Stamina-Foreground", baseStamina, currentStamina);
+    }
+    
+    // TODO: Document
+    public void ToggleAmmunitionVisibility(bool displayAmmo)
+    {
+        string elementName = "Ammo";
+        VisualElement ammoElement = _rootVisualElement.Query<VisualElement>(elementName);
 
-        if ( staminaInterface != null)
+        if (ammoElement != null)
         {
-            float staminaPercentage = Mathf.Clamp01(currentStamina / baseStamina);
-
-            staminaInterface.style.width = new Length(staminaPercentage * 100, LengthUnit.Percent);
+            ammoElement.style.opacity = displayAmmo ? 1 : 0;
         }
         else
         {
@@ -213,5 +153,37 @@ public class PlayerInterface : NetworkBehaviour
     private void MissingElementError(string elementType, string elementName)
     {
         UnityExtensions.LogError($"Unable to locate {elementType} titled '{elementName}'");
+    }
+
+    // TODO: Document
+    private void RefreshStatus(string elementName, float targetValue)
+    {
+        Label statusLabel = _rootVisualElement.Query<Label>(elementName);
+
+        if (statusLabel != null)
+        {
+            statusLabel.text = targetValue.ToString();
+        }
+        else
+        {
+            MissingElementError("Label", elementName);
+        }
+    }
+
+    // TODO: Document
+    private void RefreshStatusBar(string elementName, float baseValue, float currentValue)
+    {
+        VisualElement statusBar = _rootVisualElement.Query<VisualElement>(elementName);
+
+        if (statusBar != null)
+        {
+            float staminaPercentage = Mathf.Clamp01(currentValue / baseValue);
+
+            statusBar.style.width = new Length(staminaPercentage * 100, LengthUnit.Percent);
+        }
+        else
+        {
+            MissingElementError("VisualElement", elementName);
+        }
     }
 }

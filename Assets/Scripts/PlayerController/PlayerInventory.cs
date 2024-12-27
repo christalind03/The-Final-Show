@@ -461,13 +461,6 @@ public class PlayerInventory : NetworkBehaviour
     [TargetRpc]
     private void TargetToggleAmmunitionVisibility(NetworkConnectionToClient targetClient, bool displayAmmo)
     {
-        if (displayAmmo)
-        {
-            _playerInterface.DisplayAmmo();
-        }
-        else
-        {
-            _playerInterface.HideAmmo();
-        }
+        _playerInterface.ToggleAmmunitionVisibility(displayAmmo);
     }
 }

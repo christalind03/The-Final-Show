@@ -19,13 +19,13 @@ public class PlayerHealth : AbstractHealth
     // TODO: Document
     protected override void OnBaseHealth(float previousValue, float currentValue)
     {
-        _playerInterface?.RefreshHealth(_currentValue, currentValue);
+        _playerInterface?.RefreshHealth(currentValue, _currentValue);
     }
 
     // TODO: Document
     protected override void OnCurrentHealth(float previousValue, float currentValue)
     {
-        _playerInterface?.RefreshHealth(currentValue, _baseValue);
+        _playerInterface?.RefreshHealth(_baseValue, currentValue);
     }
 
     // TODO: Document

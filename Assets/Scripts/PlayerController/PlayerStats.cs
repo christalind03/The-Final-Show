@@ -43,11 +43,11 @@ public class PlayerStats : NetworkBehaviour
     {
         if (isBaseChange)
         {
-            _playerInterface?.RefreshStamina(Stamina.CurrentValue, currentValue);
+            _playerInterface?.RefreshStamina(currentValue, Stamina.CurrentValue);
         }
         else
         {
-            _playerInterface?.RefreshStamina(currentValue, Stamina.BaseValue);
+            _playerInterface?.RefreshStamina(Stamina.BaseValue, currentValue);
         }
     }
 }
