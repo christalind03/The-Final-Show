@@ -383,7 +383,7 @@ public class PlayerInventory : NetworkBehaviour
         {
             if (equippableItem is RangedWeapon)
             {
-                TargetToggleAmmunitionVisibility(connectionToClient, true);
+                TargetToggleAmmoVisibility(connectionToClient, true);
             }
 
             Vector3 spawnPosition = equippableReference.transform.position + equippableItem.PositionOffset;
@@ -411,7 +411,7 @@ public class PlayerInventory : NetworkBehaviour
         {
             if (equippableItem is RangedWeapon)
             {
-                TargetToggleAmmunitionVisibility(connectionToClient, false);
+                TargetToggleAmmoVisibility(connectionToClient, false);
             }
 
             GameObject targetObject = equippableReference.transform.GetChild(0).gameObject;
@@ -459,8 +459,15 @@ public class PlayerInventory : NetworkBehaviour
 
     // TODO: Documentation
     [TargetRpc]
-    private void TargetToggleAmmunitionVisibility(NetworkConnectionToClient targetClient, bool displayAmmo)
+    private void TargetToggleAmmoVisibility(NetworkConnectionToClient targetClient, bool displayAmmo)
     {
-        _playerInterface.ToggleAmmunitionVisibility(displayAmmo);
+        _playerInterface.ToggleAmmoVisibility(displayAmmo);
+
+        if (displayAmmo)
+        {
+            // TODO: If the user reloads before the current clip is gone, ensure that the difference between the clip capacity and current amount is added to the remaining amount
+            RangedWeapon rangedWeapon = (RangedWeapon)_inventorySlots[_currentSlot];
+            _playerInterface.RefreshAmmo(rangedWeapon.AmmoCount, rangedWeapon.ClipCapacity * rangedWeapon.ClipCount);
+        }
     }
 }

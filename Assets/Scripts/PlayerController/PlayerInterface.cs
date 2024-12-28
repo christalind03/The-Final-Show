@@ -110,6 +110,23 @@ public class PlayerInterface : NetworkBehaviour
     }
 
     // TODO: Document
+    public void RefreshAmmo(int clipAmount, int remainingAmount)
+    {
+        Label ammoCount = _rootVisualElement.Query<Label>("Ammo-Count"); 
+        Label ammoRemaining = _rootVisualElement.Query<Label>("Ammo-Remaining"); 
+
+        if (ammoCount != null && ammoRemaining != null)
+        {
+            ammoCount.text = clipAmount.ToString();
+            ammoRemaining.text = remainingAmount.ToString();
+        }
+        else
+        {
+            UnityExtensions.LogError("Unable to locate Label titled 'Ammo-Count' and/or 'Ammo-Remaining'");
+        }
+    }
+
+    // TODO: Document
     public void RefreshAttack(float totalAttack)
     {
         RefreshStatus("Attack-Value", totalAttack);
@@ -134,7 +151,7 @@ public class PlayerInterface : NetworkBehaviour
     }
     
     // TODO: Document
-    public void ToggleAmmunitionVisibility(bool displayAmmo)
+    public void ToggleAmmoVisibility(bool displayAmmo)
     {
         string elementName = "Ammo";
         VisualElement ammoElement = _rootVisualElement.Query<VisualElement>(elementName);

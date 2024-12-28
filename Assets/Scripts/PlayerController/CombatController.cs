@@ -10,14 +10,18 @@ public class CombatController : NetworkBehaviour
     [Header("Combat References")]
     [SerializeField] private Transform _cameraTransform;
 
+    private PlayerInterface _playerInterface;
     private bool _canAttack;
 
     /// <summary>
     /// Initializes the combat controller, enabling attacks.
     /// </summary>
-    private void Awake()
+    public override void OnStartAuthority()
     {
+        _playerInterface = gameObject.GetComponent<PlayerInterface>();
         _canAttack = true;        
+
+        base.OnStartAuthority();
     }
 
     /// <summary>
@@ -94,6 +98,9 @@ public class CombatController : NetworkBehaviour
                 Debug.Log($"{rangedWeapon.name} ran out of ammunition!");
             }
         }
+
+        // TODO: If the user reloads before the current clip is gone, ensure that the difference between the clip capacity and current amount is added to the remaining amount
+        _playerInterface.RefreshAmmo(rangedWeapon.AmmoCount, rangedWeapon.ClipCapacity * rangedWeapon.ClipCount);
     }
 
     /// <summary>
