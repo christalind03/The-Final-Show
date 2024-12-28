@@ -1,9 +1,9 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI%20Toolkit/GameUI.uss?fileID=7433441132597879392&amp;guid=7bd52c0d93eeb354aadf5b3d6bae1f18&amp;type=3#GameUI" />
-    <ui:VisualElement name="PrimaryContainer" style="flex-grow: 1; padding-top: 15.5px; padding-right: 15.5px; padding-bottom: 15.5px; padding-left: 15.5px;">
-        <ui:VisualElement name="Crosshair" style="position: absolute; width: 100%; height: 100%; align-items: center; justify-content: center;">
-            <ui:VisualElement name="Crosshair-Icon" style="background-image: url(&quot;project://database/Assets/Sprites/Crosshair.png?fileID=21300000&amp;guid=a1ab10aa65b87d9438c7d7418770974a&amp;type=3#Crosshair&quot;); width: 64px; height: 64px;" />
-        </ui:VisualElement>
+    <ui:VisualElement name="Crosshair" style="position: absolute; width: 100%; height: 100%; align-items: center; justify-content: center; align-self: auto;">
+        <ui:VisualElement name="Crosshair-Icon" style="background-image: url(&quot;project://database/Assets/Sprites/Crosshair.png?fileID=21300000&amp;guid=a1ab10aa65b87d9438c7d7418770974a&amp;type=3#Crosshair&quot;); width: 64px; height: 64px; align-self: center; justify-content: center; align-items: center;" />
+    </ui:VisualElement>
+    <ui:VisualElement name="PrimaryContainer" style="padding-top: 15.5px; padding-right: 15.5px; padding-bottom: 15.5px; padding-left: 15.5px; flex-grow: 1;">
         <ui:VisualElement name="Health" style="height: 32px; width: 575px;">
             <ui:VisualElement name="Health-Foreground" style="background-image: url(&quot;project://database/Assets/Sprites/Progress_Red.png?fileID=21300000&amp;guid=79c129b19329fcf408a1ed9881c01da8&amp;type=3#Progress_Red&quot;); width: 100%; height: 100%; transition-duration: 0.25s;" />
             <ui:VisualElement name="Health-Background" style="background-image: url(&quot;project://database/Assets/Sprites/Progress_Transparent.png?fileID=21300000&amp;guid=59394f8886e7dd346bf8c8430392dc98&amp;type=3#Progress_Transparent&quot;); width: 100%; height: 100%; position: absolute;" />
