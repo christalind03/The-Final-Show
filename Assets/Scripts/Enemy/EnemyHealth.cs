@@ -3,16 +3,19 @@ using UnityEngine;
 
 public class EnemyHealth : AbstractHealth
 {
+    [Header("User Interface")]
+    [SerializeField] private StatusBar _healthBar;
+
     // TODO: Document
     protected override void OnBaseHealth(float previousValue, float currentValue)
     {
-        Debug.Log($"[EnemyHealth] {gameObject.name} base health changed from {previousValue} to {currentValue}");
+        _healthBar.Refresh(currentValue, CurrentValue);
     }
 
     // TODO: Document
     protected override void OnCurrentHealth(float previousValue, float currentValue)
     {
-        Debug.Log($"[EnemyHealth] {gameObject.name} current health changed from {previousValue}/{_baseValue} to {currentValue}/{_baseValue}");
+        _healthBar.Refresh(BaseValue, currentValue);
     }
 
     // TODO: Document
