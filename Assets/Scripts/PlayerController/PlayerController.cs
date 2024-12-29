@@ -4,6 +4,9 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// Manages a player's movement and interactions within a networked, multiplayer environment using the Mirror framework.
+/// </summary>
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(CombatController))]
 [RequireComponent(typeof(PlayerInventory))]

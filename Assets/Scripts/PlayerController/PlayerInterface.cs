@@ -1,10 +1,11 @@
 using Mirror;
 using System.Collections;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-// TODO: Document
+/// <summary>
+/// Manages the player's interface through a <see cref="UIDocument"/> reference.
+/// </summary>
 [RequireComponent(typeof(UIDocument))]
 public class PlayerInterface : NetworkBehaviour
 {
@@ -12,7 +13,9 @@ public class PlayerInterface : NetworkBehaviour
 
     private VisualElement _rootVisualElement;
 
-    // TODO: Document
+    /// <summary>
+    /// Initializes the root UI element and the visibility of certain UI elements.
+    /// </summary>
     public override void OnStartAuthority()
     {
         _rootVisualElement = gameObject.GetComponent<UIDocument>().rootVisualElement;
@@ -27,7 +30,10 @@ public class PlayerInterface : NetworkBehaviour
         base.OnStartAuthority();
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Activates an inventory slot by making it visually appear as active.
+    /// </summary>
+    /// <param name="slotKey">The key representing the slot to activate.</param>
     public void ActivateSlot(string slotKey)
     {
         VisualElement targetSlot = _rootVisualElement.Query<VisualElement>(slotKey);
@@ -42,7 +48,10 @@ public class PlayerInterface : NetworkBehaviour
         }
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Deactivates an inventory slot by making it visually appear as inactive.
+    /// </summary>
+    /// <param name="slotKey">The key representing the slot to activate.</param>
     public void DeactivateSlot(string slotKey)
     {
         VisualElement targetSlot = _rootVisualElement.Query<VisualElement>(slotKey);
@@ -57,13 +66,20 @@ public class PlayerInterface : NetworkBehaviour
         }
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Displays a message above the player's inventory for a short duration.
+    /// </summary>
+    /// <param name="inventoryMessage">The message to display in the UI.</param>
     public void DisplayInventoryMessage(string inventoryMessage)
     {
         StartCoroutine(DisplayInventoryMessageCoroutine(inventoryMessage));
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Coroutine that handles the timing of displaying and hiding the inventory message.
+    /// </summary>
+    /// <param name="inventoryMessage">The message to display in the UI.</param>
+    /// <returns>An <c>IEnumerator</c> for coroutine execution.</returns>
     private IEnumerator DisplayInventoryMessageCoroutine(string inventoryMessage)
     {
         string elementName = "Message";
@@ -84,23 +100,27 @@ public class PlayerInterface : NetworkBehaviour
         }
     }
 
-    // TODO: Document
-    public void RenderInventoryIcon(string slotKey, InventoryItem inventoryItem)
+    /// <summary>
+    /// Renders the icon of an inventory item in the UI.
+    /// </summary>
+    /// <param name="slotKey">The key representing the slot where the inventory icon should be rendered.</param>
+    /// <param name="itemSprite">The inventory item to display.</param>
+    public void RenderInventoryIcon(string slotKey, Sprite itemSprite)
     {
         // Retrieve the VisualElement that renders the item icon.
         // The `GameUI` inventory is structured as #Slot-Key > #Item, where #Item renders the item icon.
-        VisualElement inventoryIcon = _rootVisualElement.Query<VisualElement>(slotKey).Children<VisualElement>().ToList()[0];
+        VisualElement itemElement = _rootVisualElement.Query<VisualElement>(slotKey).Children<VisualElement>().ToList()[0];
 
-        if (inventoryIcon != null )
+        if (itemElement != null )
         {
-            if (inventoryItem && inventoryItem.ObjectSprite != null)
+            if (itemSprite != null)
             {
-                inventoryIcon.style.backgroundImage = new StyleBackground(inventoryItem.ObjectSprite.texture);
+                itemElement.style.backgroundImage = new StyleBackground(itemSprite.texture);
             }
             else
             {
                 Sprite defaultSprite = Resources.Load<Sprite>($"Sprites/{slotKey}");
-                inventoryIcon.style.backgroundImage = new StyleBackground(defaultSprite.texture);
+                itemElement.style.backgroundImage = new StyleBackground(defaultSprite.texture);
             }
         }
         else
@@ -109,7 +129,11 @@ public class PlayerInterface : NetworkBehaviour
         }
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Refreshes the ammunition UI with the current clip and remaining ammo amounts.
+    /// </summary>
+    /// <param name="clipAmount">The current clip count.</param>
+    /// <param name="remainingAmount">The remaining amount of ammo.</param>
     public void RefreshAmmo(int clipAmount, int remainingAmount)
     {
         Label ammoCount = _rootVisualElement.Query<Label>("Ammo-Count"); 
@@ -126,31 +150,48 @@ public class PlayerInterface : NetworkBehaviour
         }
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Refreshes the attack statistic display in the UI.
+    /// </summary>
+    /// <param name="totalAttack">The total attack value to display.</param>
     public void RefreshAttack(float totalAttack)
     {
         RefreshStatus("Attack-Value", totalAttack);
     }
     
-    // TODO: Document
+    /// <summary>
+    /// Refreshes the defense statistic display in the UI.
+    /// </summary>
+    /// <param name="totalDefense">The total defense value to display.</param>
     public void RefreshDefense(float totalDefense)
     {
         RefreshStatus("Defense-Value", totalDefense);
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Refreshes the health bar display in the UI.
+    /// </summary>
+    /// <param name="baseHealth">The base health value.</param>
+    /// <param name="currentHealth">The current health value.</param>
     public void RefreshHealth(float baseHealth, float currentHealth)
     {
         RefreshStatusBar("Health-Foreground", baseHealth, currentHealth);
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Refreshes the stamina bar display in the UI.
+    /// </summary>
+    /// <param name="baseStamina">The base stamina value.</param>
+    /// <param name="currentStamina">The current stamina value.</param>
     public void RefreshStamina(float baseStamina, float currentStamina)
     {
         RefreshStatusBar("Stamina-Foreground", baseStamina, currentStamina);
     }
     
-    // TODO: Document
+    /// <summary>
+    /// Toggles the visibility of the ammunition UI.
+    /// </summary>
+    /// <param name="displayAmmo">If true, the ammunition UI will be displayed; otherwise, hides it.</param>
     public void ToggleAmmoVisibility(bool displayAmmo)
     {
         string elementName = "Ammo";
@@ -166,13 +207,11 @@ public class PlayerInterface : NetworkBehaviour
         }
     }
 
-    // TODO: Document
-    private void MissingElementError(string elementType, string elementName)
-    {
-        UnityUtils.LogError($"Unable to locate {elementType} titled '{elementName}'");
-    }
-
-    // TODO: Document
+    /// <summary>
+    /// Refreshes the display of a numeric statistic.
+    /// </summary>
+    /// <param name="elementName">The name of the UI element to update.</param>
+    /// <param name="targetValue">The value to display on the element.</param>
     private void RefreshStatus(string elementName, float targetValue)
     {
         Label statusLabel = _rootVisualElement.Query<Label>(elementName);
@@ -187,7 +226,12 @@ public class PlayerInterface : NetworkBehaviour
         }
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Refreshes the display of a status bar.
+    /// </summary>
+    /// <param name="elementName">The name of the UI element to update.</param>
+    /// <param name="baseValue">The base value of the status bar.</param>
+    /// <param name="currentValue">The current value of the status bar.</param>
     private void RefreshStatusBar(string elementName, float baseValue, float currentValue)
     {
         VisualElement statusBar = _rootVisualElement.Query<VisualElement>(elementName);
@@ -202,5 +246,18 @@ public class PlayerInterface : NetworkBehaviour
         {
             MissingElementError("VisualElement", elementName);
         }
+    }
+
+    /// <summary>
+    /// Logs an error if the specified UI element is missing.
+    /// </summary>
+    /// <remarks>
+    /// This function is important to have as querying elements by name will often not raise an error, ultimately causing problems.
+    /// </remarks>
+    /// <param name="elementType">The type of the element that should be displayed.</param>
+    /// <param name="elementName">The name of the element that should be displayed.</param>
+    private void MissingElementError(string elementType, string elementName)
+    {
+        UnityUtils.LogError($"Unable to locate {elementType} titled '{elementName}'");
     }
 }

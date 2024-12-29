@@ -38,7 +38,12 @@ public class PlayerStats : NetworkBehaviour
         base.OnStartAuthority();
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Refreshes the player's stamina interface based on the changes in stamina values.
+    /// </summary>
+    /// <param name="isBaseChange">Indicates whether the change is related to the base stamina value.</param>
+    /// <param name="previousValue">The stamina value before the change.</param>
+    /// <param name="currentValue">The stamina value after the change.</param>
     private void RefreshStamina(bool isBaseChange, float previousValue, float currentValue)
     {
         if (isBaseChange)

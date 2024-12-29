@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Represents the health system for an entity in the game.
-/// Handles incoming damage/healing and death behavior.
+/// An abstract, base class representing a health system for game entities.
 /// </summary>
 public abstract class AbstractHealth : NetworkBehaviour
 {

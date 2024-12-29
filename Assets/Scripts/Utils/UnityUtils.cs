@@ -1,6 +1,9 @@
 using System.Diagnostics;
 using UnityEngine;
 
+/// <summary>
+/// A static utility class containing helper methods for Unity related tasks.
+/// </summary>
 public static class UnityUtils
 {
     /// <summary>
@@ -14,7 +17,10 @@ public static class UnityUtils
         return layerMask == (layerMask | (1 << targetLayer));
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Logs an error message to the Unity console, prefixed with the script's name.
+    /// </summary>
+    /// <param name="errorMessage">The error message to log.</param>
     public static void LogError(string errorMessage)
     {
         string scriptName = FetchScriptName();
@@ -22,7 +28,10 @@ public static class UnityUtils
         UnityEngine.Debug.LogError($"[{scriptName}] {errorMessage}");
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Logs a warning message to the Unity console, prefixed with the script's name.
+    /// </summary>
+    /// <param name="warningMessage">The warning message to log.</param>
     public static void LogWarning(string warningMessage)
     {
         string scriptName = FetchScriptName();
@@ -30,7 +39,10 @@ public static class UnityUtils
         UnityEngine.Debug.LogWarning($"[{scriptName}] {warningMessage}");
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Retrieves the name of the current script.
+    /// </summary>
+    /// <returns>The name of the script calling the current method.</returns>
     private static string FetchScriptName()
     {
         StackTrace stackTrace = new StackTrace();

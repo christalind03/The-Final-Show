@@ -1,7 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class StatusBar : Billboard
+/// <summary>
+/// Represents a status bar interface element that smoothly animates between values.
+/// </summary>
+public class StatusBar : AbstractBillboard
 {
     [Header("Animation Parameters")]
     [SerializeField] private float _animationDuration;
@@ -14,7 +17,9 @@ public class StatusBar : Billboard
     private float _targetValue;
     private bool _isAnimating;
 
-    // TODO: Document
+    /// <summary>
+    /// Updates the status bar animation by calculating the progress and adjusting the slider value.
+    /// </summary>
     private void Update()
     {
         if (_isAnimating)
@@ -33,7 +38,11 @@ public class StatusBar : Billboard
         }
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Refreshes the status bar with updated start and target values and starts the animation.
+    /// </summary>
+    /// <param name="baseValue">The maximum value of the status bar.</param>
+    /// <param name="currentValue">The current value of the status bar.</param>
     public void Refresh(float baseValue, float currentValue)
     {
         if (_statusBar != null)

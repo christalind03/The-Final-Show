@@ -119,11 +119,14 @@ public class Stat
         }
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Simulates a change in the base value by summing the base value and modifiers and comparing it to the previous combined value.
+    /// If the simulated base value has changed, it invokes the <see cref="OnBaseChange"/> event with the previous and current values.
+    /// </summary>
     private void SimulateBaseChange()
     {
-        float previousValue = _modifierSum;
-        float currentValue = 0;
+        float previousValue = _baseValue + _modifierSum;
+        float currentValue = _baseValue;
 
         // Prevent null error messages in the console if the object was set without a constructor.
         _modifierList.ForEach(modifierValue => currentValue += modifierValue);

@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 
-// TODO: Document
+/// <summary>
+/// A static utility class containing general helper methods.
+/// </summary>
 public static class GeneralUtils
 {
     /// <summary>

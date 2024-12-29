@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
 
 /// <summary>
 /// Represent's a player's inventory with multiple slots to storage and manage items.
@@ -177,7 +176,6 @@ public class PlayerInventory : NetworkBehaviour
         }
     }
 
-    // TODO: Update documentation?
     /// <summary>
     /// Add an item to the currently selected inventory slot.
     /// If the item is equippable, it may be equipped automatically, and stats may be applied if the item is of the <see cref="Armor"/> type.
@@ -208,7 +206,7 @@ public class PlayerInventory : NetworkBehaviour
             }
 
             _inventorySlots[availableSlot] = inventoryItem;
-            _playerInterface.RenderInventoryIcon(availableSlot, inventoryItem);
+            _playerInterface.RenderInventoryIcon(availableSlot, inventoryItem.ObjectSprite);
             return true;
         }
 
@@ -457,7 +455,15 @@ public class PlayerInventory : NetworkBehaviour
         }
     }
 
-    // TODO: Documentation
+    /// <summary>
+    /// Toggles the visibility of the ammunition UI on the target client.
+    /// If displayed, updates the ammo count and clip capacity.
+    /// </summary>
+    /// <remarks>
+    /// Since the visibility of ammo is tied to the <c>CmdEquip()</c> and <c>CmdUnequip()</c> functions, we must have this intermediary function to inform the server which gameObject should receive these updates.
+    /// </remarks>
+    /// <param name="targetClient">The target client to send the RPC to.</param>
+    /// <param name="displayAmmo">True to display the ammunition; otherwise, hides it.</param>
     [TargetRpc]
     private void TargetToggleAmmoVisibility(NetworkConnectionToClient targetClient, bool displayAmmo)
     {

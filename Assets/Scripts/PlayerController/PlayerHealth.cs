@@ -1,6 +1,10 @@
 using Mirror;
 using UnityEngine;
 
+/// <summary>
+/// Represents the health system for a player, inheriting from <see cref="AbstractHealth"/>.
+/// Additionally handles the callbacks for base and current health changes to update the UI accordingly.
+/// </summary>
 public class PlayerHealth : AbstractHealth
 {
     [Header("Player References")]
@@ -8,7 +12,9 @@ public class PlayerHealth : AbstractHealth
 
     private PlayerInterface _playerInterface;
 
-    // TODO: Document
+    /// <summary>
+    /// Initializes the player's interface to allow for the updating of the health interface.
+    /// </summary>
     public override void OnStartAuthority()
     {
         _playerInterface = gameObject.GetComponent<PlayerInterface>();
@@ -16,19 +22,32 @@ public class PlayerHealth : AbstractHealth
         base.OnStartAuthority();
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Called when <see cref="_baseValue"/> changes.
+    /// Updates the players's health bar UI to reflect the current health value.
+    /// </summary>
+    /// <param name="previousValue">The previous base health value.</param>
+    /// <param name="currentValue">The current base health value.</param>
     protected override void OnBaseHealth(float previousValue, float currentValue)
     {
         _playerInterface?.RefreshHealth(currentValue, _currentValue);
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Called when <see cref="_currentValue"/> changes.
+    /// Updates the players's health bar UI to reflect the current health value.
+    /// </summary>
+    /// <param name="previousValue">The previous current health value.</param>
+    /// <param name="currentValue">The current current health value.</param>
     protected override void OnCurrentHealth(float previousValue, float currentValue)
     {
         _playerInterface?.RefreshHealth(_baseValue, currentValue);
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Called on the server to trigger the death of a player.
+    /// Additionally initiates the player to go into spectating mode and updates other clients.
+    /// </summary>
     [Server]
     protected override void TriggerDeath()
     {
@@ -36,7 +55,9 @@ public class PlayerHealth : AbstractHealth
         RpcTriggerDeath();
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Initiates the local player to go into spectating mode.
+    /// </summary>
     [ClientRpc]
     private void RpcTriggerDeath()
     {
@@ -44,7 +65,9 @@ public class PlayerHealth : AbstractHealth
         Spectate();
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Updates the player's status into "Spectator" mode.
+    /// </summary>
     private void Spectate()
     {
         _playerBody.layer = 0;
