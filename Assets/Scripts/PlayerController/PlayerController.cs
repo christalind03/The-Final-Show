@@ -1,3 +1,4 @@
+using Cinemachine;
 using Mirror;
 using System;
 using System.Collections;
@@ -29,6 +30,8 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float _staminaCooldown;
 
     [Header("Player References")]
+    [SerializeField] private CinemachineVirtualCamera _aimCamera;
+ 
     [Tooltip("The scene's main camera.")]
     [SerializeField] private Transform _cameraTransform;
 
@@ -160,6 +163,19 @@ public class PlayerController : NetworkBehaviour
     private void HandleLook()
     {
         Vector2 lookInput = _cameraSensitivity * Time.deltaTime * _playerControls.Player.Look.ReadValue<Vector2>();
+
+        // Check to see if the player is aiming (via AlternateAttack) and if the current item in the player's inventory is a RangedWeapon.
+        // If both conditions are true, activate the aim camera; otherwise, deactivate it.
+        bool isAiming = _playerControls.Player.AlternateAttack.IsPressed();
+
+        if (isAiming && _playerInventory.GetItem() is RangedWeapon)
+        {
+            _aimCamera.gameObject.SetActive(true);
+        }
+        else
+        {
+            _aimCamera.gameObject.SetActive(false);
+        }
 
         // Since the axes in which we move our input device are opposite in Unity, we must swap them to ensure correct behavior.
         // For example, moving the mouse up and/or down corresponds to side-to-side mouse movement in Unity, so we need to adjust for this.
