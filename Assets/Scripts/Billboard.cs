@@ -29,7 +29,7 @@ public class Billboard : MonoBehaviour
     // TODO: Document
     private void AssignPlayerCamera()
     {
-        GameObject localPlayer = UnityExtensions.RetrieveLocalPlayer();
+        GameObject localPlayer = NetworkUtils.RetrieveLocalPlayer();
 
         if (localPlayer != null)
         {
@@ -37,7 +37,7 @@ public class Billboard : MonoBehaviour
         }
         else if (_maxAttempts <= _currentAttempts)
         {
-            UnityExtensions.LogError($"Unable to locate local player after {_maxAttempts} attempts.");
+            UnityUtils.LogError($"Unable to locate local player after {_maxAttempts} attempts.");
         }
 
         _currentAttempts++;

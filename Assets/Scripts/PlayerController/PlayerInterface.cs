@@ -105,7 +105,7 @@ public class PlayerInterface : NetworkBehaviour
         }
         else
         {
-            UnityExtensions.LogError($"Unable to find '#Item' as the first child of '#{slotKey}'. Please ensure that the element exists and the slot key is correct.");
+            UnityUtils.LogError($"Unable to find '#Item' as the first child of '#{slotKey}'. Please ensure that the element exists and the slot key is correct.");
         }
     }
 
@@ -122,7 +122,7 @@ public class PlayerInterface : NetworkBehaviour
         }
         else
         {
-            UnityExtensions.LogError("Unable to locate Label titled 'Ammo-Count' and/or 'Ammo-Remaining'");
+            UnityUtils.LogError("Unable to locate Label titled 'Ammo-Count' and/or 'Ammo-Remaining'");
         }
     }
 
@@ -169,7 +169,7 @@ public class PlayerInterface : NetworkBehaviour
     // TODO: Document
     private void MissingElementError(string elementType, string elementName)
     {
-        UnityExtensions.LogError($"Unable to locate {elementType} titled '{elementName}'");
+        UnityUtils.LogError($"Unable to locate {elementType} titled '{elementName}'");
     }
 
     // TODO: Document

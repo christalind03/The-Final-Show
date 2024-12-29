@@ -111,7 +111,7 @@ public class PlayerInventory : NetworkBehaviour
             }
             else
             {
-                UnityExtensions.LogError($"{upcomingSlot} is not a valid inventory slot key.");
+                UnityUtils.LogError($"{upcomingSlot} is not a valid inventory slot key.");
             }
         }
         
@@ -157,7 +157,7 @@ public class PlayerInventory : NetworkBehaviour
         int currentIndex = _inventoryKeys.IndexOf(_currentSlot);
         if (currentIndex == -1)
         {
-            UnityExtensions.LogError($"{_currentSlot} is not a valid inventory slot key.");
+            UnityUtils.LogError($"{_currentSlot} is not a valid inventory slot key.");
             return;
         }
 
@@ -333,7 +333,7 @@ public class PlayerInventory : NetworkBehaviour
         if (equippableItem.EquipmentCategory == EquippableItem.EquippableCategory.Hand)
         {
             PlayerInventoryRestriction inventoryRestriction = new PlayerInventoryRestriction(EquippableItem.EquippableCategory.Hand, equippableItem.GetType());
-            bool isSlotValid = _currentSlot == UnityExtensions.FindKey(_inventoryRestrictions, inventoryRestriction);
+            bool isSlotValid = _currentSlot == GeneralUtils.LocateDictionaryKey(_inventoryRestrictions, inventoryRestriction);
             bool isHandheld = GetItem() is not EquippableItem { EquipmentCategory: EquippableItem.EquippableCategory.Hand };
             bool isEmpty = equippableReference?.transform.childCount == 0;
 
@@ -452,7 +452,7 @@ public class PlayerInventory : NetworkBehaviour
                 return _headReference;
 
             default:
-                UnityExtensions.LogWarning($"CmdEquip() support for {equippableCategory} has not yet been implemented.");
+                UnityUtils.LogWarning($"CmdEquip() support for {equippableCategory} has not yet been implemented.");
                 return null;
         }
     }
