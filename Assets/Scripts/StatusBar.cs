@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class StatusBar : MonoBehaviour
+public class StatusBar : Billboard
 {
     [Header("Animation Parameters")]
     [SerializeField] private float _animationDuration;
