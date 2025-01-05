@@ -779,10 +779,11 @@ GameObject:
   - component: {fileID: 8203241780073711057}
   - component: {fileID: -760206781841849737}
   - component: {fileID: 8053147996298278901}
-  - component: {fileID: 5707889191988959549}
+  - component: {fileID: 4647677295001218243}
   - component: {fileID: 2873006661348008412}
   - component: {fileID: 3350290697159713969}
   - component: {fileID: 2413865861525508875}
+  - component: {fileID: 8081572510178579607}
   - component: {fileID: -1550303190723423835}
   - component: {fileID: 7673011111465674341}
   - component: {fileID: 4434578188930889017}
@@ -855,7 +856,7 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &5707889191988959549
+--- !u!114 &4647677295001218243
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -864,14 +865,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 3233045660875188808}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 31910eaedc288d84d8500bbc6677aeda, type: 3}
+  m_Script: {fileID: 11500000, guid: 1769a929d1b5cf6479368a3baf512f53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  _baseValue: 3
-  _playerBody: {fileID: 1805533672728415649}
+  _baseValue: 100
+  _playerBody: {fileID: 3233045660875188808}
 --- !u!114 &2873006661348008412
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -934,6 +935,22 @@ MonoBehaviour:
   _followTransform: {fileID: 1279517964111326137}
   _playerTransform: {fileID: 8203241780073711057}
   _playerController: {fileID: 8053147996298278901}
+--- !u!114 &8081572510178579607
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3233045660875188808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd6face8bdadca54ba44dbf27997f5bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  _inventoryMessageDuration: 2.25
 --- !u!114 &-1550303190723423835
 MonoBehaviour:
   m_ObjectHideFlags: 0

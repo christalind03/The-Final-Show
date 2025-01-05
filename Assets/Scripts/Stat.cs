@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,7 +9,11 @@ public class Stat
 {
     private float _baseValue;
     private float _currentValue;
+    private float _modifierSum;
     private List<float> _modifierList;
+
+    public event Action<float, float> OnBaseChange;
+    public event Action<float, float> OnCurrentChange;
 
     /// <summary>
     /// Get the base value of the stat, including any active modifiers into the final calculation.
@@ -27,7 +32,10 @@ public class Stat
         }
         private set
         {
-            _baseValue = value;
+            if (_baseValue != value)
+            {
+                _baseValue = value;
+            }
         }
     }
 
@@ -39,7 +47,16 @@ public class Stat
         get => _currentValue;
         private set
         {
-            _currentValue = Mathf.Clamp(value, 0f, BaseValue);
+            float clampedValue = Mathf.Clamp(value, 0f, BaseValue);
+
+            if (_currentValue != clampedValue)
+            {
+                float previousValue = _currentValue;
+                float currentValue = clampedValue;
+
+                OnCurrentChange?.Invoke(previousValue, currentValue);
+                _currentValue = currentValue;
+            }
         }
     }
 
@@ -83,7 +100,7 @@ public class Stat
         if (modifierValue != 0f)
         {
             _modifierList.Add(modifierValue);
-            _currentValue += modifierValue;
+            SimulateBaseChange();
         }
     }
 
@@ -98,7 +115,26 @@ public class Stat
         if (modifierValue != 0f)
         {
             _modifierList.Remove(modifierValue);
-            _currentValue -= modifierValue;
+            SimulateBaseChange();
+        }
+    }
+
+    /// <summary>
+    /// Simulates a change in the base value by summing the base value and modifiers and comparing it to the previous combined value.
+    /// If the simulated base value has changed, it invokes the <see cref="OnBaseChange"/> event with the previous and current values.
+    /// </summary>
+    private void SimulateBaseChange()
+    {
+        float previousValue = _baseValue + _modifierSum;
+        float currentValue = _baseValue;
+
+        // Prevent null error messages in the console if the object was set without a constructor.
+        _modifierList.ForEach(modifierValue => currentValue += modifierValue);
+
+        if (previousValue != currentValue)
+        {
+            OnBaseChange?.Invoke(previousValue, currentValue);
+            _modifierSum = currentValue;
         }
     }
 }

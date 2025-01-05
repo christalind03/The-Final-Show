@@ -18,7 +18,7 @@ public class Projectile : NetworkBehaviour
         {
             GameObject collisionObject = collisionEvent.gameObject;
 
-            if (UnityExtensions.ContainsLayer(AttackLayers, collisionObject.layer) && collisionObject.TryGetComponent(out Health healthComponent))
+            if (UnityUtils.ContainsLayer(AttackLayers, collisionObject.layer) && collisionObject.TryGetComponent(out AbstractHealth healthComponent))
             {
                 healthComponent.CmdDamage(AttackDamage);
             }

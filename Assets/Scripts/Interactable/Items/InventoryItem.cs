@@ -7,8 +7,10 @@ using UnityEngine;
 public class InventoryItem : ScriptableObject
 {
     [Header("Item Data")]
+    [SerializeField] protected Sprite _objectSprite;
     [SerializeField] protected GameObject _objectPrefab;
 
+    public Sprite ObjectSprite => _objectSprite;
     public GameObject ObjectPrefab => _objectPrefab;
 }
 
