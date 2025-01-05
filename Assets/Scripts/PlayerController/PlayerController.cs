@@ -193,7 +193,7 @@ public class PlayerController : NetworkBehaviour
         // Check to see if we're looking at anything of importance.
         Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out _raycastHit, _interactableDistance);
 
-        CmdLook(_playerTransform.rotation, _followTransform.rotation);
+        CmdLook(_followTransform.rotation);
     }
 
     /// <summary>
@@ -217,8 +217,6 @@ public class PlayerController : NetworkBehaviour
         // To prevent repeated if-else statements, we instead have a ternary operator to trigger the correct animation with its respective direction.
         _playerAnimator.SetFloat(_animatorMovementX, moveInput.x == 0 ? 0 : totalSpeed * Mathf.Sign(moveInput.x), 0.1f, Time.deltaTime); // 0.1f is an arbitrary dampening value to transition between different animations.
         _playerAnimator.SetFloat(_animatorMovementZ, moveInput.y == 0 ? 0 : totalSpeed * Mathf.Sign(moveInput.y), 0.1f, Time.deltaTime);
-        
-        CmdMovePlayer(_playerTransform.position);
     }
 
     /// <summary>
@@ -402,32 +400,16 @@ public class PlayerController : NetworkBehaviour
     }
 
     /// <summary>
-    /// Server code for updating player's movement, as of right now the client calculates 
-    /// the positions and gives it to the server. Not very safe if cheater that manipulate 
-    /// the calculation if we care about security.  
-    /// </summary>
-    /// <param name="position">Position of the player </param>
-    [Command]
-    private void CmdMovePlayer(Vector3 position)
-    {
-        _playerTransform.position = position;
-
-        // Propagates the changes to all client
-        RpcUpdatePlayerPosition(position);
-    }
-
-    /// <summary>
-    /// Server code for updating player's rotation, similar to CmdMovePlayer but with rotation
+    /// Server code for updating player's rotation
     /// </summary>
     /// <param name="rotationPlayer">Player rotation</param>
     /// <param name="rotationFollow">Follow camera rotation</param>
     [Command]
-    private void CmdLook(Quaternion rotationPlayer, Quaternion rotationFollow){
-        _playerTransform.rotation = rotationPlayer;
+    private void CmdLook(Quaternion rotationFollow){
         _followTransform.rotation = rotationFollow;
 
         // Propagates the changes to all clients
-        RpcUpdatePlayerLook(_playerTransform.rotation, _followTransform.rotation);
+        RpcUpdatePlayerLook(_followTransform.rotation);
     }
 
     /// <summary>
@@ -466,26 +448,13 @@ public class PlayerController : NetworkBehaviour
     }
 
     /// <summary>
-    /// Update player position to all clients
-    /// </summary>
-    /// <param name="position">Player position</param>
-    [ClientRpc]
-    private void RpcUpdatePlayerPosition(Vector3 position)
-    {
-        // Local player will not run this code since they've already calculated their own position in HandleMovement
-        if (isLocalPlayer) { return; }
-        _playerTransform.position = position;
-    }
-
-    /// <summary>
     /// Update player rotation to all clients
     /// </summary>
     /// <param name="rotationPlayer">Player rotation</param>
     /// <param name="rotationFollow">Follow Camera rotation</param>
     [ClientRpc]
-    private void RpcUpdatePlayerLook(Quaternion rotationPlayer, Quaternion rotationFollow){
+    private void RpcUpdatePlayerLook(Quaternion rotationFollow){
         if (isLocalPlayer) { return; }
-        _playerTransform.rotation = rotationPlayer;
         _followTransform.rotation = rotationFollow;
     }
 
