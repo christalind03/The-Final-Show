@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Mirror;
 
@@ -9,16 +10,21 @@ using Mirror;
 /// https://www.youtube.com/watch?v=qsIiFsddGV4
 /// </summary>
 /// <typeparam name="EState">The enumerable type representing the possible states</typeparam>
+/// <typeparam name="TState">The type representing the state behavior</typeparam>
+/// <typeparam name="TStateContext">The context type representing the shared data or dependencies provided to states</typeparam>
 [System.Serializable]
-public abstract class StateManager<EState> : NetworkBehaviour where EState : Enum
+public abstract class StateManager<EState, TState, TStateContext> : NetworkBehaviour
+    where EState : Enum
+    where TState : BaseState<EState, TStateContext>
 {
     [Header("State Paramaters")]
     [Tooltip("Associates each state with its corresponding behavior.")]
-    [SerializeField] protected List<StateMapping<EState>> StateMappings = new List<StateMapping<EState>>();
+    [SerializeField] protected List<StateMapping<EState, TStateContext>> StateMappings;
     [SerializeField] private EState _defaultState;
 
-    protected Dictionary<EState, BaseState<EState>> States = new Dictionary<EState, BaseState<EState>>();
-    protected BaseState<EState> CurrentState;
+    protected Dictionary<EState, BaseState<EState, TStateContext>> States;
+    protected BaseState<EState, TStateContext> CurrentState;
+    protected TStateContext StateContext;
     
     protected bool _isTransitioningState = false;
 
@@ -27,8 +33,30 @@ public abstract class StateManager<EState> : NetworkBehaviour where EState : Enu
     /// </summary>
     private void Start()
     {
+        InitializeStates();
+
         CurrentState = States[_defaultState];
         CurrentState.EnterState();
+    }
+
+    // TODO: Document
+    private void InitializeStates()
+    {
+        States = StateMappings.ToDictionary(
+            stateMapping => stateMapping.Key,
+            stateMapping =>
+            {
+                // Since we are using Scriptable Objects to enable a "drag-n-drop" behavior in the Unity Inspector,
+                // we need to ensure that we create separate instances in order to prevent syncing state behavior.
+                EState stateKey = stateMapping.Key;
+                BaseState<EState, TStateContext> stateBehaviour = stateMapping.Value;
+
+                TState stateInstance = (TState)ScriptableObject.CreateInstance(stateBehaviour.GetType());
+                stateInstance.Initialize(stateKey, StateContext);
+
+                return (BaseState<EState, TStateContext>)stateInstance;
+            }
+        );
     }
 
     /// <summary>
@@ -36,7 +64,7 @@ public abstract class StateManager<EState> : NetworkBehaviour where EState : Enu
     /// </summary>
     private void Update()
     {
-        if(!isServer){return;}
+        if (!isServer) { return; }
         if (!_isTransitioningState)
         {
             CurrentState.UpdateState();
