@@ -1,10 +1,40 @@
 using System.Collections.Generic;
+using System.Reflection;
 
 /// <summary>
 /// A static utility class containing general helper methods.
 /// </summary>
 public static class GeneralUtils
 {
+    public static readonly BindingFlags ReflectionFlags =
+        BindingFlags.FlattenHierarchy |
+        BindingFlags.Instance |
+        BindingFlags.NonPublic |
+        BindingFlags.Public |
+        BindingFlags.Static;
+
+    // TODO: Document
+    public static void CloneFieldData<TObject>(TObject sourceObject, TObject targetObject)
+    {
+        foreach (FieldInfo currentField in sourceObject.GetType().GetFields(ReflectionFlags))
+        {
+            object sourceField = currentField.GetValue(sourceObject);
+
+            currentField.SetValue(targetObject, sourceField);
+        }
+    }
+
+    // TODO: Document
+    public static void ClonePropertyData<TObject>(TObject sourceObject, TObject targetObject)
+    {
+        foreach (PropertyInfo currentProperty in sourceObject.GetType().GetProperties(ReflectionFlags))
+        {
+            object sourceProperty = currentProperty.GetValue(sourceObject);
+
+            currentProperty.SetValue(targetObject, sourceProperty);
+        }
+    }
+
     /// <summary>
     /// Locates and returns the first key in a dictionary that corresponds to the given value.
     /// </summary>

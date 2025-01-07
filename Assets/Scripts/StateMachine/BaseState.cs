@@ -1,4 +1,5 @@
 using System;
+using UnityEditor;
 using UnityEngine;
 
 /// <summary>
@@ -20,6 +21,30 @@ public abstract class BaseState<EState, TStateContext> : ScriptableObject where 
     {
         StateKey = stateKey;
         StateContext = stateContext;
+    }
+
+    // TODO: Document, Refactor
+    public BaseState<EState, TStateContext> Clone()
+    {
+        var clonedInstance = (BaseState<EState, TStateContext>)ScriptableObject.CreateInstance(GetType());
+
+        UnityUtils.CloneNonSerializedData(this, clonedInstance);
+        UnityUtils.CloneSerializedData(this, clonedInstance);
+
+        //// ???
+        //SerializedObject serializedOriginal = new SerializedObject(this);
+        //SerializedObject serializedClone = new SerializedObject(clonedInstance);
+
+        //SerializedProperty property = serializedOriginal.GetIterator();
+
+        //while (property.NextVisible(true))
+        //{
+        //    serializedClone.CopyFromSerializedProperty(property);
+        //}
+
+        //serializedClone.ApplyModifiedProperties();
+
+        return clonedInstance;
     }
 
     /// <summary>

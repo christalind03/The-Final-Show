@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -7,6 +8,29 @@ using UnityEngine.UIElements;
 /// </summary>
 public static class UnityUtils
 {
+    // TODO: Document
+    public static void CloneNonSerializedData(Object sourceObject, Object targetObject)
+    {
+        GeneralUtils.CloneFieldData(sourceObject, targetObject);
+        GeneralUtils.ClonePropertyData(sourceObject, targetObject);
+    }
+
+    // TODO: Document
+    public static void CloneSerializedData(Object sourceObject, Object targetObject)
+    {
+        SerializedObject serializedSource = new SerializedObject(sourceObject);
+        SerializedObject serializedTarget = new SerializedObject(targetObject);
+
+        SerializedProperty serializedProperty = serializedSource.GetIterator();
+
+        while (serializedProperty.NextVisible(true))
+        {
+            serializedTarget.CopyFromSerializedProperty(serializedProperty);
+        }
+
+        serializedTarget.ApplyModifiedProperties();
+    }
+
     /// <summary>
     /// Checks if a specific layer is included within a given <see cref="LayerMask"/>
     /// </summary>

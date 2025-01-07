@@ -51,8 +51,8 @@ public class PlayerController : NetworkBehaviour
     
     private RaycastHit _raycastHit;
     private PlayerControls _playerControls;
-    private PlayerInventory _playerInventory;
     private CombatController _combatController;
+    private PlayerInventory _playerInventory;
     private PlayerStats _playerStats;
 
     private Animator _playerAnimator;
@@ -65,15 +65,15 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void Awake()
     {
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+
         _canJump = true;
         _canSprint = true;
 
-        UnityEngine.Cursor.visible = false;
-        UnityEngine.Cursor.lockState = CursorLockMode.Locked;
-
         _playerControls = new PlayerControls();
-        _playerInventory = gameObject.GetComponent<PlayerInventory>();
         _combatController = gameObject.GetComponent<CombatController>();
+        _playerInventory = gameObject.GetComponent<PlayerInventory>();
         _playerStats = gameObject.GetComponent<PlayerStats>();
 
         // To access the animator, we must retrieve the child gameObject that is rendering the player's mesh.
@@ -192,8 +192,6 @@ public class PlayerController : NetworkBehaviour
 
         // Check to see if we're looking at anything of importance.
         Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out _raycastHit, _interactableDistance);
-
-        CmdLook(_playerTransform.rotation, _followTransform.rotation);
     }
 
     /// <summary>
@@ -217,8 +215,6 @@ public class PlayerController : NetworkBehaviour
         // To prevent repeated if-else statements, we instead have a ternary operator to trigger the correct animation with its respective direction.
         _playerAnimator.SetFloat(_animatorMovementX, moveInput.x == 0 ? 0 : totalSpeed * Mathf.Sign(moveInput.x), 0.1f, Time.deltaTime); // 0.1f is an arbitrary dampening value to transition between different animations.
         _playerAnimator.SetFloat(_animatorMovementZ, moveInput.y == 0 ? 0 : totalSpeed * Mathf.Sign(moveInput.y), 0.1f, Time.deltaTime);
-        
-        CmdMovePlayer(_playerTransform.position);
     }
 
     /// <summary>
@@ -402,35 +398,6 @@ public class PlayerController : NetworkBehaviour
     }
 
     /// <summary>
-    /// Server code for updating player's movement, as of right now the client calculates 
-    /// the positions and gives it to the server. Not very safe if cheater that manipulate 
-    /// the calculation if we care about security.  
-    /// </summary>
-    /// <param name="position">Position of the player </param>
-    [Command]
-    private void CmdMovePlayer(Vector3 position)
-    {
-        _playerTransform.position = position;
-
-        // Propagates the changes to all client
-        RpcUpdatePlayerPosition(position);
-    }
-
-    /// <summary>
-    /// Server code for updating player's rotation, similar to CmdMovePlayer but with rotation
-    /// </summary>
-    /// <param name="rotationPlayer">Player rotation</param>
-    /// <param name="rotationFollow">Follow camera rotation</param>
-    [Command]
-    private void CmdLook(Quaternion rotationPlayer, Quaternion rotationFollow){
-        _playerTransform.rotation = rotationPlayer;
-        _followTransform.rotation = rotationFollow;
-
-        // Propagates the changes to all clients
-        RpcUpdatePlayerLook(_playerTransform.rotation, _followTransform.rotation);
-    }
-
-    /// <summary>
     /// Instantiate a gameObject in world space containing the logic to display an <c>InventoryItem</c>.
     /// </summary>
     /// <param name="droppedItem">The item that is being dropped</param>
@@ -463,30 +430,6 @@ public class PlayerController : NetworkBehaviour
 
         // Propagates the changes to all clients
         RpcInteract(hitObject);
-    }
-
-    /// <summary>
-    /// Update player position to all clients
-    /// </summary>
-    /// <param name="position">Player position</param>
-    [ClientRpc]
-    private void RpcUpdatePlayerPosition(Vector3 position)
-    {
-        // Local player will not run this code since they've already calculated their own position in HandleMovement
-        if (isLocalPlayer) { return; }
-        _playerTransform.position = position;
-    }
-
-    /// <summary>
-    /// Update player rotation to all clients
-    /// </summary>
-    /// <param name="rotationPlayer">Player rotation</param>
-    /// <param name="rotationFollow">Follow Camera rotation</param>
-    [ClientRpc]
-    private void RpcUpdatePlayerLook(Quaternion rotationPlayer, Quaternion rotationFollow){
-        if (isLocalPlayer) { return; }
-        _playerTransform.rotation = rotationPlayer;
-        _followTransform.rotation = rotationFollow;
     }
 
     /// <summary>

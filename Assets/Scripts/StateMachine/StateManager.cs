@@ -43,15 +43,14 @@ public abstract class StateManager<EState, TState, TStateContext> : NetworkBehav
     private void InitializeStates()
     {
         States = StateMappings.ToDictionary(
-            stateMapping => stateMapping.Key,
-            stateMapping =>
+            currentState => currentState.Key,
+            currentState =>
             {
                 // Since we are using Scriptable Objects to enable a "drag-n-drop" behavior in the Unity Inspector,
                 // we need to ensure that we create separate instances in order to prevent syncing state behavior.
-                EState stateKey = stateMapping.Key;
-                BaseState<EState, TStateContext> stateBehaviour = stateMapping.Value;
-
-                TState stateInstance = (TState)ScriptableObject.CreateInstance(stateBehaviour.GetType());
+                EState stateKey = currentState.Key;
+                TState stateInstance = (TState)currentState.Value.Clone();
+                
                 stateInstance.Initialize(stateKey, StateContext);
 
                 return (BaseState<EState, TStateContext>)stateInstance;
@@ -98,11 +97,17 @@ public abstract class StateManager<EState, TState, TStateContext> : NetworkBehav
         CurrentState.OnTriggerStay(otherCollider);
     }
 
+    // TODO: Document
+    public EState RetrieveState()
+    {
+        return CurrentState.StateKey;
+    }
+
     /// <summary>
     /// Transition from the current state to the given state.
     /// </summary>
     /// <param name="stateKey">The enumerable member to transition to</param>
-    protected void TransitionToState(EState stateKey)
+    public void TransitionToState(EState stateKey)
     {
         if (!CurrentState.StateKey.Equals(stateKey))
         {
