@@ -1,9 +1,10 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI%20Toolkit/GameUI.uss?fileID=7433441132597879392&amp;guid=7bd52c0d93eeb354aadf5b3d6bae1f18&amp;type=3#GameUI" />
+    <Style src="project://database/Assets/UI%20Toolkit/Global.uss?fileID=7433441132597879392&amp;guid=b9791d5eef4b587458392a22f528fd98&amp;type=3#Global" />
+    <Style src="project://database/Assets/UI%20Toolkit/PlayerUI.uss?fileID=7433441132597879392&amp;guid=7bd52c0d93eeb354aadf5b3d6bae1f18&amp;type=3#PlayerUI" />
     <ui:VisualElement name="Crosshair" style="position: absolute; width: 100%; height: 100%; align-items: center; justify-content: center; align-self: auto;">
         <ui:VisualElement name="Crosshair-Icon" style="background-image: url(&quot;project://database/Assets/Sprites/Crosshair.png?fileID=21300000&amp;guid=a1ab10aa65b87d9438c7d7418770974a&amp;type=3#Crosshair&quot;); width: 64px; height: 64px; align-self: center; justify-content: center; align-items: center;" />
     </ui:VisualElement>
-    <ui:VisualElement name="PrimaryContainer" style="padding-top: 15.5px; padding-right: 15.5px; padding-bottom: 15.5px; padding-left: 15.5px; flex-grow: 1;">
+    <ui:VisualElement name="Primary-Container" class="primaryContainer">
         <ui:VisualElement name="Health" style="height: 32px; width: 575px;">
             <ui:VisualElement name="Health-Foreground" style="background-image: url(&quot;project://database/Assets/Sprites/Progress_Red.png?fileID=21300000&amp;guid=79c129b19329fcf408a1ed9881c01da8&amp;type=3#Progress_Red&quot;); width: 100%; height: 100%; transition-duration: 0.25s;" />
             <ui:VisualElement name="Health-Background" style="background-image: url(&quot;project://database/Assets/Sprites/Progress_Transparent.png?fileID=21300000&amp;guid=59394f8886e7dd346bf8c8430392dc98&amp;type=3#Progress_Transparent&quot;); width: 100%; height: 100%; position: absolute;" />
@@ -13,22 +14,9 @@
             <ui:VisualElement name="Stamina-Foreground" style="background-image: url(&quot;project://database/Assets/Sprites/Progress_Blue.png?fileID=21300000&amp;guid=54eb75d3df91b08429e766d2ab52917d&amp;type=3#Progress_Blue&quot;); width: 100%; height: 100%;" />
             <ui:VisualElement name="Stamina-Background" style="background-image: url(&quot;project://database/Assets/Sprites/Progress_Transparent.png?fileID=21300000&amp;guid=59394f8886e7dd346bf8c8430392dc98&amp;type=3#Progress_Transparent&quot;); width: 100%; height: 100%; position: absolute;" />
         </ui:VisualElement>
-        <ui:VisualElement name="Toolbar" style="margin-top: auto; margin-right: auto; margin-left: auto; width: 100%; align-items: center; justify-content: center;">
-            <ui:Label tabindex="-1" text="Inventory Item" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Message" class="defaultFont" style="font-size: 36px; align-items: center; justify-content: center; transition-duration: 0.25s;" />
+        <ui:VisualElement name="Inventory" style="margin-top: auto; margin-right: auto; margin-left: auto; width: 100%; align-items: center; justify-content: center;">
+            <ui:Label tabindex="-1" text="Inventory Item" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Inventory-Message" class="defaultFont" style="font-size: 36px; align-items: center; justify-content: center; transition-duration: 0.25s; opacity: 0;" />
             <ui:VisualElement style="align-items: center; justify-content: center; flex-direction: row; width: 100%;">
-                <ui:VisualElement name="Stats" style="align-items: center; justify-content: center; position: absolute; left: 0;">
-                    <ui:VisualElement name="Attack" style="flex-direction: row;">
-                        <ui:VisualElement name="Attack-Icon" style="background-image: url(&quot;project://database/Assets/Sprites/Icon_Attack.png?fileID=21300000&amp;guid=efd75653f4005f540bb27fbc65581b26&amp;type=3#Icon_Attack&quot;); width: 32px; height: 32px;" />
-                        <ui:VisualElement name="Space" style="width: 12.5px;" />
-                        <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Attack-Value" class="defaultFont" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; font-size: 36px;" />
-                    </ui:VisualElement>
-                    <ui:VisualElement name="Space" style="flex-grow: 1; height: 25px;" />
-                    <ui:VisualElement name="Defense" style="flex-direction: row;">
-                        <ui:VisualElement name="Defense-Icon" style="background-image: url(&quot;project://database/Assets/Sprites/Icon_Defense.png?fileID=21300000&amp;guid=4b4363d59d036b84c9ec2a0f3e943d7b&amp;type=3#Icon_Defense&quot;); width: 32px; height: 32px;" />
-                        <ui:VisualElement name="Space" style="width: 12.5px;" />
-                        <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Defense-Value" class="defaultFont" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; font-size: 36px;" />
-                    </ui:VisualElement>
-                </ui:VisualElement>
                 <ui:VisualElement name="Inventory" style="align-items: center; justify-content: center; flex-direction: row; align-self: center;">
                     <ui:VisualElement name="Slot-1" class="inventorySlot active">
                         <ui:VisualElement name="Item" class="inventoryItem" style="background-image: url(&quot;project://database/Assets/Resources/Sprites/Slot-1.png?fileID=21300000&amp;guid=88bd1cd961d3c7141a4297d0dda2d3b3&amp;type=3#Slot-1&quot;);" />
@@ -59,8 +47,21 @@
                     <ui:VisualElement name="Slot-9" class="inventorySlot">
                         <ui:VisualElement name="Item" class="inventoryItem" style="background-image: url(&quot;project://database/Assets/Resources/Sprites/Slot-9.png?fileID=21300000&amp;guid=25f7fab52d77b4e4391d2786a322078d&amp;type=3#Slot-9&quot;);" />
                     </ui:VisualElement>
+                    <ui:VisualElement name="Stats" style="align-items: center; justify-content: center; position: absolute; left: 100%; margin-left: 15px;">
+                        <ui:VisualElement name="Attack" style="flex-direction: row;">
+                            <ui:VisualElement name="Attack-Icon" style="background-image: url(&quot;project://database/Assets/Sprites/Icon_Attack.png?fileID=21300000&amp;guid=efd75653f4005f540bb27fbc65581b26&amp;type=3#Icon_Attack&quot;); width: 32px; height: 32px;" />
+                            <ui:VisualElement name="Space" style="width: 12.5px;" />
+                            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Attack-Value" class="defaultFont" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; font-size: 36px;" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="Space" style="flex-grow: 1; height: 25px;" />
+                        <ui:VisualElement name="Defense" style="flex-direction: row;">
+                            <ui:VisualElement name="Defense-Icon" style="background-image: url(&quot;project://database/Assets/Sprites/Icon_Defense.png?fileID=21300000&amp;guid=4b4363d59d036b84c9ec2a0f3e943d7b&amp;type=3#Icon_Defense&quot;); width: 32px; height: 32px;" />
+                            <ui:VisualElement name="Space" style="width: 12.5px;" />
+                            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Defense-Value" class="defaultFont" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; font-size: 36px;" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:VisualElement name="Ammo" style="align-items: center; justify-content: center; flex-direction: row; margin-left: auto; position: absolute; right: 7.5%;">
+                <ui:VisualElement name="Ammo" style="align-items: center; justify-content: center; flex-direction: row; margin-left: auto; position: absolute; right: 6.5%; opacity: 0;">
                     <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Ammo-Count" class="defaultFont" style="font-size: 60px;" />
                     <ui:VisualElement name="Space" style="width: 7.5px;" />
                     <ui:VisualElement name="Ammo-Icon" style="background-image: url(&quot;project://database/Assets/Sprites/Icon_Ammo.png?fileID=21300000&amp;guid=8a1bad2d9707d20429a51e865d807a4c&amp;type=3#Icon_Ammo&quot;); width: 48px; height: 48px;" />
