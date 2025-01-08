@@ -98,15 +98,17 @@ public class CameraController : NetworkBehaviour
     private void OnPreviousClicked()
     {
         if (playerIndex < 0 || playerIndex > playerObj.Count - 1) { playerIndex = 0; } // Make sure the cameraIndex is located within the range of the array, if not assign it the first camera
-        CinemachineVirtualCamera oldAimCam = playerObj[playerIndex].transform.Find("AimCamera").gameObject.GetComponent<CinemachineVirtualCamera>();
-        CinemachineVirtualCamera oldFollowCam = playerObj[playerIndex].transform.Find("FollowCamera").gameObject.GetComponent<CinemachineVirtualCamera>();
+        GameObject oldVirtualCameras = playerObj[playerIndex].transform.Find("VirtualCameras").gameObject;
+        CinemachineVirtualCamera oldFollowCam = playerObj[playerIndex].transform.Find("VirtualCameras/FollowCamera").gameObject.GetComponent<CinemachineVirtualCamera>();
+        oldFollowCam.Priority = 0;
         
         playerIndex--;
         if (playerIndex < 0) { playerIndex = playerObj.Count - 1; } // Circular loop back to the top of the list
-        playerObj[playerIndex].GetComponentInChildren<CinemachineVirtualCamera>().gameObject.transform.parent.gameObject.SetActive(true);
-
+        playerObj[playerIndex].transform.Find("VirtualCameras").gameObject.SetActive(true);
+        CinemachineVirtualCamera FollowCam = playerObj[playerIndex].transform.Find("VirtualCameras/FollowCamera").gameObject.GetComponent<CinemachineVirtualCamera>();
+        FollowCam.Priority = 1;
         
-
+        oldVirtualCameras.SetActive(false);
         currentPlayer.text = playerName[playerIndex];
     }
 
@@ -115,13 +117,19 @@ public class CameraController : NetworkBehaviour
     /// </summary>
     private void OnNextClicked()
     {
-        Debug.Log(playerIndex);
         if (playerIndex < 0 || playerIndex > playerObj.Count - 1) { playerIndex = 0; } //make sure the camIdx is located within the range of the array, if not assign it the first camera
 
-        playerObj[playerIndex].GetComponent<CinemachineVirtualCamera>().gameObject.SetActive(false);
+        GameObject oldVirtualCameras = playerObj[playerIndex].transform.Find("VirtualCameras").gameObject;
+        CinemachineVirtualCamera oldFollowCam = playerObj[playerIndex].transform.Find("VirtualCameras/FollowCamera").gameObject.GetComponent<CinemachineVirtualCamera>();
+        oldFollowCam.Priority = 0;
+        
         playerIndex++;
         playerIndex %= playerObj.Count; // Circular loop back to the bottom of the list
-        playerObj[playerIndex].GetComponent<CinemachineVirtualCamera>().gameObject.SetActive(true);
+        playerObj[playerIndex].transform.Find("VirtualCameras").gameObject.SetActive(true);
+        CinemachineVirtualCamera FollowCam = playerObj[playerIndex].transform.Find("VirtualCameras/FollowCamera").gameObject.GetComponent<CinemachineVirtualCamera>();
+        FollowCam.Priority = 1;
+        
+        oldVirtualCameras.SetActive(false);
         currentPlayer.text = playerName[playerIndex];
     }
 
