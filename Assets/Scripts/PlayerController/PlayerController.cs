@@ -108,6 +108,26 @@ public class PlayerController : NetworkBehaviour
     }
 
     /// <summary>
+    /// Called when the player joins a server to register their name and network identity to a registery
+    /// </summary>
+    public override void OnStartServer()
+    {
+        base.OnStartClient();
+        string name = transform.name;
+        PlayerManager.RegisterPlayer(name, gameObject);
+    }
+
+    /// <summary>
+    /// Called when the player leaves a server to unregister their details
+    /// </summary>
+    public override void OnStopServer()
+    {
+        base.OnStopClient();
+        string name = transform.name;
+        PlayerManager.UnregisterPlayer(name);
+    }
+
+    /// <summary>
     /// Handle the logic for continuous input such as the camera and movement.
     /// </summary>
     private void Update()
@@ -170,11 +190,11 @@ public class PlayerController : NetworkBehaviour
 
         if (isAiming && _playerInventory.GetItem() is RangedWeapon)
         {
-            _aimCamera.gameObject.SetActive(true);
+            _aimCamera.Priority = 2;
         }
         else
         {
-            _aimCamera.gameObject.SetActive(false);
+            _aimCamera.Priority = 0;
         }
 
         // Since the axes in which we move our input device are opposite in Unity, we must swap them to ensure correct behavior.
@@ -193,7 +213,7 @@ public class PlayerController : NetworkBehaviour
         // Check to see if we're looking at anything of importance.
         Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out _raycastHit, _interactableDistance);
 
-        CmdLook(_followTransform.rotation);
+        CmdLook(_followTransform.rotation, _aimCamera.Priority);
     }
 
     /// <summary>
@@ -405,11 +425,12 @@ public class PlayerController : NetworkBehaviour
     /// <param name="rotationPlayer">Player rotation</param>
     /// <param name="rotationFollow">Follow camera rotation</param>
     [Command]
-    private void CmdLook(Quaternion rotationFollow){
+    private void CmdLook(Quaternion rotationFollow, int aimCamPrio){
         _followTransform.rotation = rotationFollow;
+        _aimCamera.Priority = aimCamPrio;
 
         // Propagates the changes to all clients
-        RpcUpdatePlayerLook(_followTransform.rotation);
+        RpcUpdatePlayerLook(_followTransform.rotation, aimCamPrio);
     }
 
     /// <summary>
@@ -453,9 +474,10 @@ public class PlayerController : NetworkBehaviour
     /// <param name="rotationPlayer">Player rotation</param>
     /// <param name="rotationFollow">Follow Camera rotation</param>
     [ClientRpc]
-    private void RpcUpdatePlayerLook(Quaternion rotationFollow){
+    private void RpcUpdatePlayerLook(Quaternion rotationFollow, int aimCamPrio){
         if (isLocalPlayer) { return; }
         _followTransform.rotation = rotationFollow;
+        _aimCamera.Priority = aimCamPrio;
     }
 
     /// <summary>
