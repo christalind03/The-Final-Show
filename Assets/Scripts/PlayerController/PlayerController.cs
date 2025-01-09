@@ -63,7 +63,7 @@ public class PlayerController : NetworkBehaviour
     /// <summary>
     /// Configure the cursor settings and initialize a new instance of PlayerControls when the script is first loaded.
     /// </summary>
-    private void Awake()
+    public override void OnStartAuthority()
     {
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
@@ -82,12 +82,14 @@ public class PlayerController : NetworkBehaviour
         _animatorIsJumping = Animator.StringToHash("Is Jumping");
         _animatorMovementX = Animator.StringToHash("Movement X");
         _animatorMovementZ = Animator.StringToHash("Movement Z");
+
+        EnableControls();
     }
 
     /// <summary>
     /// Enable the PlayerControls actions and action maps when the component is enabled.
     /// </summary>
-    private void OnEnable()
+    private void EnableControls()
     {
         _playerControls.Enable();
 
@@ -318,11 +320,7 @@ public class PlayerController : NetworkBehaviour
         if (hitCollider != null)
         {
             GameObject targetObject = hitCollider.transform.root.gameObject; // Interactable objects should always have their interactable script at the top-most level.
-            
-            if (targetObject.TryGetComponent(out IInteractable interactableComponent))
-            {
-                CmdInteract(targetObject);
-            }
+            CmdInteract(targetObject);
         }
     }
 
@@ -365,10 +363,19 @@ public class PlayerController : NetworkBehaviour
         _canJump = true;
     }
 
+    // TODO: Document
+    public override void OnStopAuthority()
+    {
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
+        DisableControls();
+    }
+
     /// <summary>
     /// Disable the PlayerControls actions and action maps when the component is disabled.
     /// </summary>
-    private void OnDisable()
+    private void DisableControls()
     {
         _playerControls.Disable();
 
@@ -423,7 +430,7 @@ public class PlayerController : NetworkBehaviour
     [Command]
     private void CmdInteract(GameObject hitObject)
     {
-        if (hitObject.TryGetComponent(out IInteractable interactableComponent))
+        if (hitObject != null && hitObject.TryGetComponent(out IInteractable interactableComponent))
         {
             interactableComponent.Interact(gameObject);
         }
@@ -455,7 +462,7 @@ public class PlayerController : NetworkBehaviour
     private void RpcInteract(GameObject hitObject)
     {
         // Same reasoning as RpcDrop with the added component of getting the component "IInteractable"
-        if (!isServer && hitObject.TryGetComponent(out IInteractable interactableComponent))
+        if (!isServer && hitObject != null && hitObject.TryGetComponent(out IInteractable interactableComponent))
         {
             interactableComponent.Interact(gameObject);
         }

@@ -1,59 +1,128 @@
-using UnityEngine;
 using Mirror;
-using Steamworks;
+using System;
+using System.Collections;
 using UnityEditor;
-using System.Diagnostics.Tracing;
+using UnityEngine;
+using UnityEngine.UIElements;
 
 /// <summary>
 /// Network Manager that controls all the server and client processing
 /// </summary>
 public class CustomNetworkManager : NetworkManager
 {
+    public ulong LobbyId { get; set; }
 
-    public ulong LobbyId{ get; set; }
- 
-    /// <summary>
-    /// If the scence changes to the gameplay scene, Instantiate all the players and add them to the connection 
-    /// </summary>
-    /// <param name="sceneName">Scene that is being transitioned to</param>
-    public override void OnServerSceneChanged(string sceneName){
-        base.OnServerSceneChanged(sceneName);
-        if(sceneName == "Dungeon1" && NetworkServer.active){
-            int numPlayer = 0;
-            foreach(NetworkConnectionToClient conn in NetworkServer.connections.Values){
-                if (!NetworkClient.ready) {NetworkClient.Ready();}
+    // TODO: Document
+    public override void OnClientConnect()
+    {
+        base.OnClientConnect();
 
-                if (conn.identity == null){
-                    int random = UnityEngine.Random.Range(0, startPositions.Count);
-                    GameObject player = Instantiate(playerPrefab, startPositions[random].position, startPositions[random].rotation);
-                    CSteamID steamId = SteamMatchmaking.GetLobbyMemberByIndex(new CSteamID(LobbyId), numPlayer);
-                    player.name = SteamFriends.GetFriendPersonaName(steamId);
-                    numPlayer++; 
-                    NetworkServer.AddPlayerForConnection(conn, player);
+        // Register handlers for custom network messages for every client that connects
+        NetworkClient.RegisterHandler<CountdownMessage>(OnCountdown);
+    }
+
+    // TODO: Document
+    public override void OnClientDisconnect()
+    {
+        base.OnClientDisconnect();
+
+        // Unregister handlers for custom network messages for every client that disconnects
+        NetworkClient.UnregisterHandler<CountdownMessage>();
+    }
+
+    // TODO: Document
+    public void Countdown(CountdownMessage countdownMessage, Action callbackFn = null)
+    {
+        NetworkServer.SendToAll(countdownMessage);
+        StartCoroutine(ServerCountdown(countdownMessage.Duration, callbackFn));
+    }
+
+    // TODO: Document
+    private void OnCountdown(CountdownMessage countdownMessage)
+    {
+        StartCoroutine(ClientCountdown(countdownMessage));
+    }
+
+    // TODO: Document
+    private IEnumerator ClientCountdown(CountdownMessage countdownMessage)
+    {
+        // Wait until the client identity is defined
+        // Since the client may be switching scenes during this time, we want to ensure we retrieve the correct identity instance
+        yield return new WaitUntil(() => NetworkClient.connection.identity);
+
+        // Retrieve the client's root visual element through their UI Document component
+        GameObject clientObject = NetworkClient.connection.identity.gameObject;
+        VisualElement rootVisualElement = clientObject.GetComponent<UIDocument>().rootVisualElement;
+
+        // Check to ensure that the client's target UI element is defined. If not, throw an error.
+        if (countdownMessage.MessageElement == null)
+        {
+            throw new ArgumentNullException(
+                nameof(countdownMessage.MessageElement),
+                "The 'MessageElement' property is required to propagate notifications to clients. Please specify a PlayerUI visual element."
+            );
+        }
+
+        // If the target UI element was successfully found, display the countdown for the client
+        if (UnityUtils.ContainsElement(rootVisualElement, countdownMessage.MessageElement, out Label uiElement))
+        {
+            uiElement.style.opacity = 1;
+            int timeRemaining = countdownMessage.Duration;
+
+            while (0 < timeRemaining)
+            {
+                int minutesRemaining = timeRemaining / 60;
+                int secondsRemaining = timeRemaining % 60;
+                string formattedMessage = countdownMessage.MessageFormat;
+
+                if (string.IsNullOrEmpty(formattedMessage))
+                {
+                    formattedMessage = $"{minutesRemaining}:{secondsRemaining:D2}";
                 }
+                else
+                {
+                    switch (countdownMessage.MessageDisplay)
+                    {
+                        case CountdownMessage.DisplayMode.Both:
+                            formattedMessage = formattedMessage
+                                .Replace("{MINUTES}", minutesRemaining.ToString())
+                                .Replace("{SECONDS}", secondsRemaining.ToString());
+                        
+                            break;
+
+                        case CountdownMessage.DisplayMode.Minutes:
+                            formattedMessage = formattedMessage
+                                .Replace("{MINUTES}", minutesRemaining.ToString())
+                                .Replace("{SECONDS}", "");
+
+                            break;
+
+                        case CountdownMessage.DisplayMode.Seconds:
+                            formattedMessage = formattedMessage
+                                .Replace("{MINUTES}", "")
+                                .Replace("{SECONDS}", secondsRemaining.ToString());
+
+                            break;
+
+                        case CountdownMessage.DisplayMode.None:
+                            formattedMessage = string.Empty;
+                            break;
+                    }
+                }
+
+                uiElement.text = formattedMessage;
+                yield return new WaitForSeconds(1f);
+                timeRemaining--;
             }
+            
+            uiElement.style.opacity = 0;
         }
     }
 
-    /// <summary>
-    /// When the host disconnects/stops, will unlock cursor and scene will be changed to the offlien scene (Network-Lobby)
-    /// </summary>
-    public override void OnStopHost(){
-        base.OnStopHost();
-        if(mode == NetworkManagerMode.Offline){
-            UnityEngine.Cursor.lockState = CursorLockMode.None;
-            UnityEngine.Cursor.visible = true;
-        }
-    }
-
-    /// <summary>
-    /// When the client disconnects/stops, will unlock cursor and scene will be changed to the offlien scene (Network-Lobby)
-    /// </summary>
-    public override void OnStopClient(){
-        base.OnStopClient();
-        if(mode == NetworkManagerMode.Offline){
-            UnityEngine.Cursor.lockState = CursorLockMode.None;
-            UnityEngine.Cursor.visible = true;
-        }
+    // TODO: Document
+    private IEnumerator ServerCountdown(int countdownDuration, Action callbackFn = null)
+    {
+        yield return new WaitForSeconds(countdownDuration);
+        callbackFn?.Invoke();
     }
 }

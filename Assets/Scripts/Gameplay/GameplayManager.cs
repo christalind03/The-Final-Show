@@ -1,3 +1,4 @@
+using Mirror;
 using UnityEngine;
 
 public class GameplayManager : StateManager<GameplayManager.State, GameplayState, GameplayContext>
@@ -14,11 +15,15 @@ public class GameplayManager : StateManager<GameplayManager.State, GameplayState
     public static GameplayManager Instance { get; private set; }
 
     // TODO: Document
-    private void Awake()
+    public override void OnStartServer()
     {
         if (Instance == null)
         {
+            CustomNetworkManager networkManager = GameObject.FindObjectOfType<CustomNetworkManager>();
+
             Instance = this;
+            StateContext = new GameplayContext(this, networkManager);
+
             DontDestroyOnLoad(gameObject);
         }
         else

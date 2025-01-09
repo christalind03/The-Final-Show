@@ -47,21 +47,22 @@ public static class UnityUtils
     {
         if (rootVisualElement == null)
         {
+            LogError($"The provided rootVisualElement is null", 3);
             uiElement = null;
             return false;
         }
         else
         {
-            uiElement = rootVisualElement.Query<TElement>(targetElement);
+            uiElement = rootVisualElement.Query<TElement>(targetElement.Trim());
 
-            if (uiElement != null)
-            {
-                return true;
-            }
-            else
+            if (uiElement == null)
             {
                 LogError($"Unable to locate {typeof(TElement)} titled '{targetElement}'", 3);
                 return false;
+            }
+            else
+            {
+                return true;
             }
         }
 
