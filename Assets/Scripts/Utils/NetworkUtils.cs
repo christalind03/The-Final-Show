@@ -1,4 +1,8 @@
 using Mirror;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -26,5 +30,21 @@ public static class NetworkUtils
         }
 
         return null;
+    }
+
+    // TODO: Document
+    public static List<GameObject> RetrievePlayers()
+    {
+        return NetworkServer.connections.Values
+            .Where(clientConnection => clientConnection.identity != null)
+            .Select(clientConnection => clientConnection.identity.gameObject)
+            .ToList();
+    }
+
+    // TODO: Document
+    public static IEnumerator WaitUntilReady(Action<NetworkIdentity> onReady)
+    {
+        yield return new WaitUntil(() => NetworkClient.connection.identity != null);
+        onReady.Invoke(NetworkClient.connection.identity);
     }
 }

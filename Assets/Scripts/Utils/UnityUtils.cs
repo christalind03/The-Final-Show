@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Diagnostics;
 using UnityEditor;
 using UnityEngine;
@@ -9,14 +11,14 @@ using UnityEngine.UIElements;
 public static class UnityUtils
 {
     // TODO: Document
-    public static void CloneNonSerializedData(Object sourceObject, Object targetObject)
+    public static void CloneNonSerializedData(UnityEngine.Object sourceObject, UnityEngine.Object targetObject)
     {
         GeneralUtils.CloneFieldData(sourceObject, targetObject);
         GeneralUtils.ClonePropertyData(sourceObject, targetObject);
     }
 
     // TODO: Document
-    public static void CloneSerializedData(Object sourceObject, Object targetObject)
+    public static void CloneSerializedData(UnityEngine.Object sourceObject, UnityEngine.Object targetObject)
     {
         SerializedObject serializedSource = new SerializedObject(sourceObject);
         SerializedObject serializedTarget = new SerializedObject(targetObject);
@@ -90,6 +92,25 @@ public static class UnityUtils
         string scriptName = FetchScriptName(frameIndex);
 
         UnityEngine.Debug.LogWarning($"[{scriptName}] {warningMessage}");
+    }
+
+    // TODO: Document
+    public static IEnumerator WaitForObject<TComponent>(float timeLimit, Action<TComponent> onFound) where TComponent : Component
+    {
+        float startTime = Time.time;
+        TComponent targetObject = null;
+
+        yield return new WaitUntil(() =>
+        {
+            if ((targetObject = GameObject.FindFirstObjectByType<TComponent>()) != null)
+            {
+                onFound.Invoke(targetObject);
+                return true;
+            }
+
+            return timeLimit <= Time.time - startTime;
+        });
+
     }
 
     // TODO: Update Documentation

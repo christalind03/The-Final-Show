@@ -1,4 +1,6 @@
 using Mirror;
+using System;
+using System.Collections;
 using UnityEngine;
 
 public class GameplayManager : StateManager<GameplayManager.State, GameplayState, GameplayContext>
@@ -30,5 +32,11 @@ public class GameplayManager : StateManager<GameplayManager.State, GameplayState
         {
             Destroy(gameObject);
         }
+    }
+
+    // TODO: Document
+    public void FindObject<TComponent>(Action<TComponent> onFound) where TComponent : Component
+    {
+        StartCoroutine(UnityUtils.WaitForObject(GeneralUtils.DefaultTimeout, onFound));
     }
 }

@@ -10,11 +10,11 @@ public class GameplayStateEditor : Editor
         serializedObject.Update();
 
         // Locate all serialized properties
-        SerializedProperty targetScene = serializedObject.FindProperty("_targetScene");
+        SerializedProperty targetScene = serializedObject.FindProperty("TargetScene");
 
-        SerializedProperty isTimed = serializedObject.FindProperty("_isTimed");
-        SerializedProperty countdownMessage = serializedObject.FindProperty("_countdownMessage");
-        SerializedProperty transitionState = serializedObject.FindProperty("_transitionState");
+        SerializedProperty isTimed = serializedObject.FindProperty("IsTimed");
+        SerializedProperty countdownMessage = serializedObject.FindProperty("CountdownMessage");
+        SerializedProperty transitionState = serializedObject.FindProperty("TransitionState");
 
         // Draw the `Target Scene` property field
         EditorGUILayout.PropertyField(targetScene);

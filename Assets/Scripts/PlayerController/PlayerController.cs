@@ -31,14 +31,10 @@ public class PlayerController : NetworkBehaviour
 
     [Header("Player References")]
     [SerializeField] private CinemachineVirtualCamera _aimCamera;
- 
-    [Tooltip("The scene's main camera.")]
+    [SerializeField] private CharacterController _characterController;
     [SerializeField] private Transform _cameraTransform;
-
-    [Tooltip("An empty object hidden within the Player object to control the camera's rotation.")]
     [SerializeField] private Transform _followTransform;
     [SerializeField] private Transform _playerTransform;
-    [SerializeField] private CharacterController _playerController;
     
     private bool _isGrounded;
     private bool _isSprinting;
@@ -116,16 +112,19 @@ public class PlayerController : NetworkBehaviour
     {
         if (!isLocalPlayer) { return; }
 
-        // Check to see if the player is on the ground or not.
-        _isGrounded = Physics.Raycast(_playerTransform.position, Vector3.down, 1f) && _playerVelocity.y <= 0f;
+        if (_characterController.enabled)
+        {
+            // Check to see if the player is on the ground or not.
+            _isGrounded = Physics.Raycast(_playerTransform.position, Vector3.down, 1f) && _playerVelocity.y <= 0f;
 
-        // Update the player's y-axis position to account for gravity
-        _playerVelocity.y += _gravity * Time.deltaTime;
-        _playerController.Move(_playerVelocity * Time.deltaTime);
+            // Update the player's y-axis position to account for gravity
+            _playerVelocity.y += _gravity * Time.deltaTime;
+            _characterController.Move(_playerVelocity * Time.deltaTime);
 
-        HandleLook();
-        HandleMovement();
-        HandleSprint();
+            HandleLook();
+            HandleMovement();
+            HandleSprint();
+        }
     }
 
     /// <summary>
@@ -209,8 +208,8 @@ public class PlayerController : NetworkBehaviour
 
         _playerVelocity.y += _gravity * Time.deltaTime;
 
-        _playerController.Move(totalSpeed * Time.deltaTime * moveDirection);
-        _playerController.Move(_playerVelocity * Time.deltaTime);
+        _characterController.Move(totalSpeed * Time.deltaTime * moveDirection);
+        _characterController.Move(_playerVelocity * Time.deltaTime);
 
         // Display the player's movement animation.
         // Since the player can move in four different directions, we have animations associated with each direction.

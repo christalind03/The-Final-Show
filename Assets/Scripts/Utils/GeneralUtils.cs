@@ -6,6 +6,7 @@ using System.Reflection;
 /// </summary>
 public static class GeneralUtils
 {
+    public const float DefaultTimeout = 0.25f;
     public static readonly BindingFlags ReflectionFlags =
         BindingFlags.FlattenHierarchy |
         BindingFlags.Instance |

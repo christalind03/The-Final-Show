@@ -12,6 +12,7 @@ public class GameplayStateBoss : GameplayState
     public override void ExitState()
     {
         Debug.Log("Exiting the BOSS gameplay state...");
+        base.ExitState();
     }
 
     public override void OnTriggerEnter(Collider otherCollider) { }

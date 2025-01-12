@@ -1,7 +1,6 @@
 using Mirror;
 using System;
 using System.Collections;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -19,6 +18,7 @@ public class CustomNetworkManager : NetworkManager
 
         // Register handlers for custom network messages for every client that connects
         NetworkClient.RegisterHandler<CountdownMessage>(OnCountdown);
+        NetworkClient.RegisterHandler<SpectateMessage>(OnSpectate);
     }
 
     // TODO: Document
@@ -28,10 +28,14 @@ public class CustomNetworkManager : NetworkManager
 
         // Unregister handlers for custom network messages for every client that disconnects
         NetworkClient.UnregisterHandler<CountdownMessage>();
+        NetworkClient.UnregisterHandler<SpectateMessage>();
     }
 
+    #region CountdownMessage Functionality
+    // This region contains functionality for handling countdown timers on both the clients and server side.
+
     // TODO: Document
-    public void Countdown(CountdownMessage countdownMessage, Action callbackFn = null)
+    public void Countdown(CountdownMessage countdownMessage, Action callbackFn)
     {
         NetworkServer.SendToAll(countdownMessage);
         StartCoroutine(ServerCountdown(countdownMessage.Duration, callbackFn));
@@ -120,9 +124,30 @@ public class CustomNetworkManager : NetworkManager
     }
 
     // TODO: Document
-    private IEnumerator ServerCountdown(int countdownDuration, Action callbackFn = null)
+    private IEnumerator ServerCountdown(int countdownDuration, Action callbackFn)
     {
         yield return new WaitForSeconds(countdownDuration);
         callbackFn?.Invoke();
     }
+
+    #endregion
+
+    #region SpectateMessage Functionality
+
+    // TODO: Document
+    private void OnSpectate(SpectateMessage spectateMessage)
+    {
+        // NOTE: We may have to ensure the correct scene before enabling spectator mode
+        //       Since no issues have yet surfaced, we will deal with that at a later point
+
+        StartCoroutine(NetworkUtils.WaitUntilReady((NetworkIdentity clientIdentity) =>
+        {
+            GameObject playerObject = clientIdentity.gameObject;
+
+            playerObject.GetComponent<PlayerHealth>().CmdDamage(float.MaxValue);
+            playerObject.GetComponent<PlayerVisibility>().CmdToggleVisibility(false);
+        }));
+    }
+
+    #endregion
 }

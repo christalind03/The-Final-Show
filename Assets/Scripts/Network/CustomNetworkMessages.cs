@@ -1,5 +1,6 @@
 using Mirror;
 using System;
+using UnityEngine;
 
 [System.Serializable]
 public struct CountdownMessage : NetworkMessage
@@ -17,3 +18,5 @@ public struct CountdownMessage : NetworkMessage
     public string MessageElement;
     public DisplayMode MessageDisplay;
 }
+
+public struct SpectateMessage : NetworkMessage { }

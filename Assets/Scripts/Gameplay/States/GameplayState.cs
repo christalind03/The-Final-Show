@@ -8,15 +8,15 @@ public abstract class GameplayState : BaseState<GameplayManager.State, GameplayC
 {
     [SerializeField]
     [Tooltip("The scene associated with the Gameplay State")]
-    private SceneAsset _targetScene;
+    protected SceneAsset TargetScene;
 
     [Header("Countdown Properties")]
-    [SerializeField] private bool _isTimed;
-    [SerializeField] private CountdownMessage _countdownMessage;
+    [SerializeField] protected bool IsTimed;
+    [SerializeField] protected CountdownMessage CountdownMessage;
     
     [SerializeField]
     [Tooltip("The state to transition to when the countdown is complete")]
-    private GameplayManager.State _transitionState;
+    protected GameplayManager.State TransitionState;
 
     // TODO: Documentation
     public override void EnterState()
@@ -30,22 +30,22 @@ public abstract class GameplayState : BaseState<GameplayManager.State, GameplayC
     {
         Scene activeScene = SceneManager.GetActiveScene();
 
-        if (activeScene.name != _targetScene.name)
+        if (activeScene.name != TargetScene.name)
         {
-            NetworkManager.singleton.ServerChangeScene(_targetScene.name);
+            NetworkManager.singleton.ServerChangeScene(TargetScene.name);
         }
     }
 
     // TODO: Documentation
-    private void OnSceneLoaded(Scene activeScene, LoadSceneMode loadMode)
+    protected virtual void OnSceneLoaded(Scene activeScene, LoadSceneMode loadMode)
     {
-        if (activeScene.name != _targetScene.name) { return; }
+        if (activeScene.name != TargetScene.name) { return; }
 
-        if (_isTimed)
+        if (IsTimed)
         {
-            StateContext.NetworkManager.Countdown(_countdownMessage, () =>
+            StateContext.NetworkManager.Countdown(CountdownMessage, () =>
             {
-                StateContext.GameplayManager.TransitionToState(_transitionState);
+                StateContext.GameplayManager.TransitionToState(TransitionState);
             });
         }
     }
