@@ -36,16 +36,17 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private Transform _followTransform;
     [SerializeField] private Transform _playerTransform;
     
-    private bool _isGrounded;
-    private bool _isSprinting;
     private bool _canJump;
     private bool _canSprint;
+    private bool _isGrounded;
+    private bool _isSprinting;
 
     private float _xRotation;
     private float _yRotation;
     private Vector3 _playerVelocity;
-    
+
     private RaycastHit _raycastHit;
+    private PhysicsScene _physicsScene;
     private PlayerControls _playerControls;
     private CombatController _combatController;
     private PlayerInventory _playerInventory;
@@ -66,6 +67,7 @@ public class PlayerController : NetworkBehaviour
 
         _canJump = true;
         _canSprint = true;
+        _physicsScene = gameObject.scene.GetPhysicsScene();
 
         _playerControls = new PlayerControls();
         _combatController = gameObject.GetComponent<CombatController>();
@@ -112,10 +114,10 @@ public class PlayerController : NetworkBehaviour
     {
         if (!isLocalPlayer) { return; }
 
-        if (_characterController.enabled)
+        if (_characterController.enabled && _playerControls != null)
         {
             // Check to see if the player is on the ground or not.
-            _isGrounded = Physics.Raycast(_playerTransform.position, Vector3.down, 1f) && _playerVelocity.y <= 0f;
+            _isGrounded = _physicsScene.Raycast(_playerTransform.position, Vector3.down, 1f) && _playerVelocity.y <= 0f;
 
             // Update the player's y-axis position to account for gravity
             _playerVelocity.y += _gravity * Time.deltaTime;
@@ -192,7 +194,7 @@ public class PlayerController : NetworkBehaviour
         _playerTransform.rotation = Quaternion.Euler(0, _yRotation, 0);
 
         // Check to see if we're looking at anything of importance.
-        Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out _raycastHit, _interactableDistance);
+        _physicsScene.Raycast(_cameraTransform.position, _cameraTransform.forward, out _raycastHit, _interactableDistance);
     }
 
     /// <summary>

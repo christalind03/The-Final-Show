@@ -1,11 +1,11 @@
 public class GameplayContext
 {
+    public readonly CustomNetworkManager CustomNetworkManager;
     public readonly GameplayManager GameplayManager;
-    public readonly CustomNetworkManager NetworkManager;
 
-    public GameplayContext(GameplayManager gameplayManager, CustomNetworkManager networkManager)
+    public GameplayContext(CustomNetworkManager customNetworkManager, GameplayManager gameplayManager)
     {
+        CustomNetworkManager = customNetworkManager;
         GameplayManager = gameplayManager;
-        NetworkManager = networkManager;
     }
 }

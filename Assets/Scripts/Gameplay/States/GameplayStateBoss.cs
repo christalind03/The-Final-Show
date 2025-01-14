@@ -16,26 +16,25 @@ public class GameplayStateBoss : GameplayState
         base.EnterState();
     }
 
-    // TODO: Document
-    protected override void OnSceneLoaded(Scene activeScene, LoadSceneMode loadMode)
-    {
-        base.OnSceneLoaded(activeScene, loadMode);
+    //// TODO: Document
+    //protected override void OnSceneLoaded(Scene activeScene, LoadSceneMode loadMode)
+    //{
+    //    base.OnSceneLoaded(activeScene, loadMode);
 
-        StateContext.GameplayManager.FindObject((EnemyHealth targetObject) =>
-        {
-            if (targetObject != null)
-            {
-                Debug.Log("Boss found successfully!");
-                _enemyExists = true;
-                _enemyHealth = targetObject;
-            }
-        });
-    }
+    //    StateContext.GameplayManager.FindObject((EnemyHealth targetObject) =>
+    //    {
+    //        if (targetObject != null)
+    //        {
+    //            Debug.Log("Boss found successfully!");
+    //            _enemyExists = true;
+    //            _enemyHealth = targetObject;
+    //        }
+    //    });
+    //}
 
     public override void ExitState()
     {
         Debug.Log("Exiting the BOSS gameplay state...");
-        base.ExitState();
     }
 
     public override void OnTriggerEnter(Collider otherCollider) { }
@@ -49,7 +48,7 @@ public class GameplayStateBoss : GameplayState
         // So, we have an additional check to ensure that the enemy existed at some point during this scene to prevent transitioning states too early
         if (_enemyExists && _enemyHealth == null)
         {
-            StateContext.NetworkManager.StopAllCoroutines();
+            StateContext.CustomNetworkManager.StopAllCoroutines();
             StateContext.GameplayManager.TransitionToState(GameplayManager.State.Intermission);
         }
     }

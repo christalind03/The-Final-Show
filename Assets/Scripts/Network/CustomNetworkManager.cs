@@ -2,6 +2,7 @@ using Mirror;
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 /// <summary>
@@ -10,6 +11,16 @@ using UnityEngine.UIElements;
 public class CustomNetworkManager : NetworkManager
 {
     public ulong LobbyId { get; set; }
+    public static new CustomNetworkManager singleton => (CustomNetworkManager)NetworkManager.singleton;
+
+    [Header("Additive Scenes")]
+    [Scene]
+    [SerializeField]
+    [Tooltip("The first entry will be the players' start scene")]
+    private string[] _additiveScenes;
+
+    private bool _isInTransition;
+    private bool _subscenesLoaded;
 
     // TODO: Document
     public override void OnClientConnect()
@@ -22,6 +33,20 @@ public class CustomNetworkManager : NetworkManager
     }
 
     // TODO: Document
+    public override void OnClientChangeScene(string sceneName, SceneOperation sceneOperation, bool customHandling)
+    {
+        if (sceneOperation == SceneOperation.LoadAdditive)
+        {
+            StartCoroutine(LoadAdditive(sceneName));
+        }
+
+        if (sceneOperation == SceneOperation.UnloadAdditive)
+        {
+            StartCoroutine(UnloadAdditive(sceneName));
+        }
+    }
+
+    // TODO: Document
     public override void OnClientDisconnect()
     {
         base.OnClientDisconnect();
@@ -30,6 +55,119 @@ public class CustomNetworkManager : NetworkManager
         NetworkClient.UnregisterHandler<CountdownMessage>();
         NetworkClient.UnregisterHandler<SpectateMessage>();
     }
+
+    // TODO: Document
+    public override void OnClientSceneChanged()
+    {
+        if (!_isInTransition)
+        {
+            base.OnClientSceneChanged();
+        }
+    }
+
+    // TODO: Document
+    public override void OnServerSceneChanged(string sceneName)
+    {
+        if (sceneName == onlineScene)
+        {
+            StartCoroutine(LoadSubscenes());
+        }
+    }
+
+    // TODO: Document
+    public override void OnServerReady(NetworkConnectionToClient clientConnection)
+    {
+        base.OnServerReady(clientConnection);
+
+        if (clientConnection.identity == null)
+        {
+            StartCoroutine(SpawnPlayerDelayed(clientConnection));
+        }
+    }
+
+    #region Additive Scene Management
+
+    // TODO: Document
+    private IEnumerator SpawnPlayerDelayed(NetworkConnectionToClient clientConnection)
+    {
+        while (!_subscenesLoaded) { yield return null; }
+
+        clientConnection.Send(new SceneMessage
+        {
+            sceneName = _additiveScenes[0],
+            sceneOperation = SceneOperation.LoadAdditive,
+            customHandling = true,
+        });
+
+        Transform startPosition = GetStartPosition();
+        GameObject clientPlayer = Instantiate(playerPrefab, startPosition);
+        clientPlayer.transform.SetParent(null);
+
+        yield return new WaitForEndOfFrame();
+
+        NetworkServer.AddPlayerForConnection(clientConnection, clientPlayer);
+    }
+
+    // TODO: Document
+    private IEnumerator LoadAdditive(string sceneName)
+    {
+        _isInTransition = true;
+
+        // TODO: Perform ENTERING scene transition animation here
+
+        if (mode == NetworkManagerMode.ClientOnly)
+        {
+            loadingSceneAsync = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+
+            while (loadingSceneAsync != null && !loadingSceneAsync.isDone)
+            {
+                yield return null;
+            }
+        }
+
+        NetworkClient.isLoadingScene = false;
+        _isInTransition = false;
+
+        OnClientSceneChanged();
+
+        // TODO: Perform EXITING scene transition animation here
+    }
+
+    // TODO: Document
+    private IEnumerator LoadSubscenes()
+    {
+        foreach (string additiveScene in _additiveScenes)
+        {
+            yield return SceneManager.LoadSceneAsync(additiveScene, new LoadSceneParameters
+            {
+                loadSceneMode = LoadSceneMode.Additive,
+                localPhysicsMode = LocalPhysicsMode.Physics3D,
+            });
+        }
+
+        _subscenesLoaded = true;
+    }
+
+    // TODO: Document
+    private IEnumerator UnloadAdditive(string sceneName)
+    {
+        _isInTransition = true;
+
+        // TODO: Perform ENTERING scene transition animation here
+
+        if (mode == NetworkManagerMode.ClientOnly)
+        {
+            yield return SceneManager.UnloadSceneAsync(sceneName);
+            yield return Resources.UnloadUnusedAssets();
+        }
+
+        NetworkClient.isLoadingScene = false;
+        _isInTransition = false;
+
+        OnClientSceneChanged();
+    }
+
+    #endregion
 
     #region CountdownMessage Functionality
     // This region contains functionality for handling countdown timers on both the clients and server side.

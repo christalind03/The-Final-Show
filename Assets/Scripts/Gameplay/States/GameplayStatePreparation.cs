@@ -12,7 +12,6 @@ public class GameplayStatePreparation : GameplayState
     public override void ExitState()
     {
         Debug.Log("Exiting the PREPARATION gameplay state...");
-        base.ExitState();
     }
 
     public override void OnTriggerEnter(Collider otherCollider) { }
