@@ -12,6 +12,7 @@ public class GameplayStateDefeat : GameplayState
     public override void ExitState()
     {
         Debug.Log("Exiting the DEFEAT gameplay state...");
+        base.ExitState();
     }
 
     public override void OnTriggerEnter(Collider otherCollider) { }

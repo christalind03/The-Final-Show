@@ -52,16 +52,9 @@ public class AbstractBillboard : MonoBehaviour
 
         if (localPlayer != null)
         {
-            Camera playerCamera = localPlayer.GetComponentInChildren<Camera>();
-
-            if (playerCamera != null)
-            {
-                _playerCamera = playerCamera.transform;
-                return;
-            }
+            _playerCamera = localPlayer.GetComponentInChildren<Camera>().transform;
         }
-        
-        if (_maxAttempts <= _currentAttempts)
+        else if (_maxAttempts <= _currentAttempts)
         {
             UnityUtils.LogError($"Unable to locate local player after {_maxAttempts} attempts.");
         }

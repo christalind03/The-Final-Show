@@ -12,6 +12,7 @@ public class GameplayStateIntermission : GameplayState
     public override void ExitState()
     {
         Debug.Log("Exiting the INTERMISSION gameplay state...");
+        base.ExitState();
     }
 
     public override void OnTriggerEnter(Collider otherCollider) { }
