@@ -10,6 +10,7 @@ using UnityEngine.UIElements;
 public class CustomNetworkManager : NetworkManager
 {
     public ulong LobbyId { get; set; }
+    public static CustomNetworkManager Instance => (CustomNetworkManager)NetworkManager.singleton;
 
     // TODO: Document
     public override void OnClientConnect()
@@ -29,6 +30,55 @@ public class CustomNetworkManager : NetworkManager
         // Unregister handlers for custom network messages for every client that disconnects
         NetworkClient.UnregisterHandler<CountdownMessage>();
         NetworkClient.UnregisterHandler<SpectateMessage>();
+    }
+
+    // TODO: Document
+    public override void OnServerReady(NetworkConnectionToClient clientConnection)
+    {
+        if (clientConnection.isReady) { return; }
+
+        base.OnServerReady(clientConnection);
+
+        if (clientConnection.identity == null)
+        {
+            StartCoroutine(SpawnPlayer(clientConnection));
+        }
+        else
+        {
+            StartCoroutine(RelocatePlayer(clientConnection));
+        }
+    }
+
+    // TODO: Document
+    public IEnumerator SpawnPlayer(NetworkConnectionToClient clientConnection)
+    {
+        if (clientConnection.identity != null) { yield break; }
+
+        Transform startPosition = GetStartPosition();
+        GameObject networkPlayer = Instantiate(playerPrefab, startPosition.position, startPosition.rotation);
+
+        yield return new WaitForEndOfFrame();
+
+        NetworkServer.AddPlayerForConnection(clientConnection, networkPlayer);
+    }
+
+    // TODO: Document
+    public IEnumerator RelocatePlayer(NetworkConnectionToClient clientConnection)
+    {
+        GameObject networkPlayer = clientConnection.identity.gameObject;
+        Transform startPosition = GetStartPosition();
+
+        NetworkServer.RemovePlayerForConnection(clientConnection);
+
+        if (startPosition != null)
+        {
+            networkPlayer.transform.position = startPosition.position;
+            networkPlayer.transform.rotation = startPosition.rotation;
+        }
+
+        yield return new WaitForEndOfFrame();
+        
+        NetworkServer.AddPlayerForConnection(clientConnection, networkPlayer);
     }
 
     #region CountdownMessage Functionality

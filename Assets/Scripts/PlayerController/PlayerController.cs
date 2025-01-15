@@ -56,6 +56,12 @@ public class PlayerController : NetworkBehaviour
     private int _animatorMovementX;
     private int _animatorMovementZ;
 
+    // TODO: Document
+    private void Start()
+    {
+        DontDestroyOnLoad(this);
+    }
+
     /// <summary>
     /// Configure the cursor settings and initialize a new instance of PlayerControls when the script is first loaded.
     /// </summary>
@@ -112,7 +118,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (!isLocalPlayer) { return; }
 
-        if (_characterController.enabled)
+        if (_characterController.enabled && _playerControls != null)
         {
             // Check to see if the player is on the ground or not.
             _isGrounded = Physics.Raycast(_playerTransform.position, Vector3.down, 1f) && _playerVelocity.y <= 0f;

@@ -21,7 +21,7 @@ public class GameplayStateBoss : GameplayState
     {
         base.OnSceneLoaded(activeScene, loadMode);
 
-        StateContext.GameplayManager.FindObject((EnemyHealth targetObject) =>
+        GameplayManager.Instance.FindObject((EnemyHealth targetObject) =>
         {
             if (targetObject != null)
             {
@@ -49,8 +49,8 @@ public class GameplayStateBoss : GameplayState
         // So, we have an additional check to ensure that the enemy existed at some point during this scene to prevent transitioning states too early
         if (_enemyExists && _enemyHealth == null)
         {
-            StateContext.NetworkManager.StopAllCoroutines();
-            StateContext.GameplayManager.TransitionToState(GameplayManager.State.Intermission);
+            CustomNetworkManager.Instance.StopAllCoroutines();
+            GameplayManager.Instance.TransitionToState(GameplayManager.State.Intermission);
         }
     }
 }

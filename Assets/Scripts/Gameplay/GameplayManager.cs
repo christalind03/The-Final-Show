@@ -1,6 +1,9 @@
 using Mirror;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEngine;
 
 public class GameplayManager : StateManager<GameplayManager.State, GameplayState, GameplayContext>
@@ -24,7 +27,7 @@ public class GameplayManager : StateManager<GameplayManager.State, GameplayState
             CustomNetworkManager networkManager = GameObject.FindObjectOfType<CustomNetworkManager>();
 
             Instance = this;
-            StateContext = new GameplayContext(this, networkManager);
+            StateContext = new GameplayContext();
 
             DontDestroyOnLoad(gameObject);
         }

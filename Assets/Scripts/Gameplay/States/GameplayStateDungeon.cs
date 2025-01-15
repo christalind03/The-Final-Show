@@ -18,9 +18,9 @@ public class GameplayStateDungeon : GameplayState
     // TODO: Document
     protected override void OnSceneLoaded(Scene activeScene, LoadSceneMode loadMode)
     {
-        if (activeScene.name != TargetScene.name) { return; }
+        if (activeScene.name != TargetScene) { return; }
 
-        StateContext.GameplayManager.FindObject((SafeZone targetObject) =>
+        GameplayManager.Instance.FindObject((SafeZone targetObject) =>
         {
             if (targetObject != null)
             {
@@ -31,14 +31,15 @@ public class GameplayStateDungeon : GameplayState
 
         // The following code is the base implementation of OnSceneLoaded with
         // countdown timer callback adjustments specifically for this state
+        
         if (IsTimed)
         {
-            StateContext.NetworkManager.Countdown(CountdownMessage, () =>
+            CustomNetworkManager.Instance.Countdown(CountdownMessage, () =>
             {
                 if (_safeZone != null && _safeZone.ContainsPlayers)
                 {
                     Debug.Log("Transitioning to the boss state...");
-                    StateContext.GameplayManager.TransitionToState(GameplayManager.State.Boss);
+                    GameplayManager.Instance.TransitionToState(GameplayManager.State.Boss);
 
                     List<GameObject> invalidPlayers = NetworkUtils.RetrievePlayers().Except(_safeZone.SafePlayers).ToList();
 
@@ -51,7 +52,7 @@ public class GameplayStateDungeon : GameplayState
                 }
                 else
                 {
-                    StateContext.GameplayManager.TransitionToState(TransitionState);
+                    GameplayManager.Instance.TransitionToState(TransitionState);
                 }
             });
         }

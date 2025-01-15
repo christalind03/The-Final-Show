@@ -1,14 +1,16 @@
 using Mirror;
 using System;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public abstract class GameplayState : BaseState<GameplayManager.State, GameplayContext>
 {
+    [Scene]
     [SerializeField]
     [Tooltip("The scene associated with the Gameplay State")]
-    protected SceneAsset TargetScene;
+    protected string TargetScene;
 
     [Header("Countdown Properties")]
     [SerializeField] protected bool IsTimed;
@@ -23,6 +25,7 @@ public abstract class GameplayState : BaseState<GameplayManager.State, GameplayC
     {
         LoadScene();
         SceneManager.sceneLoaded += OnSceneLoaded;
+        TargetScene = Path.GetFileNameWithoutExtension(TargetScene);
     }
 
     // TODO: Documentation
@@ -30,22 +33,22 @@ public abstract class GameplayState : BaseState<GameplayManager.State, GameplayC
     {
         Scene activeScene = SceneManager.GetActiveScene();
 
-        if (activeScene.name != TargetScene.name)
+        if (activeScene.name != TargetScene)
         {
-            NetworkManager.singleton.ServerChangeScene(TargetScene.name);
+            NetworkManager.singleton.ServerChangeScene(TargetScene);
         }
     }
 
     // TODO: Documentation
     protected virtual void OnSceneLoaded(Scene activeScene, LoadSceneMode loadMode)
     {
-        if (activeScene.name != TargetScene.name) { return; }
+        if (activeScene.name != TargetScene) { return; }
 
         if (IsTimed)
         {
-            StateContext.NetworkManager.Countdown(CountdownMessage, () =>
+            CustomNetworkManager.Instance.Countdown(CountdownMessage, () =>
             {
-                StateContext.GameplayManager.TransitionToState(TransitionState);
+                GameplayManager.Instance.TransitionToState(TransitionState);
             });
         }
     }
