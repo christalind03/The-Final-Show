@@ -20,6 +20,8 @@ public abstract class GameplayState : BaseState<GameplayManager.State, GameplayC
     [Tooltip("The state to transition to when the countdown is complete")]
     protected GameplayManager.State TransitionState;
 
+    protected Action CountdownCallback;
+
     // TODO: Documentation
     public override void EnterState()
     {
@@ -46,10 +48,10 @@ public abstract class GameplayState : BaseState<GameplayManager.State, GameplayC
 
         if (IsTimed)
         {
-            CustomNetworkManager.Instance.Countdown(CountdownMessage, () =>
-            {
-                GameplayManager.Instance.TransitionToState(TransitionState);
-            });
+            CustomNetworkManager.Instance.Countdown(
+                CountdownMessage,
+                CountdownCallback ?? (() => GameplayManager.Instance.TransitionToState(TransitionState))
+            );
         }
     }
 

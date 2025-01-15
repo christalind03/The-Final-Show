@@ -14,7 +14,7 @@ public class PlayerVisibility : NetworkBehaviour
     }
 
     // TODO: Document
-    [Command]
+    [Command(requiresAuthority = false)]
     public void CmdToggleVisibility(bool isVisible)
     {
         RpcToggleVisbility(isVisible);

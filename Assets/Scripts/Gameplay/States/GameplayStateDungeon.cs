@@ -12,13 +12,35 @@ public class GameplayStateDungeon : GameplayState
     public override void EnterState()
     {
         Debug.Log("Entering the DUNGEON gameplay state...");
+
+        CountdownCallback = () =>
+        {
+            if (_safeZone != null && _safeZone.ContainsPlayers)
+            {
+                GameplayManager.Instance.TransitionToState(GameplayManager.State.Boss);
+
+                List<GameObject> invalidPlayers = NetworkUtils.RetrievePlayers().Except(_safeZone.SafePlayers).ToList();
+
+                foreach (GameObject invalidPlayer in invalidPlayers)
+                {
+                    NetworkIdentity invalidPlayerIdentity = invalidPlayer.GetComponent<NetworkIdentity>();
+
+                    invalidPlayerIdentity.connectionToClient.Send(new SpectateMessage() { });
+                }
+            }
+            else
+            {
+                GameplayManager.Instance.TransitionToState(TransitionState);
+            }
+        };
+
         base.EnterState();
     }
 
     // TODO: Document
     protected override void OnSceneLoaded(Scene activeScene, LoadSceneMode loadMode)
     {
-        if (activeScene.name != TargetScene) { return; }
+        base.OnSceneLoaded(activeScene, loadMode);
 
         GameplayManager.Instance.FindObject((SafeZone targetObject) =>
         {
@@ -28,34 +50,6 @@ public class GameplayStateDungeon : GameplayState
                 _safeZone = targetObject;
             }
         });
-
-        // The following code is the base implementation of OnSceneLoaded with
-        // countdown timer callback adjustments specifically for this state
-        
-        if (IsTimed)
-        {
-            CustomNetworkManager.Instance.Countdown(CountdownMessage, () =>
-            {
-                if (_safeZone != null && _safeZone.ContainsPlayers)
-                {
-                    Debug.Log("Transitioning to the boss state...");
-                    GameplayManager.Instance.TransitionToState(GameplayManager.State.Boss);
-
-                    List<GameObject> invalidPlayers = NetworkUtils.RetrievePlayers().Except(_safeZone.SafePlayers).ToList();
-
-                    foreach (GameObject invalidPlayer in invalidPlayers)
-                    {
-                        NetworkIdentity invalidPlayerIdentity = invalidPlayer.GetComponent<NetworkIdentity>();
-
-                        invalidPlayerIdentity.connectionToClient.Send(new SpectateMessage() { });
-                    }
-                }
-                else
-                {
-                    GameplayManager.Instance.TransitionToState(TransitionState);
-                }
-            });
-        }
     }
 
     public override void ExitState()
