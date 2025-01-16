@@ -193,9 +193,9 @@ public class CustomNetworkManager : NetworkManager
     // TODO: Document
     private IEnumerator ServerCountdown(int countdownDuration, Action callbackFn)
     {
-        // The duration is countdownDuration + .01 because the client needs a little 
+        // The duration is countdownDuration + .05 because the client needs a little 
         // bit of buffer to disable UI before getting teleported to the next scene 
-        yield return new WaitForSeconds((float)(countdownDuration + .01));
+        yield return new WaitForSeconds((float)(countdownDuration + .05));
         callbackFn?.Invoke();
     }
 

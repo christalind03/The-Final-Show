@@ -44,7 +44,20 @@ public static class NetworkUtils
     // TODO: Document
     public static IEnumerator WaitUntilReady(Action<NetworkIdentity> onReady)
     {
-        yield return new WaitUntil(() => NetworkClient.connection.identity != null);
-        onReady.Invoke(NetworkClient.connection.identity);
+        yield return new WaitUntil(() =>
+        {
+            if (NetworkServer.active)
+            {
+                // On the server, check if the connectionToClient is ready
+                return NetworkClient.connection?.identity != null && NetworkClient.connection.identity.connectionToClient.isReady;
+            }
+            else if (NetworkClient.active)
+            {
+                // On the client, check if the connection is established
+                return NetworkClient.connection?.identity != null && NetworkClient.isConnected;
+            }
+            return false;
+        });
+        onReady?.Invoke(NetworkClient.connection.identity);
     }
 }
