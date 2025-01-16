@@ -1,6 +1,7 @@
 using Mirror;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -11,6 +12,7 @@ public class CustomNetworkManager : NetworkManager
 {
     public ulong LobbyId { get; set; }
     public static CustomNetworkManager Instance => (CustomNetworkManager)NetworkManager.singleton;
+    private Dictionary<string, Coroutine> activeCoroutines = new Dictionary<string, Coroutine>();
 
     // TODO: Document
     public override void OnClientConnect()
@@ -88,13 +90,28 @@ public class CustomNetworkManager : NetworkManager
     public void Countdown(CountdownMessage countdownMessage, Action callbackFn)
     {
         NetworkServer.SendToAll(countdownMessage);
-        StartCoroutine(ServerCountdown(countdownMessage.Duration, callbackFn));
+        
+        // Checks if this coroutine is active and disables the coroutine if it is active so no more
+        // than one type is running 
+        if(activeCoroutines.TryGetValue("Server", out Coroutine value))
+        {
+            StopCoroutine(value);
+            activeCoroutines.Remove("Server");
+        }
+        activeCoroutines.Add("Server", StartCoroutine(ServerCountdown(countdownMessage.Duration, callbackFn)));
     }
 
     // TODO: Document
     private void OnCountdown(CountdownMessage countdownMessage)
     {
-        StartCoroutine(ClientCountdown(countdownMessage));
+        // Checks if this coroutine is active and disables the coroutine if it is active so no more
+        // than one type is running 
+        if(activeCoroutines.TryGetValue("Client", out Coroutine value))
+        {
+            StopCoroutine(value);
+            activeCoroutines.Remove("Client");
+        }
+        activeCoroutines.Add("Client", StartCoroutine(ClientCountdown(countdownMessage)));
     }
 
     // TODO: Document
@@ -176,7 +193,9 @@ public class CustomNetworkManager : NetworkManager
     // TODO: Document
     private IEnumerator ServerCountdown(int countdownDuration, Action callbackFn)
     {
-        yield return new WaitForSeconds(countdownDuration);
+        // The duration is countdownDuration + .01 because the client needs a little 
+        // bit of buffer to disable UI before getting teleported to the next scene 
+        yield return new WaitForSeconds((float)(countdownDuration + .01));
         callbackFn?.Invoke();
     }
 
