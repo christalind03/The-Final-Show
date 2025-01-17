@@ -1,3 +1,4 @@
+using Mirror;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Intermission Gameplay State", menuName = "Base State/Gameplay/Intermission")]
@@ -6,6 +7,19 @@ public class GameplayStateIntermission : GameplayState
     public override void EnterState()
     {
         Debug.Log("Entering the INTERMISSION gameplay state...");
+
+        foreach (GameObject clientObject in NetworkUtils.RetrievePlayers())
+        {
+            CameraController clientCamera = clientObject.GetComponent<CameraController>();
+            PlayerVisibility clientVisibility = clientObject.GetComponent<PlayerVisibility>();
+            NetworkIdentity clientIdentity = clientObject.GetComponent<NetworkIdentity>();
+
+            clientCamera.alive = true;
+            
+            clientCamera.TargetPlay();
+            clientVisibility.RpcToggleVisbility(true);
+        }
+
         base.EnterState();
     }
 

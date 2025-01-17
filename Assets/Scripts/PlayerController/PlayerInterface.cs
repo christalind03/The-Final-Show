@@ -18,7 +18,16 @@ public class PlayerInterface : NetworkBehaviour
     /// </summary>
     public override void OnStartAuthority()
     {
-        _rootVisualElement = gameObject.GetComponent<UIDocument>().rootVisualElement;
+        UIDocument uiDocument = gameObject.GetComponent<UIDocument>();
+
+        if (uiDocument.visualTreeAsset.name != "PlayerUI")
+        {
+            Debug.Log("Updating visual tree asset...");
+            uiDocument.visualTreeAsset = Resources.Load<VisualTreeAsset>("UI/PlayerUI");
+        }
+
+        //Debug.Log(gameObject.GetComponent<UIDocument>().visualTreeAsset.ToString());
+        _rootVisualElement = uiDocument.rootVisualElement;
         base.OnStartAuthority();
     }
 
@@ -52,7 +61,7 @@ public class PlayerInterface : NetworkBehaviour
     /// <param name="message">The message to display in the UI.</param>
     public void DisplayInventoryMessage(string message)
     {
-        StopCoroutine("DisplayInvnetoryMessageCoroutine");
+        StopCoroutine("DisplayInventoryMessageCoroutine");
         StartCoroutine(DisplayInventoryMessageCoroutine(message));
     }
 
