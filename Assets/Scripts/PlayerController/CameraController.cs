@@ -3,6 +3,7 @@ using Mirror;
 using Cinemachine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
+using System.Collections;
 
 /// <summary>
 /// Controls the cameras when the player loads in to make sure the correct camera is assigned to each player
@@ -16,15 +17,11 @@ public class CameraController : NetworkBehaviour
     [SyncVar] private List<string> players = new List<string>();
 
     private UIDocument uiDocument;
-    private VisualTreeAsset spectatorUI;
     private CinemachineVirtualCamera[] virtualCameras;
     int cameraIndex;
 
     // UI Stuff
-    private VisualElement ui;
     private TextElement currentPlayer;
-    private Button Previous;
-    private Button Next;
 
     /// <summary>
     /// On the start of the client connection, only enable the uidocument that is owned by the current player so other uidocuments are not shown
@@ -51,7 +48,6 @@ public class CameraController : NetworkBehaviour
     /// </summary>
     public override void OnStartAuthority()
     {
-        spectatorUI = Resources.Load<VisualTreeAsset>("UI/SpectateUI");
         
         // Checks if the camera is owned by the player, enables the gameobject and set the priority of the different cinemachine
         if (isOwned)
@@ -78,22 +74,39 @@ public class CameraController : NetworkBehaviour
         {
             UnityEngine.Cursor.visible = true;
             UnityEngine.Cursor.lockState = CursorLockMode.None;
-            uiDocument.visualTreeAsset = spectatorUI;
 
             GetComponent<PlayerController>().enabled = false;
 
-            ui = uiDocument.rootVisualElement;
-            currentPlayer = ui.Q<VisualElement>("Tools").Q<TextElement>("Current");
-            Previous = ui.Q<VisualElement>("Tools").Q<Button>("Pre");
-            Next = ui.Q<VisualElement>("Tools").Q<Button>("Next");
+            VisualElement rootVisualElement = uiDocument.rootVisualElement;
+            if (UnityUtils.ContainsElement(rootVisualElement, "Primary-Container", out VisualElement primContainer))
+            {
+                primContainer.AddToClassList("secondaryContainer");
+                primContainer.RemoveFromClassList("primaryContainer");
+            }
+
+            if (UnityUtils.ContainsElement(rootVisualElement, "Spectator-Container", out VisualElement secContainer))
+            {
+                secContainer.AddToClassList("primaryContainer");
+                secContainer.RemoveFromClassList("secondaryContainer");
+            }
+
+            if (UnityUtils.ContainsElement(rootVisualElement, "Current", out Label Cur))
+            {
+                currentPlayer = Cur;
+            }
+            
+            if (UnityUtils.ContainsElement(rootVisualElement, "Pre", out Button PreBtn))
+            {
+                PreBtn.clicked += OnPreviousClicked;
+            }
+
+            if (UnityUtils.ContainsElement(rootVisualElement, "Next", out Button NextBtn))
+            {
+                NextBtn.clicked += OnNextClicked;
+            }
 
             GetCameraIndex(); // All cameras are stored in a list, this gets the index of the camera associated with the local player 
             GetAllPlayers(); // Get the list of all names of current players in the game so it can be displayed on the bar
-
-            // Subscribe the UI buttons 
-            Previous.clicked += OnPreviousClicked;
-            Next.clicked += OnNextClicked;
-
         }
     }
 
