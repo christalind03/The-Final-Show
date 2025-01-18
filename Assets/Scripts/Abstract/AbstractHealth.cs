@@ -112,6 +112,16 @@ public abstract class AbstractHealth : NetworkBehaviour
     }
 
     /// <summary>
+    /// Reset the health of the target to base health
+    /// </summary>
+    /// <param name="target">target</param>
+    [TargetRpc]
+    public void TargetResetHealth(NetworkConnectionToClient target)
+    {
+        _currentValue = _baseValue;
+    }
+
+    /// <summary>
     /// Called on all clients when the base health value changes.
     /// This is performed with the <c>SyncVar</c> hook attached to <c>_currentValue</c>.
     /// </summary>

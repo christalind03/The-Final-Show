@@ -13,11 +13,11 @@ public class GameplayStateIntermission : GameplayState
             CameraController clientCamera = clientObject.GetComponent<CameraController>();
             PlayerVisibility clientVisibility = clientObject.GetComponent<PlayerVisibility>();
             NetworkIdentity clientIdentity = clientObject.GetComponent<NetworkIdentity>();
-
-            clientCamera.alive = true;
+            PlayerHealth clientHealth = clientObject.GetComponent<PlayerHealth>();
             
-            clientCamera.TargetPlay();
+            clientHealth.TargetResetHealth(clientIdentity.connectionToClient);
             clientVisibility.RpcToggleVisbility(true);
+            clientCamera.TargetPlay(clientIdentity.connectionToClient);
         }
 
         base.EnterState();

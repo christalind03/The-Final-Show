@@ -17,6 +17,8 @@ public class PlayerVisibility : NetworkBehaviour
     [Command(requiresAuthority = true)]
     public void CmdToggleVisibility(bool isVisible)
     {
+        _characterController.enabled = isVisible;
+        _skinnedMeshRenderer.enabled = isVisible;
         RpcToggleVisbility(isVisible);
     }
 

@@ -54,7 +54,7 @@ public static class NetworkUtils
             else if (NetworkClient.active)
             {
                 // On the client, check if the connection is established
-                return NetworkClient.connection?.identity != null && NetworkClient.isConnected;
+                return NetworkClient.connection?.identity != null && NetworkClient.isConnected && NetworkClient.ready;
             }
             return false;
         });

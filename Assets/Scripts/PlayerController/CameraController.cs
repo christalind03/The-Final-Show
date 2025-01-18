@@ -3,7 +3,6 @@ using Mirror;
 using Cinemachine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
-using System.Collections;
 
 /// <summary>
 /// Controls the cameras when the player loads in to make sure the correct camera is assigned to each player
@@ -63,6 +62,37 @@ public class CameraController : NetworkBehaviour
         base.OnStartAuthority();
     }
 
+    /// TO DO: Documentation 
+    [TargetRpc]
+    public void TargetPlay(NetworkConnectionToClient target)
+    {
+        if (isOwned)
+        {
+            UnityEngine.Cursor.visible = false;
+            UnityEngine.Cursor.lockState = CursorLockMode.Confined;
+
+            alive = true;
+            VisualElement rootVisualElement = uiDocument.rootVisualElement;
+            if (UnityUtils.ContainsElement(rootVisualElement, "Primary-Container", out VisualElement primContainer))
+            {
+                primContainer.AddToClassList("primaryContainer");
+                primContainer.RemoveFromClassList("secondaryContainer");
+            }
+
+            if (UnityUtils.ContainsElement(rootVisualElement, "Spectator-Container", out VisualElement secContainer))
+            {
+                secContainer.AddToClassList("secondaryContainer");
+                secContainer.RemoveFromClassList("primaryContainer");
+            }
+
+            gameObject.GetComponent<PlayerInterface>().enabled = true;
+            gameObject.GetComponent<PlayerController>().enabled = true;
+
+            gameObject.layer = 6;
+            virtualCamera.Priority = 1;
+        }
+    }
+
     /// <summary>
     /// Switch the player's gameplay mode into spectator made after they've died. Player controller will be completely disabled since 
     /// the player should not be able to move. The UI for spectator mode will also be replacing the gameplay UI.
@@ -75,7 +105,8 @@ public class CameraController : NetworkBehaviour
             UnityEngine.Cursor.visible = true;
             UnityEngine.Cursor.lockState = CursorLockMode.None;
 
-            GetComponent<PlayerController>().enabled = false;
+            gameObject.GetComponent<PlayerController>().enabled = false;
+            gameObject.GetComponent<PlayerInterface>().enabled = false;
 
             VisualElement rootVisualElement = uiDocument.rootVisualElement;
             if (UnityUtils.ContainsElement(rootVisualElement, "Primary-Container", out VisualElement primContainer))
