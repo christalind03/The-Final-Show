@@ -14,7 +14,13 @@ public static class GeneralUtils
         BindingFlags.Public |
         BindingFlags.Static;
 
-    // TODO: Document
+    /// <summary>
+    /// Clones the field data from one object to another by copying the values of all fields.
+    /// This method works for public and private fields, based on the provided reflection flags.
+    /// </summary>
+    /// <typeparam name="TObject">The type of the source and target objects</typeparam>
+    /// <param name="sourceObject">The object to copy field values from</param>
+    /// <param name="targetObject">The object to copy field values to</param>
     public static void CloneFieldData<TObject>(TObject sourceObject, TObject targetObject)
     {
         foreach (FieldInfo currentField in sourceObject.GetType().GetFields(ReflectionFlags))
@@ -25,7 +31,13 @@ public static class GeneralUtils
         }
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Clones the property data from one object to another by copying the values of all properties.
+    /// This method works for public and private properties, based on the provided reflection flags.
+    /// </summary>
+    /// <typeparam name="TObject">The type of the source and target objects</typeparam>
+    /// <param name="sourceObject">The object to copy property values from</param>
+    /// <param name="targetObject">The object to copy property values to</param>
     public static void ClonePropertyData<TObject>(TObject sourceObject, TObject targetObject)
     {
         foreach (PropertyInfo currentProperty in sourceObject.GetType().GetProperties(ReflectionFlags))

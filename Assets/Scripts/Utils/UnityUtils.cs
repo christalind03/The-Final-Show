@@ -10,14 +10,27 @@ using UnityEngine.UIElements;
 /// </summary>
 public static class UnityUtils
 {
-    // TODO: Document
+    /// <summary>
+    /// Clones the non-serialized field sand properties from the source object to the target object.
+    /// This EXCLUDES fields and properties that are as [SerializedField].
+    /// </summary>
+    /// <param name="sourceObject">The source object from which data will be cloned.</param>
+    /// <param name="targetObject">The target object to which data will be cloned.</param>
     public static void CloneNonSerializedData(UnityEngine.Object sourceObject, UnityEngine.Object targetObject)
     {
         GeneralUtils.CloneFieldData(sourceObject, targetObject);
         GeneralUtils.ClonePropertyData(sourceObject, targetObject);
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Clones the serialized data from the source object to the target object.
+    /// This INCLUDES fields and properties that are as [SerializedField].
+    /// </summary>
+    /// <remarks>
+    /// We may need to update this code in order to work in builds as <see cref="SerializedObject"/> is only available in the editor.
+    /// </remarks>
+    /// <param name="sourceObject">The source object from which data will be cloned.</param>
+    /// <param name="targetObject">The target object to which data will be cloned.</param>
     public static void CloneSerializedData(UnityEngine.Object sourceObject, UnityEngine.Object targetObject)
     {
         SerializedObject serializedSource = new SerializedObject(sourceObject);
@@ -44,7 +57,15 @@ public static class UnityUtils
         return layerMask == (layerMask | (1 << targetLayer));
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Attempts to find and retrieve a specific UI element of type <typeparamref name="TElement"/> within the provided <paramref name="rootVisualElement"/>
+    /// using the specified <paramref name="targetElement"/> selector.
+    /// </summary>
+    /// <typeparam name="TElement">The type of UI element to search for</typeparam>
+    /// <param name="rootVisualElement">The root visual element that serves as the search container</param>
+    /// <param name="targetElement">The name or class of the target element to find</param>
+    /// <param name="uiElement">An output parameter that will contain the found UI element, if successful</param>
+    /// <returns>Returns <c>true</c> if hte element is foudn; otherwise <c>false</c>.</returns>
     public static bool ContainsElement<TElement>(VisualElement rootVisualElement, string targetElement, out TElement uiElement) where TElement : VisualElement
     {
         if (rootVisualElement == null)
@@ -70,10 +91,10 @@ public static class UnityUtils
 
     }
 
-    // TODO: Update Documentation
     /// <summary>
     /// Logs an error message to the Unity console, prefixed with the script's name.
     /// </summary>
+    /// <param name="frameIndex">The index of the frame in the call stack to fetch the script name from.</param>
     /// <param name="errorMessage">The error message to log.</param>
     public static void LogError(string errorMessage, int frameIndex = 1)
     {
@@ -82,10 +103,10 @@ public static class UnityUtils
         UnityEngine.Debug.LogError($"[{scriptName}] {errorMessage}");
     }
 
-    // TODO: Update Documentation
     /// <summary>
     /// Logs a warning message to the Unity console, prefixed with the script's name.
     /// </summary>
+    /// <param name="frameIndex">The index of the frame in the call stack to fetch the script name from.</param>
     /// <param name="warningMessage">The warning message to log.</param>
     public static void LogWarning(string warningMessage, int frameIndex = 1)
     {
@@ -94,7 +115,14 @@ public static class UnityUtils
         UnityEngine.Debug.LogWarning($"[{scriptName}] {warningMessage}");
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Waits for the first instance of <typeparamref name="TComponent"/> to be found within the scene,
+    /// within the provided <paramref name="timeLimit"/>. Once the component is found, the specified callback is invoked.
+    /// </summary>
+    /// <typeparam name="TComponent">The type of component to search the scene for</typeparam>
+    /// <param name="timeLimit">The maximum time (in seconds) to wait before aborting the search</param>
+    /// <param name="onFound">The callback that is invoked once the component is found</param>
+    /// <returns>An <c>IEnumerator</c> for coroutine execution</returns>
     public static IEnumerator WaitForObject<TComponent>(float timeLimit, Action<TComponent> onFound) where TComponent : Component
     {
         float startTime = Time.time;
@@ -113,10 +141,10 @@ public static class UnityUtils
 
     }
 
-    // TODO: Update Documentation
     /// <summary>
     /// Retrieves the name of the current script.
     /// </summary>
+    /// <param name="frameIndex">The index of the frame in the call stack to fetch the script name from.</param>
     /// <returns>The name of the script calling the current method.</returns>
     private static string FetchScriptName(int frameIndex)
     {

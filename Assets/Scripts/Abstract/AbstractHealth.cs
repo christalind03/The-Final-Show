@@ -63,7 +63,7 @@ public abstract class AbstractHealth : NetworkBehaviour
     /// Increase the current value of the stat by the specified amount.
     /// </summary>
     /// <param name="increaseValue">The amount to increase the current value by.</param>
-    [Command(requiresAuthority = true)]
+    [Command(requiresAuthority = false)]
     public void CmdHeal(float increaseValue)
     {
         CurrentValue += increaseValue;
@@ -74,7 +74,7 @@ public abstract class AbstractHealth : NetworkBehaviour
     /// If the current value is below zero, then call <c>TriggerDeath()</c>.
     /// </summary>
     /// <param name="decreaseValue">The amount to decrease the current value by.</param>
-    [Command(requiresAuthority = true)]
+    [Command(requiresAuthority = false)]
     public void CmdDamage(float decreaseValue)
     {
         CurrentValue -= decreaseValue;
@@ -88,7 +88,7 @@ public abstract class AbstractHealth : NetworkBehaviour
     /// Allows for temporary adjustments to the base value.
     /// </summary>
     /// <param name="modifierValue">The amount to increase the base value by.</param>
-    [Command(requiresAuthority = true)]
+    [Command(requiresAuthority = false)]
     public void CmdAddModifier(float modifierValue)
     {
         if (modifierValue != 0)
@@ -102,7 +102,7 @@ public abstract class AbstractHealth : NetworkBehaviour
     /// Allows for the removal of temporary adjustments to the base value.
     /// </summary>
     /// <param name="modifierValue">The amount to decrease the base value by.</param>
-    [Command(requiresAuthority = true)]
+    [Command(requiresAuthority = false)]
     public void CmdRemoveModifier(float modifierValue)
     {
         if (modifierValue != 0f)

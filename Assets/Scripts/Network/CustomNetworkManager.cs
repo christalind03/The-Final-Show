@@ -14,7 +14,10 @@ public class CustomNetworkManager : NetworkManager
     public static CustomNetworkManager Instance => (CustomNetworkManager)NetworkManager.singleton;
     private Dictionary<string, Coroutine> activeCoroutines = new Dictionary<string, Coroutine>();
 
-    // TODO: Document
+    /// <summary>
+    /// Called when the client connects to the server.
+    /// Registers custom network message handlers for countdown and spectate functionality.
+    /// </summary>
     public override void OnClientConnect()
     {
         base.OnClientConnect();
@@ -24,7 +27,10 @@ public class CustomNetworkManager : NetworkManager
         NetworkClient.RegisterHandler<SpectateMessage>(OnSpectate);
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Called when the client disconnects from the server.
+    /// Unregisters custom network message handlers for countdown and spectate functionality.
+    /// </summary>
     public override void OnClientDisconnect()
     {
         base.OnClientDisconnect();
@@ -34,7 +40,11 @@ public class CustomNetworkManager : NetworkManager
         NetworkClient.UnregisterHandler<SpectateMessage>();
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Called when the client is ready (has the scene loaded) on the server.
+    /// Spawns or relocates the player based on the client identity.
+    /// </summary>
+    /// <param name="clientConnection">The connection of the client that is ready</param>
     public override void OnServerReady(NetworkConnectionToClient clientConnection)
     {
         if (clientConnection.isReady) { return; }
@@ -51,7 +61,11 @@ public class CustomNetworkManager : NetworkManager
         }
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Spawns a new player for the given client connection.
+    /// </summary>
+    /// <param name="clientConnection">The connection of the client to spawn the player for</param>
+    /// <returns>An <c>IEnumerator</c> for coroutine execution.</returns>
     public IEnumerator SpawnPlayer(NetworkConnectionToClient clientConnection)
     {
         if (clientConnection.identity != null) { yield break; }
@@ -64,7 +78,11 @@ public class CustomNetworkManager : NetworkManager
         NetworkServer.AddPlayerForConnection(clientConnection, networkPlayer);
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Relocates the player for the given client connection to a new spawn position.
+    /// </summary>
+    /// <param name="clientConnection">The connection of the client to relocate the player for</param>
+    /// <returns>An <c>IEnumerator</c> for coroutine execution.</returns>
     public IEnumerator RelocatePlayer(NetworkConnectionToClient clientConnection)
     {
         GameObject networkPlayer = clientConnection.identity.gameObject;
@@ -86,7 +104,12 @@ public class CustomNetworkManager : NetworkManager
     #region CountdownMessage Functionality
     // This region contains functionality for handling countdown timers on both the clients and server side.
 
-    // TODO: Document
+    /// <summary>
+    /// Initiates a countdown on the server and synchronizes it with the clients.
+    /// When the countdown finishes, the specified callback function is executed.
+    /// </summary>
+    /// <param name="countdownMessage">The countdown message to send to all clients</param>
+    /// <param name="callbackFn">The callback function to invoke after the countdown finishes</param>
     public void Countdown(CountdownMessage countdownMessage, Action callbackFn)
     {
         NetworkServer.SendToAll(countdownMessage);
@@ -101,7 +124,10 @@ public class CustomNetworkManager : NetworkManager
         activeCoroutines.Add("Server", StartCoroutine(ServerCountdown(countdownMessage.Duration, callbackFn)));
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Handles the countdown on the client side, updating the UI to reflect the remaining time.
+    /// </summary>
+    /// <param name="countdownMessage">The countdown message received from the server</param>
     private void OnCountdown(CountdownMessage countdownMessage)
     {
         // Checks if this coroutine is active and disables the coroutine if it is active so no more
@@ -114,7 +140,12 @@ public class CustomNetworkManager : NetworkManager
         activeCoroutines.Add("Client", StartCoroutine(ClientCountdown(countdownMessage)));
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Handles the countdown on the client side, displaying the countdown on the UI.
+    /// </summary>
+    /// <param name="countdownMessage">The countdown message containing information on how to display the countdown</param>
+    /// <returns>An <c>IEnumerator</c> for coroutine execution.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="countdownMessage"/> if null</exception>
     private IEnumerator ClientCountdown(CountdownMessage countdownMessage)
     {
         // Wait until the client identity is defined
@@ -190,7 +221,12 @@ public class CustomNetworkManager : NetworkManager
         }
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Handles the server countdown, waiting for the specified duration before invoking the callback.
+    /// </summary>
+    /// <param name="countdownDuration">The duration of the countdown in seconds</param>
+    /// <param name="callbackFn">The callback function to invoke after the countdown is complete</param>
+    /// <returns>An <c>IEnumerator</c> for coroutine execution.</returns>
     private IEnumerator ServerCountdown(int countdownDuration, Action callbackFn)
     {
         // The duration is countdownDuration + .05 because the client needs a little 
@@ -203,7 +239,12 @@ public class CustomNetworkManager : NetworkManager
 
     #region SpectateMessage Functionality
 
-    // TODO: Document
+    /// <summary>
+    /// Handles spectating functionality.
+    /// Whena spectate message is received, the player is marked as
+    /// not alive with their visibility is toggled off, enabling spectator mode.
+    /// </summary>
+    /// <param name="spectateMessage">The <see cref="SpectateMessage"/> received from the server</param>
     private void OnSpectate(SpectateMessage spectateMessage)
     {
         // NOTE: We may have to ensure the correct scene before enabling spectator mode
@@ -217,7 +258,6 @@ public class CustomNetworkManager : NetworkManager
                 playerObject.GetComponent<PlayerVisibility>().CmdToggleVisibility(false);
             }));            
         }
-
     }
 
     #endregion

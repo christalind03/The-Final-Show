@@ -10,13 +10,11 @@ public class GameplayStateBoss : GameplayState
     private bool _enemyExists;
     private EnemyHealth _enemyHealth;
 
-    public override void EnterState()
-    {
-        Debug.Log("Entering the BOSS gameplay state...");
-        base.EnterState();
-    }
-
-    // TODO: Document
+    /// <summary>
+    /// When the target scene is loaded, searches for the primary enemy in the scene and initializes the enemy's health reference, if found.
+    /// </summary>
+    /// <param name="activeScene">The scene that was loaded</param>
+    /// <param name="loadMode">The mode in which the scene was loaded</param>
     protected override void OnSceneLoaded(Scene activeScene, LoadSceneMode loadMode)
     {
         base.OnSceneLoaded(activeScene, loadMode);
@@ -25,23 +23,21 @@ public class GameplayStateBoss : GameplayState
         {
             if (targetObject != null)
             {
-                Debug.Log("Boss found successfully!");
                 _enemyExists = true;
                 _enemyHealth = targetObject;
             }
         });
     }
 
-    public override void ExitState()
-    {
-        Debug.Log("Exiting the BOSS gameplay state...");
-        base.ExitState();
-    }
-
     public override void OnTriggerEnter(Collider otherCollider) { }
     public override void OnTriggerExit(Collider otherCollider) { }
     public override void OnTriggerStay(Collider otherCollider) { }
     
+    /// <summary>
+    /// Updates the state logic during gameplay.
+    /// Monitors the primary enemy's health status and triggers a state transition into <see cref="GameplayManager.State.Intermission"/>
+    /// when the enemy is defeated
+    /// </summary>
     public override void UpdateState()
     {
         // The primary enemy's health script becomes null when the enemy is defeated, as the reference is destroyed

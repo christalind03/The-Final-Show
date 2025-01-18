@@ -9,10 +9,14 @@ public class GameplayStateDungeon : GameplayState
 {
     private SafeZone _safeZone;
 
+    /// <summary>
+    /// Sets a custom callback to be executed once the countdown finishes.
+    /// If players are in the safe zone, then transitions the game state to the boss fight.
+    /// Players not within the safe zone are sent a message to spectate the event.
+    /// Otherwise, the game transitions in to the next (default) state in the gameplay flow.
+    /// </summary>
     public override void EnterState()
     {
-        Debug.Log("Entering the DUNGEON gameplay state...");
-
         CountdownCallback = () =>
         {
             if (_safeZone != null && _safeZone.ContainsPlayers)
@@ -37,7 +41,12 @@ public class GameplayStateDungeon : GameplayState
         base.EnterState();
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Searches for the safe zone object within the loaded scene.
+    /// If found, then set the safe zone reference to the one found.
+    /// </summary>
+    /// <param name="activeScene">The scene that was loaded</param>
+    /// <param name="loadMode">The mode in which the scene was loaded</param>
     protected override void OnSceneLoaded(Scene activeScene, LoadSceneMode loadMode)
     {
         base.OnSceneLoaded(activeScene, loadMode);
@@ -50,12 +59,6 @@ public class GameplayStateDungeon : GameplayState
                 _safeZone = targetObject;
             }
         });
-    }
-
-    public override void ExitState()
-    {
-        Debug.Log("Exiting the DUNGEON gameplay state...");
-        base.ExitState();
     }
 
     public override void OnTriggerEnter(Collider otherCollider) { }

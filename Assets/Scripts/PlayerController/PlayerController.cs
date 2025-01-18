@@ -56,7 +56,9 @@ public class PlayerController : NetworkBehaviour
     private int _animatorMovementX;
     private int _animatorMovementZ;
 
-    // TODO: Document
+    /// <summary>
+    /// Ensures this object instance persists throughout scenes.
+    /// </summary>
     private void Start()
     {
         DontDestroyOnLoad(this);
@@ -371,7 +373,9 @@ public class PlayerController : NetworkBehaviour
         _canJump = true;
     }
 
-    // TODO: Document
+    /// <summary>
+    /// When the client no longer has authority over this object, ensure the cursor is visible and disables the controls.
+    /// </summary>
     public override void OnStopAuthority()
     {
         Cursor.visible = true;

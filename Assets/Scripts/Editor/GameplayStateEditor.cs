@@ -4,7 +4,9 @@ using UnityEditor;
 [CustomEditor(typeof(GameplayState), true)]
 public class GameplayStateEditor : Editor
 {
-    // TODO: Documentation
+    /// <summary>
+    /// Overrides the default Inspector GUI for GameplayState scriptable objects, providing a customized layout
+    /// </summary>
     public override void OnInspectorGUI()
     {
         serializedObject.Update();

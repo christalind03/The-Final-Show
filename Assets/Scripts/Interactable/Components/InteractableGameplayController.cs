@@ -12,13 +12,20 @@ public class InteractableGameplayController : NetworkBehaviour, IInteractable
    
     private CustomNetworkManager _networkManager;
 
-    // TODO: Document
+    /// <summary>
+    /// Locates the instance of the custom network manager in the scene.
+    /// </summary>
     private void Start()
     {
         _networkManager = GameObject.FindAnyObjectByType<CustomNetworkManager>();
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Handles interaction with the specified player.
+    /// If the server is active, it either initiates a countdown before transitioning to a new state
+    /// or immediately performs the state transition.
+    /// </summary>
+    /// <param name="playerObject">The player object that triggered the interaction</param>
     public void Interact(GameObject playerObject)
     {
         if (!isServer) { return; }

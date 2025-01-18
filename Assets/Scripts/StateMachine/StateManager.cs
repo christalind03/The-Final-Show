@@ -39,7 +39,11 @@ public abstract class StateManager<EState, TState, TStateContext> : NetworkBehav
         CurrentState.EnterState();
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Initializes the states by creating instances of the state objects based on the provided mappings.
+    /// This ensures that separate instances are created for each state to prevent shared behavior across states.
+    /// </summary>
+    /// <remarks>Is this *really* needed?</remarks>
     private void InitializeStates()
     {
         States = StateMappings.ToDictionary(
@@ -95,12 +99,6 @@ public abstract class StateManager<EState, TState, TStateContext> : NetworkBehav
     private void OnTriggerStay(Collider otherCollider)
     {
         CurrentState.OnTriggerStay(otherCollider);
-    }
-
-    // TODO: Document
-    public EState RetrieveState()
-    {
-        return CurrentState.StateKey;
     }
 
     /// <summary>

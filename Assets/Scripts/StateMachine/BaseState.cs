@@ -23,26 +23,16 @@ public abstract class BaseState<EState, TStateContext> : ScriptableObject where 
         StateContext = stateContext;
     }
 
-    // TODO: Document, Refactor
+    /// <summary>
+    /// Clones the current instance of this state.
+    /// </summary>
+    /// <returns>A cloned instance of this state.</returns>
     public BaseState<EState, TStateContext> Clone()
     {
         var clonedInstance = (BaseState<EState, TStateContext>)ScriptableObject.CreateInstance(GetType());
 
         UnityUtils.CloneNonSerializedData(this, clonedInstance);
         UnityUtils.CloneSerializedData(this, clonedInstance);
-
-        //// ???
-        //SerializedObject serializedOriginal = new SerializedObject(this);
-        //SerializedObject serializedClone = new SerializedObject(clonedInstance);
-
-        //SerializedProperty property = serializedOriginal.GetIterator();
-
-        //while (property.NextVisible(true))
-        //{
-        //    serializedClone.CopyFromSerializedProperty(property);
-        //}
-
-        //serializedClone.ApplyModifiedProperties();
 
         return clonedInstance;
     }

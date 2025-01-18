@@ -32,7 +32,11 @@ public static class NetworkUtils
         return null;
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Retrieves a list of all clients' GameObjects connected to the server.
+    /// This method filters out clients that do not have an assigned identity.
+    /// </summary>
+    /// <returns>A list of <see cref="GameObject"/> representing all players connected to the server.</returns>
     public static List<GameObject> RetrievePlayers()
     {
         return NetworkServer.connections.Values
@@ -41,7 +45,11 @@ public static class NetworkUtils
             .ToList();
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Waits until the current client or server is ready, based on the connection status, and executes the provided callback.
+    /// </summary>
+    /// <param name="onReady">The action to execute once the client or server is ready</param>
+    /// <returns>An <see cref="IEnumerator"/> for coroutine execution.</returns>
     public static IEnumerator WaitUntilReady(Action<NetworkIdentity> onReady)
     {
         yield return new WaitUntil(() =>
@@ -58,6 +66,7 @@ public static class NetworkUtils
             }
             return false;
         });
+
         onReady?.Invoke(NetworkClient.connection.identity);
     }
 }

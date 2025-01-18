@@ -3,7 +3,9 @@ using UnityEditor;
 [CustomEditor(typeof(InteractableGameplayController))]
 public class InteractableGameplayControllerEditor : Editor
 {
-    // TODO: Documentation
+    /// <summary>
+    /// Overrides the default Inspector GUI for InteractableGameplayController components, providing a customized layout
+    /// </summary>
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
