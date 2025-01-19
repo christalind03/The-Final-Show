@@ -2,6 +2,7 @@ using Cinemachine;
 using Mirror;
 using System;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -61,7 +62,7 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void Start()
     {
-        DontDestroyOnLoad(this);
+        DontDestroyOnLoad(gameObject);
     }
 
     /// <summary>
@@ -123,7 +124,8 @@ public class PlayerController : NetworkBehaviour
     {
         base.OnStartClient();
         string name = transform.name;
-        PlayerManager.RegisterPlayer(name, gameObject);
+        PlayerManager.RegisterPlayer(netIdentity.netId, gameObject);
+        Debug.Log("Join " + netIdentity.netId);
     }
 
     /// <summary>
@@ -133,7 +135,7 @@ public class PlayerController : NetworkBehaviour
     {
         base.OnStopClient();
         string name = transform.name;
-        PlayerManager.UnregisterPlayer(name);
+        PlayerManager.UnregisterPlayer(netIdentity.netId);
     }
 
     /// <summary>
@@ -224,8 +226,12 @@ public class PlayerController : NetworkBehaviour
 
         // Check to see if we're looking at anything of importance.
         Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out _raycastHit, _interactableDistance);
-
-        CmdLook(_followTransform.rotation, _aimCamera.Priority);
+        StartCoroutine(NetworkUtils.WaitUntilReady((NetworkIdentity clientIdentity) =>
+        {
+            if(NetworkClient.ready){
+                CmdLook(_followTransform.rotation, _aimCamera.Priority);
+            }
+        }));  
     }
 
     /// <summary>
@@ -443,13 +449,13 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     /// <param name="rotationPlayer">Player rotation</param>
     /// <param name="rotationFollow">Follow camera rotation</param>
-    [Command]
+    [Command(requiresAuthority = false)]
     private void CmdLook(Quaternion rotationFollow, int aimCamPrio){
         _followTransform.rotation = rotationFollow;
         _aimCamera.Priority = aimCamPrio;
 
         // Propagates the changes to all clients
-        RpcUpdatePlayerLook(_followTransform.rotation, aimCamPrio);
+        RpcUpdatePlayerLook(_followTransform.rotation, aimCamPrio);               
     }
 
     /// <summary>

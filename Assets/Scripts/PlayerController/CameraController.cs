@@ -7,6 +7,7 @@ using Unity.IO.LowLevel.Unsafe;
 using Unity.VisualScripting;
 using UnityEngine.Rendering;
 using System.Runtime.CompilerServices;
+using Steamworks;
 
 /// <summary>
 /// Controls the cameras when the player loads in to make sure the correct camera is assigned to each player
@@ -21,7 +22,7 @@ public class CameraController : NetworkBehaviour
     private List<GameObject> playerObj;
 
     private UIDocument uiDocument;
-    private VisualTreeAsset spectatorUI;
+    private GameObject currentVirtualCameraHolder;
     int playerIndex;
 
     // UI Stuff
@@ -35,6 +36,7 @@ public class CameraController : NetworkBehaviour
         base.OnStartClient();
         uiDocument = GetComponent<UIDocument>();
         playerIndex = -1;
+        currentVirtualCameraHolder = virtualCameras;
 
         // Checks if the camera/ui is owned by the player, enables the gameobject
         if (isOwned)
@@ -56,7 +58,6 @@ public class CameraController : NetworkBehaviour
     public override void OnStartAuthority()
     {
         base.OnStartAuthority();
-        spectatorUI = Resources.Load<VisualTreeAsset>("UI/SpectateUI");
         playerName = new List<string>();
         playerObj = new List<GameObject>();
     }
@@ -65,8 +66,10 @@ public class CameraController : NetworkBehaviour
     [TargetRpc]
     public void TargetPlay(NetworkConnectionToClient target)
     {
+        Debug.Log("ran outside");
         if (isOwned)
         {
+            Debug.Log("ran inside");
             UnityEngine.Cursor.visible = false;
             UnityEngine.Cursor.lockState = CursorLockMode.Confined;
 
@@ -88,6 +91,10 @@ public class CameraController : NetworkBehaviour
             gameObject.GetComponent<PlayerController>().enabled = true;
 
             gameObject.layer = 6;
+            currentVirtualCameraHolder.transform.Find("FollowCamera").gameObject.GetComponent<CinemachineVirtualCamera>().Priority = 0;
+            virtualCameras.transform.Find("FollowCamera").gameObject.GetComponent<CinemachineVirtualCamera>().Priority = 1;
+            currentVirtualCameraHolder.gameObject.SetActive(false);
+            virtualCameras.SetActive(true);
         }
     }
 
@@ -154,6 +161,7 @@ public class CameraController : NetworkBehaviour
         
         oldVirtualCameras.SetActive(false);
         currentPlayer.text = playerName[playerIndex];
+        currentVirtualCameraHolder = playerObj[playerIndex].transform.Find("VirtualCameras").gameObject;
     }
 
     /// <summary>
@@ -162,7 +170,6 @@ public class CameraController : NetworkBehaviour
     private void OnNextClicked()
     {
         if (playerIndex < 0 || playerIndex > playerObj.Count - 1) { playerIndex = 0; } //make sure the camIdx is located within the range of the array, if not assign it the first camera
-
         GameObject oldVirtualCameras = playerObj[playerIndex].transform.Find("VirtualCameras").gameObject;
         CinemachineVirtualCamera oldFollowCam = playerObj[playerIndex].transform.Find("VirtualCameras/FollowCamera").gameObject.GetComponent<CinemachineVirtualCamera>();
         oldFollowCam.Priority = 0;
@@ -175,6 +182,7 @@ public class CameraController : NetworkBehaviour
         
         oldVirtualCameras.SetActive(false);
         currentPlayer.text = playerName[playerIndex];
+        currentVirtualCameraHolder = playerObj[playerIndex].transform.Find("VirtualCameras").gameObject;
     }
 
     
@@ -186,9 +194,11 @@ public class CameraController : NetworkBehaviour
     {
         List<string> playerNames = new List<string>();
         List<GameObject> playerObjs = new List<GameObject>();
-        foreach(var entry in PlayerManager.GetPlayerNameList()){
-            playerNames.Add(entry.Key);
+        foreach(var entry in PlayerManager.GetObjectList()){
             playerObjs.Add(entry.Value);
+        }
+        foreach(var entry in PlayerManager.GetPlayerNameList()){
+            playerNames.Add(entry.Value);
         }
         TargetRpcRequestPlayerList(playerNames, playerObjs);
     }
