@@ -250,14 +250,12 @@ public class CustomNetworkManager : NetworkManager
         // NOTE: We may have to ensure the correct scene before enabling spectator mode
         //       Since no issues have yet surfaced, we will deal with that at a later point
 
-        if(NetworkServer.active || NetworkClient.localPlayer){
-            StartCoroutine(NetworkUtils.WaitUntilReady((NetworkIdentity clientIdentity) =>
-            {
-                GameObject playerObject = clientIdentity.gameObject;
-                playerObject.GetComponent<PlayerHealth>().CmdDamage(float.MaxValue);
-                playerObject.GetComponent<PlayerVisibility>().CmdToggleVisibility(false);
-            }));            
-        }
+        StartCoroutine(NetworkUtils.WaitUntilReady((NetworkIdentity clientIdentity) =>
+        {
+            GameObject playerObject = clientIdentity.gameObject;
+            playerObject.GetComponent<PlayerHealth>().CmdDamage(float.MaxValue);
+            playerObject.GetComponent<PlayerVisibility>().CmdToggleVisibility(false);
+        }));            
     }
 
     #endregion

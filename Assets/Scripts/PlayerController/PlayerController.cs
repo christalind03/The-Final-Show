@@ -125,7 +125,6 @@ public class PlayerController : NetworkBehaviour
         base.OnStartClient();
         string name = transform.name;
         PlayerManager.RegisterPlayer(netIdentity.netId, gameObject);
-        Debug.Log("Join " + netIdentity.netId);
     }
 
     /// <summary>

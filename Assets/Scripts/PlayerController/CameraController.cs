@@ -66,10 +66,8 @@ public class CameraController : NetworkBehaviour
     [TargetRpc]
     public void TargetPlay(NetworkConnectionToClient target)
     {
-        Debug.Log("ran outside");
         if (isOwned)
         {
-            Debug.Log("ran inside");
             UnityEngine.Cursor.visible = false;
             UnityEngine.Cursor.lockState = CursorLockMode.Confined;
 
