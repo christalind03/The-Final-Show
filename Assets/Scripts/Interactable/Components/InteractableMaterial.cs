@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class CharacterColor : MonoBehaviour, IInteractable
+public class InteractableMaterial : MonoBehaviour, IInteractable
 {
     /// <summary>
     /// Change the player's character material to the current object's material.

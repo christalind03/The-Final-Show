@@ -7,18 +7,18 @@ using Mirror;
 /// </summary>
 public class PlayerManager : NetworkBehaviour
 {
-    private static Dictionary<string, GameObject> playerRegistry = new Dictionary<string, GameObject>();
+    private static Dictionary<uint, GameObject> playerRegistry = new Dictionary<uint, GameObject>();
 
     /// <summary>
     /// Registers the player into the list
     /// </summary>
     /// <param name="identity">the player's network identity</param>
     /// <param name="playerName">the player's name</param>
-    public static void RegisterPlayer(string name, GameObject obj)
+    public static void RegisterPlayer(uint netid, GameObject obj)
     {
-        if (!playerRegistry.ContainsKey(name))
+        if (!playerRegistry.ContainsKey(netid))
         {
-            playerRegistry.Add(name, obj);
+            playerRegistry.Add(netid, obj);
         }
     }
 
@@ -26,11 +26,11 @@ public class PlayerManager : NetworkBehaviour
     /// Unregister the player from the list
     /// </summary>
     /// <param name="identity">the player's network identity</param>
-    public static void UnregisterPlayer(string name)
+    public static void UnregisterPlayer(uint netid)
     {
-        if (playerRegistry.ContainsKey(name))
+        if (playerRegistry.ContainsKey(netid))
         {
-            playerRegistry.Remove(name);
+            playerRegistry.Remove(netid);
         }
     }
 
@@ -38,8 +38,16 @@ public class PlayerManager : NetworkBehaviour
     /// Gets the player list for use
     /// </summary>
     /// <returns>The player dictionary</returns>
-    public static Dictionary<string, GameObject> GetPlayerNameList()
+    public static Dictionary<uint, GameObject> GetObjectList()
     {
         return playerRegistry;
+    }
+    
+    public static Dictionary<uint,string> GetPlayerNameList(){
+        Dictionary<uint,string> names = new Dictionary<uint,string>();
+        foreach(var entry in playerRegistry){
+            names.Add(entry.Key, entry.Value.name);
+        }
+        return names;
     }
 }

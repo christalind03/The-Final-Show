@@ -5,7 +5,7 @@ using UnityEngine.AI;
 using Mirror;
 
 [RequireComponent(typeof(FieldOfView), typeof(NavMeshAgent))]
-public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
+public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, EnemyState, EnemyContext>
 {
     public enum EEnemyState
     {
@@ -30,7 +30,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     protected Transform _targetTransform;
     protected bool _hasTarget;
 
-    protected EnemyContext _context;
     protected bool _canAttack;
 
     protected Material _material;
@@ -49,27 +48,9 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
         _fieldOfView = GetComponent<FieldOfView>();
         _material = GetComponentsInChildren<Renderer>()[0].material;
 
-        _context = new EnemyContext(_attackStats, _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _material);
         _canAttack = true;
 
-        InitializeStates();
-    }
-
-    /// <summary>
-    /// Initializes the mapping of state keys from EEnemyState to an instance of an EnemyState object
-    /// </summary>
-    private void InitializeStates()
-    {
-        foreach (StateMapping<EnemyStateMachine.EEnemyState> stateMapping in StateMappings)
-        {
-            EnemyStateMachine.EEnemyState stateMappingKey = stateMapping.Key;
-            BaseState<EnemyStateMachine.EEnemyState> stateMappingValue = stateMapping.Value;
-
-            var stateInstance = (EnemyState)ScriptableObject.CreateInstance(stateMappingValue.GetType());
-            stateInstance.Initialize(_context, stateMappingKey);
-
-            States.Add(stateMappingKey, stateInstance);
-        }
+        StateContext = new EnemyContext(_attackStats, _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _material);
     }
 
     /// <summary>
@@ -79,14 +60,14 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
     {
         // move these conditions somewhere else
         // if the current target has been destroyed, go to idle
-        if (_hasTarget && _context.TargetTransform == null)
+        if (_hasTarget && StateContext.TargetTransform == null)
         {
             TransitionToState(EEnemyState.Idle);
             _hasTarget = false;
             return;
         }
         // if the current target has no health, go to idle
-        if (_hasTarget && _context.TargetTransform.root.TryGetComponent(out AbstractHealth targetHealth))
+        if (_hasTarget && StateContext.TargetTransform.root.TryGetComponent(out AbstractHealth targetHealth))
         {
             //if (targetHealth.CurrentHealth <= 0)
             if (targetHealth.CurrentValue <= 0)
@@ -106,7 +87,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState>
             // If a different target is within FOV, switch to that target
             _hasTarget = true;
             _targetTransform = _fieldOfView.DetectedObjects[0].transform; // get the first object
-            _context.TargetTransform = _targetTransform;
+            StateContext.TargetTransform = _targetTransform;
             distToTarget = Vector3.Distance(transform.position, _targetTransform.position);
             Vector3 dir = (_targetTransform.position - transform.position).normalized;
             Quaternion targetRotation = Quaternion.LookRotation(dir);

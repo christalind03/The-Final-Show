@@ -1,26 +1,24 @@
 using System;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "BaseState/Enemy/Aiming")]
+[CreateAssetMenu(menuName = "Base State/Enemy/Aiming")]
 public class AimingState : EnemyState
 {
-    public override void Initialize(EnemyContext context, EnemyStateMachine.EEnemyState stateKey)
-    {
-        Context = context;
-        base.Initialize(context, stateKey);
-    }
-
     public override void EnterState()
     {
         Debug.Log("Entering Aiming State");
-        Context.Material.SetColor("_BaseColor", Color.red);
-        Context.NavMeshAgent.destination = Context.Transform.position;
+
+        // For debugging purposes only.
+        StateContext.Material.SetColor("_BaseColor", Color.red);
+        
+        StateContext.NavMeshAgent.destination = StateContext.Transform.position;
     }
 
     public override void ExitState()
     {
         Debug.Log("Leaving Aiming State");
     }
+
     public override void OnTriggerEnter(Collider otherCollider) { }
     public override void OnTriggerExit(Collider otherCollider) { }
     public override void OnTriggerStay(Collider otherCollider) { }
