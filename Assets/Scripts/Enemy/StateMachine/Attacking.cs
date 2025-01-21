@@ -4,21 +4,16 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "BaseState/Enemy/Attacking")]
 public class AttackingState : EnemyState
 {
-    public override void Initialize(EnemyContext context, EnemyStateMachine.EEnemyState stateKey)
-    {
-        Context = context;
-        base.Initialize(context, stateKey);
-    }
-
     public override void EnterState()
     {
         Debug.Log("Entering Attacking State");
-        Context.Material.SetColor("_BaseColor", Color.magenta);
-        // Deal damage
-        if (Context.TargetTransform.root.TryGetComponent(out AbstractHealth targetHealth))
+
+        // For debugging purposes only.
+        StateContext.Material.SetColor("_BaseColor", Color.magenta);
+        
+        if (StateContext.TargetTransform.root.TryGetComponent(out AbstractHealth targetHealth))
         {
-            //targetHealth.CmdRemoveHealth(Context.AttackStats.AttackDamage);
-            targetHealth.CmdDamage(Context.AttackStats.AttackDamage);
+            targetHealth.CmdDamage(StateContext.AttackStats.AttackDamage);
         }
     }
 
@@ -26,6 +21,7 @@ public class AttackingState : EnemyState
     {
         Debug.Log("Leaving Attacking State");
     }
+
     public override void OnTriggerEnter(Collider otherCollider) { }
     public override void OnTriggerExit(Collider otherCollider) { }
     public override void OnTriggerStay(Collider otherCollider) { }

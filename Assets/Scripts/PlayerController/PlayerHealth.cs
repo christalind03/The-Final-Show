@@ -7,9 +7,6 @@ using UnityEngine;
 /// </summary>
 public class PlayerHealth : AbstractHealth
 {
-    [Header("Player References")]
-    [SerializeField] private GameObject _playerBody;
-
     private PlayerInterface _playerInterface;
 
     /// <summary>
@@ -70,7 +67,7 @@ public class PlayerHealth : AbstractHealth
     /// </summary>
     private void Spectate()
     {
-        _playerBody.layer = 0;
+        gameObject.layer = 0;
         CameraController cameraController = gameObject.GetComponent<CameraController>();
         cameraController.alive = false;
         cameraController.Spectate();

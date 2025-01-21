@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 [RequireComponent(typeof(UIDocument))]
 public class PlayerInterface : NetworkBehaviour
 {
-    [SerializeField] private float _inventoryMessageDuration;
+    [SerializeField] private float _messageDuration;
 
     private VisualElement _rootVisualElement;
 
@@ -18,15 +18,16 @@ public class PlayerInterface : NetworkBehaviour
     /// </summary>
     public override void OnStartAuthority()
     {
-        _rootVisualElement = gameObject.GetComponent<UIDocument>().rootVisualElement;
+        UIDocument uiDocument = gameObject.GetComponent<UIDocument>();
 
-        // Ensure specific elements remain hidden until necessary
-        Label inventoryMessageElement = _rootVisualElement.Query<Label>("Message");
-        inventoryMessageElement.style.opacity = 0;
+        if (uiDocument.visualTreeAsset.name != "PlayerUI")
+        {
+            Debug.Log("Updating visual tree asset...");
+            uiDocument.visualTreeAsset = Resources.Load<VisualTreeAsset>("UI/PlayerUI");
+        }
 
-        VisualElement ammunitionElement = _rootVisualElement.Query<VisualElement>("Ammo");
-        ammunitionElement.style.opacity = 0;
-
+        //Debug.Log(gameObject.GetComponent<UIDocument>().visualTreeAsset.ToString());
+        _rootVisualElement = uiDocument.rootVisualElement;
         base.OnStartAuthority();
     }
 
@@ -36,15 +37,9 @@ public class PlayerInterface : NetworkBehaviour
     /// <param name="slotKey">The key representing the slot to activate.</param>
     public void ActivateSlot(string slotKey)
     {
-        VisualElement targetSlot = _rootVisualElement.Query<VisualElement>(slotKey);
-
-        if (targetSlot != null)
+        if (UnityUtils.ContainsElement(_rootVisualElement, slotKey, out VisualElement targetSlot))
         {
             targetSlot.AddToClassList("active");
-        }
-        else
-        {
-            MissingElementError("VisualElement", slotKey);
         }
     }
 
@@ -54,49 +49,37 @@ public class PlayerInterface : NetworkBehaviour
     /// <param name="slotKey">The key representing the slot to activate.</param>
     public void DeactivateSlot(string slotKey)
     {
-        VisualElement targetSlot = _rootVisualElement.Query<VisualElement>(slotKey);
-
-        if (targetSlot != null)
+        if (UnityUtils.ContainsElement(_rootVisualElement, slotKey, out VisualElement targetSlot))
         {
             targetSlot.RemoveFromClassList("active");
-        }
-        else
-        {
-            MissingElementError("VisualElement", slotKey);
         }
     }
 
     /// <summary>
     /// Displays a message above the player's inventory for a short duration.
     /// </summary>
-    /// <param name="inventoryMessage">The message to display in the UI.</param>
-    public void DisplayInventoryMessage(string inventoryMessage)
+    /// <param name="message">The message to display in the UI.</param>
+    public void DisplayInventoryMessage(string message)
     {
-        StartCoroutine(DisplayInventoryMessageCoroutine(inventoryMessage));
+        StopCoroutine("DisplayInventoryMessageCoroutine");
+        StartCoroutine(DisplayInventoryMessageCoroutine(message));
     }
 
     /// <summary>
     /// Coroutine that handles the timing of displaying and hiding the inventory message.
     /// </summary>
-    /// <param name="inventoryMessage">The message to display in the UI.</param>
+    /// <param name="message">The message to display in the UI.</param>
     /// <returns>An <c>IEnumerator</c> for coroutine execution.</returns>
-    private IEnumerator DisplayInventoryMessageCoroutine(string inventoryMessage)
+    private IEnumerator DisplayInventoryMessageCoroutine(string message)
     {
-        string elementName = "Message";
-        Label inventoryMessageElement = _rootVisualElement.Query<Label>(elementName);
-
-        if (inventoryMessageElement != null)
+        if (UnityUtils.ContainsElement(_rootVisualElement, "Inventory-Message", out Label messageElement))
         {
-            inventoryMessageElement.text = inventoryMessage;
-            inventoryMessageElement.style.opacity = 1;
+            messageElement.text = message;
+            messageElement.style.opacity = 1;
 
-            yield return new WaitForSeconds(_inventoryMessageDuration);
+            yield return new WaitForSeconds(_messageDuration);
 
-            inventoryMessageElement.style.opacity = 0;
-        }
-        else
-        {
-            MissingElementError("Label", elementName);
+            messageElement.style.opacity = 0;
         }
     }
 
@@ -136,17 +119,13 @@ public class PlayerInterface : NetworkBehaviour
     /// <param name="remainingAmount">The remaining amount of ammo.</param>
     public void RefreshAmmo(int clipAmount, int remainingAmount)
     {
-        Label ammoCount = _rootVisualElement.Query<Label>("Ammo-Count"); 
-        Label ammoRemaining = _rootVisualElement.Query<Label>("Ammo-Remaining"); 
-
-        if (ammoCount != null && ammoRemaining != null)
+        if (UnityUtils.ContainsElement(_rootVisualElement, "Ammo-Count", out Label ammoCount))
         {
-            ammoCount.text = clipAmount.ToString();
-            ammoRemaining.text = remainingAmount.ToString();
-        }
-        else
-        {
-            UnityUtils.LogError("Unable to locate Label titled 'Ammo-Count' and/or 'Ammo-Remaining'");
+            if (UnityUtils.ContainsElement(_rootVisualElement, "Ammo-Remaining", out Label ammoRemaining))
+            {
+                ammoCount.text = clipAmount.ToString();
+                ammoRemaining.text = remainingAmount.ToString();
+            }
         }
     }
 
@@ -194,16 +173,9 @@ public class PlayerInterface : NetworkBehaviour
     /// <param name="displayAmmo">If true, the ammunition UI will be displayed; otherwise, hides it.</param>
     public void ToggleAmmoVisibility(bool displayAmmo)
     {
-        string elementName = "Ammo";
-        VisualElement ammoElement = _rootVisualElement.Query<VisualElement>(elementName);
-
-        if (ammoElement != null)
+        if (UnityUtils.ContainsElement(_rootVisualElement, "Ammo", out VisualElement ammoElement))
         {
             ammoElement.style.opacity = displayAmmo ? 1 : 0;
-        }
-        else
-        {
-            MissingElementError("VisualElement", elementName);
         }
     }
 
@@ -214,15 +186,9 @@ public class PlayerInterface : NetworkBehaviour
     /// <param name="targetValue">The value to display on the element.</param>
     private void RefreshStatus(string elementName, float targetValue)
     {
-        Label statusLabel = _rootVisualElement.Query<Label>(elementName);
-
-        if (statusLabel != null)
+        if (UnityUtils.ContainsElement(_rootVisualElement, elementName, out Label statusLabel))
         {
             statusLabel.text = targetValue.ToString();
-        }
-        else
-        {
-            MissingElementError("Label", elementName);
         }
     }
 
@@ -234,30 +200,11 @@ public class PlayerInterface : NetworkBehaviour
     /// <param name="currentValue">The current value of the status bar.</param>
     private void RefreshStatusBar(string elementName, float baseValue, float currentValue)
     {
-        VisualElement statusBar = _rootVisualElement.Query<VisualElement>(elementName);
-
-        if (statusBar != null)
+        if (UnityUtils.ContainsElement(_rootVisualElement, elementName, out VisualElement statusBar))
         {
             float staminaPercentage = Mathf.Clamp01(currentValue / baseValue);
 
             statusBar.style.width = new Length(staminaPercentage * 100, LengthUnit.Percent);
         }
-        else
-        {
-            MissingElementError("VisualElement", elementName);
-        }
-    }
-
-    /// <summary>
-    /// Logs an error if the specified UI element is missing.
-    /// </summary>
-    /// <remarks>
-    /// This function is important to have as querying elements by name will often not raise an error, ultimately causing problems.
-    /// </remarks>
-    /// <param name="elementType">The type of the element that should be displayed.</param>
-    /// <param name="elementName">The name of the element that should be displayed.</param>
-    private void MissingElementError(string elementType, string elementName)
-    {
-        UnityUtils.LogError($"Unable to locate {elementType} titled '{elementName}'");
     }
 }

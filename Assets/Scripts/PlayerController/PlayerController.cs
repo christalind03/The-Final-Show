@@ -2,6 +2,7 @@ using Cinemachine;
 using Mirror;
 using System;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -31,14 +32,10 @@ public class PlayerController : NetworkBehaviour
 
     [Header("Player References")]
     [SerializeField] private CinemachineVirtualCamera _aimCamera;
- 
-    [Tooltip("The scene's main camera.")]
+    [SerializeField] private CharacterController _characterController;
     [SerializeField] private Transform _cameraTransform;
-
-    [Tooltip("An empty object hidden within the Player object to control the camera's rotation.")]
     [SerializeField] private Transform _followTransform;
     [SerializeField] private Transform _playerTransform;
-    [SerializeField] private CharacterController _playerController;
     
     private bool _isGrounded;
     private bool _isSprinting;
@@ -51,8 +48,8 @@ public class PlayerController : NetworkBehaviour
     
     private RaycastHit _raycastHit;
     private PlayerControls _playerControls;
-    private PlayerInventory _playerInventory;
     private CombatController _combatController;
+    private PlayerInventory _playerInventory;
     private PlayerStats _playerStats;
 
     private Animator _playerAnimator;
@@ -61,19 +58,30 @@ public class PlayerController : NetworkBehaviour
     private int _animatorMovementZ;
 
     /// <summary>
+    /// Ensures this object instance persists throughout scenes.
+    /// </summary>
+    private void Start()
+    {
+        DontDestroyOnLoad(gameObject);
+    }
+
+    /// <summary>
     /// Configure the cursor settings and initialize a new instance of PlayerControls when the script is first loaded.
     /// </summary>
-    private void Awake()
+    public override void OnStartAuthority()
     {
+        CameraController cameraController= GetComponent<CameraController>();
+        if(cameraController.alive){
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;            
+        }
+
         _canJump = true;
         _canSprint = true;
 
-        UnityEngine.Cursor.visible = false;
-        UnityEngine.Cursor.lockState = CursorLockMode.Locked;
-
         _playerControls = new PlayerControls();
-        _playerInventory = gameObject.GetComponent<PlayerInventory>();
         _combatController = gameObject.GetComponent<CombatController>();
+        _playerInventory = gameObject.GetComponent<PlayerInventory>();
         _playerStats = gameObject.GetComponent<PlayerStats>();
 
         // To access the animator, we must retrieve the child gameObject that is rendering the player's mesh.
@@ -82,12 +90,14 @@ public class PlayerController : NetworkBehaviour
         _animatorIsJumping = Animator.StringToHash("Is Jumping");
         _animatorMovementX = Animator.StringToHash("Movement X");
         _animatorMovementZ = Animator.StringToHash("Movement Z");
+
+        EnableControls();
     }
 
     /// <summary>
     /// Enable the PlayerControls actions and action maps when the component is enabled.
     /// </summary>
-    private void OnEnable()
+    private void EnableControls()
     {
         _playerControls.Enable();
 
@@ -114,7 +124,7 @@ public class PlayerController : NetworkBehaviour
     {
         base.OnStartClient();
         string name = transform.name;
-        PlayerManager.RegisterPlayer(name, gameObject);
+        PlayerManager.RegisterPlayer(netIdentity.netId, gameObject);
     }
 
     /// <summary>
@@ -124,7 +134,7 @@ public class PlayerController : NetworkBehaviour
     {
         base.OnStopClient();
         string name = transform.name;
-        PlayerManager.UnregisterPlayer(name);
+        PlayerManager.UnregisterPlayer(netIdentity.netId);
     }
 
     /// <summary>
@@ -134,16 +144,19 @@ public class PlayerController : NetworkBehaviour
     {
         if (!isLocalPlayer) { return; }
 
-        // Check to see if the player is on the ground or not.
-        _isGrounded = Physics.Raycast(_playerTransform.position, Vector3.down, 1f) && _playerVelocity.y <= 0f;
+        if (_characterController.enabled && _playerControls != null)
+        {
+            // Check to see if the player is on the ground or not.
+            _isGrounded = Physics.Raycast(_playerTransform.position, Vector3.down, 1f) && _playerVelocity.y <= 0f;
 
-        // Update the player's y-axis position to account for gravity
-        _playerVelocity.y += _gravity * Time.deltaTime;
-        _playerController.Move(_playerVelocity * Time.deltaTime);
+            // Update the player's y-axis position to account for gravity
+            _playerVelocity.y += _gravity * Time.deltaTime;
+            _characterController.Move(_playerVelocity * Time.deltaTime);
 
-        HandleLook();
-        HandleMovement();
-        HandleSprint();
+            HandleLook();
+            HandleMovement();
+            HandleSprint();
+        }
     }
 
     /// <summary>
@@ -212,8 +225,12 @@ public class PlayerController : NetworkBehaviour
 
         // Check to see if we're looking at anything of importance.
         Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out _raycastHit, _interactableDistance);
-
-        CmdLook(_followTransform.rotation, _aimCamera.Priority);
+        StartCoroutine(NetworkUtils.WaitUntilReady((NetworkIdentity clientIdentity) =>
+        {
+            if(NetworkClient.ready){
+                CmdLook(_followTransform.rotation, _aimCamera.Priority);
+            }
+        }));  
     }
 
     /// <summary>
@@ -229,8 +246,8 @@ public class PlayerController : NetworkBehaviour
 
         _playerVelocity.y += _gravity * Time.deltaTime;
 
-        _playerController.Move(totalSpeed * Time.deltaTime * moveDirection);
-        _playerController.Move(_playerVelocity * Time.deltaTime);
+        _characterController.Move(totalSpeed * Time.deltaTime * moveDirection);
+        _characterController.Move(_playerVelocity * Time.deltaTime);
 
         // Display the player's movement animation.
         // Since the player can move in four different directions, we have animations associated with each direction.
@@ -340,11 +357,7 @@ public class PlayerController : NetworkBehaviour
         if (hitCollider != null)
         {
             GameObject targetObject = hitCollider.transform.root.gameObject; // Interactable objects should always have their interactable script at the top-most level.
-            
-            if (targetObject.TryGetComponent(out IInteractable interactableComponent))
-            {
-                CmdInteract(targetObject);
-            }
+            CmdInteract(targetObject);
         }
     }
 
@@ -388,9 +401,20 @@ public class PlayerController : NetworkBehaviour
     }
 
     /// <summary>
+    /// When the client no longer has authority over this object, ensure the cursor is visible and disables the controls.
+    /// </summary>
+    public override void OnStopAuthority()
+    {
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
+        DisableControls();
+    }
+
+    /// <summary>
     /// Disable the PlayerControls actions and action maps when the component is disabled.
     /// </summary>
-    private void OnDisable()
+    private void DisableControls()
     {
         _playerControls.Disable();
 
@@ -424,13 +448,13 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     /// <param name="rotationPlayer">Player rotation</param>
     /// <param name="rotationFollow">Follow camera rotation</param>
-    [Command]
+    [Command(requiresAuthority = false)]
     private void CmdLook(Quaternion rotationFollow, int aimCamPrio){
         _followTransform.rotation = rotationFollow;
         _aimCamera.Priority = aimCamPrio;
 
         // Propagates the changes to all clients
-        RpcUpdatePlayerLook(_followTransform.rotation, aimCamPrio);
+        RpcUpdatePlayerLook(_followTransform.rotation, aimCamPrio);               
     }
 
     /// <summary>
@@ -459,7 +483,7 @@ public class PlayerController : NetworkBehaviour
     [Command]
     private void CmdInteract(GameObject hitObject)
     {
-        if (hitObject.TryGetComponent(out IInteractable interactableComponent))
+        if (hitObject != null && hitObject.TryGetComponent(out IInteractable interactableComponent))
         {
             interactableComponent.Interact(gameObject);
         }
@@ -503,7 +527,7 @@ public class PlayerController : NetworkBehaviour
     private void RpcInteract(GameObject hitObject)
     {
         // Same reasoning as RpcDrop with the added component of getting the component "IInteractable"
-        if (!isServer && hitObject.TryGetComponent(out IInteractable interactableComponent))
+        if (!isServer && hitObject != null && hitObject.TryGetComponent(out IInteractable interactableComponent))
         {
             interactableComponent.Interact(gameObject);
         }
