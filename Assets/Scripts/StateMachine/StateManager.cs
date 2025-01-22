@@ -18,9 +18,11 @@ public abstract class StateManager<EState, TState, TStateContext> : NetworkBehav
     where TState : BaseState<EState, TStateContext>
 {
     [Header("State Paramaters")]
+    [SerializeField] private bool _cloneStates;
+    [SerializeField] private EState _defaultState;
+
     [Tooltip("Associates each state with its corresponding behavior.")]
     [SerializeField] protected List<StateMapping<EState, TStateContext>> StateMappings;
-    [SerializeField] private EState _defaultState;
 
     protected Dictionary<EState, BaseState<EState, TStateContext>> States;
     protected BaseState<EState, TStateContext> CurrentState;
@@ -53,7 +55,7 @@ public abstract class StateManager<EState, TState, TStateContext> : NetworkBehav
                 // Since we are using Scriptable Objects to enable a "drag-n-drop" behavior in the Unity Inspector,
                 // we need to ensure that we create separate instances in order to prevent syncing state behavior.
                 EState stateKey = currentState.Key;
-                TState stateInstance = (TState)currentState.Value.Clone();
+                TState stateInstance = (TState)(_cloneStates ? currentState.Value.Clone() : currentState.Value);
                 
                 stateInstance.Initialize(stateKey, StateContext);
 

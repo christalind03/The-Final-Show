@@ -52,7 +52,12 @@ public class AbstractBillboard : MonoBehaviour
 
         if (localPlayer != null)
         {
-            _playerCamera = localPlayer.GetComponentInChildren<Camera>().transform;
+            Camera maybeCamera = localPlayer.GetComponent<Camera>();
+
+            if (maybeCamera != null)
+            {
+                _playerCamera = maybeCamera.transform;
+            }
         }
         else if (_maxAttempts <= _currentAttempts)
         {
