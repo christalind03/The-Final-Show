@@ -11,42 +11,6 @@ using UnityEngine.UIElements;
 public static class UnityUtils
 {
     /// <summary>
-    /// Clones the non-serialized field sand properties from the source object to the target object.
-    /// This EXCLUDES fields and properties that are as [SerializedField].
-    /// </summary>
-    /// <param name="sourceObject">The source object from which data will be cloned.</param>
-    /// <param name="targetObject">The target object to which data will be cloned.</param>
-    public static void CloneNonSerializedData(UnityEngine.Object sourceObject, UnityEngine.Object targetObject)
-    {
-        GeneralUtils.CloneFieldData(sourceObject, targetObject);
-        GeneralUtils.ClonePropertyData(sourceObject, targetObject);
-    }
-
-    /// <summary>
-    /// Clones the serialized data from the source object to the target object.
-    /// This INCLUDES fields and properties that are as [SerializedField].
-    /// </summary>
-    /// <remarks>
-    /// We may need to update this code in order to work in builds as <see cref="SerializedObject"/> is only available in the editor.
-    /// </remarks>
-    /// <param name="sourceObject">The source object from which data will be cloned.</param>
-    /// <param name="targetObject">The target object to which data will be cloned.</param>
-    public static void CloneSerializedData(UnityEngine.Object sourceObject, UnityEngine.Object targetObject)
-    {
-        SerializedObject serializedSource = new SerializedObject(sourceObject);
-        SerializedObject serializedTarget = new SerializedObject(targetObject);
-
-        SerializedProperty serializedProperty = serializedSource.GetIterator();
-
-        while (serializedProperty.NextVisible(true))
-        {
-            serializedTarget.CopyFromSerializedProperty(serializedProperty);
-        }
-
-        serializedTarget.ApplyModifiedProperties();
-    }
-
-    /// <summary>
     /// Checks if a specific layer is included within a given <see cref="LayerMask"/>
     /// </summary>
     /// <param name="layerMask">The <see cref="LayerMask"/> to check.</param>
