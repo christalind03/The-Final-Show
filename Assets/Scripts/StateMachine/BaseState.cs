@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -29,10 +30,10 @@ public abstract class BaseState<EState, TStateContext> : ScriptableObject where 
     /// <returns>A cloned instance of this state.</returns>
     public BaseState<EState, TStateContext> Clone()
     {
-        var clonedInstance = (BaseState<EState, TStateContext>)ScriptableObject.CreateInstance(GetType());
+        var clonedInstance = Instantiate(this);
 
-        UnityUtils.CloneNonSerializedData(this, clonedInstance);
-        UnityUtils.CloneSerializedData(this, clonedInstance);
+        GeneralUtils.CloneFieldData(clonedInstance, this);
+        GeneralUtils.ClonePropertyData(clonedInstance, this);
 
         return clonedInstance;
     }
