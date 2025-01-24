@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using Unity.AI.Navigation;
 using UnityEngine;
 
+[RequireComponent(typeof(NavMeshSurface))]
 public class DungeonGenerator : MonoBehaviour
 {
     [Header("Dungeon Segments")]
@@ -37,6 +39,7 @@ public class DungeonGenerator : MonoBehaviour
 
         _existingSegments = new List<DungeonSegment>();
         GenerateDungeon();
+        gameObject.GetComponent<NavMeshSurface>().BuildNavMesh();
 
         debuggingStopwatch.Stop();
 
@@ -114,7 +117,7 @@ public class DungeonGenerator : MonoBehaviour
     private void SpawnEntrance()
     {
         int entranceIndex = Random.Range(0, _entrancePrefabs.Length);
-        GameObject entranceObject = Instantiate(_entrancePrefabs[entranceIndex]);
+        GameObject entranceObject = Instantiate(_entrancePrefabs[entranceIndex], transform);
 
         if (entranceObject.TryGetComponent(out DungeonSegment entranceSegment) && entranceSegment.ContainsEntryPoints())
         {
@@ -157,7 +160,7 @@ public class DungeonGenerator : MonoBehaviour
         GameObject[] segmentPrefabs = RetrieveSegmentPrefabs(isExit, isHallway);
 
         int segmentIndex = Random.Range(0, segmentPrefabs.Length);
-        GameObject segmentObject = Instantiate(segmentPrefabs[segmentIndex]);
+        GameObject segmentObject = Instantiate(segmentPrefabs[segmentIndex], transform);
 
         if (segmentObject.TryGetComponent(out DungeonSegment dungeonSegment))
         {
