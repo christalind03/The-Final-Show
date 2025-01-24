@@ -58,28 +58,26 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     /// </summary>
     private void FixedUpdate()
     {
+        // _fieldOfView's interested layers should only be player
+        float distToTarget = 0f;
         // move these conditions somewhere else
         // if the current target has been destroyed, go to idle
         if (_hasTarget && StateContext.TargetTransform == null)
         {
             TransitionToState(EEnemyState.Idle);
             _hasTarget = false;
-            return;
         }
         // if the current target has no health, go to idle
-        if (_hasTarget && StateContext.TargetTransform.root.TryGetComponent(out AbstractHealth targetHealth))
+        
+        else if (_hasTarget && StateContext.TargetTransform.root.TryGetComponent(out AbstractHealth targetHealth))
         {
-            //if (targetHealth.CurrentHealth <= 0)
             if (targetHealth.CurrentValue <= 0)
             {
                 TransitionToState(EEnemyState.Idle);
                 _hasTarget = false;
-                return;
             }
         }
-
-        // _fieldOfView's interested layers should only be player
-        float distToTarget = 0f;
+        
         // When a target is within the FOV
         if (0 < _fieldOfView.DetectedObjects.Count)
         {
