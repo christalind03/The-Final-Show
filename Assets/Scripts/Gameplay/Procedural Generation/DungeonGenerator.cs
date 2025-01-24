@@ -13,7 +13,7 @@ public class DungeonGenerator : MonoBehaviour
     [Header("Dungeon Size")]
     [Tooltip("The size of the dungeon is inclusive to the entrance and exit rooms.")]
 
-    [Min(2)]
+    [Min(1)]
     [SerializeField]
     private int _minimumRooms;
 
@@ -52,7 +52,7 @@ public class DungeonGenerator : MonoBehaviour
         }
     }
 
-    // TODO: Document, Refactor (heavily)
+    // TODO: Document
     private void GenerateDungeon()
     {
         // Since the maximum parameter is exclusive, ensure we add by one to make it inclusive
@@ -62,7 +62,7 @@ public class DungeonGenerator : MonoBehaviour
 
         while (roomIndex < totalRooms)
         {
-            if (_existingSegments.Count == 0)
+            if (_existingSegments.Count <= 0)
             {
                 SpawnEntrance();
                 roomIndex++;
@@ -97,15 +97,17 @@ public class DungeonGenerator : MonoBehaviour
 
                 if (generatedSegment.ContainsEntryPoints())
                 {
-                    if (!isHallway)
-                    {
-                        roomIndex++;
-                    }
-
                     _existingSegments.Add(generatedSegment);
+                }
+
+                if (!isHallway)
+                {
+                    roomIndex++;
                 }
             }
         }
+
+        BlockEntrances();
     }
 
     // TODO: Document
@@ -118,7 +120,7 @@ public class DungeonGenerator : MonoBehaviour
         {
             _existingSegments.Add(entranceSegment);
         }
-    }    
+    }
 
     // TODO: Document
     private bool TryExistingSegment(out DungeonSegment existingSegment, out Transform existingEntrance)
@@ -139,7 +141,7 @@ public class DungeonGenerator : MonoBehaviour
                 existingEntrance = temporarySegment.SelectEntrancePoint();
                 break;
             }
-            
+
             _existingSegments.Remove(temporarySegment);
         }
 
@@ -212,10 +214,10 @@ public class DungeonGenerator : MonoBehaviour
     private bool ContainsIntersections(DungeonSegment dungeonSegment)
     {
         bool containsIntersections = false;
-        Collider[] segmentValidators = dungeonSegment.RetrieveValidators();
+        List<Collider> segmentValidators = dungeonSegment.RetrieveValidators();
 
         foreach (Collider segmentValidator in segmentValidators)
-        {   
+        {
             Collider[] hitContacts = Physics.OverlapBox(segmentValidator.bounds.center, segmentValidator.bounds.extents, Quaternion.identity, _collisionLayer);
 
             foreach (Collider hitContact in hitContacts)
@@ -229,5 +231,14 @@ public class DungeonGenerator : MonoBehaviour
         }
 
         return containsIntersections;
+    }
+
+    // TODO: Document
+    private void BlockEntrances()
+    {
+        foreach (DungeonSegment dungeonSegment in _existingSegments)
+        {
+            dungeonSegment.BlockEntrances();
+        }
     }
 }

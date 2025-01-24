@@ -1,39 +1,52 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class DungeonSegment : MonoBehaviour
 {
-    [SerializeField] private List<Transform> _entrancePoints;
-    [SerializeField] private Collider[] _collisionDetectors;
+    [SerializeField] private List<DungeonEntrance> _dungeonEntrances;
+    [SerializeField] private List<Collider> _collisionDetectors;
 
     // TODO: Document
     public bool ContainsEntryPoints()
     {
-        return 0 < _entrancePoints.Count;
+        return 0 < _dungeonEntrances.Count;
     }
 
     // TODO: Document
     public Transform SelectEntrancePoint()
     {
-        if (0 < _entrancePoints.Count)
+        if (0 < _dungeonEntrances.Count)
         {
-            return _entrancePoints[Random.Range(0, _entrancePoints.Count)];
+            int entranceIndex = Random.Range(0, _dungeonEntrances.Count);
+            return _dungeonEntrances[entranceIndex].transform;
         }
-       
+
         return null;
     }
 
     // TODO: Document
     public void RemoveEntrancePoint(Transform entrancePoint)
     {
-        if (_entrancePoints.Contains(entrancePoint))
+        DungeonEntrance firstOccurrence = _dungeonEntrances.FirstOrDefault(dungeonEntrance => dungeonEntrance.transform == entrancePoint);
+
+        if (firstOccurrence != null)
         {
-            _entrancePoints.Remove(entrancePoint);
+            _dungeonEntrances.Remove(firstOccurrence);
         }
     }
 
     // TODO: Document
-    public Collider[] RetrieveValidators()
+    public void BlockEntrances()
+    {
+        foreach (DungeonEntrance dungeonEntrance in _dungeonEntrances)
+        {
+            dungeonEntrance.BlockEntrance();
+        }
+    }
+
+    // TODO: Document
+    public List<Collider> RetrieveValidators()
     {
         return _collisionDetectors;
     }
