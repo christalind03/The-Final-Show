@@ -10,11 +10,14 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] private GameObject[] _roomPrefabs;
 
     [Header("Dungeon Size")]
-    [Min(1)]
-    [SerializeField] 
+    [Tooltip("The size of the dungeon is inclusive to the entrance and exit rooms.")]
+
+    [Min(3)]
+    [SerializeField]
     private int _minimumRooms;
-    
-    [SerializeField] private int _maximumRooms;
+
+    [SerializeField]
+    private int _maximumRooms;
 
     [SerializeField]
     [Tooltip("The percentage for spawning dungeon rooms instead of hallways")]
@@ -36,17 +39,20 @@ public class DungeonGenerator : MonoBehaviour
         // TODO: Stop debugging/optimization timer
     }
 
-    // TODO: Document
+    // TODO: Document, Refactor (heavily)
     private void GenerateDungeon()
     {
+        if (_maximumRooms < _minimumRooms)
+        {
+            _maximumRooms = _minimumRooms;
+        }
+
         int numRooms = 0;
         int totalRooms = Random.Range(_minimumRooms, _maximumRooms + 1);
-        int exitIndex = Random.Range(0, totalRooms + 1);
+        int exitIndex = Random.Range(2, totalRooms + 1);
 
         while (numRooms < totalRooms)
         {
-            numRooms++;
-
             if (_existingSegments.Count == 0)
             {
                 GameObject segmentObject = SpawnSegmentFrom(_entrancePrefabs);
@@ -56,7 +62,7 @@ public class DungeonGenerator : MonoBehaviour
                     _existingSegments.Add(dungeonSegment);
                 }
 
-                //numRooms++;
+                numRooms++;
             }
             else
             {
@@ -64,8 +70,10 @@ public class DungeonGenerator : MonoBehaviour
                 Transform existingEntry = null;
 
                 // Attempt to find an existing room with an open entrance.
-                while (existingSegment == null && 0 < _existingSegments.Count)
+                while (existingSegment == null)
                 {
+                    if (_existingSegments.Count <= 0) { break; }
+
                     int tempIndex = Random.Range(0, _existingSegments.Count);
                     DungeonSegment tempSegment = _existingSegments[tempIndex];
 
@@ -86,8 +94,8 @@ public class DungeonGenerator : MonoBehaviour
                 if (existingSegment != null && existingEntry != null)
                 {
                     // Generate a dungeon segment
-                    bool isHallway = Random.Range(0f, 1f) < _spawnRate;
-                    GameObject dungeonObject = SpawnSegmentFrom(isHallway ? _hallwayPrefabs : _roomPrefabs);
+                    bool isHallway = _spawnRate < Random.Range(0f, 1f);
+                    GameObject dungeonObject = SpawnSegmentFrom(isHallway ? _hallwayPrefabs : numRooms + 1 == exitIndex ? _exitPrefabs : _roomPrefabs);
 
                     DungeonSegment generatedSegment = null;
                     Transform generatedEntry = null;
@@ -101,12 +109,11 @@ public class DungeonGenerator : MonoBehaviour
                     // If an generated segment or its corresponding entry could not be found, display and error and exit the dungeon generator.
                     if (generatedSegment != null && generatedEntry != null)
                     {
-                        AlignSegments(existingSegment.transform, existingEntry, generatedSegment.transform, generatedEntry);
+                        AlignSegments(generatedSegment.transform, generatedEntry, existingEntry);
 
                         // If the generated segment contains intersections, destroy the object in hopes of it not occurring again.
                         if (ContainsIntersections(generatedSegment))
                         {
-                            UnityUtils.LogWarning($"Collision detected between {generatedSegment.name} and {existingSegment.name}...");
                             Destroy(generatedSegment.gameObject);
                             continue;
                         }
@@ -118,21 +125,24 @@ public class DungeonGenerator : MonoBehaviour
                         // Add the newly generated segment to the existing segments list, given that it contains valid entrance points.
                         if (generatedSegment.ContainsEntryPoints())
                         {
+                            if (isHallway == false)
+                            {
+                                numRooms++;
+                            }
+
                             _existingSegments.Add(generatedSegment);
                         }
-
-                        //numRooms++;
                     }
                     else
                     {
                         UnityUtils.LogError("Unable to locate generated segment and its corresponding entry point.");
-                        break;
+                        return;
                     }
                 }
                 else
                 {
                     UnityUtils.LogError("Unable to locate existing segment and its corresponding entry point.");
-                    break;
+                    return;
                 }
             }
         }
@@ -148,7 +158,7 @@ public class DungeonGenerator : MonoBehaviour
     }
 
     // TODO: Document
-    private void AlignSegments(Transform existingSegment, Transform existingEntry, Transform generatedSegment, Transform generatedEntry)
+    private void AlignSegments(Transform generatedSegment, Transform generatedEntry, Transform existingEntry)
     {
         // Ensure that the two entries are pointing in opposite directions
         float existingRotation = Mathf.Repeat(existingEntry.eulerAngles.y, 360); // Normalize positive values for rotations
@@ -183,7 +193,6 @@ public class DungeonGenerator : MonoBehaviour
             {
                 if (hitContact != segmentValidator)
                 {
-                    Debug.Log($"{dungeonSegment.name} intersects with {hitContact.transform.root.name}'s {hitContact.name}");
                     containsIntersections = true;
                     break;
                 }
