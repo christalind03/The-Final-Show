@@ -58,28 +58,24 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     /// </summary>
     private void FixedUpdate()
     {
-        // move these conditions somewhere else
+        // _fieldOfView's interested layers should only be player
+        float distToTarget = 0f;
         // if the current target has been destroyed, go to idle
         if (_hasTarget && StateContext.TargetTransform == null)
         {
             TransitionToState(EEnemyState.Idle);
             _hasTarget = false;
-            return;
         }
         // if the current target has no health, go to idle
-        if (_hasTarget && StateContext.TargetTransform.root.TryGetComponent(out AbstractHealth targetHealth))
+        
+        else if (_hasTarget && StateContext.TargetTransform.root.TryGetComponent(out AbstractHealth targetHealth))
         {
-            //if (targetHealth.CurrentHealth <= 0)
             if (targetHealth.CurrentValue <= 0)
             {
                 TransitionToState(EEnemyState.Idle);
                 _hasTarget = false;
-                return;
             }
         }
-
-        // _fieldOfView's interested layers should only be player
-        float distToTarget = 0f;
         // When a target is within the FOV
         if (0 < _fieldOfView.DetectedObjects.Count)
         {
@@ -89,10 +85,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
             _targetTransform = _fieldOfView.DetectedObjects[0].transform; // get the first object
             StateContext.TargetTransform = _targetTransform;
             distToTarget = Vector3.Distance(transform.position, _targetTransform.position);
-            Vector3 dir = (_targetTransform.position - transform.position).normalized;
-            Quaternion targetRotation = Quaternion.LookRotation(dir);
-            float rotationSpeed = 1.5f; // initialize this value somewhere else
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
 
             // If Idle and target is within chase distance, start Chasing
             if (CurrentState.StateKey.Equals(EEnemyState.Idle) && distToTarget < _behaviorStats.StartChaseDist)
