@@ -10,6 +10,30 @@ using UnityEngine.UIElements;
 /// </summary>
 public static class UnityUtils
 {
+    // TODO: Document
+    public static Bounds CalculateBounds(Bounds[] allBoundaries)
+    {
+        // Calculate the center of the bounding region
+        Vector3 objectCenter = Vector3.zero;
+
+        foreach (Bounds currentBoundaries in allBoundaries)
+        {
+            objectCenter += currentBoundaries.center;
+        }
+
+        objectCenter /= allBoundaries.Length;
+
+        // Calculate the boundaries of the object
+        Bounds objectBounds = new Bounds(objectCenter, Vector3.zero);
+
+        foreach (Bounds currentBoundaries in allBoundaries)
+        {
+            objectBounds.Encapsulate(currentBoundaries);
+        }
+
+        return objectBounds;
+    }
+
     /// <summary>
     /// Checks if a specific layer is included within a given <see cref="LayerMask"/>
     /// </summary>
