@@ -32,6 +32,7 @@ public abstract class BaseState<EState, TStateContext> : ScriptableObject where 
     {
         var clonedInstance = Instantiate(this);
 
+        clonedInstance.name = name;
         GeneralUtils.CloneFieldData(clonedInstance, this);
         GeneralUtils.ClonePropertyData(clonedInstance, this);
 
