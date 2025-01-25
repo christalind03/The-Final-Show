@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Unity.AI.Navigation;
 using UnityEngine;
+using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshSurface))]
 public class DungeonGenerator : MonoBehaviour
@@ -15,36 +17,21 @@ public class DungeonGenerator : MonoBehaviour
     [Header("Dungeon Size")]
     [Tooltip("The size of the dungeon is inclusive to the entrance and exit rooms.")]
 
-    [Min(1)]
-    [SerializeField]
-    private int _minimumRooms;
-
-    [SerializeField]
-    private int _maximumRooms;
+    [Min(1), SerializeField] private int _minimumRooms;
+    [Min(1), SerializeField] private int _maximumRooms;
 
     [SerializeField]
     [Tooltip("The percentage for spawning dungeon rooms instead of hallways")]
     private float _spawnRate;
 
-    [Header("Additional Parameters")]
     [SerializeField] private LayerMask _collisionLayer;
 
-    private List<DungeonSegment> _existingSegments;
+    [Header("Enemy Parameters")]
+    [Min(1), SerializeField] private int _minimumEnemies;
+    [Min(1), SerializeField] private int _maximumEnemies;
 
-    // TODO: Document
-    private void Start()
-    {
-        Stopwatch debuggingStopwatch = new Stopwatch();
-        debuggingStopwatch.Start();
-
-        _existingSegments = new List<DungeonSegment>();
-        GenerateDungeon();
-        gameObject.GetComponent<NavMeshSurface>().BuildNavMesh();
-
-        debuggingStopwatch.Stop();
-
-        UnityEngine.Debug.Log($"Completed dungeon generation in {debuggingStopwatch.ElapsedMilliseconds}ms");
-    }
+    private List<DungeonSegment> _connectableSegments;
+    private List<DungeonSegment> _dungeonSegments;
 
     // TODO: Document
     private void OnValidate()
@@ -53,19 +40,39 @@ public class DungeonGenerator : MonoBehaviour
         {
             _maximumRooms = _minimumRooms;
         }
+
+        if (_maximumEnemies < _minimumEnemies)
+        {
+            _maximumEnemies = _minimumEnemies;
+        }
+    }
+
+    // TODO: Document
+    private void Start()
+    {
+        Stopwatch debuggingStopwatch = new Stopwatch();
+        debuggingStopwatch.Start();
+
+        _connectableSegments = new List<DungeonSegment>();
+        _dungeonSegments = new List<DungeonSegment>();
+        
+        GenerateDungeon();
+
+        debuggingStopwatch.Stop();
+
+        UnityEngine.Debug.Log($"Completed dungeon generation in {debuggingStopwatch.ElapsedMilliseconds}ms");
     }
 
     // TODO: Document
     private void GenerateDungeon()
     {
-        // Since the maximum parameter is exclusive, ensure we add by one to make it inclusive
-        int totalRooms = Random.Range(_minimumRooms, _maximumRooms + 1);
-        int exitIndex = Random.Range(1, totalRooms + 1); // Entrance occupies the 0th index
+        int totalRooms = Random.Range(_minimumRooms, _maximumRooms + 1); // Since the maximum parameter is exclusive, ensure we add by one to make it inclusive
+        int exitIndex = Random.Range(1, totalRooms); // Entrance occupies the 0th index
         int roomIndex = 0;
 
         while (roomIndex < totalRooms)
         {
-            if (_existingSegments.Count <= 0)
+            if (_connectableSegments.Count <= 0)
             {
                 SpawnEntrance();
                 roomIndex++;
@@ -100,28 +107,33 @@ public class DungeonGenerator : MonoBehaviour
 
                 if (generatedSegment.ContainsEntryPoints())
                 {
-                    _existingSegments.Add(generatedSegment);
+                    _connectableSegments.Add(generatedSegment);
                 }
 
-                if (!isHallway)
-                {
-                    roomIndex++;
-                }
+                _dungeonSegments.Add(generatedSegment);
+
+                if (!isHallway) { roomIndex++; }
             }
         }
 
         BlockEntrances();
+        SpawnEnemies();
+
+        // Keep the entrance and exit rooms inside the current GameObject to keep the scene hierarchy clean
+        _dungeonSegments[0].transform.SetParent(transform);
+        _dungeonSegments[exitIndex].transform.SetParent(transform);
     }
 
     // TODO: Document
     private void SpawnEntrance()
     {
         int entranceIndex = Random.Range(0, _entrancePrefabs.Length);
-        GameObject entranceObject = Instantiate(_entrancePrefabs[entranceIndex], transform);
+        GameObject entranceObject = Instantiate(_entrancePrefabs[entranceIndex]);
 
         if (entranceObject.TryGetComponent(out DungeonSegment entranceSegment) && entranceSegment.ContainsEntryPoints())
         {
-            _existingSegments.Add(entranceSegment);
+            _connectableSegments.Add(entranceSegment);
+            _dungeonSegments.Add(entranceSegment);
         }
     }
 
@@ -133,10 +145,10 @@ public class DungeonGenerator : MonoBehaviour
 
         while (existingSegment == null)
         {
-            if (_existingSegments.Count == 0) { break; }
+            if (_connectableSegments.Count == 0) { break; }
 
-            int temporaryIndex = Random.Range(0, _existingSegments.Count);
-            DungeonSegment temporarySegment = _existingSegments[temporaryIndex];
+            int temporaryIndex = Random.Range(0, _connectableSegments.Count);
+            DungeonSegment temporarySegment = _connectableSegments[temporaryIndex];
 
             if (temporarySegment.ContainsEntryPoints())
             {
@@ -145,7 +157,7 @@ public class DungeonGenerator : MonoBehaviour
                 break;
             }
 
-            _existingSegments.Remove(temporarySegment);
+            _connectableSegments.Remove(temporarySegment);
         }
 
         return existingSegment != null && existingEntrance != null;
@@ -161,6 +173,11 @@ public class DungeonGenerator : MonoBehaviour
 
         int segmentIndex = Random.Range(0, segmentPrefabs.Length);
         GameObject segmentObject = Instantiate(segmentPrefabs[segmentIndex], transform);
+
+        if (isExit)
+        {
+            segmentObject.transform.SetParent(null);
+        }
 
         if (segmentObject.TryGetComponent(out DungeonSegment dungeonSegment))
         {
@@ -239,9 +256,50 @@ public class DungeonGenerator : MonoBehaviour
     // TODO: Document
     private void BlockEntrances()
     {
-        foreach (DungeonSegment dungeonSegment in _existingSegments)
+        foreach (DungeonSegment dungeonSegment in _connectableSegments)
         {
             dungeonSegment.BlockEntrances();
         }
+    }
+
+    // TODO: Document
+    private void SpawnEnemies()
+    {
+        gameObject.GetComponent<NavMeshSurface>().BuildNavMesh();
+
+        // Retrieve the dungeon bounds
+        Bounds[] segmentBounds = _dungeonSegments.Select(dungeonSegment => dungeonSegment.RetrieveBounds()).ToArray();
+        Bounds dungeonBounds = UnityUtils.CalculateBounds(segmentBounds);
+
+        int totalEnemies = Random.Range(_minimumEnemies, _maximumEnemies + 1);
+        int enemyIndex = 0;
+
+        while (enemyIndex < totalEnemies)
+        {
+            Vector3 startPosition = RandomizeStartPosition(dungeonBounds);
+
+            if (NavMesh.SamplePosition(startPosition, out NavMeshHit sampleHit, 1.0f, NavMesh.AllAreas))
+            {
+                startPosition = sampleHit.position;
+
+                // TODO: Implement random selection of enemies from a list of prefabs
+                GameObject sampleEnemy = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                sampleEnemy.transform.position = startPosition;
+
+                enemyIndex++;
+            }
+        }
+
+        UnityEngine.Debug.Log($"Dungeon Bounds: {dungeonBounds}");
+    }
+
+    // TODO: Document
+    private Vector3 RandomizeStartPosition(Bounds objectBounds)
+    {
+        float x = Random.Range(objectBounds.min.x, objectBounds.max.x);
+        float y = Random.Range(objectBounds.min.y, objectBounds.max.y);
+        float z = Random.Range(objectBounds.min.z, objectBounds.max.z);
+
+        return new Vector3(x, y, z);
     }
 }

@@ -46,6 +46,13 @@ public class DungeonSegment : MonoBehaviour
     }
 
     // TODO: Document
+    public Bounds RetrieveBounds()
+    {
+        Bounds[] collisionBounds = _collisionDetectors.Select(collisionDetector => collisionDetector.bounds).ToArray();
+        return UnityUtils.CalculateBounds(collisionBounds);
+    }
+
+    // TODO: Document
     public List<Collider> RetrieveValidators()
     {
         return _collisionDetectors;
