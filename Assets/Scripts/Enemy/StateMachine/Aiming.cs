@@ -4,6 +4,8 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Base State/Enemy/Aiming")]
 public class AimingState : EnemyState
 {
+    [SerializeField] private float _rotationSpeed = 1.5f;
+    
     public override void EnterState()
     {
         Debug.Log("Entering Aiming State");
@@ -22,5 +24,10 @@ public class AimingState : EnemyState
     public override void OnTriggerEnter(Collider otherCollider) { }
     public override void OnTriggerExit(Collider otherCollider) { }
     public override void OnTriggerStay(Collider otherCollider) { }
-    public override void UpdateState() { }
+    public override void UpdateState()
+    {
+        Vector3 dir = (StateContext.TargetTransform.position - StateContext.Transform.position).normalized;
+        Quaternion targetRotation = Quaternion.LookRotation(dir);
+        StateContext.Transform.rotation = Quaternion.Slerp(StateContext.Transform.rotation, targetRotation, _rotationSpeed * Time.deltaTime);
+    }
 }
