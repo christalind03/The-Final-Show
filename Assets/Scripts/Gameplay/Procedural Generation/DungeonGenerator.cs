@@ -121,7 +121,6 @@ public class DungeonGenerator : MonoBehaviour
 
         // Keep the entrance and exit rooms inside the current GameObject to keep the scene hierarchy clean
         _dungeonSegments[0].transform.SetParent(transform);
-        _dungeonSegments[exitIndex].transform.SetParent(transform);
     }
 
     // TODO: Document
@@ -173,11 +172,6 @@ public class DungeonGenerator : MonoBehaviour
 
         int segmentIndex = Random.Range(0, segmentPrefabs.Length);
         GameObject segmentObject = Instantiate(segmentPrefabs[segmentIndex], transform);
-
-        if (isExit)
-        {
-            segmentObject.transform.SetParent(null);
-        }
 
         if (segmentObject.TryGetComponent(out DungeonSegment dungeonSegment))
         {
