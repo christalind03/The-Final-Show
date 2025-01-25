@@ -39,18 +39,15 @@ public class IdleState : EnemyState
     {
         if (!_isReset)
         {
-            hasInitialPosition = StateContext.NavMeshAgent.pathStatus == UnityEngine.AI.NavMeshPathStatus.PathComplete;
-            if (hasInitialPosition)
+            // Rotate enemy back to original rotation once it's close to initial position
+            if (StateContext.NavMeshAgent.remainingDistance < 0.1f)
             {
-                hasInitialRotation = StateContext.InitialRotation == StateContext.Transform.rotation;
-                if (!hasInitialRotation)
-                {
-                    StateContext.Transform.rotation = Quaternion.Slerp(StateContext.Transform.rotation, StateContext.InitialRotation, _rotationSpeed * Time.deltaTime);
-                }
-                else
-                {
-                    _isReset = true;
-                }
+                StateContext.Transform.rotation = Quaternion.Slerp(StateContext.Transform.rotation, StateContext.InitialRotation, _rotationSpeed * Time.deltaTime);
+            }
+
+            if (StateContext.InitialRotation == StateContext.Transform.rotation)
+            {
+                _isReset = true;
             }
         }
     }
