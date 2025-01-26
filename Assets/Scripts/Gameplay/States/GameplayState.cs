@@ -26,9 +26,12 @@ public abstract class GameplayState : BaseState<GameplayManager.State, GameplayC
     /// </summary>
     public override void EnterState()
     {
+        // Since the [Scene] attribute allows us to retrieve the scene's name by reference, it returns the entire file name.
+        // To prevent issues with string comparisons, we need to ensure we don't have the file extension at the end.
+        TargetScene = Path.GetFileNameWithoutExtension(TargetScene);
+
         LoadScene();
         SceneManager.sceneLoaded += OnSceneLoaded;
-        TargetScene = Path.GetFileNameWithoutExtension(TargetScene);
     }
 
     /// <summary>

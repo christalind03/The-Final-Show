@@ -32,8 +32,8 @@ public class DungeonGenerator : NetworkBehaviour
     [Header("Enemy Parameters")]
     [Min(1), SerializeField] private int _minimumEnemies;
     [Min(1), SerializeField] private int _maximumEnemies;
-    [SerializeField] private GameObject[] _enemyPrefabs;
 
+    private bool _isGenerated;
     private List<DungeonSegment> _connectableSegments;
     private List<DungeonSegment> _dungeonSegments;
 
@@ -63,7 +63,12 @@ public class DungeonGenerator : NetworkBehaviour
 
         GenerateDungeon();
         GenerateNavigationMesh();
-        SpawnEnemies();
+        //SpawnEnemies();
+
+        if (isServer)
+        {
+            _isGenerated = true;
+        }
     }
 
     // TODO: Document
@@ -71,15 +76,20 @@ public class DungeonGenerator : NetworkBehaviour
     {
         _randomSeed = (int)DateTime.Now.Ticks;
     }
-    
+
+    // TODO: Document
+    public bool IsGenerated()
+    {
+        return _isGenerated;
+    }
+
     // TODO: Document
     private void GenerateDungeon()
     {
         int totalRooms = UnityEngine.Random.Range(_minimumRooms, _maximumRooms + 1); // Since the maximum parameter is exclusive, ensure we add by one to make it inclusive
         int exitIndex = UnityEngine.Random.Range(1, totalRooms); // Entrance occupies the 0th index
-        int roomIndex = 0;
 
-        while (roomIndex < totalRooms)
+        for (int roomIndex = 0; roomIndex < totalRooms;)
         {
             if (_connectableSegments.Count <= 0)
             {
@@ -271,19 +281,19 @@ public class DungeonGenerator : NetworkBehaviour
     }
 
     // TODO: Document
-    private void SpawnEnemies()
+    public void SpawnEnemies(GameObject[] enemyPrefabs)
     {
-        if (!isServer) { return; }
+        if (!isServer || !_isGenerated) { return; }
+
+        UnityEngine.Debug.Log("Spawning enemies...");
 
         // Retrieve the dungeon bounds
-        Bounds[] segmentBounds = _dungeonSegments.Select(dungeonSegment => dungeonSegment.RetrieveBounds()).ToArray();
-        Bounds dungeonBounds = UnityUtils.CalculateBounds(segmentBounds);
         Bounds entranceBounds = _dungeonSegments[0].RetrieveBounds();
+        Bounds dungeonBounds = UnityUtils.CalculateBounds(RetrieveSegmentBounds());
 
         int totalEnemies = UnityEngine.Random.Range(_minimumEnemies, _maximumEnemies + 1);
-        int enemyIndex = 0;
 
-        while (enemyIndex < totalEnemies)
+        for (int enemyIndex = 0; enemyIndex < totalEnemies;)
         {
             Vector3 startPosition = UnityUtils.RandomizePosition(dungeonBounds);
 
@@ -292,8 +302,8 @@ public class DungeonGenerator : NetworkBehaviour
                 // Prevent enemies from spawning inside the entrance room
                 if (entranceBounds.Contains(closestHit.position)) { continue; }
 
-                int prefabIndex = UnityEngine.Random.Range(0, _enemyPrefabs.Length);
-                GameObject enemyPrefab = Instantiate(_enemyPrefabs[prefabIndex]);
+                int prefabIndex = UnityEngine.Random.Range(0, enemyPrefabs.Length);
+                GameObject enemyPrefab = Instantiate(enemyPrefabs[prefabIndex]);
 
                 if (enemyPrefab.TryGetComponent(out NavMeshAgent navMeshAgent))
                 {
@@ -305,5 +315,11 @@ public class DungeonGenerator : NetworkBehaviour
                 enemyIndex++;
             }
         }
+    }
+
+    // TODO: Document
+    private Bounds[] RetrieveSegmentBounds()
+    {
+        return _dungeonSegments.Select(dungeonSegment => dungeonSegment.RetrieveBounds()).ToArray();
     }
 }

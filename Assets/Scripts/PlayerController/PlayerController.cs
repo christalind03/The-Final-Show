@@ -225,12 +225,7 @@ public class PlayerController : NetworkBehaviour
 
         // Check to see if we're looking at anything of importance.
         Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out _raycastHit, _interactableDistance);
-        StartCoroutine(NetworkUtils.WaitUntilReady((NetworkIdentity clientIdentity) =>
-        {
-            if(NetworkClient.ready){
-                CmdLook(_followTransform.rotation, _aimCamera.Priority);
-            }
-        }));  
+        CmdLook(_followTransform.rotation, _aimCamera.Priority);  
     }
 
     /// <summary>

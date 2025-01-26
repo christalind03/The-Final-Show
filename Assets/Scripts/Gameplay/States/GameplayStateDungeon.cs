@@ -1,4 +1,5 @@
 using Mirror;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -17,6 +18,8 @@ public class GameplayStateDungeon : GameplayState
     /// </summary>
     public override void EnterState()
     {
+        Debug.Log("Entered dungeon state...");
+
         CountdownCallback = () =>
         {
             if (_safeZone != null && _safeZone.ContainsPlayers)
@@ -29,7 +32,7 @@ public class GameplayStateDungeon : GameplayState
                 {
                     NetworkIdentity invalidPlayerIdentity = invalidPlayer.GetComponent<NetworkIdentity>();
 
-                    invalidPlayerIdentity.connectionToClient.Send(new SpectateMessage() { });
+                    invalidPlayerIdentity.connectionToClient.Send(new SpectateMessage { });
                 }
             }
             else
@@ -49,16 +52,56 @@ public class GameplayStateDungeon : GameplayState
     /// <param name="loadMode">The mode in which the scene was loaded</param>
     protected override void OnSceneLoaded(Scene activeScene, LoadSceneMode loadMode)
     {
-        base.OnSceneLoaded(activeScene, loadMode);
+        if (activeScene.name != TargetScene) { return; }
+
+        GameplayManager.Instance.FindObject((DungeonGenerator targetObject) =>
+        {
+            if (targetObject != null)
+            {
+                GameplayManager.Instance.StartCoroutine(WaitForDungeonGeneration(targetObject));
+            }
+        });
+    }
+
+    // TODO: Documentatin
+    private IEnumerator WaitForDungeonGeneration(DungeonGenerator dungeonGenerator)
+    {
+        while (!dungeonGenerator.IsGenerated())
+        {
+            yield return null;
+        }
+
+        RelocatePlayers();
+        dungeonGenerator.SpawnEnemies(StateContext.GameplayTheme.EnemyPrefabs);
 
         GameplayManager.Instance.FindObject((SafeZone targetObject) =>
         {
             if (targetObject != null)
             {
-                Debug.Log("Safe Zone found successfully!");
+                Debug.Log("Found the safe zone!");
                 _safeZone = targetObject;
             }
         });
+        
+        if (IsTimed)
+        {
+            CustomNetworkManager.Instance.Countdown(
+                CountdownMessage,
+                CountdownCallback ?? (() => GameplayManager.Instance.TransitionToState(TransitionState))
+            );
+        }
+    }
+
+    // TODO: Document
+    private void RelocatePlayers()
+    {
+        foreach (NetworkConnectionToClient clientConnection in NetworkServer.connections.Values)
+        {
+            if (clientConnection.isReady)
+            {
+                CustomNetworkManager.Instance.StartCoroutine(CustomNetworkManager.Instance.RelocatePlayer(clientConnection));
+            }
+        }
     }
 
     public override void OnTriggerEnter(Collider otherCollider) { }
