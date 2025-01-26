@@ -27,13 +27,15 @@ public class PushAbilityState : EnemyState
         foreach (GameObject obj in StateContext.FieldOfView.DetectedObjects)
         {
             CharacterController targetController = obj.GetComponent<CharacterController>();
+            PlayerController playerController = obj.GetComponent<PlayerController>();
             if (targetController)
             {
                 Debug.Log("controller found");
                 Vector3 dir = (obj.transform.position - StateContext.Transform.position).normalized;
                 Vector3 vect = dir * Time.deltaTime * _pushStrength;
                 Debug.Log("vect: " + vect);
-                targetController.Move(vect); // this line is the problem, for some reason it only moves the host
+                //targetController.Move(vect); // this line is the problem, for some reason it only moves the host
+                playerController.RpcExternalMove(vect);
             }
             else
             {
