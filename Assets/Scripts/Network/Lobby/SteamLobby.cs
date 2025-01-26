@@ -62,7 +62,7 @@ public class SteamLobby : MonoBehaviour
 
         // Assign the metadata, HostAddressKey and "name"
         SteamMatchmaking.SetLobbyData(new CSteamID(callback.m_ulSteamIDLobby), HostAddressKey, SteamUser.GetSteamID().ToString());
-        SteamMatchmaking.SetLobbyData(new CSteamID(callback.m_ulSteamIDLobby), "name", SteamFriends.GetPersonaName().ToString() + "'s Lobby");
+        SteamMatchmaking.SetLobbyData(new CSteamID(callback.m_ulSteamIDLobby), "name", SteamFriends.GetPersonaName().ToString());
     }
 
     /// <summary>
@@ -71,15 +71,8 @@ public class SteamLobby : MonoBehaviour
     /// <param name="callback">The callback associated when a player enters the lobby</param>
     private void OnLobbyEntered(LobbyEnter_t callback)
     {
-        // Server: change the ui to the lobby ui screen
-        if (NetworkServer.active)
-        {
-            if (uIManagar != null)
-            {
-                string lobbyName = SteamMatchmaking.GetLobbyData(new CSteamID(callback.m_ulSteamIDLobby), "name");
-                uIManagar.lobbyScreen(callback.m_ulSteamIDLobby, lobbyName);
-            }
-        }
+        // Server: N/A
+
 
         // Client: checks if the lobby exists, if it does not, runs invalid lobby and short circuit the client code
         if (!NetworkServer.active)
@@ -88,13 +81,6 @@ public class SteamLobby : MonoBehaviour
             {
                 uIManagar.invalidLobby();
                 return;
-            }
-
-            // If the lobby does exist, change the ui screen to lobby ui
-            if (uIManagar != null)
-            {
-                string lobbyName = SteamMatchmaking.GetLobbyData(new CSteamID(callback.m_ulSteamIDLobby), "name");
-                uIManagar.lobbyScreen(callback.m_ulSteamIDLobby, lobbyName);
             }
 
             // Assign the network address for the client's manager and start the client 
