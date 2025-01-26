@@ -12,7 +12,8 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
         Idle,
         Chasing,
         Aiming,
-        Attacking
+        Attacking,
+        Ability1
     }
 
     [Header("Attack Parameters")]
@@ -39,7 +40,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     /// Gets relevant components from the GameObject
     /// Initializes the context shared by concrete states
     /// </summary>
-    private void Awake()
+    protected virtual void Awake()
     {
         _initialPosition = transform.position;
         _initialRotation = transform.rotation;
@@ -56,7 +57,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     /// <summary>
     /// Contains logic for keeping track of the target and transitioning between states
     /// </summary>
-    private void FixedUpdate()
+    protected virtual void FixedUpdate()
     {
         // _fieldOfView's interested layers should only be player
         float distToTarget = 0f;
