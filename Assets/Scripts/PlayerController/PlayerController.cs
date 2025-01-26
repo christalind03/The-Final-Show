@@ -532,4 +532,15 @@ public class PlayerController : NetworkBehaviour
             interactableComponent.Interact(gameObject);
         }
     }
+
+    /// <summary>
+    /// Allow other GameObjects on the server to tell clients to move their character around
+    /// </summary>
+    /// <param name="vect">Vector to move the player by</param>
+    [ClientRpc]
+    public void RpcExternalMove(Vector3 vect)
+    {
+        if (!isLocalPlayer) { return; } // only move the local player
+        _characterController.Move(vect);
+    }
 }
