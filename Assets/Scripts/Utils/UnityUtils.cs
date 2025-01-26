@@ -103,6 +103,16 @@ public static class UnityUtils
         UnityEngine.Debug.LogWarning($"[{scriptName}] {warningMessage}");
     }
 
+    // TODO: Document
+    public static Vector3 RandomizePosition(Bounds objectBounds)
+    {
+        float x = UnityEngine.Random.Range(objectBounds.min.x, objectBounds.max.x);
+        float y = UnityEngine.Random.Range(objectBounds.min.y, objectBounds.max.y);
+        float z = UnityEngine.Random.Range(objectBounds.min.z, objectBounds.max.z);
+
+        return new Vector3(x, y, z);
+    }
+
     /// <summary>
     /// Waits for the first instance of <typeparamref name="TComponent"/> to be found within the scene,
     /// within the provided <paramref name="timeLimit"/>. Once the component is found, the specified callback is invoked.

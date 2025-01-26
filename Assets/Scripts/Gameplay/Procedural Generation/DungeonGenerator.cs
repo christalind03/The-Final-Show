@@ -32,6 +32,7 @@ public class DungeonGenerator : NetworkBehaviour
     [Header("Enemy Parameters")]
     [Min(1), SerializeField] private int _minimumEnemies;
     [Min(1), SerializeField] private int _maximumEnemies;
+    [SerializeField] private GameObject[] _enemyPrefabs;
 
     private List<DungeonSegment> _connectableSegments;
     private List<DungeonSegment> _dungeonSegments;
@@ -61,6 +62,8 @@ public class DungeonGenerator : NetworkBehaviour
         _dungeonSegments = new List<DungeonSegment>();
 
         GenerateDungeon();
+        GenerateNavigationMesh();
+        SpawnEnemies();
     }
 
     // TODO: Document
@@ -129,7 +132,7 @@ public class DungeonGenerator : NetworkBehaviour
     private void SpawnEntrance()
     {
         int entranceIndex = UnityEngine.Random.Range(0, _entrancePrefabs.Length);
-        GameObject entranceObject = Instantiate(_entrancePrefabs[entranceIndex]);
+        GameObject entranceObject = Instantiate(_entrancePrefabs[entranceIndex], transform);
 
         if (entranceObject.TryGetComponent(out DungeonSegment entranceSegment) && entranceSegment.ContainsEntryPoints())
         {
@@ -259,46 +262,48 @@ public class DungeonGenerator : NetworkBehaviour
     }
 
     // TODO: Document
-    // Generate NavigationMesh here?
+    private void GenerateNavigationMesh()
+    {
+        gameObject.GetComponent<NavMeshSurface>().BuildNavMesh();
+
+        // Ensure the entrance room is added back to the scene hierarchy to maintain organization
+        _dungeonSegments[0].transform.SetParent(transform);
+    }
 
     // TODO: Document
     private void SpawnEnemies()
     {
-        gameObject.GetComponent<NavMeshSurface>().BuildNavMesh();
+        if (!isServer) { return; }
 
         // Retrieve the dungeon bounds
         Bounds[] segmentBounds = _dungeonSegments.Select(dungeonSegment => dungeonSegment.RetrieveBounds()).ToArray();
         Bounds dungeonBounds = UnityUtils.CalculateBounds(segmentBounds);
+        Bounds entranceBounds = _dungeonSegments[0].RetrieveBounds();
 
         int totalEnemies = UnityEngine.Random.Range(_minimumEnemies, _maximumEnemies + 1);
         int enemyIndex = 0;
 
         while (enemyIndex < totalEnemies)
         {
-            Vector3 startPosition = RandomizeStartPosition(dungeonBounds);
+            Vector3 startPosition = UnityUtils.RandomizePosition(dungeonBounds);
 
-            if (NavMesh.SamplePosition(startPosition, out NavMeshHit sampleHit, 1.0f, NavMesh.AllAreas))
+            if (NavMesh.SamplePosition(startPosition, out NavMeshHit closestHit, 1f, NavMesh.AllAreas))
             {
-                startPosition = sampleHit.position;
+                // Prevent enemies from spawning inside the entrance room
+                if (entranceBounds.Contains(closestHit.position)) { continue; }
 
-                // TODO: Implement random selection of enemies from a list of prefabs
-                GameObject sampleEnemy = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                sampleEnemy.transform.position = startPosition;
+                int prefabIndex = UnityEngine.Random.Range(0, _enemyPrefabs.Length);
+                GameObject enemyPrefab = Instantiate(_enemyPrefabs[prefabIndex]);
 
+                if (enemyPrefab.TryGetComponent(out NavMeshAgent navMeshAgent))
+                {
+                    navMeshAgent.Warp(closestHit.position);
+                    navMeshAgent.enabled = true;
+                }
+
+                NetworkServer.Spawn(enemyPrefab);
                 enemyIndex++;
             }
         }
-
-        UnityEngine.Debug.Log($"Dungeon Bounds: {dungeonBounds}");
-    }
-
-    // TODO: Document
-    private Vector3 RandomizeStartPosition(Bounds objectBounds)
-    {
-        float x = UnityEngine.Random.Range(objectBounds.min.x, objectBounds.max.x);
-        float y = UnityEngine.Random.Range(objectBounds.min.y, objectBounds.max.y);
-        float z = UnityEngine.Random.Range(objectBounds.min.z, objectBounds.max.z);
-
-        return new Vector3(x, y, z);
     }
 }

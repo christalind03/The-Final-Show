@@ -58,6 +58,8 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     /// </summary>
     private void FixedUpdate()
     {
+        if (!_navMeshAgent.enabled) { return; }
+
         // _fieldOfView's interested layers should only be player
         float distToTarget = 0f;
         // if the current target has been destroyed, go to idle
