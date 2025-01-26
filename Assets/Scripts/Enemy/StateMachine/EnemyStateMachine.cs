@@ -67,7 +67,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
         // First, check if the current target is valid
         if (_hasTarget)
         {
-            Debug.Log("Check 1: has a target");
             // Check if the target has been destroyed (e.g. a player disconnects)
             if (StateContext.TargetTransform == null)
             {
@@ -86,35 +85,42 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
         // If we have a valid target, perform transition logic
         if (_hasTarget)
         {
-            Debug.Log("Target is valid");
             distToTarget = Vector3.Distance(transform.position, _targetTransform.position); // recalculate distToTarget
             // If Idle and target is closer than startChaseDist, start chasing
             if (CurrentState.StateKey.Equals(EEnemyState.Idle) && distToTarget < _behaviorStats.StartChaseDist)
             {
                 TransitionToState(EEnemyState.Chasing);
             }
-            // If Chasing and target is farther than endChaseDist, stop chasing, no longer have a target
-            else if (CurrentState.StateKey.Equals(EEnemyState.Chasing) && distToTarget > _behaviorStats.EndChaseDist)
+            // If Chasing...
+            else if (CurrentState.StateKey.Equals(EEnemyState.Chasing))
             {
-                _hasTarget = false;
+                // and target is farther than endChaseDist, stop chasing, no longer have a target
+                if (distToTarget > _behaviorStats.EndChaseDist)
+                {
+                    _hasTarget = false;
+                }
+                // and target is closer than startAimDist, start Aiming
+                else if (distToTarget < _behaviorStats.StartAimDist)
+                {
+                    TransitionToState(EEnemyState.Aiming);
+                }
             }
-            // If Chasing and target is closer than startAimDist, start Aiming
-            else if (CurrentState.StateKey.Equals(EEnemyState.Chasing) && distToTarget < _behaviorStats.StartAimDist)
+            // If Aiming...
+            else if (CurrentState.StateKey.Equals(EEnemyState.Aiming))
             {
-                TransitionToState(EEnemyState.Aiming);
-            }
-            // If Aiming and target is farther than endAimDist, start Chasing
-            else if (CurrentState.StateKey.Equals(EEnemyState.Aiming) && distToTarget > _behaviorStats.EndAimDist)
-            {
-                TransitionToState(EEnemyState.Chasing);
-            }
-            // If Aiming and can attack, Attack
-            else if (CurrentState.StateKey.Equals(EEnemyState.Aiming) && _canAttack)
-            {
-                TransitionToState(EEnemyState.Attacking);
-                _canAttack = false;
-                StartCoroutine(AttackCooldown());
-                // TODO: add a delay here for duration of attack animation
+                // and target is farther than endAimDist, start Chasing
+                if (CurrentState.StateKey.Equals(EEnemyState.Aiming) && distToTarget > _behaviorStats.EndAimDist)
+                {
+                    TransitionToState(EEnemyState.Chasing);
+                }
+                // and can attack, Attack
+                else if (CurrentState.StateKey.Equals(EEnemyState.Aiming) && _canAttack)
+                {
+                    TransitionToState(EEnemyState.Attacking);
+                    _canAttack = false;
+                    StartCoroutine(AttackCooldown());
+                    // TODO: add a delay here for duration of attack animation
+                }
             }
             // If Attacking but can no longer attack, start Aiming
             else if (CurrentState.StateKey.Equals(EEnemyState.Attacking) && !_canAttack)
@@ -125,10 +131,8 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
         // If we don't have a target anymore, scan for a new one
         if (!_hasTarget)
         {
-            Debug.Log("Check 2: No target");
             if (_fieldOfView.DetectedObjects.Count > 0)
             {
-                Debug.Log("Detected Objects");
                 _hasTarget = true;
                 // TODO: The first object in the list seems to always be the host, so maybe find the closest obj in the list
                 _targetTransform = _fieldOfView.DetectedObjects[0].transform; // get the first object
@@ -137,7 +141,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
             // No target and couldn't find a new one -> go to Idle
             else
             {
-                Debug.Log("No objects detected");
                 TransitionToState(EEnemyState.Idle);
             }
         }
