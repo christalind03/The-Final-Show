@@ -50,6 +50,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
         _material = GetComponentsInChildren<Renderer>()[0].material;
 
         _canAttack = true;
+        _hasTarget = false;
 
         StateContext = new EnemyContext(_attackStats, _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _material);
     }
@@ -61,19 +62,18 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     {
         // _fieldOfView's interested layers should only be player
         float distToTarget = 0f;
-        // if the current target has been destroyed, go to idle
+        // if the current target has been destroyed (e.g. a player disconnects), go to idle
         if (_hasTarget && StateContext.TargetTransform == null)
         {
-            TransitionToState(EEnemyState.Idle);
+            TransitionToState(EEnemyState.Idle); // TODO: get rid of this transition, and transition based on next logic
             _hasTarget = false;
         }
         // if the current target has no health, go to idle
-        
         else if (_hasTarget && StateContext.TargetTransform.root.TryGetComponent(out AbstractHealth targetHealth))
         {
             if (targetHealth.CurrentValue <= 0)
             {
-                TransitionToState(EEnemyState.Idle);
+                TransitionToState(EEnemyState.Idle); // TODO: get rid of this transition, and transition based on next logic
                 _hasTarget = false;
             }
         }
