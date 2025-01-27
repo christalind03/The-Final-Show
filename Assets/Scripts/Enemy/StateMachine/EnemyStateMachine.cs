@@ -66,7 +66,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
         // First, check if the current target is valid
         CheckTargetValidity();
         // Perform transition logic
-        BaseTransitionLogic();
+        TransitionLogic();
     }
 
     /// <summary>
@@ -98,7 +98,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     /// Contains the logic which controls transitioning between states and finding targets.
     /// This behavior is the same for all basic enemies (non-bosses).
     /// </summary>
-    protected void BaseTransitionLogic()
+    protected virtual void TransitionLogic()
     {
         float distToTarget = 0f;
         if (_hasTarget)
