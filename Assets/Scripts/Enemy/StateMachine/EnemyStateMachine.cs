@@ -56,15 +56,25 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     }
 
     /// <summary>
-    /// Contains logic for keeping track of the target and transitioning between states
+    /// Called every frame to control enemy behavior.
     /// </summary>
     protected virtual void FixedUpdate()
     {
         // TODO: Do we need if(!isServer) { return }; here?
         // _fieldOfView's interested layers should only be player
-        float distToTarget = 0f;
-
+        
         // First, check if the current target is valid
+        CheckTargetValidity();
+        // Perform transition logic
+        BaseTransitionLogic();
+    }
+
+    /// <summary>
+    /// Checks if the current target is valid.
+    /// A target is no longer valid if the object has been destroyed or if its health has reached zero.
+    /// </summary>
+    protected void CheckTargetValidity()
+    {
         if (_hasTarget)
         {
             // Check if the target has been destroyed (e.g. a player disconnects)
@@ -82,7 +92,15 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
                 }
             }
         }
-        // If we have a valid target, perform transition logic
+    }
+
+    /// <summary>
+    /// Contains the logic which controls transitioning between states and finding targets.
+    /// This behavior is the same for all basic enemies (non-bosses).
+    /// </summary>
+    protected void BaseTransitionLogic()
+    {
+        float distToTarget = 0f;
         if (_hasTarget)
         {
             distToTarget = Vector3.Distance(transform.position, _targetTransform.position); // recalculate distToTarget
