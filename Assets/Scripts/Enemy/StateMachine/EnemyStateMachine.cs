@@ -13,7 +13,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
         Chasing,
         Aiming,
         Attacking,
-        Ability1
+        Ability0
     }
 
     [Header("Attack Parameters")]

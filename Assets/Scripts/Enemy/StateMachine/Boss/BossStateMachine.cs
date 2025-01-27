@@ -39,7 +39,7 @@ public class BossStateMachine : EnemyStateMachine
             return;
         }
         // if we're not using an ability anymore but we're still in the ability state
-        else if (CurrentState.StateKey.Equals(EEnemyState.Ability1))
+        else if (CurrentState.StateKey.Equals(EEnemyState.Ability0))
         {
             // If we still have a target, start Chasing
             if (_hasTarget)
@@ -55,11 +55,11 @@ public class BossStateMachine : EnemyStateMachine
         // use push ability if able and there are players in the FOV
         if (_canUseAbility[0] && _fieldOfView.DetectedObjects.Count > 0)
         {
-            TransitionToState(EEnemyState.Ability1);
+            TransitionToState(EEnemyState.Ability0);
             _canUseAbility[0] = false;
             _usingAbility = true;
-            StartCoroutine(Ability1Cooldown());
-            StartCoroutine(Ability1Duration());
+            StartCoroutine(Ability0Cooldown());
+            StartCoroutine(Ability0Duration());
         }
         else if (_hasTarget)
         {
@@ -128,14 +128,14 @@ public class BossStateMachine : EnemyStateMachine
     /// Used to control how often the boss can use ability 1
     /// </summary>
     [Server]
-    protected IEnumerator Ability1Cooldown()
+    protected IEnumerator Ability0Cooldown()
     {
         yield return new WaitForSeconds(_abilityStats[0].AbilityCooldown);
         _canUseAbility[0] = true;
     }
 
     [Server]
-    protected IEnumerator Ability1Duration()
+    protected IEnumerator Ability0Duration()
     {
         yield return new WaitForSeconds(_abilityStats[0].AbilityDuration);
         _usingAbility = false;
