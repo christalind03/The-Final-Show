@@ -71,7 +71,9 @@ public class PlayerController : NetworkBehaviour
     public override void OnStartAuthority()
     {
         CameraController cameraController= GetComponent<CameraController>();
-        if(cameraController.alive){
+        
+        if (cameraController.alive)
+        {
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;            
         }

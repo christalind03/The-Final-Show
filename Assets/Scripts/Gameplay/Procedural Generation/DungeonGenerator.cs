@@ -340,7 +340,7 @@ public class DungeonGenerator : NetworkBehaviour
 
                 int prefabIndex = UnityEngine.Random.Range(0, enemyPrefabs.Length);
                 GameObject enemyPrefab = Instantiate(enemyPrefabs[prefabIndex], closestHit.position, Quaternion.identity); // TODO: Ensure the enemy is always looking inside the dungeon, not at a wall?
-
+                
                 if (enemyPrefab.TryGetComponent(out NavMeshAgent navMeshAgent))
                 {
                     navMeshAgent.enabled = true;

@@ -44,13 +44,26 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
         _initialPosition = transform.position;
         _initialRotation = transform.rotation;
 
-        _navMeshAgent = GetComponent<NavMeshAgent>();
         _fieldOfView = GetComponent<FieldOfView>();
+        _navMeshAgent = GetComponent<NavMeshAgent>();
         _material = GetComponentsInChildren<Renderer>()[0].material;
 
         _canAttack = true;
 
         StateContext = new EnemyContext(_attackStats, _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _material);
+    }
+
+    // TODO: Document
+    protected override void Start()
+    {
+        base.Start();
+
+        if (!isServer)
+        {
+            _fieldOfView.enabled = false;
+            _navMeshAgent.enabled = false;
+            enabled = false;
+        }
     }
 
     /// <summary>
