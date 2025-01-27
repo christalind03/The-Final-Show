@@ -10,20 +10,22 @@ public class BossStateMachine : EnemyStateMachine
     // has all attributes of EnemyStateMachine PLUS
     [Header("Ability Parameters")]
     [SerializeField] protected List<AbilityStats> _abilityStats;
-
-    protected bool _canAbility1;
+    protected List<bool> _canUseAbility;
     protected bool _usingAbility;
 
 
     /// <summary>
-    /// Stores the enemy's initial position and rotation for later use
-    /// Gets relevant components from the GameObject
-    /// Initializes the context shared by concrete states
+    /// Calls base.Awake() then initializes the _canUseAbility list with true
     /// </summary>
     protected override void Awake()
     {
         base.Awake();
-        _canAbility1 = true;
+        _canUseAbility = new List<bool>();
+        int numAbilities = _abilityStats.Count;
+        for (int i = 0; i < numAbilities; i++)
+        {
+            _canUseAbility.Add(true);
+        }
         _usingAbility = false;
     }
 
@@ -51,10 +53,10 @@ public class BossStateMachine : EnemyStateMachine
             }
         }
         // use push ability if able and there are players in the FOV
-        if (_canAbility1 && _fieldOfView.DetectedObjects.Count > 0)
+        if (_canUseAbility[0] && _fieldOfView.DetectedObjects.Count > 0)
         {
             TransitionToState(EEnemyState.Ability1);
-            _canAbility1 = false;
+            _canUseAbility[0] = false;
             _usingAbility = true;
             StartCoroutine(Ability1Cooldown());
             StartCoroutine(Ability1Duration());
@@ -129,7 +131,7 @@ public class BossStateMachine : EnemyStateMachine
     protected IEnumerator Ability1Cooldown()
     {
         yield return new WaitForSeconds(_abilityStats[0].AbilityCooldown);
-        _canAbility1 = true;
+        _canUseAbility[0] = true;
     }
 
     [Server]
