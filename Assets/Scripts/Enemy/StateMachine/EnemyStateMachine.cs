@@ -58,7 +58,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     /// <summary>
     /// Called every frame to control enemy behavior.
     /// </summary>
-    protected virtual void FixedUpdate()
+    protected void FixedUpdate()
     {
         // TODO: Do we need if(!isServer) { return }; here?
         // _fieldOfView's interested layers should only be player
