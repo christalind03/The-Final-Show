@@ -23,23 +23,14 @@ public class PushAbilityState : EnemyState
     {
         // go through FOV's detected objects and use their character controller to move them away each frame
         // TODO: only pushes the host away
-        Debug.Log("Detected Objects Count: " + StateContext.FieldOfView.DetectedObjects.Count);
         foreach (GameObject obj in StateContext.FieldOfView.DetectedObjects)
         {
-            CharacterController targetController = obj.GetComponent<CharacterController>();
             PlayerController playerController = obj.GetComponent<PlayerController>();
-            if (targetController)
+            if (playerController)
             {
-                Debug.Log("controller found");
                 Vector3 dir = (obj.transform.position - StateContext.Transform.position).normalized;
                 Vector3 vect = dir * Time.deltaTime * _pushStrength;
-                Debug.Log("vect: " + vect);
-                //targetController.Move(vect); // this line is the problem, for some reason it only moves the host
                 playerController.RpcExternalMove(vect);
-            }
-            else
-            {
-                Debug.Log("ERROR no controller found");
             }
         }
     }
