@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.AI;
 
-[CreateAssetMenu(menuName = "BaseState/Enemy/Chasing")]
+[CreateAssetMenu(menuName = "Base State/Enemy/Chasing")]
 public class ChasingState : EnemyState
 {
     public override void EnterState()

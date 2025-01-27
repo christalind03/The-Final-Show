@@ -70,7 +70,7 @@ public class DungeonGenerator : NetworkBehaviour
         _dungeonSegments = new List<DungeonSegment>();
 
         GenerateDungeon();
-        GenerateNavigationMesh();
+        gameObject.GetComponent<NavMeshSurface>().BuildNavMesh();
 
         if (isServer)
         {
@@ -316,25 +316,12 @@ public class DungeonGenerator : NetworkBehaviour
     }
 
     /// <summary>
-    /// Generates the navigation mesh for the dungeon using Unity's NavMesh system.
-    /// </summary>
-    private void GenerateNavigationMesh()
-    {
-        gameObject.GetComponent<NavMeshSurface>().BuildNavMesh();
-
-        // Ensure the entrance room is added back to the scene hierarchy to maintain organization
-        _dungeonSegments[0].transform.SetParent(transform);
-    }
-
-    /// <summary>
     /// Spawns enemies in the dungeon after it has been generated.
     /// </summary>
     /// <param name="enemyPrefabs">The array of enemy prefabs to be randomly spawned in the dungeon</param>
     public void SpawnEnemies(GameObject[] enemyPrefabs)
     {
         if (!isServer || !_isGenerated) { return; }
-
-        UnityEngine.Debug.Log("Spawning enemies...");
 
         // Retrieve the dungeon bounds
         Bounds entranceBounds = _dungeonSegments[0].RetrieveBounds();
@@ -352,11 +339,10 @@ public class DungeonGenerator : NetworkBehaviour
                 if (entranceBounds.Contains(closestHit.position)) { continue; }
 
                 int prefabIndex = UnityEngine.Random.Range(0, enemyPrefabs.Length);
-                GameObject enemyPrefab = Instantiate(enemyPrefabs[prefabIndex]);
+                GameObject enemyPrefab = Instantiate(enemyPrefabs[prefabIndex], closestHit.position, Quaternion.identity); // TODO: Ensure the enemy is always looking inside the dungeon, not at a wall?
 
                 if (enemyPrefab.TryGetComponent(out NavMeshAgent navMeshAgent))
                 {
-                    navMeshAgent.Warp(closestHit.position);
                     navMeshAgent.enabled = true;
                 }
 
