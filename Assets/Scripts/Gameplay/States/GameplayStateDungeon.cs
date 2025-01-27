@@ -58,13 +58,18 @@ public class GameplayStateDungeon : GameplayState
         {
             if (targetObject != null)
             {
-                GameplayManager.Instance.StartCoroutine(WaitForDungeonGeneration(targetObject));
+                GameplayManager.Instance.StartCoroutine(OnDungeonGenerationComplete(targetObject));
             }
         });
     }
 
-    // TODO: Documentatin
-    private IEnumerator WaitForDungeonGeneration(DungeonGenerator dungeonGenerator)
+    /// <summary>
+    /// Waits for the dungeon to finish generating then relocates players to their start positions, spawns enemies, and finds the safe zone.
+    /// Optionally, starts the countdown timer if the gameplay is timed.
+    /// </summary>
+    /// <param name="dungeonGenerator">The <see cref="DungeonGenerator"/> instance responsible for generating the dungeon</param>
+    /// <returns>An <c>IEnumerator</c> for coroutine execution.</returns>
+    private IEnumerator OnDungeonGenerationComplete(DungeonGenerator dungeonGenerator)
     {
         while (!dungeonGenerator.IsGenerated())
         {
@@ -92,7 +97,10 @@ public class GameplayStateDungeon : GameplayState
         }
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Relocates all ready players to their respective spawn positions in the game.
+    /// This method is invoked for each connected client to ensure proper placement in the newly generated dungeon.
+    /// </summary>
     private void RelocatePlayers()
     {
         foreach (NetworkConnectionToClient clientConnection in NetworkServer.connections.Values)
