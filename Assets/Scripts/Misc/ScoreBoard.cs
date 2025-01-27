@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Mirror;
 using Org.BouncyCastle.Crypto.Modes;
 using UnityEngine;
@@ -23,6 +25,7 @@ public class ScoreBoard : NetworkBehaviour
     
     private Dictionary<uint, PlayerData> PlayerKDA;
     private Dictionary<uint, string> playerName;
+    private bool dataUpdated;
     /// <summary>
     /// Initalizes the SlotWithPlayerName with the slot name null for the player name data
     /// </summary>
@@ -37,8 +40,34 @@ public class ScoreBoard : NetworkBehaviour
             { "Player-5", null }
         };
         PlayerKDA = new Dictionary<uint, PlayerData>();
+        playerName = new Dictionary<uint, string>();
+        dataUpdated = false;
 
         base.OnStartAuthority();
+    }
+    /// <summary>
+    /// The server version of InitializesPlayerData, instead of loop through the whole
+    /// playerName dictionary, it will just add the most recent player that joined
+    /// </summary>
+    /// <param name="netid">most receent player joined</param>
+    /// <returns></returns>
+    private IEnumerator AddPlayerData(uint netid){
+        yield return new WaitUntil(() => dataUpdated);
+        if(!PlayerKDA.ContainsKey(netid)){ //see if this player already exist
+            PlayerData newData = new PlayerData(0, 0, 0); //new player data
+            PlayerKDA.Add(netid, newData);
+            foreach (var slot in SlotWithPlayerName){ //iterate to the next available slot to add player list
+                if (slot.Value == null){
+                    playerName.TryGetValue(netid, out string pname);
+                    SlotWithPlayerName[slot.Key] = new Dictionary<uint, string> {{netid, pname}};
+                    _playerInterface.AddPlayerToScoreBoard(slot.Key, pname); //add the new player to the scoreboard
+                    break;
+                }
+            
+            }
+        }
+
+        dataUpdated = false;
     }
 
     /// <summary>
@@ -47,19 +76,23 @@ public class ScoreBoard : NetworkBehaviour
     /// create a new playerData and add it with the netid of player. Also adds the new player data
     /// to the next available slot.
     /// </summary>
-    private void InitializesPlayerData(uint netid){
-        if(!PlayerKDA.ContainsKey(netid)){ //see if this player already exist
-            PlayerData newData = new PlayerData(0, 0, 0); //new player data
-            PlayerKDA.Add(netid, newData);
-            foreach (var slot in SlotWithPlayerName){ //iterate to the next available slot to add player list
-                if (slot.Value == null){
-                    SlotWithPlayerName[slot.Key] = new Dictionary<uint, string> {{netid, name}};
-                    _playerInterface.AddPlayerToScoreBoard(slot.Key, name); //add the new player to the scoreboard
-                    break;
+    private void InitializesPlayerData(){
+        Debug.Log(playerName.Count);
+        foreach(KeyValuePair<uint, string> player in playerName){
+            if(!PlayerKDA.ContainsKey(player.Key)){
+                PlayerData newData = new PlayerData(0, 0, 0); //new player data
+                PlayerKDA.Add(player.Key, newData);
+                foreach (var slot in SlotWithPlayerName){
+                    if (slot.Value == null){
+                        playerName.TryGetValue(player.Key, out string pname);
+                        SlotWithPlayerName[slot.Key] = new Dictionary<uint, string> {{player.Key, pname}};
+                        _playerInterface.AddPlayerToScoreBoard(slot.Key, pname); //add the new player to the scoreboard
+                        break;
+                    }
                 }
-            
             }
         }
+        dataUpdated = false;
     }
 
     /// <summary>
@@ -90,7 +123,7 @@ public class ScoreBoard : NetworkBehaviour
             playerNetId.Add(entry.Key);
             playerNames.Add(entry.Value);
         }
-        ClientRpcRequestPlayerList(playerNetId, playerNames);
+        RpcRequestPlayerList(playerNetId, playerNames);
     }
 
     /// <summary>
@@ -99,7 +132,7 @@ public class ScoreBoard : NetworkBehaviour
     /// <param name="netIds">list of all netids currently on the server</param>
     /// <param name="names">list of all player names current on the server</param>
     [ClientRpc]
-    private void ClientRpcRequestPlayerList(List<uint> netIds, List<string> names){
+    private void RpcRequestPlayerList(List<uint> netIds, List<string> names){
         Dictionary<uint, string> dictionaryNames = new Dictionary<uint, string>();
         int i = 0;
         foreach(var netid in netIds){
@@ -107,12 +140,17 @@ public class ScoreBoard : NetworkBehaviour
             i++;
         }
         playerName = dictionaryNames;
+        dataUpdated = true;
+        Debug.Log(playerName.Count);
     }
 
     /// <summary>
     /// Allows outside classes to update score board
     /// </summary>
     public void ShowScoreBoard(){
+        if(!isServer){
+            InitializesPlayerData();
+        }
         _playerInterface.ToggleScoreBoardVisibility();
     }
 
@@ -127,7 +165,7 @@ public class ScoreBoard : NetworkBehaviour
         CmdRequestPlayerList();
     }
     public void UpdatePlayerList(uint netid){
-        InitializesPlayerData(netid);
         CmdRequestPlayerList();
+        StartCoroutine(AddPlayerData(netid));
     }
 }
