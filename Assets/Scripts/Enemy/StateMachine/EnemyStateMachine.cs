@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using Mirror;
@@ -35,9 +34,8 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     protected Material _material;
 
     /// <summary>
-    /// Stores the enemy's initial position and rotation for later use
-    /// Gets relevant components from the GameObject
-    /// Initializes the context shared by concrete states
+    /// Stores the enemy's initial position and rotation for later use.
+    /// Additionally caches relevant components from the GameObject and initializes the context shared by concrete states.
     /// </summary>
     private void Awake()
     {
@@ -53,7 +51,9 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
         StateContext = new EnemyContext(_attackStats, _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _material);
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Initializes the component on start and disables unnecessary functionality for client instances.
+    /// </summary>
     protected override void Start()
     {
         base.Start();
