@@ -2,6 +2,7 @@ using Mirror;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -13,6 +14,7 @@ public class CustomNetworkManager : NetworkManager
     public ulong LobbyId { get; set; }
     public static CustomNetworkManager Instance => (CustomNetworkManager)NetworkManager.singleton;
     private Dictionary<string, Coroutine> activeCoroutines = new Dictionary<string, Coroutine>();
+    
 
     /// <summary>
     /// Called when the client connects to the server.
@@ -58,6 +60,20 @@ public class CustomNetworkManager : NetworkManager
         else
         {
             StartCoroutine(RelocatePlayer(clientConnection));
+        }
+    }
+
+    public override void OnServerConnect(NetworkConnectionToClient conn)
+    {
+        ClientConnect();
+        base.OnServerConnect(conn);
+    }
+
+    public override void OnServerDisconnect(NetworkConnectionToClient conn)
+    {
+        base.OnServerDisconnect(conn);
+        if(conn.identity == null){
+            ClientDisconnect(conn.identity);
         }
     }
 
@@ -258,5 +274,26 @@ public class CustomNetworkManager : NetworkManager
         }));            
     }
 
+    #endregion
+
+    #region ScoreBoard Functionality
+    private void ClientConnect(){
+        StartCoroutine(NetworkUtils.WaitUntilReady((NetworkIdentity clientIdentity) =>
+        {
+            ScoreBoard scoreboard = clientIdentity.GetComponent<ScoreBoard>();
+            Debug.Log(clientIdentity.netId);
+            scoreboard.UpdatePlayerList(clientIdentity.netId);
+        }));
+    }
+
+    private void ClientDisconnect(NetworkIdentity identity){
+        StartCoroutine(NetworkUtils.WaitUntilReady((NetworkIdentity clientIdentity) =>
+        {
+            if(clientIdentity.isServer){
+                ScoreBoard scoreboard = clientIdentity.GetComponent<ScoreBoard>();
+                scoreboard.RemovePlayer(identity.netId);
+            }
+        }));
+    }
     #endregion
 }

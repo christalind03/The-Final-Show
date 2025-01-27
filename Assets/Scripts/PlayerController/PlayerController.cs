@@ -2,7 +2,6 @@ using Cinemachine;
 using Mirror;
 using System;
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,6 +12,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(CombatController))]
 [RequireComponent(typeof(PlayerInventory))]
 [RequireComponent(typeof(PlayerStats))]
+[RequireComponent(typeof(ScoreBoard))]
 public class PlayerController : NetworkBehaviour
 {
     [Header("Camera Parameters")]
@@ -51,6 +51,7 @@ public class PlayerController : NetworkBehaviour
     private CombatController _combatController;
     private PlayerInventory _playerInventory;
     private PlayerStats _playerStats;
+    private ScoreBoard _scoreBoard;
 
     private Animator _playerAnimator;
     private int _animatorIsJumping;
@@ -72,8 +73,8 @@ public class PlayerController : NetworkBehaviour
     {
         CameraController cameraController= GetComponent<CameraController>();
         if(cameraController.alive){
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;            
+            UnityEngine.Cursor.visible = false;
+            UnityEngine.Cursor.lockState = CursorLockMode.Locked;            
         }
 
         _canJump = true;
@@ -83,6 +84,7 @@ public class PlayerController : NetworkBehaviour
         _combatController = gameObject.GetComponent<CombatController>();
         _playerInventory = gameObject.GetComponent<PlayerInventory>();
         _playerStats = gameObject.GetComponent<PlayerStats>();
+        _scoreBoard = gameObject.GetComponent<ScoreBoard>();
 
         // To access the animator, we must retrieve the child gameObject that is rendering the player's mesh.
         // This should be the first child of the current gameObject, `BaseCharacter`
@@ -106,6 +108,7 @@ public class PlayerController : NetworkBehaviour
         _playerControls.Player.Drop.performed += Drop;
         _playerControls.Player.Interact.performed += Interact;
         _playerControls.Player.Jump.performed += Jump;
+        _playerControls.Player.ScoreBoard.performed += ScoreBoard;
 
         // Subscribe to inventory slot selection for all slots.
         _playerControls.Inventory.CycleSlots.performed += _playerInventory.SelectSlot;
@@ -401,12 +404,19 @@ public class PlayerController : NetworkBehaviour
     }
 
     /// <summary>
+    /// When the player press Tab, the player list will open/close based on the current display status
+    /// </summary>
+    private void ScoreBoard(InputAction.CallbackContext context){
+        _scoreBoard.ShowScoreBoard();
+    }
+
+    /// <summary>
     /// When the client no longer has authority over this object, ensure the cursor is visible and disables the controls.
     /// </summary>
     public override void OnStopAuthority()
     {
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
+        UnityEngine.Cursor.visible = true;
+        UnityEngine.Cursor.lockState = CursorLockMode.None;
 
         DisableControls();
     }
@@ -423,6 +433,7 @@ public class PlayerController : NetworkBehaviour
         _playerControls.Player.Drop.performed -= Drop;
         _playerControls.Player.Interact.performed -= Interact;
         _playerControls.Player.Jump.performed -= Jump;
+        _playerControls.Player.ScoreBoard.performed -= ScoreBoard;
 
         _playerControls.Inventory.CycleSlots.performed -= _playerInventory.SelectSlot;
         InputActionMap inventoryActions = _playerControls.asset.FindActionMap("Inventory");

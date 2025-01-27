@@ -1,4 +1,5 @@
 using Mirror;
+using Steamworks;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -176,6 +177,39 @@ public class PlayerInterface : NetworkBehaviour
         if (UnityUtils.ContainsElement(_rootVisualElement, "Ammo", out VisualElement ammoElement))
         {
             ammoElement.style.opacity = displayAmmo ? 1 : 0;
+        }
+    }
+    
+    /// <summary>
+    /// Toggle the score board visibility based on the current class list on the visualelement
+    /// </summary>
+    /// <returns>True = scoreboard enabled / False = scoreboard disabled or ScoreBoard not found</returns>
+    public bool ToggleScoreBoardVisibility(){
+        if (UnityUtils.ContainsElement(_rootVisualElement, "ScoreBoard", out VisualElement board))
+        {
+            if (board.ClassListContains("hide"))
+            {
+                board.RemoveFromClassList("hide");
+                return true;
+            }else{
+                board.AddToClassList("hide");
+            }
+        }
+        return false;        
+    }
+
+    public void AddPlayerToScoreBoard(string slotName, string playerName){
+        if (UnityUtils.ContainsElement(_rootVisualElement, slotName, out TextElement player))
+        {
+            player.text = playerName;
+            player.RemoveFromClassList("hide");
+        }
+    }
+
+    public void RemovePlayerFromScoreBoard(string slotName){
+        if (UnityUtils.ContainsElement(_rootVisualElement, slotName, out TextElement player))
+        {
+            player.AddToClassList("hide");
         }
     }
 
