@@ -2,7 +2,6 @@ using Mirror;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -65,16 +64,14 @@ public class CustomNetworkManager : NetworkManager
 
     public override void OnServerConnect(NetworkConnectionToClient conn)
     {
-        ClientConnect();
         base.OnServerConnect(conn);
+        StartCoroutine(ClientConnect(conn));
     }
 
     public override void OnServerDisconnect(NetworkConnectionToClient conn)
     {
         base.OnServerDisconnect(conn);
-        if(conn.identity == null){
-            ClientDisconnect(conn.identity);
-        }
+        ClientDisconnect(conn);
     }
 
     /// <summary>
@@ -277,23 +274,23 @@ public class CustomNetworkManager : NetworkManager
     #endregion
 
     #region ScoreBoard Functionality
-    private void ClientConnect(){
-        StartCoroutine(NetworkUtils.WaitUntilReady((NetworkIdentity clientIdentity) =>
-        {
-            ScoreBoard scoreboard = clientIdentity.GetComponent<ScoreBoard>();
-            Debug.Log(clientIdentity.netId);
-            scoreboard.UpdatePlayerList(clientIdentity.netId);
-        }));
+    private IEnumerator ClientConnect(NetworkConnectionToClient conn){
+        yield return new WaitUntil(() => conn.identity != null);
+        
+        if(conn != null){
+            StartCoroutine(NetworkUtils.WaitUntilReady((NetworkIdentity clientIdentity) =>
+            {
+                ScoreBoard scoreboard = clientIdentity.GetComponent<ScoreBoard>();
+                scoreboard.UpdatePlayerList(conn.identity.netId);  
+            }));        
+        } 
     }
 
-    private void ClientDisconnect(NetworkIdentity identity){
-        StartCoroutine(NetworkUtils.WaitUntilReady((NetworkIdentity clientIdentity) =>
-        {
-            if(clientIdentity.isServer){
-                ScoreBoard scoreboard = clientIdentity.GetComponent<ScoreBoard>();
-                scoreboard.RemovePlayer(identity.netId);
-            }
-        }));
+    private void ClientDisconnect(NetworkConnectionToClient conn){
+        if(conn != null){
+            ScoreBoard scoreboard = conn.identity.GetComponent<ScoreBoard>();
+            scoreboard.RemovePlayer(conn.identity.netId);
+        }
     }
     #endregion
 }

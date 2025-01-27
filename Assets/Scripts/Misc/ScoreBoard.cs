@@ -6,6 +6,7 @@ using UnityEngine;
 [RequireComponent(typeof(PlayerInterface))]
 public class ScoreBoard : NetworkBehaviour
 {
+    [SerializeField] private PlayerInterface _playerInterface;
     private struct PlayerData{
         public int KillData { get; set; }
         public int DeathData { get; set; }
@@ -18,8 +19,8 @@ public class ScoreBoard : NetworkBehaviour
         }
     } 
 
-    private PlayerInterface _playerInterface;
     private Dictionary<string, Dictionary<uint, string>> SlotWithPlayerName;
+    
     private Dictionary<uint, PlayerData> PlayerKDA;
     private Dictionary<uint, string> playerName;
     /// <summary>
@@ -27,7 +28,7 @@ public class ScoreBoard : NetworkBehaviour
     /// </summary>
     public override void OnStartAuthority()
     {
-        SlotWithPlayerName = new Dictionary<string, Dictionary<uint, string>>
+        SlotWithPlayerName  = new Dictionary<string, Dictionary<uint, string>>
         {
             { "Player-1", null },
             { "Player-2", null },
@@ -37,7 +38,6 @@ public class ScoreBoard : NetworkBehaviour
         };
         PlayerKDA = new Dictionary<uint, PlayerData>();
 
-        _playerInterface = gameObject.GetComponent<PlayerInterface>();
         base.OnStartAuthority();
     }
 
@@ -48,14 +48,13 @@ public class ScoreBoard : NetworkBehaviour
     /// to the next available slot.
     /// </summary>
     private void InitializesPlayerData(uint netid){
-        Debug.Log(PlayerKDA == null);
         if(!PlayerKDA.ContainsKey(netid)){ //see if this player already exist
             PlayerData newData = new PlayerData(0, 0, 0); //new player data
             PlayerKDA.Add(netid, newData);
             foreach (var slot in SlotWithPlayerName){ //iterate to the next available slot to add player list
                 if (slot.Value == null){
-                    SlotWithPlayerName[slot.Key] = new Dictionary<uint, string> {{netid, playerName.GetValueOrDefault(netid)}};
-                    _playerInterface.AddPlayerToScoreBoard(slot.Key, playerName.GetValueOrDefault(netid)); //add the new player to the scoreboard
+                    SlotWithPlayerName[slot.Key] = new Dictionary<uint, string> {{netid, name}};
+                    _playerInterface.AddPlayerToScoreBoard(slot.Key, name); //add the new player to the scoreboard
                     break;
                 }
             
