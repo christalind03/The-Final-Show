@@ -62,18 +62,6 @@ public class CustomNetworkManager : NetworkManager
         }
     }
 
-    public override void OnServerConnect(NetworkConnectionToClient conn)
-    {
-        base.OnServerConnect(conn);
-        StartCoroutine(ClientConnect(conn));
-    }
-
-    public override void OnServerDisconnect(NetworkConnectionToClient conn)
-    {
-        base.OnServerDisconnect(conn);
-        ClientDisconnect(conn);
-    }
-
     /// <summary>
     /// Spawns a new player for the given client connection.
     /// </summary>
@@ -271,26 +259,5 @@ public class CustomNetworkManager : NetworkManager
         }));            
     }
 
-    #endregion
-
-    #region ScoreBoard Functionality
-    private IEnumerator ClientConnect(NetworkConnectionToClient conn){
-        yield return new WaitUntil(() => conn.identity != null);
-        
-        if(conn != null){
-            StartCoroutine(NetworkUtils.WaitUntilReady((NetworkIdentity clientIdentity) =>
-            {
-                ScoreBoard scoreboard = clientIdentity.GetComponent<ScoreBoard>();
-                scoreboard.UpdatePlayerList(conn.identity.netId);  
-            }));        
-        } 
-    }
-
-    private void ClientDisconnect(NetworkConnectionToClient conn){
-        if(conn != null){
-            ScoreBoard scoreboard = conn.identity.GetComponent<ScoreBoard>();
-            scoreboard.RemovePlayer(conn.identity.netId);
-        }
-    }
     #endregion
 }

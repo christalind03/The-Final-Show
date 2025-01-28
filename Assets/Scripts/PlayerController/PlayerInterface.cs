@@ -1,7 +1,9 @@
 using Mirror;
 using Steamworks;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UIElements;
 
 /// <summary>
@@ -189,6 +191,7 @@ public class PlayerInterface : NetworkBehaviour
         {
             if (board.ClassListContains("hide"))
             {
+                RefreshScoreBoard();
                 board.RemoveFromClassList("hide");
                 return true;
             }else{
@@ -198,11 +201,27 @@ public class PlayerInterface : NetworkBehaviour
         return false;        
     }
 
-    public void AddPlayerToScoreBoard(string slotName, string playerName){
-        if (UnityUtils.ContainsElement(_rootVisualElement, slotName, out TextElement player))
-        {
-            player.text = playerName;
-            player.RemoveFromClassList("hide");
+    public void RefreshScoreBoard(){
+        ScoreBoard scoreboard = gameObject.GetComponent<ScoreBoard>();
+        List<TextElement> slotNames = new List<TextElement>();
+        int i = 0;
+
+        if(_rootVisualElement == null){
+            _rootVisualElement = gameObject.GetComponent<UIDocument>().rootVisualElement;
+        }
+
+        if(UnityUtils.ContainsElement(_rootVisualElement, "ScoreBoard", out VisualElement board)){
+            if(UnityUtils.ContainsElement(_rootVisualElement, "Background", out VisualElement background)){
+                slotNames = background.Query<TextElement>(className: "unity-text-element").ToList();
+            }
+        }
+
+        foreach(KeyValuePair<uint, string> name in scoreboard.playerName){
+            if(UnityUtils.ContainsElement(_rootVisualElement, slotNames[i].name, out TextElement textEle)){
+                textEle.text = name.Value;
+                textEle.RemoveFromClassList("hide");
+            }
+            i++;
         }
     }
 

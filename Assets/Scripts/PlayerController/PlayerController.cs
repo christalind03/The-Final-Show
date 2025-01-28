@@ -125,9 +125,15 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     public override void OnStartServer()
     {
+        if(connectionToClient != null){
+            if(_scoreBoard == null){
+                _scoreBoard = NetworkServer.localConnection.identity.GetComponent<ScoreBoard>();
+            }
+            PlayerManager.RegisterPlayer(netIdentity.netId, gameObject);
+            _scoreBoard.UpdatePlayerList(netIdentity);           
+        }
+
         base.OnStartClient();
-        string name = transform.name;
-        PlayerManager.RegisterPlayer(netIdentity.netId, gameObject);
     }
 
     /// <summary>
@@ -135,9 +141,14 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     public override void OnStopServer()
     {
+        if(connectionToClient != null){
+            if(_scoreBoard == null){
+                    _scoreBoard = NetworkServer.localConnection.identity.GetComponent<ScoreBoard>();
+            }
+            PlayerManager.UnregisterPlayer(netIdentity.netId);
+            _scoreBoard.RemovePlayer();
+        }
         base.OnStopClient();
-        string name = transform.name;
-        PlayerManager.UnregisterPlayer(netIdentity.netId);
     }
 
     /// <summary>
