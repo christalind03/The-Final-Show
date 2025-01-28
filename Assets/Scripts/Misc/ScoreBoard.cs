@@ -23,12 +23,11 @@ public class ScoreBoard : NetworkBehaviour
     public readonly SyncDictionary<uint, PlayerData> PlayerKDA = new SyncDictionary<uint, PlayerData>();
     public readonly SyncDictionary<uint, string> playerName = new SyncDictionary<uint, string>();
 
-    /// <summary>
-    /// The server version of InitializesPlayerData, instead of loop through the whole
-    /// playerName dictionary, it will just add the most recent player that joined
-    /// </summary>
-    /// <param name="netid">most receent player joined</param>
-    /// <returns></returns>
+    public override void OnStartClient()
+    {
+        playerName.OnAdd += OnPlayerAdded;
+        base.OnStartClient();
+    }
     private void AddPlayerData(NetworkIdentity newPlayer){
         if(!PlayerKDA.ContainsKey(newPlayer.netId)){ //see if this player already exist
             PlayerData newData = new PlayerData(0, 0, 0); //new player data
@@ -38,7 +37,6 @@ public class ScoreBoard : NetworkBehaviour
                 _playerInterface.RefreshScoreBoard();          
             }
         }
-
     }
 
     /// <summary>
@@ -63,7 +61,6 @@ public class ScoreBoard : NetworkBehaviour
     /// also updates the score board if there are any changes to the data
     /// </summary>
     public void ShowScoreBoard(){
-        Debug.Log(playerName.Count);
         _playerInterface.ToggleScoreBoardVisibility();
     }
 
@@ -72,5 +69,9 @@ public class ScoreBoard : NetworkBehaviour
     }
     public void UpdatePlayerList(NetworkIdentity newPlayer){
         AddPlayerData(newPlayer);
+    }
+
+    public void OnPlayerAdded(uint netid){
+        Debug.Log(netid);
     }
 }
