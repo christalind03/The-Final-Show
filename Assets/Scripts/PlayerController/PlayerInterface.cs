@@ -204,7 +204,7 @@ public class PlayerInterface : NetworkBehaviour
     public void RefreshScoreBoard(){
         ScoreBoard scoreboard = gameObject.GetComponent<ScoreBoard>();
         List<TextElement> slotNames = new List<TextElement>();
-        int i = 0;
+        int Counter = 0;
 
         if(_rootVisualElement == null){
             _rootVisualElement = gameObject.GetComponent<UIDocument>().rootVisualElement;
@@ -217,11 +217,19 @@ public class PlayerInterface : NetworkBehaviour
         }
 
         foreach(KeyValuePair<uint, string> name in scoreboard.playerName){
-            if(UnityUtils.ContainsElement(_rootVisualElement, slotNames[i].name, out TextElement textEle)){
+            if(UnityUtils.ContainsElement(_rootVisualElement, slotNames[Counter].name, out TextElement textEle)){
                 textEle.text = name.Value;
                 textEle.RemoveFromClassList("hide");
             }
-            i++;
+            Counter++;
+        }
+
+        for(int i = Counter; i < slotNames.Count; i++){
+            if(UnityUtils.ContainsElement(_rootVisualElement, slotNames[i].name, out TextElement textEle)){
+                textEle.text = null;
+                textEle.AddToClassList("hide");
+            }
+            Counter++;
         }
     }
 

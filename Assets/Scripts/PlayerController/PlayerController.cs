@@ -2,6 +2,7 @@ using Cinemachine;
 using Mirror;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -127,13 +128,15 @@ public class PlayerController : NetworkBehaviour
     {
         if(connectionToClient != null){
             if(_scoreBoard == null){
-                _scoreBoard = NetworkServer.localConnection.identity.GetComponent<ScoreBoard>();
+                _scoreBoard = connectionToClient.identity.GetComponent<ScoreBoard>();
             }
             PlayerManager.RegisterPlayer(netIdentity.netId, gameObject);
-            _scoreBoard.UpdatePlayerList(netIdentity);           
+            ScoreBoard serverScoreBoard = NetworkServer.localConnection.identity.GetComponent<ScoreBoard>();
+            _scoreBoard.InitialAddPlayerData();          
+            serverScoreBoard.PlayerJoinedUpdatePlayerList(netIdentity);
         }
 
-        base.OnStartClient();
+        base.OnStartServer();
     }
 
     /// <summary>
@@ -142,13 +145,14 @@ public class PlayerController : NetworkBehaviour
     public override void OnStopServer()
     {
         if(connectionToClient != null){
-            if(_scoreBoard == null){
-                    _scoreBoard = NetworkServer.localConnection.identity.GetComponent<ScoreBoard>();
-            }
             PlayerManager.UnregisterPlayer(netIdentity.netId);
-            _scoreBoard.RemovePlayer();
+            PlayerManager.RegisterPlayer(netIdentity.netId, gameObject);
+            if(NetworkServer.localConnection != null){
+                ScoreBoard serverScoreBoard = NetworkServer.localConnection.identity.GetComponent<ScoreBoard>();
+                serverScoreBoard.PlayerLeftUpdatePlayerList(netIdentity);                
+            }
         }
-        base.OnStopClient();
+        base.OnStopServer();
     }
 
     /// <summary>
