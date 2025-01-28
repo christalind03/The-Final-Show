@@ -78,7 +78,7 @@ public class FieldOfView : NetworkBehaviour
             Gizmos.color = _visibleObject;
 
             // We define some arbitrary radius to display the sphere and ensure that the sensor is working correctly.
-            Gizmos.DrawSphere(detectedObject.transform.position, 0.15f);
+            Gizmos.DrawSphere(detectedObject.transform.position, 1.0f);
         }
     }
 

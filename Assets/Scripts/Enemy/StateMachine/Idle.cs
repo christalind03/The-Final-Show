@@ -8,15 +8,18 @@ public class IdleState : EnemyState
 
     private bool _hasTargetRotation;
     private bool _isReset;
-   
+    private bool hasInitialPosition;
+    private bool hasInitialRotation;
+
+
     public override void EnterState()
     {
         Debug.Log("Entering Idle State");
 
         // For debugging purposes only.
         StateContext.Material.SetColor("_BaseColor", Color.green);
-        bool hasInitialPosition = StateContext.InitialPosition == StateContext.Transform.position;
-        bool hasInitialRotation = StateContext.InitialRotation == StateContext.Transform.rotation;
+        hasInitialPosition = StateContext.InitialPosition == StateContext.Transform.position;
+        hasInitialRotation = StateContext.InitialRotation == StateContext.Transform.rotation;
 
         _isReset = hasInitialPosition && hasInitialRotation;
 
@@ -37,11 +40,11 @@ public class IdleState : EnemyState
         if (!_isReset)
         {
             // Rotate enemy back to original rotation once it's close to initial position
-            if (Vector3.Distance(StateContext.InitialPosition, StateContext.Transform.position) < 0.1f)
+            if (StateContext.NavMeshAgent.remainingDistance < 0.1f)
             {
                 StateContext.Transform.rotation = Quaternion.Slerp(StateContext.Transform.rotation, StateContext.InitialRotation, _rotationSpeed * Time.deltaTime);
             }
-            
+
             if (StateContext.InitialRotation == StateContext.Transform.rotation)
             {
                 _isReset = true;
