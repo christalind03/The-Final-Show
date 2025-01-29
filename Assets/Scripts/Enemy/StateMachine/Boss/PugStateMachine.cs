@@ -101,20 +101,4 @@ public class PugStateMachine : BossStateMachine
         }
     }
 
-    /// <summary>
-    /// Used to control how often the boss can use ability 1
-    /// </summary>
-    [Server]
-    protected IEnumerator Ability0Cooldown()
-    {
-        yield return new WaitForSeconds(_abilityStats[0].AbilityCooldown);
-        _canUseAbility[0] = true;
-    }
-
-    [Server]
-    protected IEnumerator Ability0Duration()
-    {
-        yield return new WaitForSeconds(_abilityStats[0].AbilityDuration);
-        _usingAbility = false;
-    }
 }

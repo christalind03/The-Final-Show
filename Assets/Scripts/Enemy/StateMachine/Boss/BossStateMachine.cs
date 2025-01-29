@@ -29,4 +29,25 @@ public class BossStateMachine : EnemyStateMachine
         _usingAbility = false;
     }
 
+    /// <summary>
+    /// Used to control how often the boss can use ability 0
+    /// </summary>
+    [Server]
+    protected IEnumerator Ability0Cooldown()
+    {
+        yield return new WaitForSeconds(_abilityStats[0].AbilityCooldown);
+        _canUseAbility[0] = true;
+    }
+
+    /// <summary>
+    /// Used to control how long ability 0 lasts
+    /// </summary>
+    /// <returns></returns>
+    [Server]
+    protected IEnumerator Ability0Duration()
+    {
+        yield return new WaitForSeconds(_abilityStats[0].AbilityDuration);
+        _usingAbility = false;
+    }
+
 }
