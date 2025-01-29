@@ -58,8 +58,8 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     /// </summary>
     protected void FixedUpdate()
     {
-        // TODO: Do we need if(!isServer) { return }; here?
-        if (!_navMeshAgent.enabled) { return; }
+        if(!isServer) { return; }  // only execute enemy behavior on the server
+        if (!_navMeshAgent.enabled) { return; } // only execute enemy behavior if the NavMeshAgent is enabled
 
         // _fieldOfView's interested layers should only be player
         
