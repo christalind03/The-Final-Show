@@ -10,7 +10,13 @@ using UnityEngine.UIElements;
 /// </summary>
 public static class UnityUtils
 {
-    // TODO: Document
+    /// <summary>
+    /// Calculates the combined bounds that encompass all the given individual bounds.
+    /// This method finds the center of all the boundaries and encapsulates each boundary into a single bounding box.
+    /// https://stackoverflow.com/a/11960936/18086470
+    /// </summary>
+    /// <param name="allBoundaries">An array of <see cref="Bounds"/> objects to be combined into a single bound</param>
+    /// <returns>A <see cref="Bounds"/> object representing the smallest bounding box that contains all the provided boundaries</returns>
     public static Bounds CalculateBounds(Bounds[] allBoundaries)
     {
         // Calculate the center of the bounding region
@@ -101,6 +107,21 @@ public static class UnityUtils
         string scriptName = FetchScriptName(frameIndex);
 
         UnityEngine.Debug.LogWarning($"[{scriptName}] {warningMessage}");
+    }
+
+    /// <summary>
+    /// Generates a random position within the provided <see cref="Bounds"/>.
+    /// The position is chosen by randomly selecting x, y, and z coordinates within the minimum and maximum values of the bounding box.
+    /// </summary>
+    /// <param name="objectBounds">The <see cref="Bounds"/> representing the region within which the position will be randomized</param>
+    /// <returns>A <see cref="Vector3"/> representing a random position within the specified bounds.</returns>
+    public static Vector3 RandomizePosition(Bounds objectBounds)
+    {
+        float x = UnityEngine.Random.Range(objectBounds.min.x, objectBounds.max.x);
+        float y = UnityEngine.Random.Range(objectBounds.min.y, objectBounds.max.y);
+        float z = UnityEngine.Random.Range(objectBounds.min.z, objectBounds.max.z);
+
+        return new Vector3(x, y, z);
     }
 
     /// <summary>

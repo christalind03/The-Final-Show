@@ -85,6 +85,8 @@ public class CustomNetworkManager : NetworkManager
     /// <returns>An <c>IEnumerator</c> for coroutine execution.</returns>
     public IEnumerator RelocatePlayer(NetworkConnectionToClient clientConnection)
     {
+        if (clientConnection.identity == null) { yield break; }
+
         GameObject networkPlayer = clientConnection.identity.gameObject;
         Transform startPosition = GetStartPosition();
 

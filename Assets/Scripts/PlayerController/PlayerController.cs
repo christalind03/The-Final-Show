@@ -71,7 +71,9 @@ public class PlayerController : NetworkBehaviour
     public override void OnStartAuthority()
     {
         CameraController cameraController= GetComponent<CameraController>();
-        if(cameraController.alive){
+        
+        if (cameraController.alive)
+        {
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;            
         }
@@ -143,6 +145,7 @@ public class PlayerController : NetworkBehaviour
     private void Update()
     {
         if (!isLocalPlayer) { return; }
+        if (!NetworkClient.ready) { return; }
 
         if (_characterController.enabled && _playerControls != null)
         {
@@ -225,12 +228,7 @@ public class PlayerController : NetworkBehaviour
 
         // Check to see if we're looking at anything of importance.
         Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out _raycastHit, _interactableDistance);
-        StartCoroutine(NetworkUtils.WaitUntilReady((NetworkIdentity clientIdentity) =>
-        {
-            if(NetworkClient.ready){
-                CmdLook(_followTransform.rotation, _aimCamera.Priority);
-            }
-        }));  
+        CmdLook(_followTransform.rotation, _aimCamera.Priority);  
     }
 
     /// <summary>
@@ -449,12 +447,13 @@ public class PlayerController : NetworkBehaviour
     /// <param name="rotationPlayer">Player rotation</param>
     /// <param name="rotationFollow">Follow camera rotation</param>
     [Command(requiresAuthority = false)]
-    private void CmdLook(Quaternion rotationFollow, int aimCamPrio){
+    private void CmdLook(Quaternion rotationFollow, int aimCameraPriority)
+    {
         _followTransform.rotation = rotationFollow;
-        _aimCamera.Priority = aimCamPrio;
+        _aimCamera.Priority = aimCameraPriority;
 
         // Propagates the changes to all clients
-        RpcUpdatePlayerLook(_followTransform.rotation, aimCamPrio);               
+        RpcUpdatePlayerLook(_followTransform.rotation, aimCameraPriority);               
     }
 
     /// <summary>

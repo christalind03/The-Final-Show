@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using Mirror;
@@ -36,17 +35,16 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     protected Material _material;
 
     /// <summary>
-    /// Stores the enemy's initial position and rotation for later use
-    /// Gets relevant components from the GameObject
-    /// Initializes the context shared by concrete states
+    /// Stores the enemy's initial position and rotation for later use.
+    /// Additionally caches relevant components from the GameObject and initializes the context shared by concrete states.
     /// </summary>
     protected virtual void Awake()
     {
         _initialPosition = transform.position;
         _initialRotation = transform.rotation;
 
-        _navMeshAgent = GetComponent<NavMeshAgent>();
         _fieldOfView = GetComponent<FieldOfView>();
+        _navMeshAgent = GetComponent<NavMeshAgent>();
         _material = GetComponentsInChildren<Renderer>()[0].material;
 
         _canAttack = true;
@@ -61,6 +59,8 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     protected void FixedUpdate()
     {
         // TODO: Do we need if(!isServer) { return }; here?
+        if (!_navMeshAgent.enabled) { return; }
+
         // _fieldOfView's interested layers should only be player
         
         // First, check if the current target is valid
