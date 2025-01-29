@@ -1,5 +1,6 @@
 using Cinemachine;
 using Mirror;
+using Steamworks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -53,11 +54,13 @@ public class PlayerController : NetworkBehaviour
     private PlayerInventory _playerInventory;
     private PlayerStats _playerStats;
     private ScoreBoard _scoreBoard;
+    private SettingsMenu _settings;
 
     private Animator _playerAnimator;
     private int _animatorIsJumping;
     private int _animatorMovementX;
     private int _animatorMovementZ;
+    [SyncVar] public string playerName = null;
 
     /// <summary>
     /// Ensures this object instance persists throughout scenes.
@@ -72,6 +75,13 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     public override void OnStartAuthority()
     {
+        if (SteamManager.Initialized) {
+            playerName = SteamFriends.GetPersonaName();
+            gameObject.name = playerName;            
+            CmdUpdateName(playerName);
+        }
+
+
         CameraController cameraController= GetComponent<CameraController>();
         if(cameraController.alive){
             UnityEngine.Cursor.visible = false;
@@ -86,6 +96,7 @@ public class PlayerController : NetworkBehaviour
         _playerInventory = gameObject.GetComponent<PlayerInventory>();
         _playerStats = gameObject.GetComponent<PlayerStats>();
         _scoreBoard = gameObject.GetComponent<ScoreBoard>();
+        _settings = gameObject.GetComponent<SettingsMenu>();
 
         // To access the animator, we must retrieve the child gameObject that is rendering the player's mesh.
         // This should be the first child of the current gameObject, `BaseCharacter`
@@ -110,6 +121,7 @@ public class PlayerController : NetworkBehaviour
         _playerControls.Player.Interact.performed += Interact;
         _playerControls.Player.Jump.performed += Jump;
         _playerControls.Player.ScoreBoard.performed += ScoreBoard;
+        _playerControls.Player.Settings.performed += Settings;
 
         // Subscribe to inventory slot selection for all slots.
         _playerControls.Inventory.CycleSlots.performed += _playerInventory.SelectSlot;
@@ -133,7 +145,7 @@ public class PlayerController : NetworkBehaviour
             PlayerManager.RegisterPlayer(netIdentity.netId, gameObject);
             ScoreBoard serverScoreBoard = NetworkServer.localConnection.identity.GetComponent<ScoreBoard>();
             _scoreBoard.InitialAddPlayerData();          
-            serverScoreBoard.PlayerJoinedUpdatePlayerList(netIdentity);
+            StartCoroutine(serverScoreBoard.PlayerJoinedUpdatePlayerList(netIdentity));
         }
 
         base.OnStartServer();
@@ -425,13 +437,23 @@ public class PlayerController : NetworkBehaviour
         _scoreBoard.ShowScoreBoard();
     }
 
+    private void Settings(InputAction.CallbackContext context){
+        if(_settings.ToggleSettingsMenu()){
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }else{
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked; 
+        }
+    }
+
     /// <summary>
     /// When the client no longer has authority over this object, ensure the cursor is visible and disables the controls.
     /// </summary>
     public override void OnStopAuthority()
     {
-        UnityEngine.Cursor.visible = true;
-        UnityEngine.Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
 
         DisableControls();
     }
@@ -449,6 +471,7 @@ public class PlayerController : NetworkBehaviour
         _playerControls.Player.Interact.performed -= Interact;
         _playerControls.Player.Jump.performed -= Jump;
         _playerControls.Player.ScoreBoard.performed -= ScoreBoard;
+        _playerControls.Player.Settings.performed -= Settings;
 
         _playerControls.Inventory.CycleSlots.performed -= _playerInventory.SelectSlot;
         InputActionMap inventoryActions = _playerControls.asset.FindActionMap("Inventory");
@@ -556,6 +579,17 @@ public class PlayerController : NetworkBehaviour
         if (!isServer && hitObject != null && hitObject.TryGetComponent(out IInteractable interactableComponent))
         {
             interactableComponent.Interact(gameObject);
+        }
+    }
+
+    /// <summary>
+    /// Updates the player's name on the server side
+    /// </summary>
+    /// <param name="newName">player's name</param>
+    [Command]
+    private void CmdUpdateName(string newName){
+        if(!isLocalPlayer){
+            gameObject.name = newName;
         }
     }
 }

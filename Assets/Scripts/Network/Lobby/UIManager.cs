@@ -55,7 +55,7 @@ public class UIManager : MonoBehaviour
         }
 
         // Buttons - join menu
-        if(UnityUtils.ContainsElement(_menuView, "joinButton", out Button joinJoinBtn)){
+        if(UnityUtils.ContainsElement(_joinView, "joinButton", out Button joinJoinBtn)){
             _joinJoinButton = joinJoinBtn;
         }
         if(UnityUtils.ContainsElement(_joinView, "backButton", out Button joinBackBtn)){
@@ -111,13 +111,13 @@ public class UIManager : MonoBehaviour
     /// </summary>
     private void JoinLobby()
     {
-        UnsignedLongField idField = new UnsignedLongField("");
+        TextField idField = new TextField("");
         // Get the id field from the current screen and save the value
-        if(UnityUtils.ContainsElement(_joinView, "id", out UnsignedLongField id)){
+        if(UnityUtils.ContainsElement(_joinView, "id", out TextField id)){
             idField = id;
         }
 
-        steamLobby.JoinLobby(idField.value);
+        steamLobby.JoinLobby(idField.text);
     }
 
     /// <summary>

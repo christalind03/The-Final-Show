@@ -107,6 +107,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Settings"",
+                    ""type"": ""Button"",
+                    ""id"": ""db44effd-6002-4f1a-815a-33d8ea259230"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -250,6 +259,17 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": ""Keyboard and Mouse"",
                     ""action"": ""ScoreBoard"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a7c11274-9d56-49a7-977e-978f5cc1b609"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard and Mouse"",
+                    ""action"": ""Settings"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -494,6 +514,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Player_Movement = m_Player.FindAction("Movement", throwIfNotFound: true);
         m_Player_Sprint = m_Player.FindAction("Sprint", throwIfNotFound: true);
         m_Player_ScoreBoard = m_Player.FindAction("ScoreBoard", throwIfNotFound: true);
+        m_Player_Settings = m_Player.FindAction("Settings", throwIfNotFound: true);
         // Inventory
         m_Inventory = asset.FindActionMap("Inventory", throwIfNotFound: true);
         m_Inventory_Slot1 = m_Inventory.FindAction("Slot-1", throwIfNotFound: true);
@@ -576,6 +597,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Movement;
     private readonly InputAction m_Player_Sprint;
     private readonly InputAction m_Player_ScoreBoard;
+    private readonly InputAction m_Player_Settings;
     public struct PlayerActions
     {
         private @PlayerControls m_Wrapper;
@@ -589,6 +611,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         public InputAction @Movement => m_Wrapper.m_Player_Movement;
         public InputAction @Sprint => m_Wrapper.m_Player_Sprint;
         public InputAction @ScoreBoard => m_Wrapper.m_Player_ScoreBoard;
+        public InputAction @Settings => m_Wrapper.m_Player_Settings;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -625,6 +648,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @ScoreBoard.started += instance.OnScoreBoard;
             @ScoreBoard.performed += instance.OnScoreBoard;
             @ScoreBoard.canceled += instance.OnScoreBoard;
+            @Settings.started += instance.OnSettings;
+            @Settings.performed += instance.OnSettings;
+            @Settings.canceled += instance.OnSettings;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -656,6 +682,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @ScoreBoard.started -= instance.OnScoreBoard;
             @ScoreBoard.performed -= instance.OnScoreBoard;
             @ScoreBoard.canceled -= instance.OnScoreBoard;
+            @Settings.started -= instance.OnSettings;
+            @Settings.performed -= instance.OnSettings;
+            @Settings.canceled -= instance.OnSettings;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -811,6 +840,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         void OnMovement(InputAction.CallbackContext context);
         void OnSprint(InputAction.CallbackContext context);
         void OnScoreBoard(InputAction.CallbackContext context);
+        void OnSettings(InputAction.CallbackContext context);
     }
     public interface IInventoryActions
     {

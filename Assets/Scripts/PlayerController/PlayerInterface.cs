@@ -3,8 +3,6 @@ using Steamworks;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
-using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UIElements;
 
 /// <summary>
@@ -30,7 +28,6 @@ public class PlayerInterface : NetworkBehaviour
             uiDocument.visualTreeAsset = Resources.Load<VisualTreeAsset>("UI/PlayerUI");
         }
 
-        //Debug.Log(gameObject.GetComponent<UIDocument>().visualTreeAsset.ToString());
         _rootVisualElement = uiDocument.rootVisualElement;
         base.OnStartAuthority();
     }
@@ -201,6 +198,11 @@ public class PlayerInterface : NetworkBehaviour
         return false;        
     }
 
+    /// <summary>
+    /// Refresh the scoreboard. This will first get all the available slots and save it to a list.
+    /// The slot will then be assigned a player name from scoreboard's playerName dictionary.
+    /// The unfilled slots will be cleared and put into hidden
+    /// </summary>
     public void RefreshScoreBoard(){
         if(!isLocalPlayer)return;
         ScoreBoard scoreboard = gameObject.GetComponent<ScoreBoard>();
@@ -231,13 +233,6 @@ public class PlayerInterface : NetworkBehaviour
                 textEle.AddToClassList("hide");
             }
             Counter++;
-        }
-    }
-
-    public void RemovePlayerFromScoreBoard(string slotName){
-        if (UnityUtils.ContainsElement(_rootVisualElement, slotName, out TextElement player))
-        {
-            player.AddToClassList("hide");
         }
     }
 

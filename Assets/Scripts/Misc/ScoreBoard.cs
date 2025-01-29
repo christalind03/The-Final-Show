@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Mirror;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
 
 [RequireComponent(typeof(PlayerInterface))]
 public class ScoreBoard : NetworkBehaviour
@@ -25,6 +24,7 @@ public class ScoreBoard : NetworkBehaviour
     public readonly SyncDictionary<uint, PlayerData> PlayerKDA = new SyncDictionary<uint, PlayerData>();
     public readonly SyncDictionary<uint, string> playerName = new SyncDictionary<uint, string>();
     
+
     /// <summary>
     /// Subscribe to changes done to the sync dictionary
     /// </summary>
@@ -199,7 +199,8 @@ public class ScoreBoard : NetworkBehaviour
     /// Server call to add the data for the connected player 
     /// </summary>
     /// <param name="connectedPlayer">player connected</param>
-    public void PlayerJoinedUpdatePlayerList(NetworkIdentity connectedPlayer){
+    public IEnumerator PlayerJoinedUpdatePlayerList(NetworkIdentity connectedPlayer){
+        yield return new WaitUntil(() => connectedPlayer.gameObject.name != "Player(Clone)");
         AddPlayerData(connectedPlayer);
     }
 }
