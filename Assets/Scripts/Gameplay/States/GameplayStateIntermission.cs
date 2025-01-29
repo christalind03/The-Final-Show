@@ -6,7 +6,7 @@ public class GameplayStateIntermission : GameplayState
 {
     public override void EnterState()
     {
-        Debug.Log("Entering the INTERMISSION gameplay state...");
+        StateContext.RandomizeTheme();
 
         foreach (GameObject clientObject in NetworkUtils.RetrievePlayers())
         {
@@ -21,12 +21,6 @@ public class GameplayStateIntermission : GameplayState
         }
 
         base.EnterState();
-    }
-
-    public override void ExitState()
-    {
-        Debug.Log("Exiting the INTERMISSION gameplay state...");
-        base.ExitState();
     }
 
     public override void OnTriggerEnter(Collider otherCollider) { }

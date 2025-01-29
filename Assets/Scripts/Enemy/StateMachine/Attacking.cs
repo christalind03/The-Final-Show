@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "BaseState/Enemy/Attacking")]
+[CreateAssetMenu(menuName = "Base State/Enemy/Attacking")]
 public class AttackingState : EnemyState
 {
     public override void EnterState()

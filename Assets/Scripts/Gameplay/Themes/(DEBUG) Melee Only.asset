@@ -9,14 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 214502f3690d33b43848289d2e811346, type: 3}
-  m_Name: Gameplay Intermission
+  m_Script: {fileID: 11500000, guid: 24539c5c954df60429079f31581e43e3, type: 3}
+  m_Name: (DEBUG) Melee Only
   m_EditorClassIdentifier: 
-  TargetScene: Gameplay-Intermission
-  IsTimed: 0
-  CountdownMessage:
-    Duration: 0
-    MessageFormat: 
-    MessageElement: 
-    MessageDisplay: 0
-  TransitionState: 0
+  Theme: Melee Only
+  EnemyPrefabs:
+  - {fileID: 6085626376942215046, guid: 30dfd023a3eda7047a2d19f536ac5e88, type: 3}

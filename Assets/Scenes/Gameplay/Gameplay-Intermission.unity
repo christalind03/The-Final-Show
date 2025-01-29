@@ -701,6 +701,8 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  _cloneStates: 0
+  _defaultState: 3
   StateMappings:
   - Key: 3
     Value: {fileID: 11400000, guid: b27c314ba5e29364fa9f0f67bccf400d, type: 2}
@@ -712,7 +714,9 @@ MonoBehaviour:
     Value: {fileID: 11400000, guid: 4f0a189b52c10c346b8badabc6827938, type: 2}
   - Key: 1
     Value: {fileID: 11400000, guid: 1e92d03e1aead284b92bdbeafe69ce76, type: 2}
-  _defaultState: 3
+  _gameplayThemes:
+  - {fileID: 11400000, guid: bc2aa07a42025d443b756d9d82e31116, type: 2}
+  - {fileID: 11400000, guid: 853d667a1765f6847bdfae036b815635, type: 2}
 --- !u!114 &1684613819
 MonoBehaviour:
   m_ObjectHideFlags: 0

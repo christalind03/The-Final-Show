@@ -5,14 +5,8 @@ public class GameplayStatePreparation : GameplayState
 {
     public override void EnterState()
     {
-        Debug.Log("Entering the PREPARATION gameplay state...");
+        Debug.Log($"Gameplay Theme: {StateContext.GameplayTheme.Theme}");
         base.EnterState();
-    }
-
-    public override void ExitState()
-    {
-        Debug.Log("Exiting the PREPARATION gameplay state...");
-        base.ExitState();
     }
 
     public override void OnTriggerEnter(Collider otherCollider) { }

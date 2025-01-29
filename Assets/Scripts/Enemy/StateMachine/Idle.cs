@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "BaseState/Enemy/Idle")]
+[CreateAssetMenu(menuName = "Base State/Enemy/Idle")]
 public class IdleState : EnemyState
 {
     [SerializeField] private float _rotationSpeed = 1.5f;

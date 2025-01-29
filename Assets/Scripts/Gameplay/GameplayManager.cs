@@ -14,6 +14,8 @@ public class GameplayManager : StateManager<GameplayManager.State, GameplayState
 
     public static GameplayManager Instance { get; private set; }
 
+    [SerializeField] private GameplayTheme[] _gameplayThemes;
+
     /// <summary>
     /// Initializes a single instance of this class and sets up the initial gameplay context.
     /// If an instance of this class already exists, then destroy the current instance.
@@ -25,7 +27,7 @@ public class GameplayManager : StateManager<GameplayManager.State, GameplayState
             CustomNetworkManager networkManager = GameObject.FindObjectOfType<CustomNetworkManager>();
 
             Instance = this;
-            StateContext = new GameplayContext();
+            StateContext = new GameplayContext(_gameplayThemes);
 
             DontDestroyOnLoad(gameObject);
         }
