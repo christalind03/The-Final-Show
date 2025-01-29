@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UIElements;
 
 /// <summary>
@@ -191,7 +192,6 @@ public class PlayerInterface : NetworkBehaviour
         {
             if (board.ClassListContains("hide"))
             {
-                RefreshScoreBoard();
                 board.RemoveFromClassList("hide");
                 return true;
             }else{
@@ -202,16 +202,17 @@ public class PlayerInterface : NetworkBehaviour
     }
 
     public void RefreshScoreBoard(){
+        if(!isLocalPlayer)return;
         ScoreBoard scoreboard = gameObject.GetComponent<ScoreBoard>();
         List<TextElement> slotNames = new List<TextElement>();
         int Counter = 0;
-
+        
         if(_rootVisualElement == null){
             _rootVisualElement = gameObject.GetComponent<UIDocument>().rootVisualElement;
         }
 
         if(UnityUtils.ContainsElement(_rootVisualElement, "ScoreBoard", out VisualElement board)){
-            if(UnityUtils.ContainsElement(_rootVisualElement, "Background", out VisualElement background)){
+            if(UnityUtils.ContainsElement(board, "Background", out VisualElement background)){
                 slotNames = background.Query<TextElement>(className: "unity-text-element").ToList();
             }
         }

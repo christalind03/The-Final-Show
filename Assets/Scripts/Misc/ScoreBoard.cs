@@ -26,6 +26,27 @@ public class ScoreBoard : NetworkBehaviour
     public readonly SyncDictionary<uint, string> playerName = new SyncDictionary<uint, string>();
     
     /// <summary>
+    /// Subscribe to changes done to the sync dictionary
+    /// </summary>
+    public override void OnStartClient()
+    {
+        playerName.OnAdd += OnScoreBoardAdd;
+        playerName.OnRemove += OnScoreBoardRemove;
+        _playerInterface.RefreshScoreBoard();
+        base.OnStartAuthority();
+    }
+
+    /// <summary>
+    /// Remove subscribition to changes done to the sync dictionary
+    /// </summary>
+    public override void OnStopClient()
+    {
+        playerName.OnAdd -= OnScoreBoardAdd;
+        playerName.OnRemove -= OnScoreBoardRemove;
+        base.OnStopAuthority();
+    }
+
+    /// <summary>
     /// Used for added player to the game. If the player is the host they will propagate the change to 
     /// all clients to also update the client version of the scoreboard
     /// </summary>
@@ -35,8 +56,7 @@ public class ScoreBoard : NetworkBehaviour
             PlayerData newData = new PlayerData(0, 0, 0); //new player data
             PlayerKDA.Add(connectedPlayer.netId, newData);
             if(playerName.Count < 5){
-                playerName.Add(connectedPlayer.netId, connectedPlayer.gameObject.name);    
-                _playerInterface.RefreshScoreBoard();          
+                playerName.Add(connectedPlayer.netId, connectedPlayer.gameObject.name);     
             }
         }
         if(connectionToClient == NetworkServer.localConnection){
@@ -60,7 +80,6 @@ public class ScoreBoard : NetworkBehaviour
             UpdateRemoveDataOnAllClient(connectionToClient, disconnectedPlayer);          
         }
 
-        _playerInterface.RefreshScoreBoard();
     }
 
     /// <summary>
@@ -126,6 +145,23 @@ public class ScoreBoard : NetworkBehaviour
     }
 
     /// <summary>
+    /// Callback for refreshing the scoreboard when player name dictionary changes
+    /// </summary>
+    /// <param name="netid">key for the item added</param>
+    private void OnScoreBoardAdd(uint netid){
+        _playerInterface.RefreshScoreBoard();
+    }
+
+    /// <summary>
+    /// Callback for refreshing the scoreboard when player name dictionary changes
+    /// </summary>
+    /// <param name="netid">key for the key value pair removed</param>
+    /// <param name="name">value for the key value pair removed</param>
+    private void OnScoreBoardRemove(uint netid, string name){
+        _playerInterface.RefreshScoreBoard();
+    }
+
+    /// <summary>
     /// When the player first joins the game, they need to get the current scoreboard and playerData from the host
     /// </summary>
     public void InitialAddPlayerData(){
@@ -151,10 +187,18 @@ public class ScoreBoard : NetworkBehaviour
         _playerInterface.ToggleScoreBoardVisibility();
     }
 
+    /// <summary>
+    /// Server call to remove the data for the disconnected player
+    /// </summary>
+    /// <param name="disconnectedPlayer">player disconnected</param>
     public void PlayerLeftUpdatePlayerList(NetworkIdentity disconnectedPlayer){
         RemovePlayerData(disconnectedPlayer);
     }
     
+    /// <summary>
+    /// Server call to add the data for the connected player 
+    /// </summary>
+    /// <param name="connectedPlayer">player connected</param>
     public void PlayerJoinedUpdatePlayerList(NetworkIdentity connectedPlayer){
         AddPlayerData(connectedPlayer);
     }
