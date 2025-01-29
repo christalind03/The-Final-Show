@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using Mirror;
@@ -35,17 +34,16 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     protected Material _material;
 
     /// <summary>
-    /// Stores the enemy's initial position and rotation for later use
-    /// Gets relevant components from the GameObject
-    /// Initializes the context shared by concrete states
+    /// Stores the enemy's initial position and rotation for later use.
+    /// Additionally caches relevant components from the GameObject and initializes the context shared by concrete states.
     /// </summary>
     private void Awake()
     {
         _initialPosition = transform.position;
         _initialRotation = transform.rotation;
 
-        _navMeshAgent = GetComponent<NavMeshAgent>();
         _fieldOfView = GetComponent<FieldOfView>();
+        _navMeshAgent = GetComponent<NavMeshAgent>();
         _material = GetComponentsInChildren<Renderer>()[0].material;
 
         _canAttack = true;
@@ -54,10 +52,27 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     }
 
     /// <summary>
+    /// Initializes the component on start and disables unnecessary functionality for client instances.
+    /// </summary>
+    protected override void Start()
+    {
+        base.Start();
+
+        if (!isServer)
+        {
+            _fieldOfView.enabled = false;
+            _navMeshAgent.enabled = false;
+            enabled = false;
+        }
+    }
+
+    /// <summary>
     /// Contains logic for keeping track of the target and transitioning between states
     /// </summary>
     private void FixedUpdate()
     {
+        if (!_navMeshAgent.enabled) { return; }
+
         // _fieldOfView's interested layers should only be player
         float distToTarget = 0f;
         // if the current target has been destroyed, go to idle

@@ -33,8 +33,10 @@ public abstract class StateManager<EState, TState, TStateContext> : NetworkBehav
     /// <summary>
     /// Enter the current state.
     /// </summary>
-    private void Start()
+    protected virtual void Start()
     {
+        if (!isServer) { return; }
+        
         InitializeStates();
 
         CurrentState = States[_defaultState];

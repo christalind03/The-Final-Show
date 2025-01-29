@@ -10,18 +10,7 @@ using UnityEngine;
 /// </remarks>
 public class AbstractBillboard : MonoBehaviour
 {
-    private int _maxAttempts; // Maximum number of attempts to locate the local player's camera
-    private int _currentAttempts; // Current number of attempts when trying to locate the local player's camera
     private Transform _playerCamera;
-
-    /// <summary>
-    /// Initialize the attempt settings for locating the local player's camera.
-    /// </summary>
-    private void Start()
-    {
-        _maxAttempts = 3;
-        _currentAttempts = 0;
-    }
 
     /// <summary>
     /// If the local player's camera exists, orient the object to face the camera's direction.
@@ -37,7 +26,7 @@ public class AbstractBillboard : MonoBehaviour
         {
             transform.LookAt(transform.position + _playerCamera.forward);
         }
-        else if (_maxAttempts > _currentAttempts)
+        else
         {
             AssignPlayerCamera();
         }
@@ -52,18 +41,12 @@ public class AbstractBillboard : MonoBehaviour
 
         if (localPlayer != null)
         {
-            Camera maybeCamera = localPlayer.GetComponent<Camera>();
+            Camera maybeCamera = localPlayer.GetComponentInChildren<Camera>();
 
             if (maybeCamera != null)
             {
                 _playerCamera = maybeCamera.transform;
             }
         }
-        else if (_maxAttempts <= _currentAttempts)
-        {
-            UnityUtils.LogError($"Unable to locate local player after {_maxAttempts} attempts.");
-        }
-
-        _currentAttempts++;
     }
 }

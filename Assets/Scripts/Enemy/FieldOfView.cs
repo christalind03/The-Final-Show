@@ -71,6 +71,10 @@ public class FieldOfView : NetworkBehaviour
             Gizmos.color = _meshColor;
             Gizmos.DrawMesh(_mesh, transform.position, transform.rotation);
         }
+        else
+        {
+            _mesh = CreateMesh();
+        }
 
         // Highlight what objects the vision cone is able to see.
         foreach (GameObject detectedObject in DetectedObjects)
