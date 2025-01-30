@@ -1,5 +1,7 @@
 using Mirror;
+using Steamworks;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -26,7 +28,6 @@ public class PlayerInterface : NetworkBehaviour
             uiDocument.visualTreeAsset = Resources.Load<VisualTreeAsset>("UI/PlayerUI");
         }
 
-        //Debug.Log(gameObject.GetComponent<UIDocument>().visualTreeAsset.ToString());
         _rootVisualElement = uiDocument.rootVisualElement;
         base.OnStartAuthority();
     }
@@ -176,6 +177,62 @@ public class PlayerInterface : NetworkBehaviour
         if (UnityUtils.ContainsElement(_rootVisualElement, "Ammo", out VisualElement ammoElement))
         {
             ammoElement.style.opacity = displayAmmo ? 1 : 0;
+        }
+    }
+    
+    /// <summary>
+    /// Toggle the score board visibility based on the current class list on the visualelement
+    /// </summary>
+    /// <returns>True = scoreboard enabled / False = scoreboard disabled or ScoreBoard not found</returns>
+    public bool ToggleScoreBoardVisibility(){
+        if (UnityUtils.ContainsElement(_rootVisualElement, "ScoreBoard", out VisualElement board))
+        {
+            if (board.ClassListContains("hide"))
+            {
+                board.RemoveFromClassList("hide");
+                return true;
+            }else{
+                board.AddToClassList("hide");
+            }
+        }
+        return false;        
+    }
+
+    /// <summary>
+    /// Refresh the scoreboard. This will first get all the available slots and save it to a list.
+    /// The slot will then be assigned a player name from scoreboard's playerName dictionary.
+    /// The unfilled slots will be cleared and put into hidden
+    /// </summary>
+    public void RefreshScoreBoard(){
+        if(!isLocalPlayer)return;
+        ScoreBoard scoreboard = gameObject.GetComponent<ScoreBoard>();
+        List<TextElement> slotNames = new List<TextElement>();
+        int Counter = 0;
+        
+        if(_rootVisualElement == null){
+            _rootVisualElement = gameObject.GetComponent<UIDocument>().rootVisualElement;
+        }
+
+        if(UnityUtils.ContainsElement(_rootVisualElement, "ScoreBoard", out VisualElement board)){
+            if(UnityUtils.ContainsElement(board, "Background", out VisualElement background)){
+                slotNames = background.Query<TextElement>(className: "unity-text-element").ToList();
+            }
+        }
+
+        foreach(KeyValuePair<uint, string> name in scoreboard.playerName){
+            if(UnityUtils.ContainsElement(_rootVisualElement, slotNames[Counter].name, out TextElement textEle)){
+                textEle.text = name.Value;
+                textEle.RemoveFromClassList("hide");
+            }
+            Counter++;
+        }
+
+        for(int i = Counter; i < slotNames.Count; i++){
+            if(UnityUtils.ContainsElement(_rootVisualElement, slotNames[i].name, out TextElement textEle)){
+                textEle.text = null;
+                textEle.AddToClassList("hide");
+            }
+            Counter++;
         }
     }
 

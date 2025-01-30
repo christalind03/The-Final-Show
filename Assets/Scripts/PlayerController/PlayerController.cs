@@ -1,8 +1,9 @@
 using Cinemachine;
 using Mirror;
+using Steamworks;
 using System;
 using System.Collections;
-using Unity.VisualScripting;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,6 +14,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(CombatController))]
 [RequireComponent(typeof(PlayerInventory))]
 [RequireComponent(typeof(PlayerStats))]
+[RequireComponent(typeof(ScoreBoard))]
 public class PlayerController : NetworkBehaviour
 {
     [Header("Camera Parameters")]
@@ -51,11 +53,14 @@ public class PlayerController : NetworkBehaviour
     private CombatController _combatController;
     private PlayerInventory _playerInventory;
     private PlayerStats _playerStats;
+    private ScoreBoard _scoreBoard;
+    private SettingsMenu _settings;
 
     private Animator _playerAnimator;
     private int _animatorIsJumping;
     private int _animatorMovementX;
     private int _animatorMovementZ;
+    [SyncVar] public string playerName = null;
 
     /// <summary>
     /// Ensures this object instance persists throughout scenes.
@@ -70,6 +75,13 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     public override void OnStartAuthority()
     {
+        if (SteamManager.Initialized) {
+            playerName = SteamFriends.GetPersonaName();
+            gameObject.name = playerName;            
+            CmdUpdateName(playerName);
+        }
+
+
         CameraController cameraController= GetComponent<CameraController>();
         
         if (cameraController.alive)
@@ -85,6 +97,8 @@ public class PlayerController : NetworkBehaviour
         _combatController = gameObject.GetComponent<CombatController>();
         _playerInventory = gameObject.GetComponent<PlayerInventory>();
         _playerStats = gameObject.GetComponent<PlayerStats>();
+        _scoreBoard = gameObject.GetComponent<ScoreBoard>();
+        _settings = gameObject.GetComponent<SettingsMenu>();
 
         // To access the animator, we must retrieve the child gameObject that is rendering the player's mesh.
         // This should be the first child of the current gameObject, `BaseCharacter`
@@ -108,6 +122,8 @@ public class PlayerController : NetworkBehaviour
         _playerControls.Player.Drop.performed += Drop;
         _playerControls.Player.Interact.performed += Interact;
         _playerControls.Player.Jump.performed += Jump;
+        _playerControls.Player.ScoreBoard.performed += ScoreBoard;
+        _playerControls.Player.Settings.performed += Settings;
 
         // Subscribe to inventory slot selection for all slots.
         _playerControls.Inventory.CycleSlots.performed += _playerInventory.SelectSlot;
@@ -124,9 +140,17 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     public override void OnStartServer()
     {
-        base.OnStartClient();
-        string name = transform.name;
-        PlayerManager.RegisterPlayer(netIdentity.netId, gameObject);
+        if(connectionToClient != null){
+            if(_scoreBoard == null){
+                _scoreBoard = connectionToClient.identity.GetComponent<ScoreBoard>();
+            }
+            PlayerManager.RegisterPlayer(netIdentity.netId, gameObject);
+            ScoreBoard serverScoreBoard = NetworkServer.localConnection.identity.GetComponent<ScoreBoard>();
+            _scoreBoard.InitialAddPlayerData();          
+            StartCoroutine(serverScoreBoard.PlayerJoinedUpdatePlayerList(netIdentity));
+        }
+
+        base.OnStartServer();
     }
 
     /// <summary>
@@ -134,9 +158,15 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     public override void OnStopServer()
     {
-        base.OnStopClient();
-        string name = transform.name;
-        PlayerManager.UnregisterPlayer(netIdentity.netId);
+        if(connectionToClient != null){
+            PlayerManager.UnregisterPlayer(netIdentity.netId);
+            PlayerManager.RegisterPlayer(netIdentity.netId, gameObject);
+            if(NetworkServer.localConnection != null){
+                ScoreBoard serverScoreBoard = NetworkServer.localConnection.identity.GetComponent<ScoreBoard>();
+                serverScoreBoard.PlayerLeftUpdatePlayerList(netIdentity);                
+            }
+        }
+        base.OnStopServer();
     }
 
     /// <summary>
@@ -399,6 +429,23 @@ public class PlayerController : NetworkBehaviour
     }
 
     /// <summary>
+    /// When the player press Tab, the player list will open/close based on the current display status
+    /// </summary>
+    private void ScoreBoard(InputAction.CallbackContext context){
+        _scoreBoard.ShowScoreBoard();
+    }
+
+    private void Settings(InputAction.CallbackContext context){
+        if(_settings.ToggleSettingsMenu()){
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }else{
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked; 
+        }
+    }
+
+    /// <summary>
     /// When the client no longer has authority over this object, ensure the cursor is visible and disables the controls.
     /// </summary>
     public override void OnStopAuthority()
@@ -421,6 +468,8 @@ public class PlayerController : NetworkBehaviour
         _playerControls.Player.Drop.performed -= Drop;
         _playerControls.Player.Interact.performed -= Interact;
         _playerControls.Player.Jump.performed -= Jump;
+        _playerControls.Player.ScoreBoard.performed -= ScoreBoard;
+        _playerControls.Player.Settings.performed -= Settings;
 
         _playerControls.Inventory.CycleSlots.performed -= _playerInventory.SelectSlot;
         InputActionMap inventoryActions = _playerControls.asset.FindActionMap("Inventory");
@@ -530,5 +579,27 @@ public class PlayerController : NetworkBehaviour
         {
             interactableComponent.Interact(gameObject);
         }
+    }
+
+    /// <summary>
+    /// Updates the player's name on the server side
+    /// </summary>
+    /// <param name="newName">player's name</param>
+    [Command]
+    private void CmdUpdateName(string newName){
+        if(!isLocalPlayer){
+            gameObject.name = newName;
+        }
+    }
+
+    /// <summary>
+    /// Allow other GameObjects on the server to tell clients to move their character around
+    /// </summary>
+    /// <param name="vect">Vector to move the player by</param>
+    [ClientRpc]
+    public void RpcExternalMove(Vector3 vect)
+    {
+        if (!isLocalPlayer) { return; } // only move the local player
+        _characterController.Move(vect);
     }
 }

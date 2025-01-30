@@ -1,5 +1,5 @@
 .panel {
-    background-color: rgba(138, 84, 186, 0.44);
+    background-image: url("project://database/Assets/Sprites/Background_Title.jpg?fileID=21300000&guid=0a71fbdd423a64d48a43e5c96e0035ee&type=3#Background_Title");
 }
 
 .container {
@@ -19,34 +19,15 @@
 }
 
 .unity-button {
-    flex-grow: 0.1;
-    justify-content: flex-start;
-    align-items: center;
-    position: relative;
-    top: 20%;
-    width: 70%;
-    border-top-width: 5px;
-    border-right-width: 5px;
-    border-bottom-width: 5px;
-    border-left-width: 5px;
-    border-top-left-radius: 15px;
-    border-top-right-radius: 15px;
-    border-bottom-right-radius: 15px;
-    border-bottom-left-radius: 15px;
-    border-left-color: rgba(94, 28, 28, 0.45);
-    border-right-color: rgba(94, 28, 28, 0.45);
-    border-top-color: rgba(94, 28, 28, 0.45);
-    border-bottom-color: rgba(94, 28, 28, 0.45);
     -unity-font-definition: initial;
-    bottom: 20%;
-    height: 50px;
-    flex-basis: 15%;
-    align-self: center;
     font-size: 30px;
+    transition-duration: 0.15s;
+    width: 50%;
 }
 
 .unity-button:hover {
-    background-color: rgb(255, 160, 0);
+    scale: 1.1 1.1;
+    -unity-background-image-tint-color: rgba(255, 131, 131, 0.84);
 }
 
 .hide {
@@ -54,4 +35,15 @@
 }
 
 .show {
+}
+
+.my-input-field > .unity-base-text-field__input {
+    display: flex;
+    visibility: visible;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0);
+    border-left-color: rgba(0, 0, 0, 0);
+    border-right-color: rgba(0, 0, 0, 0);
+    border-top-color: rgba(0, 0, 0, 0);
+    border-bottom-color: rgba(0, 0, 0, 0);
 }

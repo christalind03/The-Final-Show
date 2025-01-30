@@ -115,7 +115,7 @@ public class DungeonGenerator : NetworkBehaviour
                 if (!TryExistingSegment(out DungeonSegment existingSegment, out Transform existingEntrance))
                 {
                     UnityUtils.LogError("Unable to locate existing segment and its corresponding entry point.");
-                    return;
+                    continue;
                 }
 
                 bool isExit = roomIndex == exitIndex;
@@ -124,7 +124,7 @@ public class DungeonGenerator : NetworkBehaviour
                 if (!TryGeneratedSegment(isExit, isHallway, out DungeonSegment generatedSegment, out Transform generatedEntrance))
                 {
                     UnityUtils.LogError("Unable to locate generated segment and its corresponding entry point.");
-                    return;
+                    continue;
                 }
 
                 AlignSegments(generatedSegment.transform, generatedEntrance, existingEntrance);
