@@ -11,7 +11,8 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
         Idle,
         Chasing,
         Aiming,
-        Attacking
+        Attacking,
+        Ability0
     }
 
     [Header("Attack Parameters")]
@@ -37,7 +38,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     /// Stores the enemy's initial position and rotation for later use.
     /// Additionally caches relevant components from the GameObject and initializes the context shared by concrete states.
     /// </summary>
-    private void Awake()
+    protected virtual void Awake()
     {
         _initialPosition = transform.position;
         _initialRotation = transform.rotation;
@@ -47,81 +48,97 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
         _material = GetComponentsInChildren<Renderer>()[0].material;
 
         _canAttack = true;
+        _hasTarget = false;
 
         StateContext = new EnemyContext(_attackStats, _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _material);
     }
 
     /// <summary>
-    /// Initializes the component on start and disables unnecessary functionality for client instances.
+    /// Called every frame to control enemy behavior.
     /// </summary>
-    protected override void Start()
+    protected void FixedUpdate()
     {
-        base.Start();
+        if(!isServer) { return; }  // only execute enemy behavior on the server
+        if (!_navMeshAgent.enabled) { return; } // only execute enemy behavior if the NavMeshAgent is enabled
 
-        if (!isServer)
+        // _fieldOfView's interested layers should only be player
+        
+        // First, check if the current target is valid
+        CheckTargetValidity();
+        // Perform transition logic
+        TransitionLogic();
+    }
+
+    /// <summary>
+    /// Checks if the current target is valid.
+    /// A target is no longer valid if the object has been destroyed or if its health has reached zero.
+    /// </summary>
+    protected void CheckTargetValidity()
+    {
+        if (_hasTarget)
         {
-            _fieldOfView.enabled = false;
-            _navMeshAgent.enabled = false;
-            enabled = false;
+            // Check if the target has been destroyed (e.g. a player disconnects)
+            if (StateContext.TargetTransform == null)
+            {
+                _hasTarget = false;
+            }
+            // Check if the target has a health component
+            else if (StateContext.TargetTransform.root.TryGetComponent(out AbstractHealth targetHealth))
+            {
+                // Check if the target's health has reached 0
+                if (targetHealth.CurrentValue <= 0f)
+                {
+                    _hasTarget = false;
+                }
+            }
         }
     }
 
     /// <summary>
-    /// Contains logic for keeping track of the target and transitioning between states
+    /// Contains the logic which controls transitioning between states and finding targets.
+    /// This behavior is the same for all basic enemies (non-bosses).
     /// </summary>
-    private void FixedUpdate()
+    protected virtual void TransitionLogic()
     {
-        if (!_navMeshAgent.enabled) { return; }
-
-        // _fieldOfView's interested layers should only be player
         float distToTarget = 0f;
-        // if the current target has been destroyed, go to idle
-        if (_hasTarget && StateContext.TargetTransform == null)
+        if (_hasTarget)
         {
-            TransitionToState(EEnemyState.Idle);
-            _hasTarget = false;
-        }
-        // if the current target has no health, go to idle
-        
-        else if (_hasTarget && StateContext.TargetTransform.root.TryGetComponent(out AbstractHealth targetHealth))
-        {
-            if (targetHealth.CurrentValue <= 0)
-            {
-                TransitionToState(EEnemyState.Idle);
-                _hasTarget = false;
-            }
-        }
-        // When a target is within the FOV
-        if (0 < _fieldOfView.DetectedObjects.Count)
-        {
-            // Choose one target, keep that target until it leaves chase radius
-            // If a different target is within FOV, switch to that target
-            _hasTarget = true;
-            _targetTransform = _fieldOfView.DetectedObjects[0].transform; // get the first object
-            StateContext.TargetTransform = _targetTransform;
-            distToTarget = Vector3.Distance(transform.position, _targetTransform.position);
-
-            // If Idle and target is within chase distance, start Chasing
+            distToTarget = Vector3.Distance(transform.position, _targetTransform.position); // recalculate distToTarget
+            // If Idle and target is closer than startChaseDist, start chasing
             if (CurrentState.StateKey.Equals(EEnemyState.Idle) && distToTarget < _behaviorStats.StartChaseDist)
             {
                 TransitionToState(EEnemyState.Chasing);
             }
-            // If Chasing and target is within aim range, start Aiming
-            else if (CurrentState.StateKey.Equals(EEnemyState.Chasing) && distToTarget < _behaviorStats.StartAimDist)
+            // If Chasing...
+            else if (CurrentState.StateKey.Equals(EEnemyState.Chasing))
             {
-                TransitionToState(EEnemyState.Aiming);
+                // and target is farther than endChaseDist, stop chasing, no longer have a target
+                if (distToTarget > _behaviorStats.EndChaseDist)
+                {
+                    _hasTarget = false;
+                }
+                // and target is closer than startAimDist, start Aiming
+                else if (distToTarget < _behaviorStats.StartAimDist)
+                {
+                    TransitionToState(EEnemyState.Aiming);
+                }
             }
-            // If Aiming and target is out of aim range, start Chasing
-            else if (CurrentState.StateKey.Equals(EEnemyState.Aiming) && distToTarget > _behaviorStats.EndAimDist)
+            // If Aiming...
+            else if (CurrentState.StateKey.Equals(EEnemyState.Aiming))
             {
-                TransitionToState(EEnemyState.Chasing);
-            }
-            // If Aiming and can attack, Attack
-            else if (CurrentState.StateKey.Equals(EEnemyState.Aiming) && _canAttack)
-            {
-                TransitionToState(EEnemyState.Attacking);
-                _canAttack = false;
-                StartCoroutine(AttackCooldown());
+                // and target is farther than endAimDist, start Chasing
+                if (CurrentState.StateKey.Equals(EEnemyState.Aiming) && distToTarget > _behaviorStats.EndAimDist)
+                {
+                    TransitionToState(EEnemyState.Chasing);
+                }
+                // and can attack, Attack
+                else if (CurrentState.StateKey.Equals(EEnemyState.Aiming) && _canAttack)
+                {
+                    TransitionToState(EEnemyState.Attacking);
+                    _canAttack = false;
+                    StartCoroutine(AttackCooldown());
+                    // TODO: add a delay here for duration of attack animation
+                }
             }
             // If Attacking but can no longer attack, start Aiming
             else if (CurrentState.StateKey.Equals(EEnemyState.Attacking) && !_canAttack)
@@ -129,32 +146,21 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
                 TransitionToState(EEnemyState.Aiming);
             }
         }
-        // When a target is not within the FOV
-        // e.g. still within chase distance or behind obstacle
-        else if(_hasTarget)
+        // If we don't have a target anymore, scan for a new one
+        if (!_hasTarget)
         {
-            distToTarget = Vector3.Distance(transform.position, _targetTransform.position); // recalculate distToTarget
-            // If target is farther than endChaseDist, stop chasing, no longer have a target
-            if (CurrentState.StateKey.Equals(EEnemyState.Chasing) && distToTarget > _behaviorStats.EndChaseDist)
+            if (_fieldOfView.DetectedObjects.Count > 0)
             {
-                _hasTarget = false;
+                _hasTarget = true;
+                // TODO: The first object in the list seems to always be the host, so maybe find the closest obj in the list
+                _targetTransform = _fieldOfView.DetectedObjects[0].transform; // get the first object
+                StateContext.TargetTransform = _targetTransform;
+            }
+            // No target and couldn't find a new one -> go to Idle
+            else
+            {
                 TransitionToState(EEnemyState.Idle);
             }
-            // Target MUST be within FOV (and unobstructed) to aim
-            else if (CurrentState.StateKey.Equals(EEnemyState.Aiming))
-            {
-                TransitionToState(EEnemyState.Chasing);
-            }
-            // Target is not in FOV, but Attacking
-            else if (CurrentState.StateKey.Equals(EEnemyState.Attacking))
-            {
-                TransitionToState(EEnemyState.Aiming);
-            }
-        }
-        // Abnormal behavior: go to Idle
-        else
-        {
-            TransitionToState(EEnemyState.Idle);
         }
     }
 
