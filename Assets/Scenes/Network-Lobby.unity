@@ -259,6 +259,50 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
+--- !u!1 &563238083
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 563238085}
+  - component: {fileID: 563238084}
+  m_Layer: 0
+  m_Name: SteamManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &563238084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 563238083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f6c6ebf70815ea4389078bdf8818b05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &563238085
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 563238083}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 8.309533, y: -13.954967, z: -9.574023}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &647847491
 GameObject:
   m_ObjectHideFlags: 0
@@ -356,7 +400,7 @@ MonoBehaviour:
   autoStartServerBuild: 0
   autoConnectClientBuild: 0
   offlineScene: Assets/Scenes/Network-Lobby.unity
-  onlineScene: Assets/Scenes/Dungeon1.unity
+  onlineScene: Assets/Scenes/Gameplay/Gameplay-Intermission.unity
   transport: {fileID: 647847493}
   networkAddress: localhost
   maxConnections: 100
@@ -365,13 +409,17 @@ MonoBehaviour:
   authenticator: {fileID: 0}
   playerPrefab: {fileID: 3233045660875188808, guid: c88e45c824f44574daa0cd2a4f911200,
     type: 3}
-  autoCreatePlayer: 1
+  autoCreatePlayer: 0
   playerSpawnMethod: 1
   spawnPrefabs:
-  - {fileID: 8008949534658289046, guid: 3a024f90a8215294891cf4864a734506, type: 3}
-  - {fileID: 4676705519949754717, guid: a1cb2037d8e847c4682d8f3408744742, type: 3}
-  - {fileID: 5025439335427194619, guid: c68a56081a21b664999a3f9e34482bf0, type: 3}
-  - {fileID: 8047876632819396388, guid: 367112a43490a2245acdc1414b85bd99, type: 3}
+  - {fileID: 6104558407679189253, guid: 53f5ce6cfc841d04fb818dbbc77b60dc, type: 3}
+  - {fileID: 7528500341229574384, guid: 06ab6014f424b7a45bafcba93586eb81, type: 3}
+  - {fileID: 4915136552179181740, guid: 5c589a261d2642b4fafbfafa7661da36, type: 3}
+  - {fileID: 6085626376942215046, guid: 30dfd023a3eda7047a2d19f536ac5e88, type: 3}
+  - {fileID: 7794048910500161293, guid: 21029e95ee2ea6c48a611b62bbd91313, type: 3}
+  - {fileID: 3767777009258638877, guid: 7f7013935ec70b646952cde741e0b431, type: 3}
+  - {fileID: 169783458958843592, guid: 7e46a5d25c2dd2d4b8b92357ef186769, type: 3}
+  - {fileID: 7527249661742391385, guid: eb61ecee9ab761b419e3e326049106e0, type: 3}
   exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2
@@ -579,7 +627,6 @@ GameObject:
   - component: {fileID: 1389958876}
   - component: {fileID: 1389958878}
   - component: {fileID: 1389958881}
-  - component: {fileID: 1389958880}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -607,7 +654,7 @@ MonoBehaviour:
   autoStartServerBuild: 0
   autoConnectClientBuild: 0
   offlineScene: Assets/Scenes/Network-Lobby.unity
-  onlineScene: 
+  onlineScene: Assets/Scenes/Gameplay/Gameplay-Intermission.unity
   transport: {fileID: 1389958881}
   networkAddress: localhost
   maxConnections: 5
@@ -618,7 +665,15 @@ MonoBehaviour:
     type: 3}
   autoCreatePlayer: 0
   playerSpawnMethod: 1
-  spawnPrefabs: []
+  spawnPrefabs:
+  - {fileID: 6104558407679189253, guid: 53f5ce6cfc841d04fb818dbbc77b60dc, type: 3}
+  - {fileID: 7528500341229574384, guid: 06ab6014f424b7a45bafcba93586eb81, type: 3}
+  - {fileID: 4915136552179181740, guid: 5c589a261d2642b4fafbfafa7661da36, type: 3}
+  - {fileID: 6085626376942215046, guid: 30dfd023a3eda7047a2d19f536ac5e88, type: 3}
+  - {fileID: 7794048910500161293, guid: 21029e95ee2ea6c48a611b62bbd91313, type: 3}
+  - {fileID: 3767777009258638877, guid: 7f7013935ec70b646952cde741e0b431, type: 3}
+  - {fileID: 169783458958843592, guid: 7e46a5d25c2dd2d4b8b92357ef186769, type: 3}
+  - {fileID: 7527249661742391385, guid: eb61ecee9ab761b419e3e326049106e0, type: 3}
   exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2
@@ -661,18 +716,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cbf5bc8aa2c073a49b63a28207e09a01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1389958880
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1389958875}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f6c6ebf70815ea4389078bdf8818b05, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1389958881
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -698,3 +741,4 @@ SceneRoots:
   - {fileID: 1389958877}
   - {fileID: 1135082684}
   - {fileID: 647847495}
+  - {fileID: 563238085}

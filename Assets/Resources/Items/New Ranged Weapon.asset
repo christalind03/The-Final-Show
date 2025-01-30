@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b7d40dcff620a94eb7c7ecc37dd6bea, type: 3}
+  m_Name: New Ranged Weapon
+  m_EditorClassIdentifier: 
+  _objectSprite: {fileID: 21300000, guid: 79c129b19329fcf408a1ed9881c01da8, type: 3}
+  _objectPrefab: {fileID: 6104558407679189253, guid: 53f5ce6cfc841d04fb818dbbc77b60dc,
+    type: 3}
+  _equipmentCategory: 0
+  _positionOffset: {x: 0, y: 0, z: 0}
+  _attackLayers:
+    serializedVersion: 2
+    m_Bits: 128
+  _attackCooldown: 0
+  _attackDamage: 15
+  AmmoCount: 33
+  ClipCount: 3
+  _clipCapacity: 35
+  _reloadTime: 0
+  _projectilePrefab: {fileID: 3767777009258638877, guid: 7f7013935ec70b646952cde741e0b431,
+    type: 3}
+  _projectileOffset: {x: 1, y: 1, z: 1}
+  _projectileSpeed: 35

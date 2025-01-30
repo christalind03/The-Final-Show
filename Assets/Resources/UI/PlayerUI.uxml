@@ -1,0 +1,102 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/Global.uss?fileID=7433441132597879392&amp;guid=b9791d5eef4b587458392a22f528fd98&amp;type=3#Global" />
+    <Style src="project://database/Assets/UI%20Toolkit/PlayerUI.uss?fileID=7433441132597879392&amp;guid=7bd52c0d93eeb354aadf5b3d6bae1f18&amp;type=3#PlayerUI" />
+    <ui:VisualElement name="Crosshair" style="position: absolute; width: 100%; height: 100%; align-items: center; justify-content: center; align-self: auto;">
+        <ui:VisualElement name="Crosshair-Icon" style="background-image: url(&quot;project://database/Assets/Sprites/Crosshair.png?fileID=21300000&amp;guid=a1ab10aa65b87d9438c7d7418770974a&amp;type=3#Crosshair&quot;); width: 64px; height: 64px; align-self: center; justify-content: center; align-items: center;" />
+    </ui:VisualElement>
+    <ui:VisualElement name="Primary-Container" class="primaryContainer">
+        <ui:Label tabindex="-1" text="0:00" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Server-Timer" class="defaultFont" style="font-size: 42px; opacity: 0;" />
+        <ui:Label tabindex="-1" text="Server Message" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Server-Message" class="defaultFont" style="font-size: 60px; opacity: 0; top: 35%;" />
+        <ui:VisualElement name="Status-Bars" style="flex-grow: 1; position: absolute;">
+            <ui:VisualElement name="Health" style="height: 32px; width: 575px;">
+                <ui:VisualElement name="Health-Foreground" style="background-image: url(&quot;project://database/Assets/Sprites/Progress_Red.png?fileID=21300000&amp;guid=79c129b19329fcf408a1ed9881c01da8&amp;type=3#Progress_Red&quot;); width: 100%; height: 100%; transition-duration: 0.25s;" />
+                <ui:VisualElement name="Health-Background" style="background-image: url(&quot;project://database/Assets/Sprites/Progress_Transparent.png?fileID=21300000&amp;guid=59394f8886e7dd346bf8c8430392dc98&amp;type=3#Progress_Transparent&quot;); width: 100%; height: 100%; position: absolute;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="Space" style="height: 7.5px;" />
+            <ui:VisualElement name="Stamina" style="height: 32px; width: 550px;">
+                <ui:VisualElement name="Stamina-Foreground" style="background-image: url(&quot;project://database/Assets/Sprites/Progress_Blue.png?fileID=21300000&amp;guid=54eb75d3df91b08429e766d2ab52917d&amp;type=3#Progress_Blue&quot;); width: 100%; height: 100%;" />
+                <ui:VisualElement name="Stamina-Background" style="background-image: url(&quot;project://database/Assets/Sprites/Progress_Transparent.png?fileID=21300000&amp;guid=59394f8886e7dd346bf8c8430392dc98&amp;type=3#Progress_Transparent&quot;); width: 100%; height: 100%; position: absolute;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="ScoreBoard" class="hide" style="flex-grow: 1; width: 40%; align-self: center; height: 65%; position: absolute; top: 20%;">
+            <ui:VisualElement name="Background" style="flex-grow: 1; width: 100%; margin-top: 25%; margin-bottom: 25%; background-image: url(&quot;project://database/Assets/Sprites/PlayerBoard.png?fileID=21300000&amp;guid=f2b76e8d5f4e0f34788682dd2a8a6dce&amp;type=3#PlayerBoard&quot;); padding-top: 4%; padding-right: 4%; padding-bottom: 4%; padding-left: 4%;">
+                <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-1" class="hide" style="-unity-font: url(&quot;project://database/Assets/UI%20Toolkit/Mattehek.otf?fileID=12800000&amp;guid=e9462b1ffa385eb4c8248a458fe3ab6a&amp;type=3#Mattehek&quot;); -unity-font-definition: initial; font-size: 40px;" />
+                <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-2" class="hide" style="-unity-font: url(&quot;project://database/Assets/UI%20Toolkit/Mattehek.otf?fileID=12800000&amp;guid=e9462b1ffa385eb4c8248a458fe3ab6a&amp;type=3#Mattehek&quot;); -unity-font-definition: initial; font-size: 40px;" />
+                <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-3" class="hide" style="-unity-font: url(&quot;project://database/Assets/UI%20Toolkit/Mattehek.otf?fileID=12800000&amp;guid=e9462b1ffa385eb4c8248a458fe3ab6a&amp;type=3#Mattehek&quot;); -unity-font-definition: initial; font-size: 40px;" />
+                <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-4" class="hide" style="-unity-font: url(&quot;project://database/Assets/UI%20Toolkit/Mattehek.otf?fileID=12800000&amp;guid=e9462b1ffa385eb4c8248a458fe3ab6a&amp;type=3#Mattehek&quot;); -unity-font-definition: initial; font-size: 40px;" />
+                <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-5" class="hide" style="-unity-font: url(&quot;project://database/Assets/UI%20Toolkit/Mattehek.otf?fileID=12800000&amp;guid=e9462b1ffa385eb4c8248a458fe3ab6a&amp;type=3#Mattehek&quot;); -unity-font-definition: initial; font-size: 40px;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="Inventory" style="margin-top: auto; margin-left: auto; width: 100%; align-items: center; justify-content: center; margin-right: auto; margin-bottom: auto; position: absolute; top: 80%;">
+            <ui:Label tabindex="-1" text="Inventory Item" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Inventory-Message" class="defaultFont" style="font-size: 36px; align-items: center; justify-content: center; transition-duration: 0.25s; opacity: 0;" />
+            <ui:VisualElement style="align-items: center; justify-content: center; flex-direction: row; width: 100%;">
+                <ui:VisualElement name="Inventory" style="align-items: center; justify-content: center; flex-direction: row; align-self: center;">
+                    <ui:VisualElement name="Slot-1" class="inventorySlot active">
+                        <ui:VisualElement name="Item" class="inventoryItem" style="background-image: url(&quot;project://database/Assets/Resources/Sprites/Slot-1.png?fileID=21300000&amp;guid=88bd1cd961d3c7141a4297d0dda2d3b3&amp;type=3#Slot-1&quot;);" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="Slot-2" class="inventorySlot">
+                        <ui:VisualElement name="Item" class="inventoryItem" style="background-image: url(&quot;project://database/Assets/Resources/Sprites/Slot-2.png?fileID=21300000&amp;guid=af2a20da2da06044b839f311c17dbb55&amp;type=3#Slot-2&quot;);" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="Space" class="inventorySpace" />
+                    <ui:VisualElement name="Slot-3" class="inventorySlot">
+                        <ui:VisualElement name="Item" class="inventoryItem" style="background-image: url(&quot;project://database/Assets/Resources/Sprites/Slot-3.png?fileID=21300000&amp;guid=859672c5fb694394381fc7e8f77aeeb1&amp;type=3#Slot-3&quot;);" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="Slot-4" class="inventorySlot">
+                        <ui:VisualElement name="Item" class="inventoryItem" style="background-image: url(&quot;project://database/Assets/Resources/Sprites/Slot-4.png?fileID=21300000&amp;guid=8792e26c32aa8cd428fbc287cf837411&amp;type=3#Slot-4&quot;);" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="Slot-5" class="inventorySlot">
+                        <ui:VisualElement name="Item" class="inventoryItem" style="background-image: url(&quot;project://database/Assets/Resources/Sprites/Slot-5.png?fileID=21300000&amp;guid=7f58342dfa56cea4eb32fcabce87f6ba&amp;type=3#Slot-5&quot;);" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="Slot-6" class="inventorySlot">
+                        <ui:VisualElement name="Item" class="inventoryItem" style="background-image: url(&quot;project://database/Assets/Resources/Sprites/Slot-6.png?fileID=21300000&amp;guid=23f09a53e2468774897ba559dc3d7f94&amp;type=3#Slot-6&quot;);" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="Space" class="inventorySpace" />
+                    <ui:VisualElement name="Slot-7" class="inventorySlot">
+                        <ui:VisualElement name="Item" class="inventoryItem" style="background-image: url(&quot;project://database/Assets/Resources/Sprites/Slot-7.png?fileID=21300000&amp;guid=9e9fe923c11b894428c70524a5a5d7af&amp;type=3#Slot-7&quot;);" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="Slot-8" class="inventorySlot">
+                        <ui:VisualElement name="Item" class="inventoryItem" style="background-image: url(&quot;project://database/Assets/Resources/Sprites/Slot-8.png?fileID=21300000&amp;guid=c9e2600e209575549ab50203af93bd9d&amp;type=3#Slot-8&quot;);" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="Slot-9" class="inventorySlot">
+                        <ui:VisualElement name="Item" class="inventoryItem" style="background-image: url(&quot;project://database/Assets/Resources/Sprites/Slot-9.png?fileID=21300000&amp;guid=25f7fab52d77b4e4391d2786a322078d&amp;type=3#Slot-9&quot;);" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="Stats" style="align-items: center; justify-content: center; position: absolute; left: 100%; margin-left: 15px;">
+                        <ui:VisualElement name="Attack" style="flex-direction: row;">
+                            <ui:VisualElement name="Attack-Icon" style="background-image: url(&quot;project://database/Assets/Sprites/Icon_Attack.png?fileID=21300000&amp;guid=efd75653f4005f540bb27fbc65581b26&amp;type=3#Icon_Attack&quot;); width: 32px; height: 32px;" />
+                            <ui:VisualElement name="Space" style="width: 12.5px;" />
+                            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Attack-Value" class="defaultFont" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; font-size: 36px;" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="Space" style="flex-grow: 1; height: 25px;" />
+                        <ui:VisualElement name="Defense" style="flex-direction: row;">
+                            <ui:VisualElement name="Defense-Icon" style="background-image: url(&quot;project://database/Assets/Sprites/Icon_Defense.png?fileID=21300000&amp;guid=4b4363d59d036b84c9ec2a0f3e943d7b&amp;type=3#Icon_Defense&quot;); width: 32px; height: 32px;" />
+                            <ui:VisualElement name="Space" style="width: 12.5px;" />
+                            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Defense-Value" class="defaultFont" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; font-size: 36px;" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Ammo" style="align-items: center; justify-content: center; flex-direction: row; margin-left: auto; position: absolute; right: 6.5%; opacity: 0;">
+                    <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Ammo-Count" class="defaultFont" style="font-size: 60px;" />
+                    <ui:VisualElement name="Space" style="width: 7.5px;" />
+                    <ui:VisualElement name="Ammo-Icon" style="background-image: url(&quot;project://database/Assets/Sprites/Icon_Ammo.png?fileID=21300000&amp;guid=8a1bad2d9707d20429a51e865d807a4c&amp;type=3#Icon_Ammo&quot;); width: 48px; height: 48px;" />
+                    <ui:VisualElement name="Space" style="width: 7.5px;" />
+                    <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Ammo-Remaining" class="defaultFont" style="font-size: 42px;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="Spectator-Container" class="secondaryContainer">
+        <ui:VisualElement name="Control-Buttons" style="flex-grow: 1; align-items: flex-end; justify-content: flex-end; align-self: center; flex-direction: row; border-bottom-width: 30px;">
+            <ui:Button text="Previous" parse-escape-sequences="true" display-tooltip-when-elided="true" enable-rich-text="true" name="Pre" class="unity-button" style="position: relative; background-image: url(&quot;project://database/Assets/Sprites/Button.png?fileID=21300000&amp;guid=d320cdf6949077e4bb063177f3e09f3a&amp;type=3#Button&quot;); -unity-font: url(&quot;project://database/Assets/UI%20Toolkit/Mattehek.otf?fileID=12800000&amp;guid=e9462b1ffa385eb4c8248a458fe3ab6a&amp;type=3#Mattehek&quot;); -unity-font-definition: initial; width: 150px; height: 50px; font-size: 32px; border-left-color: rgba(0, 0, 0, 0); border-right-color: rgba(0, 0, 0, 0); border-top-color: rgba(0, 0, 0, 0); border-bottom-color: rgba(0, 0, 0, 0); background-color: rgba(0, 0, 0, 0);" />
+            <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Current" style="background-image: url(&quot;project://database/Assets/Sprites/Banner.png?fileID=21300000&amp;guid=3460e9d0766f6e94c974cb81dbc1b3bd&amp;type=3#Banner&quot;); -unity-font-definition: initial; -unity-font: url(&quot;project://database/Assets/UI%20Toolkit/Mattehek.otf?fileID=12800000&amp;guid=e9462b1ffa385eb4c8248a458fe3ab6a&amp;type=3#Mattehek&quot;); font-size: 42px; width: 200px; -unity-text-align: middle-center; background-color: rgba(0, 0, 0, 0);" />
+            <ui:Button text="Next" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Next" style="background-image: url(&quot;project://database/Assets/Sprites/Button.png?fileID=21300000&amp;guid=d320cdf6949077e4bb063177f3e09f3a&amp;type=3#Button&quot;); -unity-font-definition: initial; -unity-font: url(&quot;project://database/Assets/UI%20Toolkit/Mattehek.otf?fileID=12800000&amp;guid=e9462b1ffa385eb4c8248a458fe3ab6a&amp;type=3#Mattehek&quot;); width: 150px; height: 50px; font-size: 32px; border-left-color: rgba(0, 0, 0, 0); border-right-color: rgba(0, 0, 0, 0); border-top-color: rgba(0, 0, 0, 0); border-bottom-color: rgba(0, 0, 0, 0); background-color: rgba(0, 0, 0, 0);" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="Settings-Container" tabindex="10" focusable="true" class="secondaryContainer" style="flex-grow: 1; position: absolute; width: 100%; height: 100%; background-image: url(&quot;project://database/Assets/Sprites/Curtain.png?fileID=21300000&amp;guid=9e46fa0f4ce4f6b408538d22d2144a59&amp;type=3#Curtain&quot;); -unity-background-scale-mode: stretch-to-fill; -unity-slice-scale: 0;">
+        <ui:VisualElement name="Container" style="flex-grow: 1; align-self: flex-start; align-items: center; justify-content: center; margin-left: 5%;">
+            <ui:VisualElement name="LobbyId" style="top: -40%; background-image: url(&quot;project://database/Assets/Sprites/Banner.png?fileID=21300000&amp;guid=3460e9d0766f6e94c974cb81dbc1b3bd&amp;type=3#Banner&quot;); font-size: 50px; -unity-slice-left: 4; -unity-slice-top: 4; -unity-slice-right: 4; -unity-slice-bottom: 4; -unity-slice-scale: -2px;">
+                <ui:TextField picking-mode="Ignore" label="Lobby Id:" value="PLACE HOLDER" name="Id" max-length="15" readonly="true" class="defaultFont my-input-field" />
+            </ui:VisualElement>
+            <ui:Button text="Leave Game" parse-escape-sequences="true" display-tooltip-when-elided="true" name="LeaveBtn" class="defaultFont unity-button" style="background-image: url(&quot;project://database/Assets/Sprites/Arrow_Left.png?fileID=21300000&amp;guid=75a30006f4522b846ba80e7aca149338&amp;type=3#Arrow_Left&quot;); -unity-background-scale-mode: scale-to-fit; -unity-slice-left: 4; -unity-slice-top: 4; -unity-slice-right: 4; -unity-slice-bottom: 4; -unity-slice-scale: -25px; background-color: rgba(188, 188, 188, 0); border-left-color: rgba(149, 149, 149, 0); border-right-color: rgba(149, 149, 149, 0); border-top-color: rgba(149, 149, 149, 0); border-bottom-color: rgba(149, 149, 149, 0); top: 40%; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; font-size: 50px;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

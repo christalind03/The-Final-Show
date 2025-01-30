@@ -7,13 +7,34 @@ using UnityEngine;
 /// https://www.youtube.com/watch?v=qsIiFsddGV4
 /// </summary>
 /// <typeparam name="EState">The enumerable type representing the possible states</typeparam>
-public abstract class BaseState<EState> : ScriptableObject where EState : Enum
+/// <typeparam name="TStateContext">The context type representing the shared data or dependencies provided to states</typeparam>
+public abstract class BaseState<EState, TStateContext> : ScriptableObject where EState : Enum
 {
-    public EState StateKey {  get; set; }
+    public EState StateKey { get; set; }
+    protected TStateContext StateContext { get; set; }
 
-    public void Initialize(EState stateKey)
+    /// <summary>
+    /// Initializes the mapping of state keys from EEnemyState to an instance of an EnemyState object
+    /// </summary>
+    public void Initialize(EState stateKey, TStateContext stateContext)
     {
         StateKey = stateKey;
+        StateContext = stateContext;
+    }
+
+    /// <summary>
+    /// Clones the current instance of this state.
+    /// </summary>
+    /// <returns>A cloned instance of this state.</returns>
+    public BaseState<EState, TStateContext> Clone()
+    {
+        var clonedInstance = Instantiate(this);
+
+        clonedInstance.name = name;
+        GeneralUtils.CloneFieldData(clonedInstance, this);
+        GeneralUtils.ClonePropertyData(clonedInstance, this);
+
+        return clonedInstance;
     }
 
     /// <summary>

@@ -1,0 +1,56 @@
+.inventoryItem {
+    width: 57.5%;
+    height: 57.5%;
+}
+
+.inventorySlot {
+    background-image: url("project://database/Assets/Sprites/InventorySlot.png?fileID=21300000&guid=de1e758a10fa9174a9d7b263405e8383&type=3#InventorySlot");
+    width: 95px;
+    height: 95px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+}
+
+.inventorySlot.active {
+    width: 105px;
+    height: 105px;
+    background-image: url("project://database/Assets/Sprites/InventorySlot_Active.png?fileID=21300000&guid=417bbbfdac182f2458db55382bdf6e29&type=3#InventorySlot_Active");
+}
+
+.inventorySpace {
+    width: 35px;
+    height: 35px;
+}
+
+.my-scroller__slider .unity-scroller--vertical .unity-base-slider__dragger {
+    background-image: url("project://database/Assets/Sprites/Scrollbar_brown.png?fileID=21300000&guid=51a1fd1b8ea4acc4e94f09f87cab68e2&type=3#Scrollbar_brown");
+    background-color: rgba(255, 255, 255, 0);
+}
+
+.my-scroller__low-button .unity-scroller__low-button {
+    background-color: rgba(0, 0, 0, 0);
+    background-image: url("project://database/Assets/Sprites/minimap_arrow_a.png?fileID=21300000&guid=b70021ad0dc609845827e1f294da0346&type=3#minimap_arrow_a");
+    -unity-background-image-tint-color: rgb(162, 111, 57);
+}
+
+.my-scroller__high-button .unity-scroller__high-button {
+    background-color: rgba(0, 0, 0, 0);
+    background-image: url("project://database/Assets/Sprites/minimap_arrow_a.png?fileID=21300000&guid=b70021ad0dc609845827e1f294da0346&type=3#minimap_arrow_a");
+    -unity-background-image-tint-color: rgb(162, 111, 57);
+    rotate: 180deg;
+}
+
+.my-input-field > .unity-base-text-field__input {
+    display: flex;
+    visibility: visible;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0);
+    border-left-color: rgba(0, 0, 0, 0);
+    border-right-color: rgba(0, 0, 0, 0);
+    border-top-color: rgba(0, 0, 0, 0);
+    border-bottom-color: rgba(0, 0, 0, 0);
+}

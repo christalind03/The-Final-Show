@@ -1,17 +1,19 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Mirror;
 
 /// <summary>
 /// Represents a stat that can be modified and adjusted dynamically.
 /// </summary>
-[System.Serializable]
 public class Stat
 {
-    [SerializeField] private float _baseValue;
-    [SerializeField] private float _currentValue;
-
+    private float _baseValue;
+    private float _currentValue;
+    private float _modifierSum;
     private List<float> _modifierList;
+
+    public event Action<float, float> OnBaseChange;
+    public event Action<float, float> OnCurrentChange;
 
     /// <summary>
     /// Get the base value of the stat, including any active modifiers into the final calculation.
@@ -30,7 +32,10 @@ public class Stat
         }
         private set
         {
-            _baseValue = value;
+            if (_baseValue != value)
+            {
+                _baseValue = value;
+            }
         }
     }
 
@@ -42,7 +47,16 @@ public class Stat
         get => _currentValue;
         private set
         {
-            _currentValue = Mathf.Clamp(value, 0f, BaseValue);
+            float clampedValue = Mathf.Clamp(value, 0f, BaseValue);
+
+            if (_currentValue != clampedValue)
+            {
+                float previousValue = _currentValue;
+                float currentValue = clampedValue;
+
+                OnCurrentChange?.Invoke(previousValue, currentValue);
+                _currentValue = currentValue;
+            }
         }
     }
 
@@ -78,19 +92,22 @@ public class Stat
     /// <summary>
     /// Adds a modifier to the modifier list.
     /// Allows for temporary adjustments to the base value.
+    /// Additionally adds the modifier value to the current value to maintain value scaling.
     /// </summary>
     /// <param name="modifierValue"></param>
     public void AddModifier(float modifierValue)
     {
-        if (modifierValue != 0)
+        if (modifierValue != 0f)
         {
             _modifierList.Add(modifierValue);
+            SimulateBaseChange();
         }
     }
 
     /// <summary>
     /// Removes a modifier from the modifier list.
     /// Allows for the removal of temporary adjustments to the base value.
+    /// Additionally removes the modifier value from the current value to maintain value scaling.
     /// </summary>
     /// <param name="modifierValue"></param>
     public void RemoveModifier(float modifierValue)
@@ -98,6 +115,26 @@ public class Stat
         if (modifierValue != 0f)
         {
             _modifierList.Remove(modifierValue);
+            SimulateBaseChange();
+        }
+    }
+
+    /// <summary>
+    /// Simulates a change in the base value by summing the base value and modifiers and comparing it to the previous combined value.
+    /// If the simulated base value has changed, it invokes the <see cref="OnBaseChange"/> event with the previous and current values.
+    /// </summary>
+    private void SimulateBaseChange()
+    {
+        float previousValue = _baseValue + _modifierSum;
+        float currentValue = _baseValue;
+
+        // Prevent null error messages in the console if the object was set without a constructor.
+        _modifierList.ForEach(modifierValue => currentValue += modifierValue);
+
+        if (previousValue != currentValue)
+        {
+            OnBaseChange?.Invoke(previousValue, currentValue);
+            _modifierSum = currentValue;
         }
     }
 }
