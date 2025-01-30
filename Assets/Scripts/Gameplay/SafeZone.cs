@@ -3,20 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Collider))]
-public class SafeZone : NetworkBehaviour
+public class SafeZone : MonoBehaviour
 {
-    public List<GameObject> SafePlayers {  get; private set; }
+    public List<GameObject> SafePlayers = new List<GameObject>();
     public bool ContainsPlayers
     {
         get { return 0 < SafePlayers.Count; }
-    }
-
-    /// <summary>
-    /// Initializes the list of players currently within the safe zone.
-    /// </summary>
-    public override void OnStartServer()
-    {
-        SafePlayers = new List<GameObject>();
     }
 
     /// <summary>
@@ -26,7 +18,7 @@ public class SafeZone : NetworkBehaviour
     /// <param name="otherCollider">The collider of the object entering the trigger</param>
     private void OnTriggerEnter(Collider otherCollider)
     {
-        if (!isServer) { return; }
+        //if (!isServer) { return; }
 
         if (otherCollider.CompareTag("Player"))
         {
@@ -41,7 +33,7 @@ public class SafeZone : NetworkBehaviour
     /// <param name="otherCollider">The collider of the object exiting the trigger</param>
     private void OnTriggerExit(Collider otherCollider)
     {
-        if (!isServer) { return; }
+        //if (!isServer) { return; }
 
         if (otherCollider.CompareTag("Player"))
         {

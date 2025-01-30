@@ -628,7 +628,7 @@ MonoBehaviour:
   CameraDistance: 4.5
   CameraCollisionFilter:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 257
   IgnoreTag: 
   CameraRadius: 0.001
   DampingIntoCollision: 0
@@ -950,14 +950,15 @@ MonoBehaviour:
   _jumpHeight: 1.25
   _sprintSpeed: 8.5
   _walkSpeed: 3.5
-  _staminaCost: 15.5
-  _staminaRestoration: 5
-  _staminaCooldown: 5
+  _staminaCost: 5.5
+  _staminaRestoration: 15
+  _staminaCooldown: 1.5
   _aimCamera: {fileID: 5764944521598878711}
   _characterController: {fileID: 8053147996298278901}
   _cameraTransform: {fileID: 8102490668816230080}
   _followTransform: {fileID: 1279517964111326137}
   _playerTransform: {fileID: 8203241780073711057}
+  playerName: 
 --- !u!114 &4647677295001218243
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1485,7 +1486,7 @@ MonoBehaviour:
   CameraDistance: 2.75
   CameraCollisionFilter:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 257
   IgnoreTag: 
   CameraRadius: 0.001
   DampingIntoCollision: 0
