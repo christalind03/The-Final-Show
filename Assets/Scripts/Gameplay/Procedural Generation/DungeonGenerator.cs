@@ -37,7 +37,8 @@ public class DungeonGenerator : NetworkBehaviour
     [Min(1), SerializeField] private int _minimumEnemies;
     [Min(1), SerializeField] private int _maximumEnemies;
 
-    private bool _isGenerated;
+    public bool IsGenerated { get; private set; }
+
     private List<DungeonSegment> _connectableSegments;
     private List<DungeonSegment> _dungeonSegments;
 
@@ -64,6 +65,8 @@ public class DungeonGenerator : NetworkBehaviour
     /// </summary>
     public override void OnStartClient()
     {
+        if (IsGenerated) { return; }
+
         UnityEngine.Random.InitState(_randomSeed);
 
         _connectableSegments = new List<DungeonSegment>();
@@ -72,10 +75,7 @@ public class DungeonGenerator : NetworkBehaviour
         GenerateDungeon();
         gameObject.GetComponent<NavMeshSurface>().BuildNavMesh();
 
-        if (isServer)
-        {
-            _isGenerated = true;
-        }
+        IsGenerated = true;
     }
 
     /// <summary>
@@ -84,15 +84,8 @@ public class DungeonGenerator : NetworkBehaviour
     public override void OnStartServer()
     {
         _randomSeed = (int)DateTime.Now.Ticks;
-    }
 
-    /// <summary>
-    /// Returns whether or not the dungeon has been fully generated.
-    /// </summary>
-    /// <returns><c>true</c> if the dungeon has finished generating; otherwise <c>false</c></returns>
-    public bool IsGenerated()
-    {
-        return _isGenerated;
+        OnStartClient();
     }
 
     /// <summary>
@@ -321,7 +314,7 @@ public class DungeonGenerator : NetworkBehaviour
     /// <param name="enemyPrefabs">The array of enemy prefabs to be randomly spawned in the dungeon</param>
     public void SpawnEnemies(GameObject[] enemyPrefabs)
     {
-        if (!isServer || !_isGenerated) { return; }
+        if (!isServer || !IsGenerated) { return; }
 
         // Retrieve the dungeon bounds
         Bounds entranceBounds = _dungeonSegments[0].RetrieveBounds();

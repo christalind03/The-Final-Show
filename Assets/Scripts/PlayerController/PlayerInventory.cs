@@ -44,7 +44,7 @@ public class PlayerInventory : NetworkBehaviour
 
     private string _currentSlot;
     private List<string> _inventoryKeys;
-    private Dictionary<string, InventoryItem> _inventorySlots;
+    private readonly SyncDictionary<string, InventoryItem> _inventorySlots = new SyncDictionary<string, InventoryItem>();
     private Dictionary<string, PlayerInventoryRestriction> _inventoryRestrictions;
     private PlayerInterface _playerInterface;
     private PlayerHealth _playerHealth;
@@ -55,20 +55,7 @@ public class PlayerInventory : NetworkBehaviour
     /// </summary>
     public override void OnStartAuthority()
     {
-        // Define inventory slots and their respective restrictions
-        _inventorySlots = new Dictionary<string, InventoryItem>
-        {
-            { "Slot-1", null }, // Melee
-            { "Slot-2", null }, // Ranged
-            { "Slot-3", null }, // Armor (Head)
-            { "Slot-4", null }, // Armor (Chest)
-            { "Slot-5", null }, // Armor (Legs)
-            { "Slot-6", null }, // Armor (Feet)
-            { "Slot-7", null }, // Undefined (Reserved for non-armor/weapon types)
-            { "Slot-8", null }, // Undefined (Reserved for non-armor/weapon types)
-            { "Slot-9", null }, // Undefined (Reserved for non-armor/weapon types)
-        };
-
+        // Define inventory slot restrictions
         _inventoryRestrictions = new Dictionary<string, PlayerInventoryRestriction>
         {
             { "Slot-1", new PlayerInventoryRestriction(EquippableItem.EquippableCategory.Hand, typeof(MeleeWeapon)) },
@@ -89,6 +76,42 @@ public class PlayerInventory : NetworkBehaviour
         SelectSlot(_currentSlot);
 
         base.OnStartAuthority();
+    }
+
+    // TODO: Document
+    public override void OnStartServer()
+    {
+        _inventorySlots["Slot-1"] = null;
+        _inventorySlots["Slot-2"] = null;
+        _inventorySlots["Slot-3"] = null;
+        _inventorySlots["Slot-4"] = null;
+        _inventorySlots["Slot-5"] = null;
+        _inventorySlots["Slot-6"] = null;
+        _inventorySlots["Slot-7"] = null;
+        _inventorySlots["Slot-8"] = null;
+        _inventorySlots["Slot-9"] = null;
+
+        base.OnStartServer();
+    }
+
+    // TODO: Document
+    [TargetRpc]
+    public void TargetLoadInventory(NetworkConnectionToClient clientConnection, List<InventoryItem> inventoryItems)
+    {
+        foreach (InventoryItem inventoryItem in inventoryItems)
+        {
+            if (inventoryItem != null)
+            {
+                Debug.Log(inventoryItem.name);
+                AddItem(inventoryItem);
+            }
+        }
+    }
+
+    // TODO: Document
+    public List<InventoryItem> SaveInventory()
+    {
+        return _inventorySlots.Values.ToList();
     }
 
     /// <summary>
@@ -205,13 +228,21 @@ public class PlayerInventory : NetworkBehaviour
                 }
             }
 
-            _inventorySlots[availableSlot] = inventoryItem;
+            CmdAddItem(availableSlot, inventoryItem);
+            //_inventorySlots[availableSlot] = inventoryItem;
             _playerInterface.RenderInventoryIcon(availableSlot, inventoryItem.ObjectSprite);
             return true;
         }
 
         _playerInterface.DisplayInventoryMessage("INVENTORY FULL!");
         return false;
+    }
+
+    // TODO: Document
+    [Command]
+    private void CmdAddItem(string availableSlot, InventoryItem inventoryItem)
+    {
+        _inventorySlots[availableSlot] = inventoryItem;
     }
 
     /// <summary>
@@ -248,10 +279,18 @@ public class PlayerInventory : NetworkBehaviour
             CmdUnequip(equippableItem);
         }
 
-        _inventorySlots[_currentSlot] = null;
+        CmdRemoveItem(_currentSlot);
+        //_inventorySlots[_currentSlot] = null;
         _playerInterface.RenderInventoryIcon(_currentSlot, null);
 
         return removedItem;
+    }
+
+    // TODO: Document
+    [Command]
+    private void CmdRemoveItem(string slotKey)
+    {
+        _inventorySlots[slotKey] = null;
     }
 
     /// <summary>
