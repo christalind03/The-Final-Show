@@ -1,4 +1,5 @@
 using Mirror;
+using Steamworks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using UnityEngine.UIElements;
 /// </summary>
 public class CustomNetworkManager : NetworkManager
 {
-    public ulong LobbyId { get; set; }
+    public string LobbyId { get; set; }
     public static CustomNetworkManager Instance => (CustomNetworkManager)NetworkManager.singleton;
     private Dictionary<string, Coroutine> activeCoroutines = new Dictionary<string, Coroutine>();
 
