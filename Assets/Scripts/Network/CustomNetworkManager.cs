@@ -54,7 +54,7 @@ public class CustomNetworkManager : NetworkManager
         Scene activeScene = SceneManager.GetActiveScene();
         if (activeScene.name == "Gameplay-Dungeon")
         {
-            StartCoroutine(WaitForDungeon(clientConnection));
+            StartCoroutine(SpawnAfterDungeonGeneration(clientConnection));
         }
         else
         {
@@ -64,7 +64,11 @@ public class CustomNetworkManager : NetworkManager
         NetworkServer.SetClientReady(clientConnection);
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Called on the server when the scene changes.  This function saves the player inventory data
+    /// for each connected client before the scene change occurs.
+    /// </summary>
+    /// <param name="sceneName">The name of the scene that is being loaded.</param>
     public override void OnServerChangeScene(string sceneName)
     {
         foreach (NetworkConnectionToClient clientConnection in NetworkServer.connections.Values)
@@ -78,13 +82,18 @@ public class CustomNetworkManager : NetworkManager
             {
                 playerData[connectionID] = new PlayerData
                 {
-                    Inventory = playerInventory.SaveInventory(),
+                    Inventory = playerInventory.Inventory,
                 };
             }
         }
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Spawns a player for a newly connected client.
+    /// This function checks if player data exists for the client. If it does, it initiates the player loading process.
+    /// Otherwise, it calls the server's add player function to auto-generate a player.
+    /// </summary>
+    /// <param name="clientConnection">The network connection of the client for whom the player is being spawned.</param>
     private void SpawnPlayer(NetworkConnectionToClient clientConnection)
     {
         int connectionID = clientConnection.connectionId;
@@ -100,7 +109,13 @@ public class CustomNetworkManager : NetworkManager
         }
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Loads player data and inventory for a newly connected client.
+    /// This coroutine handles the loading process, including calling the server's add player function, 
+    /// retrieving player data, and loading the player's inventory.
+    /// </summary>
+    /// <param name="clientConnection">The network connection of the client whose data is being loaded.</param>
+    /// <returns>An IEnumerator used for the coroutine.</returns>
     private IEnumerator LoadPlayer(NetworkConnectionToClient clientConnection)
     {
         int connectionID = clientConnection.connectionId;
@@ -119,8 +134,13 @@ public class CustomNetworkManager : NetworkManager
         }
     }
 
-    // TODO: Document
-    private IEnumerator WaitForDungeon(NetworkConnectionToClient clientConnection)
+    /// <summary>
+    /// Spawns a player after the dungeon has been generated.
+    /// This coroutine waits for the dungeon generation to complete before spawning the player.
+    /// </summary>
+    /// <param name="clientConnection">The network connection of the client for whom the player is being spawned.</param>
+    /// <returns>An IEnumerator used for the coroutine.</returns>
+    private IEnumerator SpawnAfterDungeonGeneration(NetworkConnectionToClient clientConnection)
     {
         DungeonGenerator dungeonGenerator = GameObject.FindObjectOfType<DungeonGenerator>();
 

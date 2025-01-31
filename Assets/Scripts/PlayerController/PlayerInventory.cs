@@ -42,16 +42,43 @@ public class PlayerInventory : NetworkBehaviour
     [SerializeField] private GameObject _handReference;
     [SerializeField] private GameObject _headReference;
 
+    private readonly SyncDictionary<string, InventoryItem> _inventorySlots = new SyncDictionary<string, InventoryItem>();
+    
     private string _currentSlot;
     private List<string> _inventoryKeys;
-    private readonly SyncDictionary<string, InventoryItem> _inventorySlots = new SyncDictionary<string, InventoryItem>();
     private Dictionary<string, PlayerInventoryRestriction> _inventoryRestrictions;
     private PlayerInterface _playerInterface;
     private PlayerHealth _playerHealth;
     private PlayerStats _playerStats;
 
+    public List<InventoryItem> Inventory
+    {
+        get { return _inventorySlots.Values.ToList(); }
+    }
+
     /// <summary>
-    /// Sets up the default slot and creates an empty inventory with inventory restrictions.
+    /// Called when the server starts. 
+    /// This function initializes the inventory slots to null, effectively clearing the server's default inventory.
+    /// </summary>
+    public override void OnStartServer()
+    {
+        _inventorySlots["Slot-1"] = null;
+        _inventorySlots["Slot-2"] = null;
+        _inventorySlots["Slot-3"] = null;
+        _inventorySlots["Slot-4"] = null;
+        _inventorySlots["Slot-5"] = null;
+        _inventorySlots["Slot-6"] = null;
+        _inventorySlots["Slot-7"] = null;
+        _inventorySlots["Slot-8"] = null;
+        _inventorySlots["Slot-9"] = null;
+
+        base.OnStartServer();
+    }
+
+    /// <summary>
+    /// Called on the client when the client gains authority over the player object.
+    /// This function sets up inventory slot restrictions, sorts inventory keys, retrieves
+    /// references to player components, and sets the initial active inventory slot.
     /// </summary>
     public override void OnStartAuthority()
     {
@@ -78,23 +105,12 @@ public class PlayerInventory : NetworkBehaviour
         base.OnStartAuthority();
     }
 
-    // TODO: Document
-    public override void OnStartServer()
-    {
-        _inventorySlots["Slot-1"] = null;
-        _inventorySlots["Slot-2"] = null;
-        _inventorySlots["Slot-3"] = null;
-        _inventorySlots["Slot-4"] = null;
-        _inventorySlots["Slot-5"] = null;
-        _inventorySlots["Slot-6"] = null;
-        _inventorySlots["Slot-7"] = null;
-        _inventorySlots["Slot-8"] = null;
-        _inventorySlots["Slot-9"] = null;
-
-        base.OnStartServer();
-    }
-
-    // TODO: Document
+    /// <summary>
+    /// Loads the player's inventory on the client.
+    /// This function is called by the server to synchronize the client's inventory with the saved data.
+    /// </summary>
+    /// <param name="clientConnection">The network connection of the client whose inventory is being loaded.</param>
+    /// <param name="inventoryItems">A list of InventoryItem objects representing the player's inventory.</param>
     [TargetRpc]
     public void TargetLoadInventory(NetworkConnectionToClient clientConnection, List<InventoryItem> inventoryItems)
     {
@@ -106,12 +122,6 @@ public class PlayerInventory : NetworkBehaviour
                 AddItem(inventoryItem);
             }
         }
-    }
-
-    // TODO: Document
-    public List<InventoryItem> SaveInventory()
-    {
-        return _inventorySlots.Values.ToList();
     }
 
     /// <summary>
