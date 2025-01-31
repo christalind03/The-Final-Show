@@ -1,5 +1,4 @@
 using Mirror;
-using Steamworks;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -24,7 +23,6 @@ public class PlayerInterface : NetworkBehaviour
 
         if (uiDocument.visualTreeAsset.name != "PlayerUI")
         {
-            Debug.Log("Updating visual tree asset...");
             uiDocument.visualTreeAsset = Resources.Load<VisualTreeAsset>("UI/PlayerUI");
         }
 

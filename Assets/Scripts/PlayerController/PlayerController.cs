@@ -17,6 +17,8 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(ScoreBoard))]
 public class PlayerController : NetworkBehaviour
 {
+    [SyncVar] public string playerName = null;
+
     [Header("Camera Parameters")]
     [SerializeField] private float _cameraSensitivity;
     [SerializeField] private float _interactableDistance;
@@ -60,27 +62,18 @@ public class PlayerController : NetworkBehaviour
     private int _animatorIsJumping;
     private int _animatorMovementX;
     private int _animatorMovementZ;
-    [SyncVar] public string playerName = null;
-
-    /// <summary>
-    /// Ensures this object instance persists throughout scenes.
-    /// </summary>
-    private void Start()
-    {
-        DontDestroyOnLoad(gameObject);
-    }
 
     /// <summary>
     /// Configure the cursor settings and initialize a new instance of PlayerControls when the script is first loaded.
     /// </summary>
     public override void OnStartAuthority()
     {
-        if (SteamManager.Initialized) {
+        if (SteamManager.Initialized)
+        {
             playerName = SteamFriends.GetPersonaName();
             gameObject.name = playerName;            
             CmdUpdateName(playerName);
         }
-
 
         CameraController cameraController= GetComponent<CameraController>();
         
@@ -140,15 +133,15 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     public override void OnStartServer()
     {
-        if(connectionToClient != null){
-            if(_scoreBoard == null){
-                _scoreBoard = connectionToClient.identity.GetComponent<ScoreBoard>();
-            }
-            PlayerManager.RegisterPlayer(netIdentity.netId, gameObject);
-            ScoreBoard serverScoreBoard = NetworkServer.localConnection.identity.GetComponent<ScoreBoard>();
-            _scoreBoard.InitialAddPlayerData();          
-            StartCoroutine(serverScoreBoard.PlayerJoinedUpdatePlayerList(netIdentity));
-        }
+        //if(connectionToClient != null){
+        //    if(_scoreBoard == null){
+        //        _scoreBoard = connectionToClient.identity.GetComponent<ScoreBoard>();
+        //    }
+        //    PlayerManager.RegisterPlayer(netIdentity.netId, gameObject);
+        //    ScoreBoard serverScoreBoard = NetworkServer.localConnection.identity.GetComponent<ScoreBoard>();
+        //    _scoreBoard.InitialAddPlayerData();          
+        //    StartCoroutine(serverScoreBoard.PlayerJoinedUpdatePlayerList(netIdentity));
+        //}
 
         base.OnStartServer();
     }
@@ -158,14 +151,15 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     public override void OnStopServer()
     {
-        if(connectionToClient != null){
-            PlayerManager.UnregisterPlayer(netIdentity.netId);
-            PlayerManager.RegisterPlayer(netIdentity.netId, gameObject);
-            if(NetworkServer.localConnection != null){
-                ScoreBoard serverScoreBoard = NetworkServer.localConnection.identity.GetComponent<ScoreBoard>();
-                serverScoreBoard.PlayerLeftUpdatePlayerList(netIdentity);                
-            }
-        }
+        //if(connectionToClient != null){
+        //    PlayerManager.UnregisterPlayer(netIdentity.netId);
+        //    PlayerManager.RegisterPlayer(netIdentity.netId, gameObject);
+        //    if(NetworkServer.localConnection != null){
+        //        ScoreBoard serverScoreBoard = NetworkServer.localConnection.identity.GetComponent<ScoreBoard>();
+        //        serverScoreBoard.PlayerLeftUpdatePlayerList(netIdentity);                
+        //    }
+        //}
+
         base.OnStopServer();
     }
 
