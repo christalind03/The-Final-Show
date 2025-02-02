@@ -25,7 +25,11 @@ public class ScoreBoard : NetworkBehaviour
     public readonly SyncDictionary<uint, PlayerData> PlayerKDA = new SyncDictionary<uint, PlayerData>();
     public readonly SyncDictionary<uint, string> playerName = new SyncDictionary<uint, string>();
     
+    /// <summary>
+    /// Awake
+    /// </summary>
     private void Awake() {
+        // Makes this object a singleton
         if (Instance == null){
             Instance = this;
             DontDestroyOnLoad(gameObject);
@@ -35,25 +39,32 @@ public class ScoreBoard : NetworkBehaviour
         }
     }
 
-    public override void OnStartLocalPlayer()
-    {
-        base.OnStartLocalPlayer();
- 
-    }
-
+    /// <summary>
+    /// Subscribe to events
+    /// </summary>
     private void OnEnable() {
         SceneManager.sceneLoaded += OnSceneLoaded;   
         playerName.OnAdd += OnScoreBoardAdd;
         playerName.OnRemove += OnScoreBoardRemove;
     }
+
+    /// <summary>
+    /// Unsubscribe to events
+    /// </summary>
     private void OnDisable() {
         SceneManager.sceneLoaded -= OnSceneLoaded;
         playerName.OnAdd -= OnScoreBoardAdd;
         playerName.OnRemove -= OnScoreBoardRemove;
     }
     
+    /// <summary>
+    /// Manage actions on speific scene
+    /// </summary>
+    /// <param name="scene">scene name</param>
+    /// <param name="mode">scene loat status</param>
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        // If the scene is back in lobby, deletes this object
         if (scene.name == "Gameplay-Lobby"){
             if (Instance != null){
                 Destroy(Instance.gameObject);
@@ -108,21 +119,6 @@ public class ScoreBoard : NetworkBehaviour
             PlayerKDA[netid] = data;
         }
     }
-
-    /// <summary>
-    /// Propagates the new data from the sender to all clients instance on the server and update the values.
-    /// Will ignore to update the original send's data since it should already be updated
-    /// </summary>
-    /// <param name="sender">the connection that sent the update</param>
-    /// <param name="newNetId">the data that needs to be added/updated</param>
-    private void UpdateAddDataOnAllClient(NetworkConnectionToClient sender, NetworkIdentity newNetId){
-        // foreach(var conn in NetworkServer.connections){
-        //     if(conn.Value != sender){
-        //         conn.Value.identity.GetComponent<ScoreBoard>().AddPlayerData(newNetId);
-        //     }
-        // }  
-    }
-    
     /// <summary>
     /// Propagates the new data from the sender to all client instances on the server and update the values.
     /// Will ignore to update the original send's data since it should already be updated. Used for updating
@@ -142,24 +138,11 @@ public class ScoreBoard : NetworkBehaviour
     }
 
     /// <summary>
-    /// Propagates the disconnected player data to all client instances on the server.
-    /// </summary>
-    /// <param name="sender">the sender's connection</param>
-    /// <param name="disconnectedPlayer">the player that needs to be removed</param>
-    private void UpdateRemoveDataOnAllClient(NetworkConnectionToClient sender, NetworkIdentity disconnectedPlayer){
-        // foreach(var conn in NetworkServer.connections){
-        //     if(conn.Value != sender){
-        //         conn.Value.identity.GetComponent<ScoreBoard>().RemovePlayerData(disconnectedPlayer);
-        //     }
-        // }  
-    }
-
-    /// <summary>
     /// Refresh the scoreboard when player name dictionary changes
     /// </summary>
     /// <param name="netid">key for the item added</param>
     private void OnScoreBoardAdd(uint netid){
-            NetworkClient.localPlayer.GetComponent<PlayerInterface>().RpcRefreshScoreBoard();
+            NetworkClient.localPlayer.GetComponent<PlayerInterface>().RefreshScoreBoard();
     }
 
     /// <summary>
@@ -169,25 +152,8 @@ public class ScoreBoard : NetworkBehaviour
     /// <param name="name">value for the key value pair removed</param>
     private void OnScoreBoardRemove(uint netid, string name){
         foreach(var conn in NetworkServer.connections){
-            conn.Value.identity.GetComponent<PlayerInterface>().RpcRefreshScoreBoard();
+            conn.Value.identity.GetComponent<PlayerInterface>().RefreshScoreBoard();
         }
-    }
-
-    /// <summary>
-    /// When the player first joins the game, they need to get the current scoreboard and playerData from the host
-    /// </summary>
-    public void InitialAddPlayerData(){
-        // ScoreBoard serverScoreBoard = NetworkServer.localConnection.identity.GetComponent<ScoreBoard>();
-        // foreach(KeyValuePair<uint, string> nameData in serverScoreBoard.playerName){
-        //     if(!playerName.ContainsKey(nameData.Key)){
-        //         playerName.Add(nameData.Key, nameData.Value);
-        //     }
-        // }   
-        // foreach(var data in serverScoreBoard.PlayerKDA){
-        //     if(!PlayerKDA.ContainsKey(data.Key)){
-        //         PlayerKDA.Add(data);
-        //     }
-        // } 
     }
 
     /// <summary>
