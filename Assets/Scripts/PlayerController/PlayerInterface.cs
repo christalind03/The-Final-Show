@@ -201,9 +201,9 @@ public class PlayerInterface : NetworkBehaviour
     /// The slot will then be assigned a player name from scoreboard's playerName dictionary.
     /// The unfilled slots will be cleared and put into hidden
     /// </summary>
-    public void RefreshScoreBoard(){
+    public void RpcRefreshScoreBoard(){
         if(!isLocalPlayer)return;
-        ScoreBoard scoreboard = gameObject.GetComponent<ScoreBoard>();
+        ScoreBoard scoreboard = NetworkManager.FindObjectOfType<ScoreBoard>();
         List<TextElement> slotNames = new List<TextElement>();
         int Counter = 0;
         

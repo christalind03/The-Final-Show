@@ -43,6 +43,22 @@ public class CustomNetworkManager : NetworkManager
         NetworkClient.UnregisterHandler<SpectateMessage>();
     }
 
+    public override void OnServerConnect(NetworkConnectionToClient conn)
+    {
+        base.OnServerConnect(conn);
+
+        ScoreBoard scoreBoard = NetworkManager.FindObjectOfType<ScoreBoard>();
+        StartCoroutine(scoreBoard.PlayerJoinedUpdatePlayerList(conn));
+    }
+
+    public override void OnServerDisconnect(NetworkConnectionToClient conn)
+    {
+        ScoreBoard scoreBoard = NetworkManager.FindObjectOfType<ScoreBoard>();
+        scoreBoard.PlayerLeftUpdatePlayerList(conn);
+
+        base.OnServerDisconnect(conn);
+    }
+
     /// <summary>
     /// Called when the client is ready (has the scene loaded) on the server.
     /// Spawns or relocates the player based on the client identity.

@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using Mirror;
-using Unity.VisualScripting;
+using Org.BouncyCastle.Crypto.Modes;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-[RequireComponent(typeof(PlayerInterface))]
 public class ScoreBoard : NetworkBehaviour
 {
+    public static ScoreBoard Instance { get; private set; }
     public struct PlayerData{
         public int KillData { get; set; }
         public int DeathData { get; set; }
@@ -19,31 +20,46 @@ public class ScoreBoard : NetworkBehaviour
         }
     } 
 
-    [SerializeField] private PlayerInterface _playerInterface;
+    public bool nameReady = false;
     
     public readonly SyncDictionary<uint, PlayerData> PlayerKDA = new SyncDictionary<uint, PlayerData>();
     public readonly SyncDictionary<uint, string> playerName = new SyncDictionary<uint, string>();
     
-
-    /// <summary>
-    /// Subscribe to changes done to the sync dictionary
-    /// </summary>
-    public override void OnStartClient()
-    {
-        playerName.OnAdd += OnScoreBoardAdd;
-        playerName.OnRemove += OnScoreBoardRemove;
-        _playerInterface.RefreshScoreBoard();
-        base.OnStartAuthority();
+    private void Awake() {
+        if (Instance == null){
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else{
+            Destroy(gameObject);
+        }
     }
 
-    /// <summary>
-    /// Remove subscribition to changes done to the sync dictionary
-    /// </summary>
-    public override void OnStopClient()
+    public override void OnStartLocalPlayer()
     {
+        base.OnStartLocalPlayer();
+ 
+    }
+
+    private void OnEnable() {
+        SceneManager.sceneLoaded += OnSceneLoaded;   
+        playerName.OnAdd += OnScoreBoardAdd;
+        playerName.OnRemove += OnScoreBoardRemove;
+    }
+    private void OnDisable() {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
         playerName.OnAdd -= OnScoreBoardAdd;
         playerName.OnRemove -= OnScoreBoardRemove;
-        base.OnStopAuthority();
+    }
+    
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "Gameplay-Lobby"){
+            if (Instance != null){
+                Destroy(Instance.gameObject);
+                Instance = null;
+            }
+        }
     }
 
     /// <summary>
@@ -51,16 +67,14 @@ public class ScoreBoard : NetworkBehaviour
     /// all clients to also update the client version of the scoreboard
     /// </summary>
     /// <param name="newPlayer">data of new player that joined</param>
-    private void AddPlayerData(NetworkIdentity connectedPlayer){
+    private void AddPlayerData(NetworkConnectionToClient conn){
+        NetworkIdentity connectedPlayer = conn.identity;
         if(!PlayerKDA.ContainsKey(connectedPlayer.netId)){ //see if this player already exist
             PlayerData newData = new PlayerData(0, 0, 0); //new player data
             PlayerKDA.Add(connectedPlayer.netId, newData);
             if(playerName.Count < 5){
-                playerName.Add(connectedPlayer.netId, connectedPlayer.gameObject.name);     
+                playerName.Add(connectedPlayer.netId, connectedPlayer.gameObject.name);   
             }
-        }
-        if(connectionToClient == NetworkServer.localConnection){
-            UpdateAddDataOnAllClient(connectionToClient, connectedPlayer);          
         }
     }
 
@@ -68,18 +82,14 @@ public class ScoreBoard : NetworkBehaviour
     /// Used for remove disconnected player's data
     /// </summary>
     /// <param name="disconnectedPlayer">the disconnected player's net identity</param>
-    private void RemovePlayerData(NetworkIdentity disconnectedPlayer){
+    private void RemovePlayerData(NetworkConnectionToClient conn){
+        NetworkIdentity disconnectedPlayer = conn.identity;
         if(PlayerKDA.ContainsKey(disconnectedPlayer.netId)){ 
             PlayerKDA.Remove(disconnectedPlayer.netId);
         }
         if(playerName.ContainsKey(disconnectedPlayer.netId)){
             playerName.Remove(disconnectedPlayer.netId);
         }
-
-        if(connectionToClient == NetworkServer.localConnection){
-            UpdateRemoveDataOnAllClient(connectionToClient, disconnectedPlayer);          
-        }
-
     }
 
     /// <summary>
@@ -106,11 +116,11 @@ public class ScoreBoard : NetworkBehaviour
     /// <param name="sender">the connection that sent the update</param>
     /// <param name="newNetId">the data that needs to be added/updated</param>
     private void UpdateAddDataOnAllClient(NetworkConnectionToClient sender, NetworkIdentity newNetId){
-        foreach(var conn in NetworkServer.connections){
-            if(conn.Value != sender){
-                conn.Value.identity.GetComponent<ScoreBoard>().AddPlayerData(newNetId);
-            }
-        }  
+        // foreach(var conn in NetworkServer.connections){
+        //     if(conn.Value != sender){
+        //         conn.Value.identity.GetComponent<ScoreBoard>().AddPlayerData(newNetId);
+        //     }
+        // }  
     }
     
     /// <summary>
@@ -137,70 +147,67 @@ public class ScoreBoard : NetworkBehaviour
     /// <param name="sender">the sender's connection</param>
     /// <param name="disconnectedPlayer">the player that needs to be removed</param>
     private void UpdateRemoveDataOnAllClient(NetworkConnectionToClient sender, NetworkIdentity disconnectedPlayer){
-        foreach(var conn in NetworkServer.connections){
-            if(conn.Value != sender){
-                conn.Value.identity.GetComponent<ScoreBoard>().RemovePlayerData(disconnectedPlayer);
-            }
-        }  
+        // foreach(var conn in NetworkServer.connections){
+        //     if(conn.Value != sender){
+        //         conn.Value.identity.GetComponent<ScoreBoard>().RemovePlayerData(disconnectedPlayer);
+        //     }
+        // }  
     }
 
     /// <summary>
-    /// Callback for refreshing the scoreboard when player name dictionary changes
+    /// Refresh the scoreboard when player name dictionary changes
     /// </summary>
     /// <param name="netid">key for the item added</param>
     private void OnScoreBoardAdd(uint netid){
-        _playerInterface.RefreshScoreBoard();
+            NetworkClient.localPlayer.GetComponent<PlayerInterface>().RpcRefreshScoreBoard();
     }
 
     /// <summary>
-    /// Callback for refreshing the scoreboard when player name dictionary changes
+    /// Refresh the scoreboard when player name dictionary changes
     /// </summary>
     /// <param name="netid">key for the key value pair removed</param>
     /// <param name="name">value for the key value pair removed</param>
     private void OnScoreBoardRemove(uint netid, string name){
-        _playerInterface.RefreshScoreBoard();
+        foreach(var conn in NetworkServer.connections){
+            conn.Value.identity.GetComponent<PlayerInterface>().RpcRefreshScoreBoard();
+        }
     }
 
     /// <summary>
     /// When the player first joins the game, they need to get the current scoreboard and playerData from the host
     /// </summary>
     public void InitialAddPlayerData(){
-        ScoreBoard serverScoreBoard = NetworkServer.localConnection.identity.GetComponent<ScoreBoard>();
-        foreach(KeyValuePair<uint, string> nameData in serverScoreBoard.playerName){
-            if(!playerName.ContainsKey(nameData.Key)){
-                playerName.Add(nameData);
-            }
-        }   
-        foreach(var data in serverScoreBoard.PlayerKDA){
-            if(!PlayerKDA.ContainsKey(data.Key)){
-                PlayerKDA.Add(data);
-            }
-        } 
-    }
-
-    /// <summary>
-    /// Allows outside classes to access show score board
-    /// also updates the score board if there are any changes to the data
-    /// </summary>
-    public void ShowScoreBoard(){
-        
-        _playerInterface.ToggleScoreBoardVisibility();
+        // ScoreBoard serverScoreBoard = NetworkServer.localConnection.identity.GetComponent<ScoreBoard>();
+        // foreach(KeyValuePair<uint, string> nameData in serverScoreBoard.playerName){
+        //     if(!playerName.ContainsKey(nameData.Key)){
+        //         playerName.Add(nameData.Key, nameData.Value);
+        //     }
+        // }   
+        // foreach(var data in serverScoreBoard.PlayerKDA){
+        //     if(!PlayerKDA.ContainsKey(data.Key)){
+        //         PlayerKDA.Add(data);
+        //     }
+        // } 
     }
 
     /// <summary>
     /// Server call to remove the data for the disconnected player
     /// </summary>
     /// <param name="disconnectedPlayer">player disconnected</param>
-    public void PlayerLeftUpdatePlayerList(NetworkIdentity disconnectedPlayer){
-        RemovePlayerData(disconnectedPlayer);
+    public void PlayerLeftUpdatePlayerList(NetworkConnectionToClient conn){
+        if(!isServer) return;
+        RemovePlayerData(conn);
     }
     
     /// <summary>
     /// Server call to add the data for the connected player 
     /// </summary>
     /// <param name="connectedPlayer">player connected</param>
-    public IEnumerator PlayerJoinedUpdatePlayerList(NetworkIdentity connectedPlayer){
-        yield return new WaitUntil(() => connectedPlayer.gameObject.name != "Player(Clone)");
-        AddPlayerData(connectedPlayer);
+    public IEnumerator PlayerJoinedUpdatePlayerList(NetworkConnectionToClient conn){
+        yield return new WaitUntil(() => conn.identity != null && nameReady);
+        if(isServer){
+            AddPlayerData(conn);
+            nameReady = false;            
+        }
     }
 }
