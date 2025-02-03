@@ -88,6 +88,12 @@ public class CustomNetworkManager : NetworkManager
         }
 
         NetworkServer.SetClientReady(clientConnection);
+
+        // Hardcore scene name cause can't find a way around
+        if(NetworkServer.active && activeScene.name != "Gameplay-Intermission"){
+            ScoreBoard scoreBoard = NetworkManager.FindObjectOfType<ScoreBoard>();
+            scoreBoard.UpdateNetId(clientConnection);            
+        }
     }
 
     /// <summary>

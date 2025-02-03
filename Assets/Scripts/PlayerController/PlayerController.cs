@@ -95,10 +95,12 @@ public class PlayerController : NetworkBehaviour
 
         EnableControls();
 
-        if(SteamManager.Initialized){
+        if(!Application.isEditor && SteamManager.Initialized){
             playerName = SteamFriends.GetPersonaName();
             gameObject.name = playerName;
-            CmdUpdateName(playerName);
+            CmdUpdateName(playerName);                
+        }else{
+            CmdUpdateName(gameObject.name);
         }
     }
 
@@ -415,8 +417,9 @@ public class PlayerController : NetworkBehaviour
     /// <summary>
     /// When the client no longer has authority over this object, ensure the cursor is visible and disables the controls.
     /// </summary>
-    public override void OnStopAuthority()
+    public override void OnStopClient()
     {
+        if(!isLocalPlayer) return;
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
@@ -554,7 +557,9 @@ public class PlayerController : NetworkBehaviour
     /// <param name="newName">player's name</param>
     [Command]
     private void CmdUpdateName(string newName){
-        gameObject.name = newName;
+        if(!Application.isEditor){
+            gameObject.name = newName;
+        }
         _scoreboard.nameReady = true;
     }
 

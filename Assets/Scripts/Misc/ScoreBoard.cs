@@ -24,6 +24,7 @@ public class ScoreBoard : NetworkBehaviour
     
     public readonly SyncDictionary<uint, PlayerData> PlayerKDA = new SyncDictionary<uint, PlayerData>();
     public readonly SyncDictionary<uint, string> playerName = new SyncDictionary<uint, string>();
+    private Dictionary<NetworkConnectionToClient, uint> playerConnectionToClient = new Dictionary<NetworkConnectionToClient, uint>();
     
     /// <summary>
     /// Awake
@@ -44,8 +45,7 @@ public class ScoreBoard : NetworkBehaviour
     /// </summary>
     private void OnEnable() {
         SceneManager.sceneLoaded += OnSceneLoaded;   
-        playerName.OnAdd += OnScoreBoardAdd;
-        playerName.OnRemove += OnScoreBoardRemove;
+        SceneManager.sceneUnloaded += OnSceneUnloaded;
     }
 
     /// <summary>
@@ -53,8 +53,7 @@ public class ScoreBoard : NetworkBehaviour
     /// </summary>
     private void OnDisable() {
         SceneManager.sceneLoaded -= OnSceneLoaded;
-        playerName.OnAdd -= OnScoreBoardAdd;
-        playerName.OnRemove -= OnScoreBoardRemove;
+        SceneManager.sceneUnloaded += OnSceneUnloaded;
     }
     
     /// <summary>
@@ -71,6 +70,18 @@ public class ScoreBoard : NetworkBehaviour
                 Instance = null;
             }
         }
+
+        playerName.OnAdd += OnScoreBoardAdd;
+        playerName.OnRemove += OnScoreBoardRemove;
+    }
+
+    /// <summary>
+    /// Manage actions when scene is not loaded
+    /// </summary>
+    /// <param name="scene">name of scene that unloaded(?) need checking of documetation</param>
+    private void OnSceneUnloaded(Scene scene){
+        playerName.OnAdd -= OnScoreBoardAdd;
+        playerName.OnRemove -= OnScoreBoardRemove;
     }
 
     /// <summary>
@@ -87,6 +98,9 @@ public class ScoreBoard : NetworkBehaviour
                 playerName.Add(connectedPlayer.netId, connectedPlayer.gameObject.name);   
             }
         }
+        if(isServer){
+            playerConnectionToClient.Add(conn, connectedPlayer.netId);
+        }
     }
 
     /// <summary>
@@ -100,6 +114,9 @@ public class ScoreBoard : NetworkBehaviour
         }
         if(playerName.ContainsKey(disconnectedPlayer.netId)){
             playerName.Remove(disconnectedPlayer.netId);
+        }
+        if(isServer && playerConnectionToClient.ContainsKey(conn)){
+            playerConnectionToClient.Remove(conn);
         }
     }
 
@@ -142,7 +159,9 @@ public class ScoreBoard : NetworkBehaviour
     /// </summary>
     /// <param name="netid">key for the item added</param>
     private void OnScoreBoardAdd(uint netid){
+        if(NetworkClient.localPlayer != null){
             NetworkClient.localPlayer.GetComponent<PlayerInterface>().RefreshScoreBoard();
+        }
     }
 
     /// <summary>
@@ -151,8 +170,8 @@ public class ScoreBoard : NetworkBehaviour
     /// <param name="netid">key for the key value pair removed</param>
     /// <param name="name">value for the key value pair removed</param>
     private void OnScoreBoardRemove(uint netid, string name){
-        foreach(var conn in NetworkServer.connections){
-            conn.Value.identity.GetComponent<PlayerInterface>().RefreshScoreBoard();
+        if(NetworkClient.localPlayer != null){
+            NetworkClient.localPlayer.GetComponent<PlayerInterface>().RefreshScoreBoard();
         }
     }
 
@@ -176,4 +195,20 @@ public class ScoreBoard : NetworkBehaviour
             nameReady = false;            
         }
     }
+
+    public void UpdateNetId(NetworkConnectionToClient conn){
+        uint newNetId = conn.identity.netId;
+        uint oldNetId = playerConnectionToClient.GetValueOrDefault(conn);
+        // Update player kda key 
+        PlayerKDA.Add(newNetId, PlayerKDA.GetValueOrDefault(oldNetId));
+        PlayerKDA.Remove(oldNetId);
+
+        // Update player name key
+        playerName.Add(newNetId, playerName.GetValueOrDefault(oldNetId));
+        playerName.Remove(oldNetId);
+
+        playerConnectionToClient.Remove(conn);
+        playerConnectionToClient.Add(conn, newNetId);
+    }
+    
 }
