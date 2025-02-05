@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Mirror;
 using Org.BouncyCastle.Crypto.Modes;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -73,6 +74,7 @@ public class ScoreBoard : NetworkBehaviour
 
         playerName.OnAdd += OnScoreBoardAdd;
         playerName.OnRemove += OnScoreBoardRemove;
+        PlayerKDA.OnSet += OnPlayerKDASet;
     }
 
     /// <summary>
@@ -82,6 +84,7 @@ public class ScoreBoard : NetworkBehaviour
     private void OnSceneUnloaded(Scene scene){
         playerName.OnAdd -= OnScoreBoardAdd;
         playerName.OnRemove -= OnScoreBoardRemove;
+        PlayerKDA.OnSet -= OnPlayerKDASet;
     }
 
     /// <summary>
@@ -121,43 +124,9 @@ public class ScoreBoard : NetworkBehaviour
     }
 
     /// <summary>
-    /// Updates the player KDA data by adding the parameters to the dictionary
+    /// Updates the scoreboard when a player joins
     /// </summary>
-    /// <param name="netid">player netidentity used as key</param>
-    /// <param name="k">amount of kills to add</param>
-    /// <param name="d">amount of death to add</param>
-    /// <param name="a">amount of assist to add</param>
-    private void AddDataToPlayerKDA(uint netid, int k, int d, int a){
-        if(PlayerKDA.ContainsKey(netid)){
-            PlayerData data = PlayerKDA[netid];
-            data.KillData += k;
-            data.DeathData += d;
-            data.AssistData += a;
-            PlayerKDA[netid] = data;
-        }
-    }
-    /// <summary>
-    /// Propagates the new data from the sender to all client instances on the server and update the values.
-    /// Will ignore to update the original send's data since it should already be updated. Used for updating
-    /// kill, death, assist
-    /// </summary>
-    /// <param name="sender">the connection that sent the update</param>
-    /// <param name="netid">the netid of the player that needs to be updated</param>
-    /// <param name="k">amount of kills to add (optional)</param>
-    /// <param name="d">amount of deaths to add (optional)</param>
-    /// <param name="a">amount of assist to add (optional)</param>
-    private void UpdateAddDataOnAllClient(NetworkConnectionToClient sender, NetworkIdentity targetPlayer, int k = 0, int d = 0, int a = 0){
-        foreach(var conn in NetworkServer.connections){
-            if(conn.Value != sender){
-                conn.Value.identity.GetComponent<ScoreBoard>().AddDataToPlayerKDA(targetPlayer.netId, k, d, a);
-            }
-        }  
-    }
-
-    /// <summary>
-    /// Refresh the scoreboard when player name dictionary changes
-    /// </summary>
-    /// <param name="netid">key for the item added</param>
+    /// <param name="netid">netid of the player who joined</param>
     private void OnScoreBoardAdd(uint netid){
         if(NetworkClient.localPlayer != null){
             NetworkClient.localPlayer.GetComponent<PlayerInterface>().RefreshScoreBoard();
@@ -165,14 +134,111 @@ public class ScoreBoard : NetworkBehaviour
     }
 
     /// <summary>
-    /// Refresh the scoreboard when player name dictionary changes
+    /// Updates the scoreboard when a player is removed
     /// </summary>
-    /// <param name="netid">key for the key value pair removed</param>
-    /// <param name="name">value for the key value pair removed</param>
+    /// <param name="netid">netid for the player removed</param>
+    /// <param name="name">name of the player removed</param>
     private void OnScoreBoardRemove(uint netid, string name){
         if(NetworkClient.localPlayer != null){
             NetworkClient.localPlayer.GetComponent<PlayerInterface>().RefreshScoreBoard();
         }
+    }
+
+    /// <summary>
+    /// Updates the scoreboard when playerdata changes
+    /// </summary>
+    /// <param name="netid">netid for the player who has their data changed</param>
+    /// <param name="data">the new data</param>
+    private void OnPlayerKDASet(uint netid, PlayerData data){
+        if(NetworkClient.localPlayer != null){
+            NetworkClient.localPlayer.GetComponent<PlayerInterface>().RefreshScoreBoard();
+            Debug.Log("ran");
+        }
+    }
+
+    /// <summary>
+    /// Updates the player's kill
+    /// </summary>
+    /// <param name="netid">player netidentity used as key</param>
+    /// <param name="k">amount of kill(s) to update by</param>
+    /// <param name="mode">1 = add, 2 = set, 3 = remove, 0 = reset</param>
+    /// <returns>returns true is success, false otherwise</returns>
+    public bool UpdateKillData(uint netid, int k = 0, int mode = 0){
+        if(PlayerKDA.TryGetValue(netid, out PlayerData data)){
+            switch(mode){
+                case 1:
+                    data.KillData += k;                
+                    break;
+                case 2:
+                    data.KillData = k;                
+                    break;
+                case 3:
+                    data.KillData -= k;                
+                    break;
+                default:
+                    data.KillData = 0;
+                    break;
+            }
+            PlayerKDA[netid] = data;
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Updates the player's death
+    /// </summary>
+    /// <param name="netid">player netidentity used as key</param>
+    /// <param name="d">amount of death(s) to update by</param>
+    /// <param name="mode">1 = add, 2 = set, 3 = remove, 0 = reset</param>
+    /// <returns>returns true is success, false otherwise</returns>
+    public bool UpdateDeathData(uint netid, int d = 0, int mode = 0){
+        if(PlayerKDA.TryGetValue(netid, out PlayerData data)){
+            switch(mode){
+                case 1:
+                    data.DeathData += d;                
+                    break;
+                case 2:
+                    data.DeathData = d;                
+                    break;
+                case 3:
+                    data.DeathData -= d;                
+                    break;
+                default:
+                    data.DeathData = 0;
+                    break;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Updates the player's assist
+    /// </summary>
+    /// <param name="netid">player netidentity used as key</param>
+    /// <param name="a">amount of assist(s) to update by</param>
+    /// <param name="mode">1 = add, 2 = set, 3 = remove, 0 = reset</param>
+    /// <returns>returns true is success, false otherwise</returns>
+    public bool UpdateAssistData(uint netid, int a = 0, int mode = 0){
+        if(PlayerKDA.TryGetValue(netid, out PlayerData data)){
+            switch(mode){
+                case 1:
+                    data.AssistData += a;                
+                    break;
+                case 2:
+                    data.AssistData = a;                
+                    break;
+                case 3:
+                    data.AssistData -= a;                
+                    break;
+                default:
+                    data.AssistData = 0;
+                    break;
+            }
+            return true;
+        }
+        return false;
     }
 
     /// <summary>
@@ -196,6 +262,10 @@ public class ScoreBoard : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Updates the netid key for each element in playerKDA and PlayerName after a scene change
+    /// </summary>
+    /// <param name="conn">the connection of the player ready</param>
     public void UpdateNetId(NetworkConnectionToClient conn){
         uint newNetId = conn.identity.netId;
         uint oldNetId = playerConnectionToClient.GetValueOrDefault(conn);
@@ -206,7 +276,8 @@ public class ScoreBoard : NetworkBehaviour
         // Update player name key
         playerName.Add(newNetId, playerName.GetValueOrDefault(oldNetId));
         playerName.Remove(oldNetId);
-
+        
+        // Update the player connection netid
         playerConnectionToClient.Remove(conn);
         playerConnectionToClient.Add(conn, newNetId);
     }

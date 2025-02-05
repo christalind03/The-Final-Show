@@ -1,6 +1,7 @@
 using Mirror;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -11,6 +12,7 @@ using UnityEngine.UIElements;
 public class PlayerInterface : NetworkBehaviour
 {
     [SerializeField] private float _messageDuration;
+    private List<VisualElement> playerSlots = new List<VisualElement>();
 
     private VisualElement _rootVisualElement;
 
@@ -27,6 +29,13 @@ public class PlayerInterface : NetworkBehaviour
         }
 
         _rootVisualElement = uiDocument.rootVisualElement;
+
+        // Gets a list of all player visual elements for scoreboard
+        if(UnityUtils.ContainsElement(_rootVisualElement, "ScoreBoard", out VisualElement board)){
+            if(UnityUtils.ContainsElement(board, "Background", out VisualElement background)){
+                playerSlots = background.Query<VisualElement>(className: "player").ToList();
+            }
+        }
         base.OnStartAuthority();
     }
 
@@ -204,34 +213,37 @@ public class PlayerInterface : NetworkBehaviour
     public void RefreshScoreBoard(){
         if(!isLocalPlayer)return;
         ScoreBoard scoreboard = NetworkManager.FindObjectOfType<ScoreBoard>();
-        List<TextElement> slotNames = new List<TextElement>();
         int Counter = 0;
-        
-        if(_rootVisualElement == null){
-            _rootVisualElement = gameObject.GetComponent<UIDocument>().rootVisualElement;
-        }
 
-        if(UnityUtils.ContainsElement(_rootVisualElement, "ScoreBoard", out VisualElement board)){
-            if(UnityUtils.ContainsElement(board, "Background", out VisualElement background)){
-                slotNames = background.Query<TextElement>(className: "unity-text-element").ToList();
+        foreach(KeyValuePair<uint, string> data in scoreboard.playerName){
+            // Handles player name updating
+            if(UnityUtils.ContainsElement(playerSlots[Counter], playerSlots[Counter].name + "-Name", out TextElement textElement)){
+                textElement.text = data.Value;
+                playerSlots[Counter].RemoveFromClassList("hide");
             }
-        }
+            
+            // Handles stats updating
+            if(UnityUtils.ContainsElement(playerSlots[Counter], playerSlots[Counter].name + "-Kills", out TextElement killElement)){
+                killElement.text = scoreboard.PlayerKDA.GetValueOrDefault(data.Key).KillData.ToString();
+            }
+            if(UnityUtils.ContainsElement(playerSlots[Counter], playerSlots[Counter].name + "-Deaths", out TextElement deathElement)){
+                deathElement.text = scoreboard.PlayerKDA.GetValueOrDefault(data.Key).DeathData.ToString();
+            }
+            if(UnityUtils.ContainsElement(playerSlots[Counter], playerSlots[Counter].name + "-Assists", out TextElement assistElement)){
+                assistElement.text = scoreboard.PlayerKDA.GetValueOrDefault(data.Key).AssistData.ToString();
+            }
 
-        foreach(KeyValuePair<uint, string> name in scoreboard.playerName){
-            if(UnityUtils.ContainsElement(_rootVisualElement, slotNames[Counter].name, out TextElement textEle)){
-                textEle.text = name.Value;
-                textEle.RemoveFromClassList("hide");
-            }
             Counter++;
         }
 
-        for(int i = Counter; i < slotNames.Count; i++){
-            if(UnityUtils.ContainsElement(_rootVisualElement, slotNames[i].name, out TextElement textEle)){
+        // Hides player visual element if they do not exist in scoreboard.playerName
+        for(int i = Counter; i < playerSlots.Count; i++){
+            if(UnityUtils.ContainsElement(playerSlots[Counter], playerSlots[Counter].name + "-Name", out TextElement textEle)){
                 textEle.text = null;
-                textEle.AddToClassList("hide");
+                playerSlots[Counter].AddToClassList("hide");
             }
             Counter++;
-        }
+        }        
     }
 
     /// <summary>
