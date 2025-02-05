@@ -53,7 +53,7 @@ public class ScoreBoard : NetworkBehaviour
     /// </summary>
     private void OnDisable() {
         SceneManager.sceneLoaded -= OnSceneLoaded;
-        SceneManager.sceneUnloaded += OnSceneUnloaded;
+        SceneManager.sceneUnloaded -= OnSceneUnloaded;
     }
     
     /// <summary>
@@ -151,7 +151,6 @@ public class ScoreBoard : NetworkBehaviour
     private void OnPlayerKDASet(uint netid, PlayerData data){
         if(NetworkClient.localPlayer != null){
             NetworkClient.localPlayer.GetComponent<PlayerInterface>().RefreshScoreBoard();
-            Debug.Log("ran " + netid + " " + data.KillData);
         }
     }
 

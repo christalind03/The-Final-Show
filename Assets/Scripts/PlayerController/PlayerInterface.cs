@@ -12,7 +12,6 @@ using UnityEngine.UIElements;
 public class PlayerInterface : NetworkBehaviour
 {
     [SerializeField] private float _messageDuration;
-    private List<VisualElement> playerSlots = new List<VisualElement>();
 
     private VisualElement _rootVisualElement;
 
@@ -29,13 +28,6 @@ public class PlayerInterface : NetworkBehaviour
         }
 
         _rootVisualElement = uiDocument.rootVisualElement;
-
-        // Gets a list of all player visual elements for scoreboard
-        if(UnityUtils.ContainsElement(_rootVisualElement, "ScoreBoard", out VisualElement board)){
-            if(UnityUtils.ContainsElement(board, "Background", out VisualElement background)){
-                playerSlots = background.Query<VisualElement>(className: "player").ToList();
-            }
-        }
         base.OnStartAuthority();
     }
 
@@ -214,6 +206,17 @@ public class PlayerInterface : NetworkBehaviour
         if(!isLocalPlayer)return;
         ScoreBoard scoreboard = NetworkManager.FindObjectOfType<ScoreBoard>();
         int Counter = 0;
+
+        // Gets a list of all player visual elements for scoreboard
+        List<VisualElement> playerSlots = new List<VisualElement>();
+        if(_rootVisualElement == null){
+            _rootVisualElement = gameObject.GetComponent<UIDocument>().rootVisualElement;
+        }
+        if(UnityUtils.ContainsElement(_rootVisualElement, "ScoreBoard", out VisualElement board)){
+            if(UnityUtils.ContainsElement(board, "Background", out VisualElement background)){
+                playerSlots = background.Query<VisualElement>(className: "player").ToList();
+            }
+        }
 
         foreach(KeyValuePair<uint, string> data in scoreboard.playerName){
             // Handles player name updating
