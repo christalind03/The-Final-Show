@@ -162,7 +162,8 @@ public class ScoreBoard : NetworkBehaviour
     /// <param name="k">amount of kill(s) to update by</param>
     /// <param name="mode">1 = add, 2 = set, 3 = remove, 0 = reset</param>
     /// <returns>returns true is success, false otherwise</returns>
-    public bool UpdateKillData(uint netid, int k = 0, int mode = 0){
+    [Command (requiresAuthority = false)]
+    public void CmdUpdateKillData(uint netid, int k, int mode){
         if(PlayerKDA.TryGetValue(netid, out PlayerData data)){
             switch(mode){
                 case 1:
@@ -179,9 +180,9 @@ public class ScoreBoard : NetworkBehaviour
                     break;
             }
             PlayerKDA[netid] = data;
-            return true;
+            // return true;
         }
-        return false;
+        // return false;
     }
 
     /// <summary>
@@ -191,7 +192,8 @@ public class ScoreBoard : NetworkBehaviour
     /// <param name="d">amount of death(s) to update by</param>
     /// <param name="mode">1 = add, 2 = set, 3 = remove, 0 = reset</param>
     /// <returns>returns true is success, false otherwise</returns>
-    public bool UpdateDeathData(uint netid, int d = 0, int mode = 0){
+    [Command (requiresAuthority = false)]
+    public void CmdUpdateDeathData(uint netid, int d, int mode){
         if(PlayerKDA.TryGetValue(netid, out PlayerData data)){
             switch(mode){
                 case 1:
@@ -208,9 +210,7 @@ public class ScoreBoard : NetworkBehaviour
                     break;
             }
             PlayerKDA[netid] = data;
-            return true;
         }
-        return false;
     }
 
     /// <summary>
@@ -220,7 +220,8 @@ public class ScoreBoard : NetworkBehaviour
     /// <param name="a">amount of assist(s) to update by</param>
     /// <param name="mode">1 = add, 2 = set, 3 = remove, 0 = reset</param>
     /// <returns>returns true is success, false otherwise</returns>
-    public bool UpdateAssistData(uint netid, int a = 0, int mode = 0){
+    [Command (requiresAuthority = false)]
+    public void CmdUpdateAssistData(uint netid, int a, int mode){
         if(PlayerKDA.TryGetValue(netid, out PlayerData data)){
             switch(mode){
                 case 1:
@@ -237,9 +238,7 @@ public class ScoreBoard : NetworkBehaviour
                     break;
             }
             PlayerKDA[netid] = data;
-            return true;
         }
-        return false;
     }
 
     /// <summary>

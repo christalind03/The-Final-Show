@@ -399,9 +399,6 @@ public class PlayerController : NetworkBehaviour
     /// When the player press Tab, the player list will open/close based on the current display status
     /// </summary>
     private void ScoreBoard(InputAction.CallbackContext context){
-        if(isServer){
-            _scoreboard.UpdateKillData(netId, 1, 1);
-        }
         _playerInterface.RefreshScoreBoard();
         _playerInterface.ToggleScoreBoardVisibility();
     }
