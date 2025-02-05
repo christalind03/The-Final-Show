@@ -14,7 +14,6 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(CombatController))]
 [RequireComponent(typeof(PlayerInventory))]
 [RequireComponent(typeof(PlayerStats))]
-[RequireComponent(typeof(ScoreBoard))]
 public class PlayerController : NetworkBehaviour
 {
     [SyncVar] public string playerName = null;
@@ -55,8 +54,9 @@ public class PlayerController : NetworkBehaviour
     private CombatController _combatController;
     private PlayerInventory _playerInventory;
     private PlayerStats _playerStats;
-    private ScoreBoard _scoreBoard;
+    private PlayerInterface _playerInterface;
     private SettingsMenu _settings;
+    private ScoreBoard _scoreboard;
 
     private Animator _playerAnimator;
     private int _animatorIsJumping;
@@ -68,15 +68,8 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     public override void OnStartAuthority()
     {
-        if (SteamManager.Initialized)
-        {
-            playerName = SteamFriends.GetPersonaName();
-            gameObject.name = playerName;            
-            CmdUpdateName(playerName);
-        }
-
         CameraController cameraController= GetComponent<CameraController>();
-        
+
         if (cameraController.alive)
         {
             Cursor.visible = false;
@@ -90,8 +83,8 @@ public class PlayerController : NetworkBehaviour
         _combatController = gameObject.GetComponent<CombatController>();
         _playerInventory = gameObject.GetComponent<PlayerInventory>();
         _playerStats = gameObject.GetComponent<PlayerStats>();
-        _scoreBoard = gameObject.GetComponent<ScoreBoard>();
         _settings = gameObject.GetComponent<SettingsMenu>();
+        _playerInterface = gameObject.GetComponent<PlayerInterface>();
 
         // To access the animator, we must retrieve the child gameObject that is rendering the player's mesh.
         // This should be the first child of the current gameObject, `BaseCharacter`
@@ -101,6 +94,21 @@ public class PlayerController : NetworkBehaviour
         _animatorMovementZ = Animator.StringToHash("Movement Z");
 
         EnableControls();
+
+        if(!Application.isEditor && SteamManager.Initialized){
+            playerName = SteamFriends.GetPersonaName();
+            gameObject.name = playerName;
+            CmdUpdateName(playerName);                
+        }else{
+            CmdUpdateName(gameObject.name);
+        }
+    }
+
+    public override void OnStartServer()
+    {
+        base.OnStartServer();
+
+        _scoreboard = NetworkManager.FindObjectOfType<ScoreBoard>();
     }
 
     /// <summary>
@@ -126,41 +134,6 @@ public class PlayerController : NetworkBehaviour
         {
             inventorySlot.performed += _playerInventory.SelectSlot;
         }
-    }
-
-    /// <summary>
-    /// Called when the player joins a server to register their name and network identity to a registery
-    /// </summary>
-    public override void OnStartServer()
-    {
-        //if(connectionToClient != null){
-        //    if(_scoreBoard == null){
-        //        _scoreBoard = connectionToClient.identity.GetComponent<ScoreBoard>();
-        //    }
-        //    PlayerManager.RegisterPlayer(netIdentity.netId, gameObject);
-        //    ScoreBoard serverScoreBoard = NetworkServer.localConnection.identity.GetComponent<ScoreBoard>();
-        //    _scoreBoard.InitialAddPlayerData();          
-        //    StartCoroutine(serverScoreBoard.PlayerJoinedUpdatePlayerList(netIdentity));
-        //}
-
-        base.OnStartServer();
-    }
-
-    /// <summary>
-    /// Called when the player leaves a server to unregister their details
-    /// </summary>
-    public override void OnStopServer()
-    {
-        //if(connectionToClient != null){
-        //    PlayerManager.UnregisterPlayer(netIdentity.netId);
-        //    PlayerManager.RegisterPlayer(netIdentity.netId, gameObject);
-        //    if(NetworkServer.localConnection != null){
-        //        ScoreBoard serverScoreBoard = NetworkServer.localConnection.identity.GetComponent<ScoreBoard>();
-        //        serverScoreBoard.PlayerLeftUpdatePlayerList(netIdentity);                
-        //    }
-        //}
-
-        base.OnStopServer();
     }
 
     /// <summary>
@@ -426,10 +399,12 @@ public class PlayerController : NetworkBehaviour
     /// When the player press Tab, the player list will open/close based on the current display status
     /// </summary>
     private void ScoreBoard(InputAction.CallbackContext context){
-        _scoreBoard.ShowScoreBoard();
+        _playerInterface.RefreshScoreBoard();
+        _playerInterface.ToggleScoreBoardVisibility();
     }
 
     private void Settings(InputAction.CallbackContext context){
+        if (Application.isEditor) return;
         if(_settings.ToggleSettingsMenu()){
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
@@ -442,8 +417,9 @@ public class PlayerController : NetworkBehaviour
     /// <summary>
     /// When the client no longer has authority over this object, ensure the cursor is visible and disables the controls.
     /// </summary>
-    public override void OnStopAuthority()
+    public override void OnStopClient()
     {
+        if(!isLocalPlayer) return;
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
@@ -581,9 +557,10 @@ public class PlayerController : NetworkBehaviour
     /// <param name="newName">player's name</param>
     [Command]
     private void CmdUpdateName(string newName){
-        if(!isLocalPlayer){
+        if(!Application.isEditor){
             gameObject.name = newName;
         }
+        _scoreboard.nameReady = true;
     }
 
     /// <summary>

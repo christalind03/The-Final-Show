@@ -18,13 +18,73 @@
                 <ui:VisualElement name="Stamina-Background" style="background-image: url(&quot;project://database/Assets/Sprites/Progress_Transparent.png?fileID=21300000&amp;guid=59394f8886e7dd346bf8c8430392dc98&amp;type=3#Progress_Transparent&quot;); width: 100%; height: 100%; position: absolute;" />
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="ScoreBoard" class="hide" style="flex-grow: 1; width: 40%; align-self: center; height: 65%; position: absolute; top: 20%;">
-            <ui:VisualElement name="Background" style="flex-grow: 1; width: 100%; margin-top: 25%; margin-bottom: 25%; background-image: url(&quot;project://database/Assets/Sprites/PlayerBoard.png?fileID=21300000&amp;guid=f2b76e8d5f4e0f34788682dd2a8a6dce&amp;type=3#PlayerBoard&quot;); padding-top: 4%; padding-right: 4%; padding-bottom: 4%; padding-left: 4%;">
-                <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-1" class="hide" style="-unity-font: url(&quot;project://database/Assets/UI%20Toolkit/Mattehek.otf?fileID=12800000&amp;guid=e9462b1ffa385eb4c8248a458fe3ab6a&amp;type=3#Mattehek&quot;); -unity-font-definition: initial; font-size: 40px;" />
-                <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-2" class="hide" style="-unity-font: url(&quot;project://database/Assets/UI%20Toolkit/Mattehek.otf?fileID=12800000&amp;guid=e9462b1ffa385eb4c8248a458fe3ab6a&amp;type=3#Mattehek&quot;); -unity-font-definition: initial; font-size: 40px;" />
-                <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-3" class="hide" style="-unity-font: url(&quot;project://database/Assets/UI%20Toolkit/Mattehek.otf?fileID=12800000&amp;guid=e9462b1ffa385eb4c8248a458fe3ab6a&amp;type=3#Mattehek&quot;); -unity-font-definition: initial; font-size: 40px;" />
-                <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-4" class="hide" style="-unity-font: url(&quot;project://database/Assets/UI%20Toolkit/Mattehek.otf?fileID=12800000&amp;guid=e9462b1ffa385eb4c8248a458fe3ab6a&amp;type=3#Mattehek&quot;); -unity-font-definition: initial; font-size: 40px;" />
-                <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-5" class="hide" style="-unity-font: url(&quot;project://database/Assets/UI%20Toolkit/Mattehek.otf?fileID=12800000&amp;guid=e9462b1ffa385eb4c8248a458fe3ab6a&amp;type=3#Mattehek&quot;); -unity-font-definition: initial; font-size: 40px;" />
+        <ui:VisualElement name="ScoreBoard" class="hide" style="flex-grow: 1; width: 40%; align-self: center; height: 65%; position: absolute; top: 20%; left: 30%; right: 30%; bottom: 20%;">
+            <ui:VisualElement name="Background" style="flex-grow: 1; width: 100%; margin-top: 25%; margin-bottom: 25%; background-image: url(&quot;project://database/Assets/Sprites/PlayerBoard.png?fileID=21300000&amp;guid=f2b76e8d5f4e0f34788682dd2a8a6dce&amp;type=3#PlayerBoard&quot;); padding-top: 4%; padding-right: 4%; padding-bottom: 4%; padding-left: 4%; flex-direction: column;">
+                <ui:VisualElement name="StatIcons" style="flex-grow: 1; flex-direction: row; min-height: 8%; max-height: 8%; height: 8%;">
+                    <ui:VisualElement name="Spacer" style="flex-grow: 1; min-width: 50%; max-width: 50%;" />
+                    <ui:VisualElement name="KillIcon" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Sprites/Skull.png?fileID=21300000&amp;guid=a5be466f2ed3ee047aebf3aed0569a10&amp;type=3#Skull&quot;); -unity-background-scale-mode: scale-to-fit; min-width: 10%; max-width: 10%;" />
+                    <ui:VisualElement name="Spacer" style="flex-grow: 1; max-width: 10%; min-width: 10%;" />
+                    <ui:VisualElement name="DeathIcon" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Sprites/Grave.png?fileID=21300000&amp;guid=41ae262f8408a7147af97f1ae66e3811&amp;type=3#Grave&quot;); -unity-background-scale-mode: scale-to-fit; max-width: 10%; min-width: 10%;" />
+                    <ui:VisualElement name="Spacer" style="flex-grow: 1; max-width: 10%; min-width: 10%;" />
+                    <ui:VisualElement name="AssistIcon" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Sprites/Hand.png?fileID=21300000&amp;guid=4c83761ecda64e0449e0d3214410fa98&amp;type=3#Hand&quot;); -unity-background-scale-mode: scale-to-fit; max-width: 10%; min-width: 10%;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="PlayerList" style="flex-grow: 1; margin-top: 1%;">
+                    <ui:VisualElement name="Player-1" class="player hide" style="flex-grow: 0; flex-direction: row;">
+                        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-1-Name" style="-unity-font: url(&quot;project://database/Assets/UI%20Toolkit/Mattehek.otf?fileID=12800000&amp;guid=e9462b1ffa385eb4c8248a458fe3ab6a&amp;type=3#Mattehek&quot;); -unity-font-definition: initial; font-size: 35px;" />
+                        <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
+                        <ui:VisualElement name="Player-1-Data" style="flex-grow: 1; flex-direction: row; align-self: center; justify-content: center; width: 50%; max-width: 50%; min-width: 50%;">
+                            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-1-Kills" class="defaultFont" style="font-size: 25px; padding-left: 8%; padding-right: 4%;" />
+                            <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
+                            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-1-Deaths" class="defaultFont" style="font-size: 25px; padding-right: 6%; padding-left: 2%;" />
+                            <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
+                            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-1-Assists" class="defaultFont" style="font-size: 25px; padding-right: 7%;" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="Player-2" class="player hide" style="flex-grow: 0; flex-direction: row;">
+                        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-2-Name" style="-unity-font: url(&quot;project://database/Assets/UI%20Toolkit/Mattehek.otf?fileID=12800000&amp;guid=e9462b1ffa385eb4c8248a458fe3ab6a&amp;type=3#Mattehek&quot;); -unity-font-definition: initial; font-size: 35px;" />
+                        <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
+                        <ui:VisualElement name="Player-2-Data" style="flex-grow: 1; flex-direction: row; align-self: center; justify-content: center; width: 50%; max-width: 50%; min-width: 50%;">
+                            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-2-Kills" class="defaultFont" style="font-size: 25px; padding-left: 8%; padding-right: 4%;" />
+                            <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
+                            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-2-Deaths" class="defaultFont" style="font-size: 25px; padding-right: 6%; padding-left: 2%;" />
+                            <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
+                            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-2-Assists" class="defaultFont" style="font-size: 25px; padding-right: 7%;" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="Player-3" class="player hide" style="flex-grow: 0; flex-direction: row;">
+                        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-3-Name" style="-unity-font: url(&quot;project://database/Assets/UI%20Toolkit/Mattehek.otf?fileID=12800000&amp;guid=e9462b1ffa385eb4c8248a458fe3ab6a&amp;type=3#Mattehek&quot;); -unity-font-definition: initial; font-size: 35px;" />
+                        <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
+                        <ui:VisualElement name="Player-3-Data" style="flex-grow: 1; flex-direction: row; align-self: center; justify-content: center; width: 50%; max-width: 50%; min-width: 50%;">
+                            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-3-Kills" class="defaultFont" style="font-size: 25px; padding-left: 8%; padding-right: 4%;" />
+                            <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
+                            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-3-Deaths" class="defaultFont" style="font-size: 25px; padding-right: 6%; padding-left: 2%;" />
+                            <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
+                            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-3-Assists" class="defaultFont" style="font-size: 25px; padding-right: 7%;" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="Player-4" class="player hide" style="flex-grow: 0; flex-direction: row;">
+                        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-4-Name" style="-unity-font: url(&quot;project://database/Assets/UI%20Toolkit/Mattehek.otf?fileID=12800000&amp;guid=e9462b1ffa385eb4c8248a458fe3ab6a&amp;type=3#Mattehek&quot;); -unity-font-definition: initial; font-size: 35px;" />
+                        <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
+                        <ui:VisualElement name="Player-4-Data" style="flex-grow: 1; flex-direction: row; align-self: center; justify-content: center; width: 50%; max-width: 50%; min-width: 50%;">
+                            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-4-Kills" class="defaultFont" style="font-size: 25px; padding-left: 8%; padding-right: 4%;" />
+                            <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
+                            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-4-Deaths" class="defaultFont" style="font-size: 25px; padding-right: 6%; padding-left: 2%;" />
+                            <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
+                            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-4-Assists" class="defaultFont" style="font-size: 25px; padding-right: 7%;" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="Player-5" class="player hide" style="flex-grow: 0; flex-direction: row;">
+                        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-5-Name" style="-unity-font: url(&quot;project://database/Assets/UI%20Toolkit/Mattehek.otf?fileID=12800000&amp;guid=e9462b1ffa385eb4c8248a458fe3ab6a&amp;type=3#Mattehek&quot;); -unity-font-definition: initial; font-size: 35px;" />
+                        <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
+                        <ui:VisualElement name="Player-5-Data" style="flex-grow: 1; flex-direction: row; align-self: center; justify-content: center; width: 50%; max-width: 50%; min-width: 50%;">
+                            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-5-Kills" class="defaultFont" style="font-size: 25px; padding-left: 8%; padding-right: 4%;" />
+                            <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
+                            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-5-Deaths" class="defaultFont" style="font-size: 25px; padding-right: 6%; padding-left: 2%;" />
+                            <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
+                            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Player-5-Assists" class="defaultFont" style="font-size: 25px; padding-right: 7%;" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="Inventory" style="margin-top: auto; margin-left: auto; width: 100%; align-items: center; justify-content: center; margin-right: auto; margin-bottom: auto; position: absolute; top: 80%;">

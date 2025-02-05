@@ -44,6 +44,32 @@ public class CustomNetworkManager : NetworkManager
     }
 
     /// <summary>
+    /// Called when player connects
+    /// </summary>
+    /// <param name="conn">connection of player who has connected</param>
+    public override void OnServerConnect(NetworkConnectionToClient conn)
+    {
+        base.OnServerConnect(conn);
+
+        // Updates scoreboard when player connects
+        ScoreBoard scoreBoard = NetworkManager.FindObjectOfType<ScoreBoard>();
+        StartCoroutine(scoreBoard.PlayerJoinedUpdatePlayerList(conn));
+    }
+
+    /// <summary>
+    /// Called when player disconnects
+    /// </summary>
+    /// <param name="conn"></param>
+    public override void OnServerDisconnect(NetworkConnectionToClient conn)
+    {
+        // Updates scoreboard when player disconnects
+        ScoreBoard scoreBoard = NetworkManager.FindObjectOfType<ScoreBoard>();
+        scoreBoard.PlayerLeftUpdatePlayerList(conn);
+
+        base.OnServerDisconnect(conn);
+    }
+
+    /// <summary>
     /// Called when the client is ready (has the scene loaded) on the server.
     /// Spawns or relocates the player based on the client identity.
     /// </summary>
@@ -62,6 +88,12 @@ public class CustomNetworkManager : NetworkManager
         }
 
         NetworkServer.SetClientReady(clientConnection);
+
+        // Hardcore scene name cause can't find a way around
+        if(NetworkServer.active && activeScene.name != "Gameplay-Intermission"){
+            ScoreBoard scoreBoard = NetworkManager.FindObjectOfType<ScoreBoard>();
+            scoreBoard.UpdateNetId(clientConnection);            
+        }
     }
 
     /// <summary>
