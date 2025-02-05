@@ -1,23 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using Mirror;
-using Org.BouncyCastle.Crypto.Modes;
-using Unity.VisualScripting;
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class ScoreBoard : NetworkBehaviour
 {
     public static ScoreBoard Instance { get; private set; }
+    [Serializable]
     public struct PlayerData{
-        public int KillData { get; set; }
-        public int DeathData { get; set; }
-        public int AssistData { get; set; }
-        public PlayerData(int k, int d, int a)
-        {
-            KillData = k;
-            DeathData = d;
-            AssistData = a;
+        public int KillData;
+        public int DeathData;
+        public int AssistData;
+        public PlayerData(int k, int d, int a){
+            this.KillData= k;
+            this.DeathData= d;
+            this.AssistData= a;
         }
     } 
 
@@ -95,7 +94,7 @@ public class ScoreBoard : NetworkBehaviour
     private void AddPlayerData(NetworkConnectionToClient conn){
         NetworkIdentity connectedPlayer = conn.identity;
         if(!PlayerKDA.ContainsKey(connectedPlayer.netId)){ //see if this player already exist
-            PlayerData newData = new PlayerData(0, 0, 0); //new player data
+            PlayerData newData = new PlayerData(); //new player data
             PlayerKDA.Add(connectedPlayer.netId, newData);
             if(playerName.Count < 5){
                 playerName.Add(connectedPlayer.netId, connectedPlayer.gameObject.name);   
@@ -148,11 +147,11 @@ public class ScoreBoard : NetworkBehaviour
     /// Updates the scoreboard when playerdata changes
     /// </summary>
     /// <param name="netid">netid for the player who has their data changed</param>
-    /// <param name="data">the new data</param>
+    /// <param name="data">the old data</param>
     private void OnPlayerKDASet(uint netid, PlayerData data){
         if(NetworkClient.localPlayer != null){
             NetworkClient.localPlayer.GetComponent<PlayerInterface>().RefreshScoreBoard();
-            Debug.Log("ran");
+            Debug.Log("ran " + netid + " " + data.KillData);
         }
     }
 
@@ -208,6 +207,7 @@ public class ScoreBoard : NetworkBehaviour
                     data.DeathData = 0;
                     break;
             }
+            PlayerKDA[netid] = data;
             return true;
         }
         return false;
@@ -236,6 +236,7 @@ public class ScoreBoard : NetworkBehaviour
                     data.AssistData = 0;
                     break;
             }
+            PlayerKDA[netid] = data;
             return true;
         }
         return false;
