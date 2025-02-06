@@ -12,6 +12,7 @@ public class AimingState : EnemyState
 
         // For debugging purposes only.
         StateContext.Material.SetColor("_BaseColor", Color.red);
+        StateContext.Animator.SetBool("Is Aiming", true);
     }
 
     public override void ExitState()
