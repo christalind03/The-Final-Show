@@ -16,10 +16,10 @@ public class PlayerInventory : NetworkBehaviour
 {
     private struct PlayerInventoryRestriction
     {
-        public EquippableItem.EquippableCategory ItemCategory { get; private set; }
+        public InventoryItem.InventoryCategory ItemCategory { get; private set; }
         public Type ItemType { get; private set; }
 
-        public PlayerInventoryRestriction(EquippableItem.EquippableCategory itemCategory, Type itemType)
+        public PlayerInventoryRestriction(InventoryItem.InventoryCategory itemCategory, Type itemType)
         {
             ItemCategory = itemCategory;
             ItemType = itemType;
@@ -85,9 +85,11 @@ public class PlayerInventory : NetworkBehaviour
         // Define inventory slot restrictions
         _inventoryRestrictions = new Dictionary<string, PlayerInventoryRestriction>
         {
-            { "Slot-1", new PlayerInventoryRestriction(EquippableItem.EquippableCategory.Hand, typeof(MeleeWeapon)) },
-            { "Slot-2", new PlayerInventoryRestriction(EquippableItem.EquippableCategory.Hand, typeof(RangedWeapon)) },
-            { "Slot-3", new PlayerInventoryRestriction(EquippableItem.EquippableCategory.Head, typeof(Armor)) },
+            { "Slot-1", new PlayerInventoryRestriction(InventoryItem.InventoryCategory.Weapon, typeof(MeleeWeapon)) },
+            { "Slot-2", new PlayerInventoryRestriction(InventoryItem.InventoryCategory.Weapon, typeof(RangedWeapon)) },
+            { "Slot-3", new PlayerInventoryRestriction(InventoryItem.InventoryCategory.Helmet, typeof(Armor)) },
+            { "Slot-4", new PlayerInventoryRestriction(InventoryItem.InventoryCategory.Chest, typeof(Armor)) },
+            { "Slot-5", new PlayerInventoryRestriction(InventoryItem.InventoryCategory.Legs, typeof(Armor)) },
         };
 
         // Extract and sort the inventory keys to ensure proper cycling
@@ -220,26 +222,26 @@ public class PlayerInventory : NetworkBehaviour
     public bool AddItem(InventoryItem inventoryItem)
     {
         if (!isLocalPlayer) { return false; }
+        if (inventoryItem == null) { return false; }
 
         string availableSlot = FindAvailableSlot(inventoryItem);
 
         if (availableSlot != null)
         {
-            if (inventoryItem is EquippableItem equippableItem)
-            {
-                if (equippableItem is Armor armorItem)
-                {
-                    ApplyStats(armorItem);
-                }
+            //if (inventoryItem is EquippableItem equippableItem)
+            //{
+            //    if (equippableItem is Armor armorItem)
+            //    {
+            //        ApplyStats(armorItem);
+            //    }
 
-                if (ShouldEquip(equippableItem))
-                {
-                    CmdEquip(equippableItem);
-                }
-            }
+            //    if (ShouldEquip(equippableItem))
+            //    {
+            //        CmdEquip(equippableItem);
+            //    }
+            //}
 
             CmdAddItem(availableSlot, inventoryItem);
-            //_inventorySlots[availableSlot] = inventoryItem;
             _playerInterface.RenderInventoryIcon(availableSlot, inventoryItem.ObjectSprite);
             return true;
         }
@@ -279,18 +281,17 @@ public class PlayerInventory : NetworkBehaviour
 
         InventoryItem removedItem = _inventorySlots[_currentSlot];
 
-        if (removedItem is EquippableItem equippableItem)
-        {
-            if (equippableItem is Armor armorItem)
-            {
-                RemoveStats(armorItem);
-            }
+        //if (removedItem is EquippableItem equippableItem)
+        //{
+        //    if (equippableItem is Armor armorItem)
+        //    {
+        //        RemoveStats(armorItem);
+        //    }
 
-            CmdUnequip(equippableItem);
-        }
+        //    CmdUnequip(equippableItem);
+        //}
 
         CmdRemoveItem(_currentSlot);
-        //_inventorySlots[_currentSlot] = null;
         _playerInterface.RenderInventoryIcon(_currentSlot, null);
 
         return removedItem;
@@ -312,14 +313,14 @@ public class PlayerInventory : NetworkBehaviour
         InventoryItem previousItem = GetItem(previousSlot);
         InventoryItem currentItem = GetItem();
 
-        if (previousItem is EquippableItem previousEquippableItem && previousEquippableItem.EquipmentCategory == EquippableItem.EquippableCategory.Hand)
+        if (previousItem.ItemCategory == InventoryItem.InventoryCategory.Weapon)
         {
-            CmdUnequip(previousEquippableItem);
+            CmdUnequip(previousItem);
         }
 
-        if (currentItem is EquippableItem currentEquippableItem && currentEquippableItem.EquipmentCategory == EquippableItem.EquippableCategory.Hand)
+        if (currentItem.ItemCategory == InventoryItem.InventoryCategory.Weapon)
         {
-            CmdEquip(currentEquippableItem);
+            CmdEquip(currentItem);
         }
     }
 
@@ -373,15 +374,15 @@ public class PlayerInventory : NetworkBehaviour
     /// </summary>
     /// <param name="equippableItem">The equippable item to check.</param>
     /// <returns><c>true</c> if the item should be equipped, otherwise <c>false</c>.</returns>
-    private bool ShouldEquip(EquippableItem equippableItem)
+    private bool ShouldEquip(InventoryItem inventoryItem)
     {
-        GameObject equippableReference = FindEquippableReference(equippableItem.EquipmentCategory);
+        GameObject equippableReference = FindEquippableReference(inventoryItem.ItemCategory);
 
-        if (equippableItem.EquipmentCategory == EquippableItem.EquippableCategory.Hand)
+        if (inventoryItem.ItemCategory == InventoryItem.InventoryCategory.Weapon)
         {
-            PlayerInventoryRestriction inventoryRestriction = new PlayerInventoryRestriction(EquippableItem.EquippableCategory.Hand, equippableItem.GetType());
+            PlayerInventoryRestriction inventoryRestriction = new PlayerInventoryRestriction(InventoryItem.InventoryCategory.Weapon, inventoryItem.GetType());
             bool isSlotValid = _currentSlot == GeneralUtils.LocateDictionaryKey(_inventoryRestrictions, inventoryRestriction);
-            bool isHandheld = GetItem() is not EquippableItem { EquipmentCategory: EquippableItem.EquippableCategory.Hand };
+            bool isHandheld = GetItem() is not InventoryItem { ItemCategory: InventoryItem.InventoryCategory.Weapon };
             bool isEmpty = equippableReference?.transform.childCount == 0;
 
             return isSlotValid && isHandheld && isEmpty;
@@ -421,26 +422,28 @@ public class PlayerInventory : NetworkBehaviour
     /// </summary>
     /// <param name="equippableItem">The equippable item to equip.</param>
     [Command]
-    private void CmdEquip(EquippableItem equippableItem)
+    private void CmdEquip(InventoryItem inventoryItem)
     {
-        GameObject equippableReference = FindEquippableReference(equippableItem.EquipmentCategory);
+        //GameObject equippableReference = FindEquippableReference(equippableItem.EquipmentCategory);
 
-        // Since it will take a small amount of time to swap between items, the total child count for this reference should be less than 2.
-        if (equippableReference != null && equippableReference.transform.childCount < 2)
-        {
-            if (equippableItem is RangedWeapon)
-            {
-                TargetToggleAmmoVisibility(connectionToClient, true);
-            }
+        //// Since it will take a small amount of time to swap between items, the total child count for this reference should be less than 2.
+        //if (equippableReference != null && equippableReference.transform.childCount < 2)
+        //{
+        //    if (equippableItem is RangedWeapon)
+        //    {
+        //        TargetToggleAmmoVisibility(connectionToClient, true);
+        //    }
 
-            Vector3 spawnPosition = equippableReference.transform.position + equippableItem.PositionOffset;
-            Quaternion spawnRotation = equippableReference.transform.rotation * equippableItem.ObjectPrefab.transform.rotation;
+        //    Vector3 spawnPosition = equippableReference.transform.position + equippableItem.PositionOffset;
+        //    Quaternion spawnRotation = equippableReference.transform.rotation * equippableItem.ObjectPrefab.transform.rotation;
 
-            GameObject equippedObject = Instantiate(equippableItem.ObjectPrefab, spawnPosition, spawnRotation);            
-            NetworkServer.Spawn(equippedObject);
+        //    GameObject equippedObject = Instantiate(equippableItem.ObjectPrefab, spawnPosition, spawnRotation);            
+        //    NetworkServer.Spawn(equippedObject);
 
-            RpcEquip(equippableItem, equippedObject);
-        }
+        //    RpcEquip(equippableItem, equippedObject);
+        //}
+
+        Debug.Log($"Equipping {inventoryItem.name} on the server...");
     }
 
     /// <summary>
@@ -448,58 +451,56 @@ public class PlayerInventory : NetworkBehaviour
     /// The item is destroyed from the reference slot and removed from the player.
     /// This function is executed on the server and synchronizes the unequip action across all clients.
     /// </summary>
-    /// <param name="equippableItem">The equippable item to unequip.</param>
+    /// <param name="inventoryItem">The inventory item to unequip.</param>
     [Command]
-    private void CmdUnequip(EquippableItem equippableItem)
+    private void CmdUnequip(InventoryItem inventoryItem)
     {
-        GameObject equippableReference = FindEquippableReference(equippableItem.EquipmentCategory);
+        //GameObject equippableReference = FindEquippableReference(inventoryItem.ItemCategory);
 
-        if (equippableReference != null && equippableReference.transform.childCount > 0)
-        {
-            if (equippableItem is RangedWeapon)
-            {
-                TargetToggleAmmoVisibility(connectionToClient, false);
-            }
+        //if (equippableReference != null && equippableReference.transform.childCount > 0)
+        //{
+        //    if (inventoryItem is RangedWeapon)
+        //    {
+        //        TargetToggleAmmoVisibility(connectionToClient, false);
+        //    }
 
-            GameObject targetObject = equippableReference.transform.GetChild(0).gameObject;
-            
-            NetworkServer.Destroy(targetObject);
-            Destroy(targetObject);
-        }
+        //    GameObject targetObject = equippableReference.transform.GetChild(0).gameObject;
+
+        //    NetworkServer.Destroy(targetObject);
+        //    Destroy(targetObject);
+        //}
+
+        Debug.Log($"Unequipping {inventoryItem.name} on the client...");
     }
 
     /// <summary>
     /// ClientRpc method to synchronize the equipping of an item across clients.
     /// This method is called to update the client's local state of the equipment.
     /// </summary>
-    /// <param name="equippableItem">The equippable item to equip.</param>
+    /// <param name="inventoryItem">The equippable item to equip.</param>
     /// <param name="equippedObject">The GameObject representing the equipped item.</param>
     [ClientRpc]
-    private void RpcEquip(EquippableItem equippableItem, GameObject equippedObject)
+    private void RpcEquip(InventoryItem inventoryItem, GameObject equippedObject)
     {
-        GameObject equippableReference = FindEquippableReference(equippableItem.EquipmentCategory);
-        equippedObject.transform.SetParent(equippableReference.transform);
+        //GameObject equippableReference = FindEquippableReference(inventoryItem.ItemCategory);
+        //equippedObject.transform.SetParent(equippableReference.transform);
+
+        Debug.Log($"Equipping {inventoryItem.name} locally...");
     }
 
     /// <summary>
     /// Finds the reference GameObject where the given equippable item should be attached based on its category.
     /// </summary>
-    /// <param name="equippableCategory">The category of the equippable item.</param>
+    /// <param name="inventoryCategory">The category of the equippable item.</param>
     /// <returns>
     /// The GameObject reference where the equippable item should be attached, or <c>null</c> if no reference exists for the given category.
     /// </returns>
-    private GameObject FindEquippableReference(EquippableItem.EquippableCategory equippableCategory)
+    private GameObject FindEquippableReference(InventoryItem.InventoryCategory inventoryCategory)
     {
-        switch (equippableCategory)
+        switch (inventoryCategory)
         {
-            case EquippableItem.EquippableCategory.Hand:
-                return _handReference;
-
-            case EquippableItem.EquippableCategory.Head:
-                return _headReference;
-
             default:
-                UnityUtils.LogWarning($"CmdEquip() support for {equippableCategory} has not yet been implemented.");
+                UnityUtils.LogWarning($"CmdEquip() support for {inventoryCategory} has not yet been implemented.");
                 return null;
         }
     }
