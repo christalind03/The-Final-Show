@@ -42,6 +42,7 @@ public class IdleState : EnemyState
         if (!_isReset)
         {
             // Rotate enemy back to original rotation once it's close to initial position
+            // TODO: still bugged, won't always rotate back
             if (StateContext.NavMeshAgent.remainingDistance < 0.1f)
             {
                 StateContext.Transform.rotation = Quaternion.Slerp(StateContext.Transform.rotation, StateContext.InitialRotation, _rotationSpeed * Time.deltaTime);

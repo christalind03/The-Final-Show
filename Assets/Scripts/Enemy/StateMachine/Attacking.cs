@@ -12,7 +12,6 @@ public class AttackingState : EnemyState
         StateContext.Material.SetColor("_BaseColor", Color.magenta);
 
         StateContext.Animator.SetBool("Is Attacking", true);
-        //StateContext.Animator.SetBool("Is Aiming", false);
         if (StateContext.TargetTransform.root.TryGetComponent(out AbstractHealth targetHealth))
         {
             targetHealth.CmdDamage(StateContext.AttackStats.AttackDamage);
@@ -21,7 +20,6 @@ public class AttackingState : EnemyState
 
     public override void ExitState() 
     {
-        //StateContext.Animator.SetBool("Is Aiming", true);
         StateContext.Animator.SetBool("Is Attacking", false);
         Debug.Log("Leaving Attacking State");
     }

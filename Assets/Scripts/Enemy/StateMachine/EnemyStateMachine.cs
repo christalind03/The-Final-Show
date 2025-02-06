@@ -152,7 +152,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
                     StartCoroutine(AttackAnimationCooldown());
                 }
             }
-            // If Attacking but can no longer attack, start Aiming
             // If Attacking and the animation is completed, start Aiming
             else if (CurrentState.StateKey.Equals(EEnemyState.Attacking) && !_isAttacking)
             {
@@ -193,9 +192,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     [Server]
     protected IEnumerator AttackAnimationCooldown()
     {
-        //StateContext.Animator.SetBool("Is Attacking", true);
         yield return new WaitForSeconds(_attackAnimLength); // float for duration of attack animation
-        //StateContext.Animator.SetBool("Is Attacking", false);
         _isAttacking = false;
     }
     
