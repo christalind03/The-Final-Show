@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.AI;
 
 [CreateAssetMenu(menuName = "Base State/Enemy/Idle")]
 public class IdleState : EnemyState
@@ -24,6 +25,7 @@ public class IdleState : EnemyState
         _isReset = hasInitialPosition && hasInitialRotation;
 
         StateContext.NavMeshAgent.SetDestination(StateContext.InitialPosition);
+        StateContext.NavMeshAgent.stoppingDistance = 0; // Allows the enemy to return to exact start position
     }
 
     public override void ExitState() 
