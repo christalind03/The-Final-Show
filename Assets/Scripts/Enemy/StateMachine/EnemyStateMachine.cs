@@ -36,6 +36,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     protected Material _material;
 
     private Animator _enemyAnimator;
+    [SerializeField] private float _attackAnimLength;
 
     /// <summary>
     /// Stores the enemy's initial position and rotation for later use.
@@ -193,7 +194,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     protected IEnumerator AttackAnimationCooldown()
     {
         //StateContext.Animator.SetBool("Is Attacking", true);
-        yield return new WaitForSeconds(1.6f); // float for duration of attack animation
+        yield return new WaitForSeconds(_attackAnimLength); // float for duration of attack animation
         //StateContext.Animator.SetBool("Is Attacking", false);
         _isAttacking = false;
     }
