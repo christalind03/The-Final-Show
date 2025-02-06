@@ -313,12 +313,12 @@ public class PlayerInventory : NetworkBehaviour
         InventoryItem previousItem = GetItem(previousSlot);
         InventoryItem currentItem = GetItem();
 
-        if (previousItem.ItemCategory == InventoryItem.InventoryCategory.Weapon)
+        if (previousItem != null && previousItem.ItemCategory == InventoryItem.InventoryCategory.Weapon)
         {
             CmdUnequip(previousItem);
         }
 
-        if (currentItem.ItemCategory == InventoryItem.InventoryCategory.Weapon)
+        if (currentItem != null && currentItem.ItemCategory == InventoryItem.InventoryCategory.Weapon)
         {
             CmdEquip(currentItem);
         }

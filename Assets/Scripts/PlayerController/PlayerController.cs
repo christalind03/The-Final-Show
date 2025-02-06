@@ -556,11 +556,14 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     /// <param name="newName">player's name</param>
     [Command]
-    private void CmdUpdateName(string newName){
-        if(!Application.isEditor){
-            gameObject.name = newName;
-        }
-        _scoreboard.nameReady = true;
+    private void CmdUpdateName(string newName)
+    {
+        //if(!Application.isEditor)
+        //{
+        //    gameObject.name = newName;
+        //}
+
+        //_scoreboard.nameReady = true;
     }
 
     /// <summary>
