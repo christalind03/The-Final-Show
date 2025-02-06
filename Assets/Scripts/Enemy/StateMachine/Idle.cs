@@ -52,5 +52,6 @@ public class IdleState : EnemyState
                 _isReset = true;
             }
         }
+        StateContext.Animator.SetFloat("Speed", StateContext.NavMeshAgent.velocity.magnitude);
     }
 }
