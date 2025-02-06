@@ -490,9 +490,9 @@ Animator:
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 42a6b1140fcc6a74b94e3a5497c7afc1, type: 3}
   m_Controller: {fileID: 9100000, guid: db9d3b552c689374a9a4a83b8ed1e1e0, type: 2}
-  m_CullingMode: 0
+  m_CullingMode: 1
   m_UpdateMode: 0
-  m_ApplyRootMotion: 0
+  m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_WarningMessage: 
@@ -1219,12 +1219,12 @@ MonoBehaviour:
   - Key: 3
     Value: {fileID: 11400000, guid: cf0eb6033cc4573439550dfb17f63cd1, type: 2}
   _attackStats:
-    _attackCooldown: 3
-    _attackDamage: 25
+    _attackCooldown: 5
+    _attackDamage: 5
   _behaviorStats:
     _startChaseDist: 10
     _chaseBuffer: 5
-    _startAimDist: 1.5
+    _startAimDist: 2
     _aimBuffer: 0.5
 --- !u!114 &8473018324076476108
 MonoBehaviour:
@@ -1262,7 +1262,7 @@ NavMeshAgent:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6085626376942215046}
-  m_Enabled: 0
+  m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
   m_Speed: 3.5
