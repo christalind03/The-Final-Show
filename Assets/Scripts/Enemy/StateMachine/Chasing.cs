@@ -8,6 +8,9 @@ public class ChasingState : EnemyState
     public override void EnterState()
     {
         Debug.Log("Entering Chasing State");
+        // We want the enemy to stop once the target is within aim distance
+        StateContext.NavMeshAgent.stoppingDistance = StateContext.BehaviorStats.StartAimDist;
+        StateContext.Animator.SetBool("Is Aiming", false);
 
         // For debugging purposes only.
         StateContext.Material.SetColor("_BaseColor", Color.yellow);
@@ -24,6 +27,7 @@ public class ChasingState : EnemyState
   
     public override void UpdateState() 
     {
-        StateContext.NavMeshAgent.destination = StateContext.TargetTransform.position;
+        StateContext.NavMeshAgent.destination = StateContext.TargetTransform.position; // If we need to, we can limit this to every x seconds
+        StateContext.Animator.SetFloat("Speed", StateContext.NavMeshAgent.velocity.magnitude);
     }
 }

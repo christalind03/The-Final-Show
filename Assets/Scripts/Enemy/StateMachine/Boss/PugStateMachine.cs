@@ -73,12 +73,13 @@ public class PugStateMachine : BossStateMachine
                 {
                     TransitionToState(EEnemyState.Attacking);
                     _canAttack = false;
+                    _isAttacking = true;
                     StartCoroutine(AttackCooldown());
-                    // TODO: add a delay here for duration of attack animation
+                    StartCoroutine(AttackAnimationCooldown());
                 }
             }
             // If Attacking but can no longer attack, start Aiming
-            else if (CurrentState.StateKey.Equals(EEnemyState.Attacking) && !_canAttack)
+            else if (CurrentState.StateKey.Equals(EEnemyState.Attacking) && !_isAttacking)
             {
                 TransitionToState(EEnemyState.Aiming);
             }
