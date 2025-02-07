@@ -39,21 +39,8 @@ public class EnemyHealth : AbstractHealth
     [Server]
     protected override void TriggerDeath()
     {
-        RpcSpawnScript();
+        GameObject script = Instantiate(_scriptPrefab, gameObject.transform.position, Quaternion.identity);
+        NetworkServer.Spawn(script);
         Destroy(gameObject);
     }
-
-    [ClientRpc]
-    protected void RpcSpawnScript()
-    {
-        if (_scriptPrefab != null)
-        {
-            Instantiate(_scriptPrefab, gameObject.transform.position, Quaternion.identity);
-        }
-        else
-        {
-            Debug.Log("No script prefab found");
-        }
-    }
-
 }
