@@ -8,8 +8,15 @@ using UnityEngine;
 [RequireComponent(typeof(NetworkIdentity))]
 public class InteractableInventoryItem : NetworkBehaviour, IInteractable
 {
+    [SerializeField] private bool _isSkinned;
+
     public InventoryItem InventoryItem;
 
+    private SkinnedMeshRenderer _skinnedMeshRenderer;
+    private Mesh _initialMesh;
+    private Material[] _initialMaterials;
+
+    // TODO: Update documentation
     /// <summary>
     /// Initializes the object by instantiating its visual representation from the item prefab.
     /// </summary>
@@ -17,8 +24,21 @@ public class InteractableInventoryItem : NetworkBehaviour, IInteractable
     {
         if (InventoryItem != null)
         {
-            Transform currentTransform = transform;
-            Instantiate(InventoryItem.ObjectPrefab, currentTransform);
+            if (_isSkinned)
+            {
+                _skinnedMeshRenderer = gameObject.GetComponent<SkinnedMeshRenderer>();
+
+                _initialMesh = _skinnedMeshRenderer.sharedMesh;
+                _initialMaterials = _skinnedMeshRenderer.materials;
+
+                _skinnedMeshRenderer.sharedMesh = InventoryItem.InventoryRenderer.Mesh;
+                _skinnedMeshRenderer.materials = InventoryItem.InventoryRenderer.Materials;
+            }
+            else
+            {
+                Transform currentTransform = transform;
+                Instantiate(InventoryItem.ObjectPrefab, currentTransform);
+            }
         }
     }
 
@@ -44,7 +64,15 @@ public class InteractableInventoryItem : NetworkBehaviour, IInteractable
     [Command(requiresAuthority = false)]
     private void CmdDestroy()
     {
-        NetworkServer.Destroy(gameObject);
-        Destroy(gameObject);
+        if (_isSkinned)
+        {
+            _skinnedMeshRenderer.sharedMesh = _initialMesh;
+            _skinnedMeshRenderer.materials = _initialMaterials;
+        }
+        else
+        {
+            NetworkServer.Destroy(gameObject);
+            Destroy(gameObject);
+        }
     }
 }

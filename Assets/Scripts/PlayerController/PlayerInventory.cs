@@ -14,6 +14,13 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(PlayerStats))]
 public class PlayerInventory : NetworkBehaviour
 {
+    [System.Serializable]
+    private struct EquippableReference
+    {
+        public InventoryItem.InventoryCategory InventoryCategory;
+        public GameObject Reference;
+    }
+
     private struct PlayerInventoryRestriction
     {
         public InventoryItem.InventoryCategory ItemCategory { get; private set; }
@@ -38,15 +45,15 @@ public class PlayerInventory : NetworkBehaviour
         }
     }
 
-    [Header("Equippable References")]
-    [SerializeField] private GameObject _handReference;
-    [SerializeField] private GameObject _headReference;
+    [SerializeField] private List<EquippableReference> _equippableReferences;
 
     private readonly SyncDictionary<string, InventoryItem> _inventorySlots = new SyncDictionary<string, InventoryItem>();
     
     private string _currentSlot;
     private List<string> _inventoryKeys;
     private Dictionary<string, PlayerInventoryRestriction> _inventoryRestrictions;
+    private Dictionary<InventoryItem.InventoryCategory, InventoryRenderer> _initialRenderers;
+    private Dictionary<InventoryItem.InventoryCategory, GameObject> _equippedRenderers;
     private PlayerInterface _playerInterface;
     private PlayerHealth _playerHealth;
     private PlayerStats _playerStats;
@@ -54,6 +61,29 @@ public class PlayerInventory : NetworkBehaviour
     public List<InventoryItem> Inventory
     {
         get { return _inventorySlots.Values.ToList(); }
+    }
+
+    // TODO: Document
+    private void Start()
+    {
+        _initialRenderers = new Dictionary<InventoryItem.InventoryCategory, InventoryRenderer>();
+        _equippedRenderers = new Dictionary<InventoryItem.InventoryCategory, GameObject>();
+
+        foreach (EquippableReference equippableReference in _equippableReferences)
+        {
+            _equippedRenderers[equippableReference.InventoryCategory] = equippableReference.Reference;
+        }
+
+        foreach ((InventoryItem.InventoryCategory inventoryCategory, GameObject initialRender) in _equippedRenderers)
+        {
+            SkinnedMeshRenderer skinnedMeshRenderer = initialRender.GetComponent<SkinnedMeshRenderer>();
+
+            _initialRenderers[inventoryCategory] = new InventoryRenderer
+            {
+                Mesh = skinnedMeshRenderer.sharedMesh,
+                Materials = skinnedMeshRenderer.materials,
+            };
+        }
     }
 
     /// <summary>
@@ -228,18 +258,15 @@ public class PlayerInventory : NetworkBehaviour
 
         if (availableSlot != null)
         {
-            //if (inventoryItem is EquippableItem equippableItem)
-            //{
-            //    if (equippableItem is Armor armorItem)
-            //    {
-            //        ApplyStats(armorItem);
-            //    }
+            if (inventoryItem is Armor armorItem)
+            {
+                ApplyStats(armorItem);
+            }
 
-            //    if (ShouldEquip(equippableItem))
-            //    {
-            //        CmdEquip(equippableItem);
-            //    }
-            //}
+            if (ShouldEquip(inventoryItem))
+            {
+                CmdEquip(inventoryItem);
+            }
 
             CmdAddItem(availableSlot, inventoryItem);
             _playerInterface.RenderInventoryIcon(availableSlot, inventoryItem.ObjectSprite);
@@ -281,15 +308,15 @@ public class PlayerInventory : NetworkBehaviour
 
         InventoryItem removedItem = _inventorySlots[_currentSlot];
 
-        //if (removedItem is EquippableItem equippableItem)
-        //{
-        //    if (equippableItem is Armor armorItem)
-        //    {
-        //        RemoveStats(armorItem);
-        //    }
+        if (removedItem != null)
+        {
+            if (removedItem is Armor armorItem)
+            {
+                RemoveStats(armorItem);
+            }
 
-        //    CmdUnequip(equippableItem);
-        //}
+            CmdUnequip(removedItem);
+        }
 
         CmdRemoveItem(_currentSlot);
         _playerInterface.RenderInventoryIcon(_currentSlot, null);
@@ -376,7 +403,7 @@ public class PlayerInventory : NetworkBehaviour
     /// <returns><c>true</c> if the item should be equipped, otherwise <c>false</c>.</returns>
     private bool ShouldEquip(InventoryItem inventoryItem)
     {
-        GameObject equippableReference = FindEquippableReference(inventoryItem.ItemCategory);
+        GameObject equippableReference = _equippedRenderers[inventoryItem.ItemCategory];
 
         if (inventoryItem.ItemCategory == InventoryItem.InventoryCategory.Weapon)
         {
@@ -424,26 +451,17 @@ public class PlayerInventory : NetworkBehaviour
     [Command]
     private void CmdEquip(InventoryItem inventoryItem)
     {
-        //GameObject equippableReference = FindEquippableReference(equippableItem.EquipmentCategory);
+        GameObject equippableReference = _equippedRenderers[inventoryItem.ItemCategory];
 
-        //// Since it will take a small amount of time to swap between items, the total child count for this reference should be less than 2.
-        //if (equippableReference != null && equippableReference.transform.childCount < 2)
-        //{
-        //    if (equippableItem is RangedWeapon)
-        //    {
-        //        TargetToggleAmmoVisibility(connectionToClient, true);
-        //    }
+        if (equippableReference != null)
+        {
+            if (inventoryItem is RangedWeapon)
+            {
+                TargetToggleAmmoVisibility(connectionToClient, true);
+            }
 
-        //    Vector3 spawnPosition = equippableReference.transform.position + equippableItem.PositionOffset;
-        //    Quaternion spawnRotation = equippableReference.transform.rotation * equippableItem.ObjectPrefab.transform.rotation;
-
-        //    GameObject equippedObject = Instantiate(equippableItem.ObjectPrefab, spawnPosition, spawnRotation);            
-        //    NetworkServer.Spawn(equippedObject);
-
-        //    RpcEquip(equippableItem, equippedObject);
-        //}
-
-        Debug.Log($"Equipping {inventoryItem.name} on the server...");
+            RpcEquip(inventoryItem);
+        }
     }
 
     /// <summary>
@@ -455,22 +473,17 @@ public class PlayerInventory : NetworkBehaviour
     [Command]
     private void CmdUnequip(InventoryItem inventoryItem)
     {
-        //GameObject equippableReference = FindEquippableReference(inventoryItem.ItemCategory);
+        GameObject equippableReference = _equippedRenderers[inventoryItem.ItemCategory];
 
-        //if (equippableReference != null && equippableReference.transform.childCount > 0)
-        //{
-        //    if (inventoryItem is RangedWeapon)
-        //    {
-        //        TargetToggleAmmoVisibility(connectionToClient, false);
-        //    }
+        if (equippableReference != null)
+        {
+            if (inventoryItem is RangedWeapon)
+            {
+                TargetToggleAmmoVisibility(connectionToClient, false);
+            }
 
-        //    GameObject targetObject = equippableReference.transform.GetChild(0).gameObject;
-
-        //    NetworkServer.Destroy(targetObject);
-        //    Destroy(targetObject);
-        //}
-
-        Debug.Log($"Unequipping {inventoryItem.name} on the client...");
+            RpcUnequip(inventoryItem);
+        }
     }
 
     /// <summary>
@@ -480,30 +493,46 @@ public class PlayerInventory : NetworkBehaviour
     /// <param name="inventoryItem">The equippable item to equip.</param>
     /// <param name="equippedObject">The GameObject representing the equipped item.</param>
     [ClientRpc]
-    private void RpcEquip(InventoryItem inventoryItem, GameObject equippedObject)
+    private void RpcEquip(InventoryItem inventoryItem)
     {
-        //GameObject equippableReference = FindEquippableReference(inventoryItem.ItemCategory);
-        //equippedObject.transform.SetParent(equippableReference.transform);
+        GameObject equippableReference = _equippedRenderers[inventoryItem.ItemCategory];
+        SkinnedMeshRenderer skinnedMeshRenderer = equippableReference.GetComponent<SkinnedMeshRenderer>();
 
-        Debug.Log($"Equipping {inventoryItem.name} locally...");
+        skinnedMeshRenderer.sharedMesh = inventoryItem.InventoryRenderer.Mesh;
+        skinnedMeshRenderer.materials = inventoryItem.InventoryRenderer.Materials;
     }
 
-    /// <summary>
-    /// Finds the reference GameObject where the given equippable item should be attached based on its category.
-    /// </summary>
-    /// <param name="inventoryCategory">The category of the equippable item.</param>
-    /// <returns>
-    /// The GameObject reference where the equippable item should be attached, or <c>null</c> if no reference exists for the given category.
-    /// </returns>
-    private GameObject FindEquippableReference(InventoryItem.InventoryCategory inventoryCategory)
+    // TODO: Document
+    [ClientRpc]
+    private void RpcUnequip(InventoryItem inventoryItem)
     {
-        switch (inventoryCategory)
-        {
-            default:
-                UnityUtils.LogWarning($"CmdEquip() support for {inventoryCategory} has not yet been implemented.");
-                return null;
-        }
+        GameObject equippableReference = _equippedRenderers[inventoryItem.ItemCategory];
+        InventoryRenderer initialRenderer = _initialRenderers[inventoryItem.ItemCategory];
+        SkinnedMeshRenderer skinnedMeshRenderer = equippableReference.GetComponent<SkinnedMeshRenderer>();
+
+        skinnedMeshRenderer.sharedMesh = initialRenderer.Mesh;
+        skinnedMeshRenderer.materials = initialRenderer.Materials;
     }
+
+    ///// <summary>
+    ///// Finds the reference GameObject where the given equippable item should be attached based on its category.
+    ///// </summary>
+    ///// <param name="inventoryCategory">The category of the equippable item.</param>
+    ///// <returns>
+    ///// The GameObject reference where the equippable item should be attached, or <c>null</c> if no reference exists for the given category.
+    ///// </returns>
+    //private GameObject FindEquippableReference(InventoryItem.InventoryCategory inventoryCategory)
+    //{
+    //    switch (inventoryCategory)
+    //    {
+    //        case InventoryItem.InventoryCategory.Chest:
+    //            return _equippableReferences[];
+
+    //        default:
+    //            UnityUtils.LogWarning($"CmdEquip() support for {inventoryCategory} has not yet been implemented.");
+    //            return null;
+    //    }
+    //}
 
     /// <summary>
     /// Toggles the visibility of the ammunition UI on the target client.

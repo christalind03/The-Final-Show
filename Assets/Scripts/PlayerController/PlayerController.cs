@@ -347,12 +347,11 @@ public class PlayerController : NetworkBehaviour
     {
         if (!isLocalPlayer) { return; }
 
-        Collider hitCollider = _raycastHit.collider;
+        GameObject hitObject = _raycastHit.collider.gameObject;
 
-        if (hitCollider != null)
+        if (hitObject != null)
         {
-            GameObject targetObject = hitCollider.transform.root.gameObject; // Interactable objects should always have their interactable script at the top-most level.
-            CmdInteract(targetObject);
+            CmdInteract(hitObject);
         }
     }
 
