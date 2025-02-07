@@ -9,6 +9,9 @@ public class GameplayContext
 
     private readonly GameplayTheme[] _gameplayThemes;
 
+    public int _scriptsCollected; // Stores the number of scripts collected in the current run
+    public int _lifetimeScriptsCollected; // Stores the total number of scripts collected across all runs
+
     /// <summary>
     /// Initializes a new instance of the <see cref="GameplayContext"/> class.
     /// </summary>
@@ -16,6 +19,7 @@ public class GameplayContext
     public GameplayContext(GameplayTheme[] gameplayThemes)
     {
         _gameplayThemes = gameplayThemes;
+        _scriptsCollected = 0;
     }
 
     /// <summary>
@@ -25,5 +29,14 @@ public class GameplayContext
     {
         int themeIndex = Random.Range(0, _gameplayThemes.Length);
         GameplayTheme = _gameplayThemes[themeIndex];
+    }
+
+    /// <summary>
+    /// Increments the number of scripts collected (current and lifetime)
+    /// </summary>
+    public void CollectScript()
+    {
+        _scriptsCollected++;
+        _lifetimeScriptsCollected++;
     }
 }
