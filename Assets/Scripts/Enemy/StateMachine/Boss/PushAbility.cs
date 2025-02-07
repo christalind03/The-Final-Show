@@ -9,10 +9,12 @@ public class PushAbilityState : EnemyState
     {
         Debug.Log("Entering Pushing State");
         StateContext.NavMeshAgent.destination = StateContext.Transform.position; // Stop moving to use ability
+        StateContext.Animator.SetBool("Is Pushing", true);
     }
 
     public override void ExitState()
     {
+        StateContext.Animator.SetBool("Is Pushing", false);
         Debug.Log("Leaving Pushing State");
     }
 
