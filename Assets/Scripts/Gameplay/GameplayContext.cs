@@ -20,6 +20,7 @@ public class GameplayContext
     {
         _gameplayThemes = gameplayThemes;
         _scriptsCollected = 0;
+        _lifetimeScriptsCollected = 0;
     }
 
     /// <summary>
@@ -36,7 +37,10 @@ public class GameplayContext
     /// </summary>
     public void CollectScript()
     {
+        Debug.Log("Script collected in context");
         _scriptsCollected++;
         _lifetimeScriptsCollected++;
+        Debug.Log("Current Scripts: " + _scriptsCollected);
+        Debug.Log("Lifetime Scripts: " + _lifetimeScriptsCollected);
     }
 }
