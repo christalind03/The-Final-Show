@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
 
-public class XPScript : NetworkBehaviour
+public class Manuscript : NetworkBehaviour
 {
     
     private GameplayManager gameplayManager;
