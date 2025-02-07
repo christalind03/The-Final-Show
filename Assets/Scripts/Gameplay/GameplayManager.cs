@@ -47,4 +47,13 @@ public class GameplayManager : StateManager<GameplayManager.State, GameplayState
     {
         StartCoroutine(UnityUtils.WaitForObject(GeneralUtils.DefaultTimeout, onFound));
     }
+
+    /// <summary>
+    /// Called by script objects when collected to increment the total number of scripts collected.
+    /// Updates the script count in StateContext so other states may access it.
+    /// </summary>
+    public void CollectScript()
+    {
+        StateContext.CollectScript();
+    }
 }
