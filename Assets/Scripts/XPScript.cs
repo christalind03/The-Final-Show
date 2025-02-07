@@ -13,6 +13,7 @@ public class XPScript : NetworkBehaviour
     /// </summary>
     void Start()
     {
+        if (!isServer) { return; }
         // Get GameplayManager
         gameplayManager = GameplayManager.Instance;
         if ( gameplayManager == null )
@@ -24,17 +25,19 @@ public class XPScript : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!isServer) { return; }
         // TODO: Make it spin or something cool
     }
 
     private void OnTriggerEnter(Collider collider)
     {
+        if (!isServer) { return; }
         // If the script collides with a player
-        if(collider.gameObject.tag == "Player")
+        if (collider.gameObject.tag == "Player")
         {
             // Increment player's script scoreboard count (future maybe)
             // Increment total scripts in gameplayManager
-            //gameplayManager.CollectScript();
+            gameplayManager.CollectScript();
             Debug.Log("Script Collected");
             // Destroy object
             Destroy(gameObject);
