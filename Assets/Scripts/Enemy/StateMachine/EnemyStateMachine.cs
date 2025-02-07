@@ -148,7 +148,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
                     _canAttack = false;
                     _isAttacking = true;
                     StartCoroutine(AttackCooldown());
-                    // TODO: add a delay here for duration of attack animation
                     StartCoroutine(AttackAnimationCooldown());
                 }
             }
