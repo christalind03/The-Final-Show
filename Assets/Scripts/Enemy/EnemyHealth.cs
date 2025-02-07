@@ -9,6 +9,7 @@ public class EnemyHealth : AbstractHealth
 {
     [Header("User Interface")]
     [SerializeField] private StatusBar _healthBar; // Since we may have multiple StatusBar components, we have to manually set the correct reference.
+    [SerializeField] private GameObject _scriptPrefab;
 
     /// <summary>
     /// Called when <see cref="_baseValue"/> changes.
@@ -33,11 +34,26 @@ public class EnemyHealth : AbstractHealth
     }
 
     /// <summary>
-    /// Handles the death of an enemy by destroying the gameObject.
+    /// Handles the death of an enemy by spawning a script object and destroying the gameObject.
     /// </summary>
     [Server]
     protected override void TriggerDeath()
     {
+        RpcSpawnScript();
         Destroy(gameObject);
     }
+
+    [ClientRpc]
+    protected void RpcSpawnScript()
+    {
+        if (_scriptPrefab != null)
+        {
+            Instantiate(_scriptPrefab, gameObject.transform.position, Quaternion.identity);
+        }
+        else
+        {
+            Debug.Log("No script prefab found");
+        }
+    }
+
 }
