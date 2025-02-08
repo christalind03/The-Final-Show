@@ -63,7 +63,10 @@ public class PlayerInventory : NetworkBehaviour
         get { return _inventorySlots.Values.ToList(); }
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Initializes dictionaries for tracking the initial and equipped renderers,
+    /// mapping inventory categories to their respective visual representations.
+    /// </summary>
     private void Start()
     {
         _initialRenderers = new Dictionary<InventoryItem.InventoryCategory, InventoryRenderer>();
@@ -277,7 +280,11 @@ public class PlayerInventory : NetworkBehaviour
         return false;
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Adds an item to the specified inventory slot on the server.
+    /// </summary>
+    /// <param name="availableSlot">The slot to assign the item to.</param>
+    /// <param name="inventoryItem">The item to add.</param>
     [Command]
     private void CmdAddItem(string availableSlot, InventoryItem inventoryItem)
     {
@@ -324,7 +331,10 @@ public class PlayerInventory : NetworkBehaviour
         return removedItem;
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Removes an item from the specified inventory slot on the server.
+    /// </summary>
+    /// <param name="slotKey">The key of the slot to clear.</param>
     [Command]
     private void CmdRemoveItem(string slotKey)
     {
@@ -502,7 +512,10 @@ public class PlayerInventory : NetworkBehaviour
         skinnedMeshRenderer.materials = inventoryItem.InventoryRenderer.Materials;
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Restores the initial mesh adn materials for the specified inventory item to all clients.
+    /// </summary>
+    /// <param name="inventoryItem">The item to unequip.</param>
     [ClientRpc]
     private void RpcUnequip(InventoryItem inventoryItem)
     {
@@ -513,26 +526,6 @@ public class PlayerInventory : NetworkBehaviour
         skinnedMeshRenderer.sharedMesh = initialRenderer.Mesh;
         skinnedMeshRenderer.materials = initialRenderer.Materials;
     }
-
-    ///// <summary>
-    ///// Finds the reference GameObject where the given equippable item should be attached based on its category.
-    ///// </summary>
-    ///// <param name="inventoryCategory">The category of the equippable item.</param>
-    ///// <returns>
-    ///// The GameObject reference where the equippable item should be attached, or <c>null</c> if no reference exists for the given category.
-    ///// </returns>
-    //private GameObject FindEquippableReference(InventoryItem.InventoryCategory inventoryCategory)
-    //{
-    //    switch (inventoryCategory)
-    //    {
-    //        case InventoryItem.InventoryCategory.Chest:
-    //            return _equippableReferences[];
-
-    //        default:
-    //            UnityUtils.LogWarning($"CmdEquip() support for {inventoryCategory} has not yet been implemented.");
-    //            return null;
-    //    }
-    //}
 
     /// <summary>
     /// Toggles the visibility of the ammunition UI on the target client.
