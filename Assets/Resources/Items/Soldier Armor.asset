@@ -16,12 +16,12 @@ MonoBehaviour:
   _objectPrefab: {fileID: 7434889318403469533, guid: 6a1f8f07fa19ddf418d57818c930086d,
     type: 3}
   _inventoryCategory: 0
-  _itemMesh: {fileID: 2561743556622202211, guid: 8ea249faaccefbe41ad5b58f3010029c,
-    type: 3}
-  _itemMaterials:
-  - {fileID: 2100000, guid: 93aa4d80ca3483f4fa4a9c4ea4bef0a6, type: 2}
-  - {fileID: 2100000, guid: 2d7bf0271d43515439ef0889f1078dff, type: 2}
-  - {fileID: 2100000, guid: 683a61ebce87df14caa39917d08115c8, type: 2}
+  _inventoryRenderer:
+    Mesh: {fileID: 2561743556622202211, guid: 8ea249faaccefbe41ad5b58f3010029c, type: 3}
+    Materials:
+    - {fileID: 2100000, guid: 93aa4d80ca3483f4fa4a9c4ea4bef0a6, type: 2}
+    - {fileID: 2100000, guid: 2d7bf0271d43515439ef0889f1078dff, type: 2}
+    - {fileID: 2100000, guid: fdbf0e06342d89a468692ba1dd4d18b7, type: 2}
   _attack: 0
   _defense: 0
   _health: 0

@@ -351,7 +351,14 @@ public class PlayerController : NetworkBehaviour
 
         if (hitObject != null)
         {
-            CmdInteract(hitObject);
+            if (hitObject.TryGetComponent(out SkinnedMeshRenderer skinnedMeshRenderer))
+            {
+                CmdInteract(hitObject);
+            }
+            else
+            {
+                CmdInteract(hitObject.transform.root.gameObject);
+            }
         }
     }
 
