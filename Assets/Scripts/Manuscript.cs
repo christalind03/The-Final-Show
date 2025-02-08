@@ -7,6 +7,7 @@ public class Manuscript : NetworkBehaviour
 {
     
     private GameplayManager gameplayManager;
+    [SerializeField] private float rotationSpeed = 10f;
     
     /// <summary>
     /// Initializes the script object with the GameplayManager
@@ -27,6 +28,7 @@ public class Manuscript : NetworkBehaviour
     {
         if (!isServer) { return; }
         // TODO: Make it spin or something cool
+        transform.Rotate(0, Time.deltaTime*rotationSpeed, 0);
     }
 
     private void OnTriggerEnter(Collider collider)
@@ -37,7 +39,10 @@ public class Manuscript : NetworkBehaviour
         {
             // Increment player's script scoreboard count (future maybe)
             // Increment total scripts in gameplayManager
-            gameplayManager.CollectScript();
+            if (gameplayManager != null)
+            {
+                gameplayManager.CollectScript();
+            }
             Debug.Log("Script Collected");
             // Destroy object
             Destroy(gameObject);
