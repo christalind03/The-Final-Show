@@ -2,46 +2,62 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
+using Unity.VisualScripting.Dependencies.Sqlite;
 
 public class Manuscript : NetworkBehaviour
 {
     
-    private GameplayManager gameplayManager;
-    [SerializeField] private float rotationSpeed = 10f;
+    private GameplayManager _gameplayManager;
+    [SerializeField] private float _rotationSpeed = 10f;
+    [SerializeField] private float _launchSpeed = 1f;
+    [Range(0f, 90f)]
+    [SerializeField]
+    [Tooltip("The measured in degress upwards from the horizontal")]
+    private float _launchAngle = 45f;
     
+    private Rigidbody rb;
+
     /// <summary>
     /// Initializes the script object with the GameplayManager
     /// </summary>
     void Start()
     {
         if (!isServer) { return; }
-        // Get GameplayManager
-        gameplayManager = GameplayManager.Instance;
-        if ( gameplayManager == null )
+        // Get the GameplayManager
+        _gameplayManager = GameplayManager.Instance;
+        if ( _gameplayManager == null )
         {
             Debug.Log("Gameplay Manager not found");
         }
+        // Apply a velocity change forwards and up according to launch angle
+        rb = GetComponent<Rigidbody>();
+        Vector3 launchDir = Quaternion.AngleAxis(_launchAngle, -transform.right) * transform.forward;
+        Debug.Log("launch direction: " + launchDir);
+        rb.AddForce(_launchSpeed * launchDir, ForceMode.VelocityChange);
     }
 
     // Update is called once per frame
     void Update()
     {
         if (!isServer) { return; }
-        // TODO: Make it spin or something cool
-        transform.Rotate(0, Time.deltaTime*rotationSpeed, 0);
+        // Rotate the script every frame because it looks cool
+        transform.Rotate(0, Time.deltaTime*_rotationSpeed, 0);
     }
 
+    /// <summary>
+    /// Used to detect when a player collects the script
+    /// </summary>
     private void OnTriggerEnter(Collider collider)
     {
         if (!isServer) { return; }
         // If the script collides with a player
         if (collider.gameObject.tag == "Player")
         {
-            // Increment player's script scoreboard count (future maybe)
+            // TODO: Increment player's script scoreboard count (future maybe)
             // Increment total scripts in gameplayManager
-            if (gameplayManager != null)
+            if (_gameplayManager != null)
             {
-                gameplayManager.CollectScript();
+                _gameplayManager.CollectScript();
             }
             Debug.Log("Script Collected");
             // Destroy object
