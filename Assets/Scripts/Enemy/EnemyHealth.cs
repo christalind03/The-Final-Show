@@ -9,7 +9,11 @@ public class EnemyHealth : AbstractHealth
 {
     [Header("User Interface")]
     [SerializeField] private StatusBar _healthBar; // Since we may have multiple StatusBar components, we have to manually set the correct reference.
+
+    [Header("Manuscript Settings")]
     [SerializeField] private GameObject _scriptPrefab;
+    [Min(1), SerializeField] private int _minScripts = 1;
+    [Min(1), SerializeField] private int _maxScripts = 1;
 
     /// <summary>
     /// Called when <see cref="_baseValue"/> changes.
@@ -39,8 +43,21 @@ public class EnemyHealth : AbstractHealth
     [Server]
     protected override void TriggerDeath()
     {
-        GameObject script = Instantiate(_scriptPrefab, gameObject.transform.position, Quaternion.identity);
-        NetworkServer.Spawn(script);
+        SpawnScripts();
         Destroy(gameObject);
+    }
+
+    protected void SpawnScripts()
+    {
+        int numScripts = Random.Range(_minScripts, _maxScripts + 1);
+        //Quaternion curRotation = Quaternion.AngleAxis(Random.Range(0f, 360f), Vector3.up);
+        float curRotation = Random.Range(0f, 360f);
+        float degIncrement = 360f / numScripts;
+        for (int i = 0; i < numScripts; i++)
+        {
+            GameObject script = Instantiate(_scriptPrefab, gameObject.transform.position, Quaternion.AngleAxis(curRotation, Vector3.up));
+            NetworkServer.Spawn(script);
+            curRotation += degIncrement;
+        }
     }
 }
