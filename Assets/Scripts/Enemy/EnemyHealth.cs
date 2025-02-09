@@ -47,15 +47,18 @@ public class EnemyHealth : AbstractHealth
         Destroy(gameObject);
     }
 
+    /// <summary>
+    /// Spawns a random number of scripts with evenly distributed rotations about the Y-axis
+    /// </summary>
     protected void SpawnScripts()
     {
         int numScripts = Random.Range(_minScripts, _maxScripts + 1);
-        //Quaternion curRotation = Quaternion.AngleAxis(Random.Range(0f, 360f), Vector3.up);
         float curRotation = Random.Range(0f, 360f);
         float degIncrement = 360f / numScripts;
         for (int i = 0; i < numScripts; i++)
         {
-            GameObject script = Instantiate(_scriptPrefab, gameObject.transform.position, Quaternion.AngleAxis(curRotation, Vector3.up));
+            // Instantiates the object with the current rotation and one unit up from the enemy's position
+            GameObject script = Instantiate(_scriptPrefab, gameObject.transform.position + Vector3.up, Quaternion.AngleAxis(curRotation, Vector3.up));
             NetworkServer.Spawn(script);
             curRotation += degIncrement;
         }
