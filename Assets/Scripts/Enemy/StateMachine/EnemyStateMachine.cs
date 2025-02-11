@@ -9,6 +9,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     public enum EEnemyState
     {
         Idle,
+        Wandering,
         Chasing,
         Aiming,
         Attacking,
