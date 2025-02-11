@@ -12,8 +12,7 @@ public class AimingState : EnemyState
 
         // For debugging purposes only.
         StateContext.Material.SetColor("_BaseColor", Color.red);
-        
-        StateContext.NavMeshAgent.destination = StateContext.Transform.position; // Stop moving to aim at the target
+        StateContext.Animator.SetBool("Is Aiming", true);
     }
 
     public override void ExitState()
@@ -30,5 +29,6 @@ public class AimingState : EnemyState
         Vector3 dir = (StateContext.TargetTransform.position - StateContext.Transform.position).normalized;
         Quaternion targetRotation = Quaternion.LookRotation(dir);
         StateContext.Transform.rotation = Quaternion.Slerp(StateContext.Transform.rotation, targetRotation, _rotationSpeed * Time.deltaTime);
+        StateContext.Animator.SetFloat("Speed", StateContext.NavMeshAgent.velocity.magnitude);
     }
 }
