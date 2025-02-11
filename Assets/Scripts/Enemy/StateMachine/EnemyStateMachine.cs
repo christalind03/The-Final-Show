@@ -115,8 +115,8 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
         if (_hasTarget)
         {
             distToTarget = Vector3.Distance(transform.position, _targetTransform.position); // recalculate distToTarget
-            // If Idle and target is closer than startChaseDist, start chasing
-            if (CurrentState.StateKey.Equals(EEnemyState.Idle) && distToTarget < _behaviorStats.StartChaseDist)
+            // If in default state and target is closer than startChaseDist, start chasing
+            if (CurrentState.StateKey.Equals(_defaultState) && distToTarget < _behaviorStats.StartChaseDist)
             {
                 TransitionToState(EEnemyState.Chasing);
             }
@@ -171,7 +171,8 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
             // No target and couldn't find a new one -> go to Idle
             else
             {
-                TransitionToState(EEnemyState.Idle);
+                //TransitionToState(EEnemyState.Idle);
+                TransitionToState(_defaultState);
             }
         }
     }
