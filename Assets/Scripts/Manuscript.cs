@@ -18,7 +18,7 @@ public class Manuscript : NetworkBehaviour
     private Rigidbody rb;
 
     /// <summary>
-    /// Initializes the script object with the GameplayManager
+    /// Initializes the script object with the GameplayManager and adds a velocity to launch the manuscript outward
     /// </summary>
     void Start()
     {
@@ -32,7 +32,6 @@ public class Manuscript : NetworkBehaviour
         // Apply a velocity change forwards and up according to launch angle
         rb = GetComponent<Rigidbody>();
         Vector3 launchDir = Quaternion.AngleAxis(_launchAngle, -transform.right) * transform.forward;
-        Debug.Log("launch direction: " + launchDir);
         rb.AddForce(_launchSpeed * launchDir, ForceMode.VelocityChange);
     }
 
