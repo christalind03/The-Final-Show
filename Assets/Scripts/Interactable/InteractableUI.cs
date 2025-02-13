@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Mirror;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -17,19 +18,20 @@ public class InteractableUI : AbstractBillboard
     private GameObject _player;
     private Camera _camera;
     private RaycastHit _raycastHit;
-    private Dictionary<string, Sprite> _keyDictionary;
+    private InteractableUISprites interactableSprite;
 
+    /// <summary>
+    /// Loads the different ui information that needs to be displayed
+    /// </summary>
     private void Start() {  
-        _keyDictionary = new Dictionary<string, Sprite>();
-        for (char c = 'A'; c <= 'Z'; c++)
-        {
-            _keyDictionary[c.ToString()] = Resources.Load<Sprite>($"Sprites/Keys/Letters/keyboard_{c.ToString().ToLower()}");
-        }
-
+        interactableSprite = NetworkManager.FindObjectOfType<InteractableUISprites>();
         _infoText.text = message;
-        _interactImage.sprite = _keyDictionary.GetValueOrDefault(InputControlPath.ToHumanReadableString(Interact.action.bindings[0].effectivePath, InputControlPath.HumanReadableStringOptions.OmitDevice));
+        _interactImage.sprite = interactableSprite._keyDictionary.GetValueOrDefault(InputControlPath.ToHumanReadableString(Interact.action.bindings[0].effectivePath, InputControlPath.HumanReadableStringOptions.OmitDevice));
     }
     
+    /// <summary>
+    /// Performs lateupdate from AbstractBillboard and also displays interact UI base on look direction and distance
+    /// </summary>
     protected override void LateUpdate()
     {
         base.LateUpdate();
