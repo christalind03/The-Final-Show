@@ -19,7 +19,7 @@ public abstract class StateManager<EState, TState, TStateContext> : NetworkBehav
 {
     [Header("State Paramaters")]
     [SerializeField] private bool _cloneStates;
-    [SerializeField] private EState _defaultState;
+    [SerializeField] protected EState _defaultState;
 
     [Tooltip("Associates each state with its corresponding behavior.")]
     [SerializeField] protected List<StateMapping<EState, TStateContext>> StateMappings;
