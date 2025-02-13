@@ -557,6 +557,7 @@ public class PlayerController : NetworkBehaviour
     /// <param name="newName">player's name</param>
     [Command]
     private void CmdUpdateName(string newName){
+        if(_scoreboard == null) return;
         if(!Application.isEditor){
             gameObject.name = newName;
         }
