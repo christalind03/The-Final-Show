@@ -30,8 +30,8 @@ public class InteractableInventoryItem : NetworkBehaviour, IInteractable
                 _initialMesh = _skinnedMeshRenderer.sharedMesh;
                 _initialMaterials = _skinnedMeshRenderer.materials;
 
-                _skinnedMeshRenderer.sharedMesh = InventoryItem.InventoryRenderer.Mesh;
-                _skinnedMeshRenderer.materials = InventoryItem.InventoryRenderer.Materials;
+                _skinnedMeshRenderer.sharedMesh = InventoryItem.SkinnedMeshRenderer.sharedMesh;
+                _skinnedMeshRenderer.sharedMaterials = InventoryItem.SkinnedMeshRenderer.sharedMaterials;
             }
             else
             {

@@ -17,13 +17,13 @@ public class InventoryItem : ScriptableObject
     [Header("Item Data")]
     [SerializeField] protected Sprite _objectSprite;
     [SerializeField] protected GameObject _objectPrefab;
+    [SerializeField] protected SkinnedMeshRenderer _skinnedMeshRenderer;
     [SerializeField] protected InventoryCategory _inventoryCategory;
-    [SerializeField] protected InventoryRenderer _inventoryRenderer;
 
     public Sprite ObjectSprite => _objectSprite;
     public GameObject ObjectPrefab => _objectPrefab;
+    public SkinnedMeshRenderer SkinnedMeshRenderer => _skinnedMeshRenderer;
     public InventoryCategory ItemCategory => _inventoryCategory;
-    public InventoryRenderer InventoryRenderer => _inventoryRenderer;
 }
 
 /// <summary>

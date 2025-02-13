@@ -21,12 +21,12 @@ public class PlayerInventory : NetworkBehaviour
         public GameObject Reference;
     }
 
-    private struct PlayerInventoryRestriction
+    private struct InventoryRestriction
     {
         public InventoryItem.InventoryCategory ItemCategory { get; private set; }
         public Type ItemType { get; private set; }
 
-        public PlayerInventoryRestriction(InventoryItem.InventoryCategory itemCategory, Type itemType)
+        public InventoryRestriction(InventoryItem.InventoryCategory itemCategory, Type itemType)
         {
             ItemCategory = itemCategory;
             ItemType = itemType;
@@ -34,7 +34,7 @@ public class PlayerInventory : NetworkBehaviour
 
         public override bool Equals(object otherObj)
         {
-            return otherObj is PlayerInventoryRestriction otherInventoryRestriction && 
+            return otherObj is InventoryRestriction otherInventoryRestriction && 
                 ItemCategory == otherInventoryRestriction.ItemCategory &&
                 ItemType == otherInventoryRestriction.ItemType;
         }
@@ -45,14 +45,20 @@ public class PlayerInventory : NetworkBehaviour
         }
     }
 
+    private struct Renderer
+    {
+        public Mesh Mesh;
+        public Material[] Materials;
+    }
+
     [SerializeField] private List<EquippableReference> _equippableReferences;
 
     private readonly SyncDictionary<string, InventoryItem> _inventorySlots = new SyncDictionary<string, InventoryItem>();
     
     private string _currentSlot;
     private List<string> _inventoryKeys;
-    private Dictionary<string, PlayerInventoryRestriction> _inventoryRestrictions;
-    private Dictionary<InventoryItem.InventoryCategory, InventoryRenderer> _initialRenderers;
+    private Dictionary<string, InventoryRestriction> _inventoryRestrictions;
+    private Dictionary<InventoryItem.InventoryCategory, Renderer> _initialRenderers;
     private Dictionary<InventoryItem.InventoryCategory, GameObject> _equippedRenderers;
     private PlayerInterface _playerInterface;
     private PlayerHealth _playerHealth;
@@ -69,7 +75,7 @@ public class PlayerInventory : NetworkBehaviour
     /// </summary>
     private void Start()
     {
-        _initialRenderers = new Dictionary<InventoryItem.InventoryCategory, InventoryRenderer>();
+        _initialRenderers = new Dictionary<InventoryItem.InventoryCategory, Renderer>();
         _equippedRenderers = new Dictionary<InventoryItem.InventoryCategory, GameObject>();
 
         foreach (EquippableReference equippableReference in _equippableReferences)
@@ -81,7 +87,7 @@ public class PlayerInventory : NetworkBehaviour
         {
             SkinnedMeshRenderer skinnedMeshRenderer = initialRender.GetComponent<SkinnedMeshRenderer>();
 
-            _initialRenderers[inventoryCategory] = new InventoryRenderer
+            _initialRenderers[inventoryCategory] = new Renderer
             {
                 Mesh = skinnedMeshRenderer.sharedMesh,
                 Materials = skinnedMeshRenderer.materials,
@@ -116,13 +122,13 @@ public class PlayerInventory : NetworkBehaviour
     public override void OnStartAuthority()
     {
         // Define inventory slot restrictions
-        _inventoryRestrictions = new Dictionary<string, PlayerInventoryRestriction>
+        _inventoryRestrictions = new Dictionary<string, InventoryRestriction>
         {
-            { "Slot-1", new PlayerInventoryRestriction(InventoryItem.InventoryCategory.Weapon, typeof(MeleeWeapon)) },
-            { "Slot-2", new PlayerInventoryRestriction(InventoryItem.InventoryCategory.Weapon, typeof(RangedWeapon)) },
-            { "Slot-3", new PlayerInventoryRestriction(InventoryItem.InventoryCategory.Helmet, typeof(Armor)) },
-            { "Slot-4", new PlayerInventoryRestriction(InventoryItem.InventoryCategory.Chest, typeof(Armor)) },
-            { "Slot-5", new PlayerInventoryRestriction(InventoryItem.InventoryCategory.Legs, typeof(Armor)) },
+            { "Slot-1", new InventoryRestriction(InventoryItem.InventoryCategory.Weapon, typeof(MeleeWeapon)) },
+            { "Slot-2", new InventoryRestriction(InventoryItem.InventoryCategory.Weapon, typeof(RangedWeapon)) },
+            { "Slot-3", new InventoryRestriction(InventoryItem.InventoryCategory.Helmet, typeof(Armor)) },
+            { "Slot-4", new InventoryRestriction(InventoryItem.InventoryCategory.Chest, typeof(Armor)) },
+            { "Slot-5", new InventoryRestriction(InventoryItem.InventoryCategory.Legs, typeof(Armor)) },
         };
 
         // Extract and sort the inventory keys to ensure proper cycling
@@ -417,7 +423,7 @@ public class PlayerInventory : NetworkBehaviour
 
         if (inventoryItem.ItemCategory == InventoryItem.InventoryCategory.Weapon)
         {
-            PlayerInventoryRestriction inventoryRestriction = new PlayerInventoryRestriction(InventoryItem.InventoryCategory.Weapon, inventoryItem.GetType());
+            InventoryRestriction inventoryRestriction = new InventoryRestriction(InventoryItem.InventoryCategory.Weapon, inventoryItem.GetType());
             bool isSlotValid = _currentSlot == GeneralUtils.LocateDictionaryKey(_inventoryRestrictions, inventoryRestriction);
             bool isHandheld = GetItem() is not InventoryItem { ItemCategory: InventoryItem.InventoryCategory.Weapon };
             bool isEmpty = equippableReference?.transform.childCount == 0;
@@ -508,8 +514,8 @@ public class PlayerInventory : NetworkBehaviour
         GameObject equippableReference = _equippedRenderers[inventoryItem.ItemCategory];
         SkinnedMeshRenderer skinnedMeshRenderer = equippableReference.GetComponent<SkinnedMeshRenderer>();
 
-        skinnedMeshRenderer.sharedMesh = inventoryItem.InventoryRenderer.Mesh;
-        skinnedMeshRenderer.materials = inventoryItem.InventoryRenderer.Materials;
+        skinnedMeshRenderer.sharedMesh = inventoryItem.SkinnedMeshRenderer.sharedMesh;
+        skinnedMeshRenderer.sharedMaterials = inventoryItem.SkinnedMeshRenderer.sharedMaterials;
     }
 
     /// <summary>
@@ -519,8 +525,8 @@ public class PlayerInventory : NetworkBehaviour
     [ClientRpc]
     private void RpcUnequip(InventoryItem inventoryItem)
     {
+        Renderer initialRenderer = _initialRenderers[inventoryItem.ItemCategory];
         GameObject equippableReference = _equippedRenderers[inventoryItem.ItemCategory];
-        InventoryRenderer initialRenderer = _initialRenderers[inventoryItem.ItemCategory];
         SkinnedMeshRenderer skinnedMeshRenderer = equippableReference.GetComponent<SkinnedMeshRenderer>();
 
         skinnedMeshRenderer.sharedMesh = initialRenderer.Mesh;
