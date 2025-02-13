@@ -5,9 +5,12 @@ using UnityEngine.AI;
 [CreateAssetMenu(menuName = "Base State/Enemy/Chasing")]
 public class ChasingState : EnemyState
 {
+    private float movementSpeed = 3.5f;
+
     public override void EnterState()
     {
         Debug.Log("Entering Chasing State");
+        StateContext.NavMeshAgent.speed = movementSpeed; // Update speed
         // We want the enemy to stop once the target is within aim distance
         StateContext.NavMeshAgent.stoppingDistance = StateContext.BehaviorStats.StartAimDist;
         StateContext.Animator.SetBool("Is Aiming", false);
