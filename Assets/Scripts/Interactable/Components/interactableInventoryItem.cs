@@ -8,17 +8,36 @@ using UnityEngine;
 [RequireComponent(typeof(NetworkIdentity))]
 public class InteractableInventoryItem : NetworkBehaviour, IInteractable
 {
+    [SerializeField] private bool _isSkinned;
+
     public InventoryItem InventoryItem;
 
+    private SkinnedMeshRenderer _skinnedMeshRenderer;
+    private Mesh _initialMesh;
+    private Material[] _initialMaterials;
+
     /// <summary>
-    /// Initializes the object by instantiating its visual representation from the item prefab.
+    /// Sets the object's visual representation based on the assigned inventory item.
     /// </summary>
     private void Start()
     {
         if (InventoryItem != null)
         {
-            Transform currentTransform = transform;
-            Instantiate(InventoryItem.ObjectPrefab, currentTransform);
+            if (_isSkinned)
+            {
+                _skinnedMeshRenderer = gameObject.GetComponent<SkinnedMeshRenderer>();
+
+                _initialMesh = _skinnedMeshRenderer.sharedMesh;
+                _initialMaterials = _skinnedMeshRenderer.materials;
+
+                _skinnedMeshRenderer.sharedMesh = InventoryItem.SkinnedMeshRenderer.sharedMesh;
+                _skinnedMeshRenderer.sharedMaterials = InventoryItem.SkinnedMeshRenderer.sharedMaterials;
+            }
+            else
+            {
+                Transform currentTransform = transform;
+                Instantiate(InventoryItem.ObjectPrefab, currentTransform);
+            }
         }
     }
 
@@ -33,18 +52,35 @@ public class InteractableInventoryItem : NetworkBehaviour, IInteractable
         {
             if (playerInventory.AddItem(InventoryItem))
             {
-                CmdDestroy();
+                CmdRemove();
             }
         }
     }
 
     /// <summary>
-    /// Destroys this object on the server and propagates the destructiont to all clients.
+    /// Handles the destruction of this object on the server and propagates the necessary updates to all clients.
     /// </summary>
     [Command(requiresAuthority = false)]
-    private void CmdDestroy()
+    private void CmdRemove()
     {
-        NetworkServer.Destroy(gameObject);
-        Destroy(gameObject);
+        if (_isSkinned)
+        {
+            RpcRemove();
+        }
+        else
+        {
+            NetworkServer.Destroy(gameObject);
+            Destroy(gameObject);
+        }
+    }
+
+    /// <summary>
+    /// Resets the skinned mesh renderer to its initial state on all clients.
+    /// </summary>
+    [ClientRpc]
+    private void RpcRemove()
+    {
+        _skinnedMeshRenderer.sharedMesh = _initialMesh;
+        _skinnedMeshRenderer.materials = _initialMaterials;
     }
 }

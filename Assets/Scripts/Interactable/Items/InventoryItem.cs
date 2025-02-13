@@ -6,12 +6,24 @@ using UnityEngine;
 /// </summary>
 public class InventoryItem : ScriptableObject
 {
+    public enum InventoryCategory
+    {
+        Chest,
+        Helmet,
+        Legs,
+        Weapon,
+    }
+
     [Header("Item Data")]
     [SerializeField] protected Sprite _objectSprite;
     [SerializeField] protected GameObject _objectPrefab;
+    [SerializeField] protected SkinnedMeshRenderer _skinnedMeshRenderer;
+    [SerializeField] protected InventoryCategory _inventoryCategory;
 
     public Sprite ObjectSprite => _objectSprite;
     public GameObject ObjectPrefab => _objectPrefab;
+    public SkinnedMeshRenderer SkinnedMeshRenderer => _skinnedMeshRenderer;
+    public InventoryCategory ItemCategory => _inventoryCategory;
 }
 
 /// <summary>

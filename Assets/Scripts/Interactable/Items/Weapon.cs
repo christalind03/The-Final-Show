@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// Represents a weapon that can be equipped by a player or entity.
 /// </summary>
-public class Weapon : EquippableItem
+public class Weapon : InventoryItem
 {
     [Header("Weapon Parameters")]
     [SerializeField] protected LayerMask _attackLayers;
