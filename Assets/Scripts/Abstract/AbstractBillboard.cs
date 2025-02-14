@@ -20,7 +20,7 @@ public class AbstractBillboard : MonoBehaviour
     /// To avoid jitter caused by continuous camera updates in the <see cref="PlayerController"/>'s Update() function, we use LateUpdate() instead.
     /// Further explanation can be found in the following video: https://www.youtube.com/watch?v=BLfNP4Sc_iA&t=1120s (16:55)
     /// </remarks>
-    private void LateUpdate()
+    protected virtual void LateUpdate()
     {
         if (_playerCamera != null)
         {

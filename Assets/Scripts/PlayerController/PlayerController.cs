@@ -347,18 +347,12 @@ public class PlayerController : NetworkBehaviour
     {
         if (!isLocalPlayer) { return; }
 
-        GameObject hitObject = _raycastHit.collider.gameObject;
+        Collider hitCollider = _raycastHit.collider;
 
-        if (hitObject != null)
+        if (hitCollider != null)
         {
-            if (hitObject.TryGetComponent(out SkinnedMeshRenderer skinnedMeshRenderer))
-            {
-                CmdInteract(hitObject);
-            }
-            else
-            {
-                CmdInteract(hitObject.transform.root.gameObject);
-            }
+            GameObject targetObject = hitCollider.transform.root.gameObject; // Interactable objects should always have their interactable script at the top-most level.
+            CmdInteract(targetObject);
         }
     }
 
@@ -562,14 +556,12 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     /// <param name="newName">player's name</param>
     [Command]
-    private void CmdUpdateName(string newName)
-    {
-        //if(!Application.isEditor)
-        //{
-        //    gameObject.name = newName;
-        //}
-
-        //_scoreboard.nameReady = true;
+    private void CmdUpdateName(string newName){
+        if(_scoreboard == null) return;
+        if(!Application.isEditor){
+            gameObject.name = newName;
+        }
+        _scoreboard.nameReady = true;
     }
 
     /// <summary>
