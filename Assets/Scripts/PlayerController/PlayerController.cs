@@ -34,6 +34,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float _staminaCooldown;
 
     [Header("Player References")]
+    [SerializeField] private AudioManager _audioManager;
     [SerializeField] private CinemachineVirtualCamera _aimCamera;
     [SerializeField] private CharacterController _characterController;
     [SerializeField] private Transform _cameraTransform;
@@ -249,6 +250,26 @@ public class PlayerController : NetworkBehaviour
         // To prevent repeated if-else statements, we instead have a ternary operator to trigger the correct animation with its respective direction.
         _playerAnimator.SetFloat(_animatorMovementX, moveInput.x == 0 ? 0 : totalSpeed * Mathf.Sign(moveInput.x), 0.1f, Time.deltaTime); // 0.1f is an arbitrary dampening value to transition between different animations.
         _playerAnimator.SetFloat(_animatorMovementZ, moveInput.y == 0 ? 0 : totalSpeed * Mathf.Sign(moveInput.y), 0.1f, Time.deltaTime);
+
+        // Update the audio clip being played based on the player's movement.
+        if (moveInput == Vector2.zero)
+        {
+            _audioManager.CmdStop("Footsteps_Running");
+            _audioManager.CmdStop("Footsteps_Walking");
+        }
+        else
+        {
+            if (_isSprinting)
+            {
+                _audioManager.CmdStop("Footsteps_Walking");
+                _audioManager.CmdPlay("Footsteps_Running");
+            }
+            else
+            {
+                _audioManager.CmdStop("Footsteps_Running");
+                _audioManager.CmdPlay("Footsteps_Walking");
+            }
+        }
     }
 
     /// <summary>

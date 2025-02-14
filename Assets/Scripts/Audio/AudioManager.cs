@@ -7,21 +7,19 @@ public class AudioManager : NetworkBehaviour
     [System.Serializable]
     private class AudioAsset
     {
+        public bool Is3D;
         public string Name;
         public AudioResource Resource;
     }
 
     [SerializeField] private AudioAsset[] _audioAssets;
-    [HideInInspector] private AudioSource _audioSource;
 
     // TODO: Document
     private void Awake()
     {
-        _audioSource = gameObject.GetComponent<AudioSource>();
-
         foreach (AudioAsset audioAsset in _audioAssets)
         {
-            audioAsset.Resource.AudioSource = _audioSource;
+            audioAsset.Resource.AudioSource = CreateAudioSource(audioAsset.Is3D);
             audioAsset.Resource.AudioSource.clip = audioAsset.Resource.AudioClip;
             audioAsset.Resource.AudioSource.volume = audioAsset.Resource.Volume;
             audioAsset.Resource.AudioSource.pitch = audioAsset.Resource.Pitch;
@@ -30,9 +28,33 @@ public class AudioManager : NetworkBehaviour
     }
 
     // TODO: Document
+    private AudioSource CreateAudioSource(bool is3D)
+    {
+        AudioSource audioSource = gameObject.AddComponent<AudioSource>();
+
+        if (is3D)
+        {
+            audioSource.spatialize = true;
+            audioSource.spatialBlend = 1.0f; // Enables 3D audio
+
+            audioSource.minDistance = 5;
+            audioSource.maxDistance = 15;
+            audioSource.rolloffMode = AudioRolloffMode.Linear;
+        }
+
+        return audioSource;
+    }
+
+    // TODO: Document
     public void CmdPlay(string audioName)
     {
         RpcPlay(audioName);
+    }
+
+    // TODO: Document
+    public void CmdStop()
+    {
+        RpcStop();
     }
 
     // TODO: Document
@@ -48,11 +70,26 @@ public class AudioManager : NetworkBehaviour
 
         if (audioAsset == null)
         {
-            UnityUtils.LogWarning($"{audioName} audio asset does not exist on {gameObject.name}.");
+            UnityUtils.LogWarning($"Unable to locate audio asset '{audioName}' on {gameObject.name}.");
             return;
         }
+        else
+        {
+            Debug.Log($"{audioAsset.Resource.AudioSource.clip.name}: {audioAsset.Resource.AudioSource.isPlaying}");
+            if (audioAsset.Resource.AudioSource.isPlaying == false)
+            {
+                audioAsset.Resource.AudioSource.Play();
+            }
+        }
+    }
 
-        audioAsset.Resource.AudioSource.Play();
+    // TODO: Document
+    public void RpcStop()
+    {
+        foreach (AudioAsset audioAsset in _audioAssets)
+        {
+            audioAsset.Resource.AudioSource.Stop();
+        }
     }
 
     // TODO: Document
@@ -62,7 +99,7 @@ public class AudioManager : NetworkBehaviour
 
         if (audioAsset == null)
         {
-            UnityUtils.LogWarning($"{audioName} audio asset does not exist on {gameObject.name}.");
+            UnityUtils.LogWarning($"Unable to locate audio asset '{audioName}' on {gameObject.name}.");
             return;
         }
 
