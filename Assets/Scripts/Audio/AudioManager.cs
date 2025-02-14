@@ -1,58 +1,71 @@
+using Mirror;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Audio Manager", menuName = "Audio Manager")]
-public class AudioManager : ScriptableObject
+public class AudioManager : NetworkBehaviour
 {
     [System.Serializable]
-    private class AudioEntry
+    private class AudioAsset
     {
         public string Name;
-        public AudioClip AudioClip;
-
-        [Range(0f, 1f)] public float Volume = 0.5f;
-        [Range(0.1f, 3f)] public float Pitch = 1f;
-        public bool Loop;
-
-        [HideInInspector] public AudioSource AudioSource;
+        public AudioResource Resource;
     }
 
-    [SerializeField] private AudioEntry[] _audioEntries;
-    [HideInInspector] public AudioSource AudioSource;
+    [SerializeField] private AudioAsset[] _audioAssets;
+    [HideInInspector] private AudioSource _audioSource;
 
     // TODO: Document
-    public void Initialize()
+    private void Awake()
     {
-        foreach (AudioEntry audioEntry in _audioEntries)
+        _audioSource = gameObject.GetComponent<AudioSource>();
+
+        foreach (AudioAsset audioAsset in _audioAssets)
         {
-            audioEntry.AudioSource = AudioSource;
-            audioEntry.AudioSource.clip = audioEntry.AudioClip;
-            audioEntry.AudioSource.volume = audioEntry.Volume;
-            audioEntry.AudioSource.pitch = audioEntry.Pitch;
-            audioEntry.AudioSource.loop = audioEntry.Loop;
+            audioAsset.Resource.AudioSource = _audioSource;
+            audioAsset.Resource.AudioSource.clip = audioAsset.Resource.AudioClip;
+            audioAsset.Resource.AudioSource.volume = audioAsset.Resource.Volume;
+            audioAsset.Resource.AudioSource.pitch = audioAsset.Resource.Pitch;
+            audioAsset.Resource.AudioSource.loop = audioAsset.Resource.Loop;
         }
     }
 
     // TODO: Document
-    public void Play(string audioName)
+    public void CmdPlay(string audioName)
     {
-        AudioEntry audioEntry = Array.Find(_audioEntries, audioEntry => audioEntry.Name == audioName);
-
-        if (audioEntry != null)
-        {
-            audioEntry.AudioSource.Play();
-        }
+        RpcPlay(audioName);
     }
 
     // TODO: Document
-    public void Stop(string audioName)
+    public void CmdStop(string audioName)
     {
-        AudioEntry audioEntry = Array.Find(_audioEntries, audioEntry => audioEntry.Name == audioName);
+        RpcStop(audioName);
+    }
 
-        if (audioEntry != null)
+    // TODO: Document
+    public void RpcPlay(string audioName)
+    {
+        AudioAsset audioAsset = Array.Find(_audioAssets, audioAsset => audioAsset.Name == audioName);
+
+        if (audioAsset == null)
         {
-            audioEntry.AudioSource.Stop();
+            UnityUtils.LogWarning($"{audioName} audio asset does not exist on {gameObject.name}.");
+            return;
         }
+
+        audioAsset.Resource.AudioSource.Play();
+    }
+
+    // TODO: Document
+    public void RpcStop(string audioName)
+    {
+        AudioAsset audioAsset = Array.Find(_audioAssets, audioAsset => audioAsset.Name == audioName);
+
+        if (audioAsset == null)
+        {
+            UnityUtils.LogWarning($"{audioName} audio asset does not exist on {gameObject.name}.");
+            return;
+        }
+
+        audioAsset.Resource.AudioSource.Stop();
     }
 }
