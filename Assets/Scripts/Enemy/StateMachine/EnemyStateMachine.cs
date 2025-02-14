@@ -22,6 +22,8 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     [Header("Behavior Parameters")]
     [SerializeField] protected BehaviorStats _behaviorStats;
 
+    [SerializeField] protected AudioManager _audioManager;
+
     protected Vector3 _initialPosition;
     protected Quaternion _initialRotation;
 
@@ -61,7 +63,14 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
 
         _navMeshAgent.stoppingDistance = _behaviorStats.StartAimDist;
 
-        StateContext = new EnemyContext(_attackStats, _behaviorStats, _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _enemyAnimator, _material);
+        if (_audioManager != null)
+        {
+            // TODO: Explain this... I guess?
+            _audioManager.AudioSource = gameObject.GetComponent<AudioSource>();
+            _audioManager.Initialize();
+        }
+
+        StateContext = new EnemyContext(_audioManager, _attackStats, _behaviorStats, _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _enemyAnimator, _material);
     }
 
     /// <summary>
