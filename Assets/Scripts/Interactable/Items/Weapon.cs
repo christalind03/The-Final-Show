@@ -7,10 +7,12 @@ using UnityEngine;
 public class Weapon : InventoryItem
 {
     [Header("Weapon Parameters")]
+    [SerializeField] protected AudioResource _attackAudio;
     [SerializeField] protected LayerMask _attackLayers;
     [SerializeField] protected float _attackCooldown;
     [SerializeField] protected float _attackDamage;
 
+    public AudioResource AttackAudio => _attackAudio;
     public LayerMask AttackLayers => _attackLayers;
     public float AttackCooldown => _attackCooldown;
     public float AttackDamage => _attackDamage;
