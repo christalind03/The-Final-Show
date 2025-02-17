@@ -412,13 +412,16 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  _audioAssets:
+  AudioAssets:
   - Is3D: 1
     Name: Footsteps_Running
     Resource: {fileID: 11400000, guid: 85c5003cd1b89464c91a56b6b68b1c56, type: 2}
   - Is3D: 1
     Name: Footsteps_Walking
     Resource: {fileID: 11400000, guid: 47ffb9e233321324faa5e3b69e5ab632, type: 2}
+  - Is3D: 1
+    Name: Weapon
+    Resource: {fileID: 0}
 --- !u!114 &2873006661348008412
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -478,7 +481,6 @@ MonoBehaviour:
   _staminaCost: 5.5
   _staminaRestoration: 15
   _staminaCooldown: 1.5
-  _audioManager: {fileID: -5829320596806072323}
   _aimCamera: {fileID: 5764944521598878711}
   _characterController: {fileID: 8053147996298278901}
   _cameraTransform: {fileID: 8102490668816230080}

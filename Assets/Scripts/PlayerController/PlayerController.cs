@@ -34,7 +34,6 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float _staminaCooldown;
 
     [Header("Player References")]
-    [SerializeField] private AudioManager _audioManager;
     [SerializeField] private CinemachineVirtualCamera _aimCamera;
     [SerializeField] private CharacterController _characterController;
     [SerializeField] private Transform _cameraTransform;
@@ -59,6 +58,7 @@ public class PlayerController : NetworkBehaviour
     private SettingsMenu _settings;
     private ScoreBoard _scoreboard;
 
+    private AudioManager _audioManager;
     private Animator _playerAnimator;
     private int _animatorIsJumping;
     private int _animatorMovementX;
@@ -69,7 +69,8 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     public override void OnStartAuthority()
     {
-        CameraController cameraController= GetComponent<CameraController>();
+        _audioManager = gameObject.GetComponent<AudioManager>();
+        CameraController cameraController = gameObject.GetComponent<CameraController>();
 
         if (cameraController.alive)
         {
@@ -368,12 +369,18 @@ public class PlayerController : NetworkBehaviour
     {
         if (!isLocalPlayer) { return; }
 
-        Collider hitCollider = _raycastHit.collider;
+        GameObject hitObject = _raycastHit.collider.gameObject;
 
-        if (hitCollider != null)
+        if (hitObject != null)
         {
-            GameObject targetObject = hitCollider.transform.root.gameObject; // Interactable objects should always have their interactable script at the top-most level.
-            CmdInteract(targetObject);
+            if (hitObject.TryGetComponent(out SkinnedMeshRenderer skinnedMeshRenderer))
+            {
+                CmdInteract(hitObject);
+            }
+            else
+            {
+                CmdInteract(hitObject.transform.root.gameObject);
+            }
         }
     }
 
@@ -419,17 +426,22 @@ public class PlayerController : NetworkBehaviour
     /// <summary>
     /// When the player press Tab, the player list will open/close based on the current display status
     /// </summary>
-    private void ScoreBoard(InputAction.CallbackContext context){
+    private void ScoreBoard(InputAction.CallbackContext context)
+    {
         _playerInterface.RefreshScoreBoard();
         _playerInterface.ToggleScoreBoardVisibility();
     }
 
-    private void Settings(InputAction.CallbackContext context){
-        if (Application.isEditor) return;
-        if(_settings.ToggleSettingsMenu()){
+    private void Settings(InputAction.CallbackContext context)
+    {
+        if (Application.isEditor) { return; }
+        if (_settings.ToggleSettingsMenu())
+        {
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
-        }else{
+        }
+        else
+        {
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked; 
         }
@@ -440,7 +452,8 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     public override void OnStopClient()
     {
-        if(!isLocalPlayer) return;
+        if (!isLocalPlayer) { return; }
+
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
@@ -537,7 +550,8 @@ public class PlayerController : NetworkBehaviour
     /// <param name="rotationPlayer">Player rotation</param>
     /// <param name="rotationFollow">Follow Camera rotation</param>
     [ClientRpc]
-    private void RpcUpdatePlayerLook(Quaternion rotationFollow, int aimCamPrio){
+    private void RpcUpdatePlayerLook(Quaternion rotationFollow, int aimCamPrio)
+    {
         if (isLocalPlayer) { return; }
         _followTransform.rotation = rotationFollow;
         _aimCamera.Priority = aimCamPrio;
@@ -577,11 +591,14 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     /// <param name="newName">player's name</param>
     [Command]
-    private void CmdUpdateName(string newName){
-        if(_scoreboard == null) return;
-        if(!Application.isEditor){
+    private void CmdUpdateName(string newName)
+    {
+        if (_scoreboard == null) { return; }
+        if (!Application.isEditor)
+        {
             gameObject.name = newName;
         }
+
         _scoreboard.nameReady = true;
     }
 

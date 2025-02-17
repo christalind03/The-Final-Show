@@ -5,25 +5,27 @@ using UnityEngine;
 public class AudioManager : NetworkBehaviour
 {
     [System.Serializable]
-    private class AudioAsset
+    public class AudioAsset
     {
         public bool Is3D;
         public string Name;
         public AudioResource Resource;
+        [HideInInspector] public AudioSource AudioSource;
     }
 
-    [SerializeField] private AudioAsset[] _audioAssets;
+    public AudioAsset[] AudioAssets;
 
     // TODO: Document
     private void Awake()
     {
-        foreach (AudioAsset audioAsset in _audioAssets)
+        foreach (AudioAsset audioAsset in AudioAssets)
         {
-            audioAsset.Resource.AudioSource = CreateAudioSource(audioAsset.Is3D);
-            audioAsset.Resource.AudioSource.clip = audioAsset.Resource.AudioClip;
-            audioAsset.Resource.AudioSource.volume = audioAsset.Resource.Volume;
-            audioAsset.Resource.AudioSource.pitch = audioAsset.Resource.Pitch;
-            audioAsset.Resource.AudioSource.loop = audioAsset.Resource.Loop;
+            audioAsset.AudioSource = CreateAudioSource(audioAsset.Is3D);
+            
+            if (audioAsset.Resource != null)
+            {
+                InitializeAudio(audioAsset);
+            }
         }
     }
 
@@ -46,56 +48,69 @@ public class AudioManager : NetworkBehaviour
     }
 
     // TODO: Document
+    private void InitializeAudio(AudioAsset audioAsset)
+    {
+        audioAsset.AudioSource.clip = audioAsset.Resource.AudioClip;
+        audioAsset.AudioSource.volume = audioAsset.Resource.Volume;
+        audioAsset.AudioSource.pitch = audioAsset.Resource.Pitch;
+        audioAsset.AudioSource.loop = audioAsset.Resource.Loop;
+    }   
+
+    // TODO: Document
+    public void ChangeAudio(string targetSource, AudioResource audioResource)
+    {
+        AudioAsset targetAsset = Array.Find(AudioAssets, audioAsset => audioAsset.Name == targetSource);
+        targetAsset.Resource = audioResource;
+        InitializeAudio(targetAsset);
+    }
+
+    // TODO: Document
+    [Command(requiresAuthority = false)]
     public void CmdPlay(string audioName)
     {
         RpcPlay(audioName);
     }
 
     // TODO: Document
+    [Command(requiresAuthority = false)]
     public void CmdStop()
     {
-        RpcStop();
+        foreach (AudioAsset audioAsset in AudioAssets)
+        {
+            RpcStop(audioAsset.Name);
+        }
     }
 
     // TODO: Document
+    [Command(requiresAuthority = false)]
     public void CmdStop(string audioName)
     {
         RpcStop(audioName);
     }
 
     // TODO: Document
+    [ClientRpc]
     public void RpcPlay(string audioName)
     {
-        AudioAsset audioAsset = Array.Find(_audioAssets, audioAsset => audioAsset.Name == audioName);
+        AudioAsset audioAsset = Array.Find(AudioAssets, audioAsset => audioAsset.Name == audioName);
 
         if (audioAsset == null)
         {
             UnityUtils.LogWarning($"Unable to locate audio asset '{audioName}' on {gameObject.name}.");
             return;
         }
-        else
+
+        if (audioAsset.AudioSource.isPlaying == false)
         {
-            Debug.Log($"{audioAsset.Resource.AudioSource.clip.name}: {audioAsset.Resource.AudioSource.isPlaying}");
-            if (audioAsset.Resource.AudioSource.isPlaying == false)
-            {
-                audioAsset.Resource.AudioSource.Play();
-            }
+            audioAsset.AudioSource.Play();
         }
     }
 
     // TODO: Document
-    public void RpcStop()
-    {
-        foreach (AudioAsset audioAsset in _audioAssets)
-        {
-            audioAsset.Resource.AudioSource.Stop();
-        }
-    }
-
-    // TODO: Document
+    [ClientRpc]
     public void RpcStop(string audioName)
     {
-        AudioAsset audioAsset = Array.Find(_audioAssets, audioAsset => audioAsset.Name == audioName);
+        AudioAsset audioAsset = Array.Find(AudioAssets, audioAsset => audioAsset.Name == audioName);
 
         if (audioAsset == null)
         {
@@ -103,6 +118,6 @@ public class AudioManager : NetworkBehaviour
             return;
         }
 
-        audioAsset.Resource.AudioSource.Stop();
+        audioAsset.AudioSource.Stop();
     }
 }
