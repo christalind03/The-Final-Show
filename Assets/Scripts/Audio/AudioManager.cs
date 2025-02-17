@@ -90,7 +90,7 @@ public class AudioManager : NetworkBehaviour
 
     // TODO: Document
     [ClientRpc]
-    public void RpcPlay(string audioName)
+    private void RpcPlay(string audioName)
     {
         AudioAsset audioAsset = Array.Find(AudioAssets, audioAsset => audioAsset.Name == audioName);
 
@@ -108,7 +108,7 @@ public class AudioManager : NetworkBehaviour
 
     // TODO: Document
     [ClientRpc]
-    public void RpcStop(string audioName)
+    private void RpcStop(string audioName)
     {
         AudioAsset audioAsset = Array.Find(AudioAssets, audioAsset => audioAsset.Name == audioName);
 

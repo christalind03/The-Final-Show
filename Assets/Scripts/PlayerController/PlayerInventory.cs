@@ -162,7 +162,6 @@ public class PlayerInventory : NetworkBehaviour
         {
             if (inventoryItem != null)
             {
-                Debug.Log(inventoryItem.name);
                 AddItem(inventoryItem);
             }
         }
@@ -277,11 +276,6 @@ public class PlayerInventory : NetworkBehaviour
 
             if (ShouldEquip(inventoryItem))
             {
-                if (inventoryItem is Weapon weaponItem)
-                {
-                    _audioManager.ChangeAudio("Weapon", weaponItem.AttackAudio);
-                }
-
                 CmdEquip(inventoryItem);
             }
 
@@ -519,6 +513,11 @@ public class PlayerInventory : NetworkBehaviour
     [ClientRpc]
     private void RpcEquip(InventoryItem inventoryItem)
     {
+        if (inventoryItem is Weapon weaponItem)
+        {
+            _audioManager.ChangeAudio("Weapon", weaponItem.AttackAudio);
+        }
+
         GameObject equippableReference = _equippedRenderers[inventoryItem.ItemCategory];
         SkinnedMeshRenderer skinnedMeshRenderer = equippableReference.GetComponent<SkinnedMeshRenderer>();
 
