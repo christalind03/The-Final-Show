@@ -14,7 +14,7 @@ public class Weapon : InventoryItem
     public LayerMask AttackLayers => _attackLayers;
     public float AttackCooldown => _attackCooldown;
     public float AttackDamage => _attackDamage;
-}
+
 
 /// <summary>
 /// Provides serialization and deserialization methods for <see cref="Weapon"/> objects over a network.
