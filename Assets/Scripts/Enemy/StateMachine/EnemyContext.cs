@@ -5,10 +5,6 @@ public class EnemyContext
 {
     public readonly AttackStats AttackStats;
     public readonly BehaviorStats BehaviorStats;
-    public readonly float StartChaseDist;
-    public readonly float EndChaseDist;
-    public readonly float StartAttackDist;
-    public readonly float EndAttackDist;
 
     public readonly Vector3 InitialPosition;
     public readonly Quaternion InitialRotation;
