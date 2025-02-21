@@ -12,6 +12,7 @@ public class CombatController : NetworkBehaviour
 
     private AudioManager _audioManager;
     private PlayerInterface _playerInterface;
+    private PlayerStats _playerStats;
     private bool _canAttack;
 
     // TODO: Document
@@ -26,7 +27,8 @@ public class CombatController : NetworkBehaviour
     public override void OnStartAuthority()
     {
         _playerInterface = gameObject.GetComponent<PlayerInterface>();
-        _canAttack = true;        
+        _playerStats = gameObject.GetComponent<PlayerStats>();
+        _canAttack = true;
 
         base.OnStartAuthority();
     }
@@ -66,6 +68,8 @@ public class CombatController : NetworkBehaviour
     private void MeleeAttack(MeleeWeapon playerWeapon)
     {
         Collider[] hitTargets = Physics.OverlapSphere(transform.position, playerWeapon.AttackRange, playerWeapon.AttackLayers);
+        // Comment out for testing crit
+        //float critChance = _playerStats != null ? _playerStats.CriticalStrikeChance.CurrentValue : 0f;
 
         foreach (Collider hitCollider in hitTargets)
         {
@@ -76,7 +80,19 @@ public class CombatController : NetworkBehaviour
 
             if (inRange && hitCollider.TryGetComponent(out AbstractHealth healthComponent))
             {
-                healthComponent.CmdDamage(playerWeapon.AttackDamage);
+                float finalDamage = playerWeapon.AttackDamage;
+                float critChance = 1.0f; // Force 100% Critical Strike Chance for testing
+                if (Random.value < critChance)
+                {
+                    finalDamage *= 2;
+                    Debug.Log("Critical Strike! Damage: " + finalDamage);
+                }
+                else
+                {
+                    Debug.Log("Normal Attack. Damage: " + finalDamage);
+                }
+
+                healthComponent.CmdDamage(finalDamage);
             }
         }
     }
@@ -140,7 +156,22 @@ public class CombatController : NetworkBehaviour
     private void RpcShoot(RangedWeapon rangedWeapon, GameObject projectileObject, Vector3 initialPosition, Vector3 finalPosition)
     {
         Projectile projectileComponent = projectileObject.GetComponent<Projectile>();
-        projectileComponent.AttackDamage = rangedWeapon.AttackDamage;
+        float finalDamage = rangedWeapon.AttackDamage;
+        // Comment out for crit testing
+        //float critChance = _playerStats != null ? _playerStats.CriticalStrikeChance.CurrentValue : 0f;
+        float critChance = 1.0f; // Force 100% Critical Strike Chance
+
+        if (Random.value < critChance)
+        {
+            finalDamage *= 2;
+            Debug.Log("Critical Strike! Damage: " + finalDamage);
+        }
+        else
+        {
+            Debug.Log("Normal Attack. Damage: " + finalDamage);
+        }
+      
+        projectileComponent.AttackDamage = finalDamage;
         projectileComponent.AttackLayers = rangedWeapon.AttackLayers;
         projectileComponent.transform.LookAt(finalPosition);
 
