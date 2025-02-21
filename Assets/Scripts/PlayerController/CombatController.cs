@@ -68,8 +68,6 @@ public class CombatController : NetworkBehaviour
     private void MeleeAttack(MeleeWeapon playerWeapon)
     {
         Collider[] hitTargets = Physics.OverlapSphere(transform.position, playerWeapon.AttackRange, playerWeapon.AttackLayers);
-        // Comment out for testing crit
-        //float critChance = _playerStats != null ? _playerStats.CriticalStrikeChance.CurrentValue : 0f;
 
         foreach (Collider hitCollider in hitTargets)
         {
@@ -81,7 +79,8 @@ public class CombatController : NetworkBehaviour
             if (inRange && hitCollider.TryGetComponent(out AbstractHealth healthComponent))
             {
                 float finalDamage = playerWeapon.AttackDamage;
-                float critChance = 1.0f; // Force 100% Critical Strike Chance for testing
+                float critChance = playerWeapon.CriticalStrikeChance;
+
                 if (Random.value < critChance)
                 {
                     finalDamage *= 2;
@@ -157,9 +156,7 @@ public class CombatController : NetworkBehaviour
     {
         Projectile projectileComponent = projectileObject.GetComponent<Projectile>();
         float finalDamage = rangedWeapon.AttackDamage;
-        // Comment out for crit testing
-        //float critChance = _playerStats != null ? _playerStats.CriticalStrikeChance.CurrentValue : 0f;
-        float critChance = 1.0f; // Force 100% Critical Strike Chance
+        float critChance = rangedWeapon.CriticalStrikeChance;
 
         if (Random.value < critChance)
         {
