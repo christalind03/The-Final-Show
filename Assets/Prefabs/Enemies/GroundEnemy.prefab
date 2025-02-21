@@ -111,13 +111,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 751489814099896231}
+  - component: {fileID: 4212744059665530929}
   - component: {fileID: -4826652722677796615}
   - component: {fileID: -3513101740733121024}
+  - component: {fileID: 5573972611063914249}
   - component: {fileID: 3076233964290131508}
   - component: {fileID: 7699988843532859068}
   - component: {fileID: 8473018324076476108}
   - component: {fileID: 2432960672169051269}
-  - component: {fileID: 4212744059665530929}
   m_Layer: 7
   m_Name: GroundEnemy
   m_TagString: Untagged
@@ -142,6 +143,29 @@ Transform:
   - {fileID: 7278864736013839664}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &4212744059665530929
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6085626376942215046}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!114 &-4826652722677796615
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -193,6 +217,26 @@ MonoBehaviour:
   rotationSensitivity: 0.01
   positionPrecision: 0.01
   scalePrecision: 0.01
+--- !u!114 &5573972611063914249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6085626376942215046}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7df4901fe27298949a289855428321ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  AudioAssets:
+  - Is3D: 1
+    Name: Wandering
+    Resource: {fileID: 11400000, guid: 47ffb9e233321324faa5e3b69e5ab632, type: 2}
+    AudioSource: {fileID: 0}
 --- !u!114 &3076233964290131508
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -246,6 +290,7 @@ MonoBehaviour:
     _chaseBuffer: 5
     _startAimDist: 2
     _aimBuffer: 0.5
+  _audioManager: {fileID: 5573972611063914249}
   _attackAnimLength: 1.6
 --- !u!114 &8473018324076476108
 MonoBehaviour:
@@ -298,29 +343,6 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!136 &4212744059665530929
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6085626376942215046}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 1, z: 0}
 --- !u!1001 &4776339844553024859
 PrefabInstance:
   m_ObjectHideFlags: 0

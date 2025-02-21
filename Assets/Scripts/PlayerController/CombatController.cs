@@ -10,8 +10,15 @@ public class CombatController : NetworkBehaviour
     [Header("Combat References")]
     [SerializeField] private Transform _cameraTransform;
 
+    private AudioManager _audioManager;
     private PlayerInterface _playerInterface;
     private bool _canAttack;
+
+    // TODO: Document
+    private void Awake()
+    {
+        _audioManager = gameObject.GetComponent<AudioManager>();
+    }
 
     /// <summary>
     /// Initializes the combat controller, enabling attacks.
@@ -47,6 +54,7 @@ public class CombatController : NetworkBehaviour
                     break;
             }
 
+            _audioManager.CmdPlay("Weapon");
             StartCoroutine(TriggerCooldown(playerWeapon.AttackCooldown));
         }
     }

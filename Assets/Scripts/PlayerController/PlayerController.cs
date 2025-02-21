@@ -58,6 +58,7 @@ public class PlayerController : NetworkBehaviour
     private SettingsMenu _settings;
     private ScoreBoard _scoreboard;
 
+    private AudioManager _audioManager;
     private Animator _playerAnimator;
     private int _animatorIsJumping;
     private int _animatorMovementX;
@@ -68,7 +69,8 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     public override void OnStartAuthority()
     {
-        CameraController cameraController= GetComponent<CameraController>();
+        _audioManager = gameObject.GetComponent<AudioManager>();
+        CameraController cameraController = gameObject.GetComponent<CameraController>();
 
         if (cameraController.alive)
         {
@@ -249,6 +251,26 @@ public class PlayerController : NetworkBehaviour
         // To prevent repeated if-else statements, we instead have a ternary operator to trigger the correct animation with its respective direction.
         _playerAnimator.SetFloat(_animatorMovementX, moveInput.x == 0 ? 0 : totalSpeed * Mathf.Sign(moveInput.x), 0.1f, Time.deltaTime); // 0.1f is an arbitrary dampening value to transition between different animations.
         _playerAnimator.SetFloat(_animatorMovementZ, moveInput.y == 0 ? 0 : totalSpeed * Mathf.Sign(moveInput.y), 0.1f, Time.deltaTime);
+
+        // Update the audio clip being played based on the player's movement.
+        if (moveInput == Vector2.zero)
+        {
+            _audioManager.CmdStop("Footsteps_Running");
+            _audioManager.CmdStop("Footsteps_Walking");
+        }
+        else
+        {
+            if (_isSprinting)
+            {
+                _audioManager.CmdStop("Footsteps_Walking");
+                _audioManager.CmdPlay("Footsteps_Running");
+            }
+            else
+            {
+                _audioManager.CmdStop("Footsteps_Running");
+                _audioManager.CmdPlay("Footsteps_Walking");
+            }
+        }
     }
 
     /// <summary>
@@ -346,6 +368,7 @@ public class PlayerController : NetworkBehaviour
     private void Interact(InputAction.CallbackContext context)
     {
         if (!isLocalPlayer) { return; }
+
         GameObject hitObject = _raycastHit.collider.gameObject;
 
         if (hitObject != null)
@@ -403,17 +426,22 @@ public class PlayerController : NetworkBehaviour
     /// <summary>
     /// When the player press Tab, the player list will open/close based on the current display status
     /// </summary>
-    private void ScoreBoard(InputAction.CallbackContext context){
+    private void ScoreBoard(InputAction.CallbackContext context)
+    {
         _playerInterface.RefreshScoreBoard();
         _playerInterface.ToggleScoreBoardVisibility();
     }
 
-    private void Settings(InputAction.CallbackContext context){
-        if (Application.isEditor) return;
-        if(_settings.ToggleSettingsMenu()){
+    private void Settings(InputAction.CallbackContext context)
+    {
+        if (Application.isEditor) { return; }
+        if (_settings.ToggleSettingsMenu())
+        {
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
-        }else{
+        }
+        else
+        {
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked; 
         }
@@ -424,7 +452,8 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     public override void OnStopClient()
     {
-        if(!isLocalPlayer) return;
+        if (!isLocalPlayer) { return; }
+
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
@@ -521,7 +550,8 @@ public class PlayerController : NetworkBehaviour
     /// <param name="rotationPlayer">Player rotation</param>
     /// <param name="rotationFollow">Follow Camera rotation</param>
     [ClientRpc]
-    private void RpcUpdatePlayerLook(Quaternion rotationFollow, int aimCamPrio){
+    private void RpcUpdatePlayerLook(Quaternion rotationFollow, int aimCamPrio)
+    {
         if (isLocalPlayer) { return; }
         _followTransform.rotation = rotationFollow;
         _aimCamera.Priority = aimCamPrio;
@@ -561,11 +591,14 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     /// <param name="newName">player's name</param>
     [Command]
-    private void CmdUpdateName(string newName){
-        if(_scoreboard == null) return;
-        if(!Application.isEditor){
+    private void CmdUpdateName(string newName)
+    {
+        if (_scoreboard == null) { return; }
+        if (!Application.isEditor)
+        {
             gameObject.name = newName;
         }
+
         _scoreboard.nameReady = true;
     }
 

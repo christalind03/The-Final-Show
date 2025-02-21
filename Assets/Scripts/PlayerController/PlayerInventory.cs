@@ -64,6 +64,8 @@ public class PlayerInventory : NetworkBehaviour
     private PlayerHealth _playerHealth;
     private PlayerStats _playerStats;
 
+    private AudioManager _audioManager;
+
     public List<InventoryItem> Inventory
     {
         get { return _inventorySlots.Values.ToList(); }
@@ -75,6 +77,7 @@ public class PlayerInventory : NetworkBehaviour
     /// </summary>
     private void Start()
     {
+        _audioManager = gameObject.GetComponent<AudioManager>();
         _initialRenderers = new Dictionary<InventoryItem.InventoryCategory, Renderer>();
         _equippedRenderers = new Dictionary<InventoryItem.InventoryCategory, GameObject>();
 
@@ -159,7 +162,6 @@ public class PlayerInventory : NetworkBehaviour
         {
             if (inventoryItem != null)
             {
-                Debug.Log(inventoryItem.name);
                 AddItem(inventoryItem);
             }
         }
@@ -511,6 +513,11 @@ public class PlayerInventory : NetworkBehaviour
     [ClientRpc]
     private void RpcEquip(InventoryItem inventoryItem)
     {
+        if (inventoryItem is Weapon weaponItem)
+        {
+            _audioManager.ChangeAudio("Weapon", weaponItem.AttackAudio);
+        }
+
         GameObject equippableReference = _equippedRenderers[inventoryItem.ItemCategory];
         SkinnedMeshRenderer skinnedMeshRenderer = equippableReference.GetComponent<SkinnedMeshRenderer>();
 
