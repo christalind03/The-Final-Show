@@ -53,7 +53,9 @@ public class CustomNetworkManager : NetworkManager
 
         // Updates scoreboard when player connects
         ScoreBoard scoreBoard = NetworkManager.FindObjectOfType<ScoreBoard>();
-        StartCoroutine(scoreBoard.PlayerJoinedUpdatePlayerList(conn));
+        if(scoreBoard != null){
+            StartCoroutine(scoreBoard.PlayerJoinedUpdatePlayerList(conn));
+        }
     }
 
     /// <summary>
@@ -64,7 +66,9 @@ public class CustomNetworkManager : NetworkManager
     {
         // Updates scoreboard when player disconnects
         ScoreBoard scoreBoard = NetworkManager.FindObjectOfType<ScoreBoard>();
-        scoreBoard.PlayerLeftUpdatePlayerList(conn);
+        if(scoreBoard != null){
+            scoreBoard.PlayerLeftUpdatePlayerList(conn);
+        }
 
         base.OnServerDisconnect(conn);
     }
@@ -89,10 +93,12 @@ public class CustomNetworkManager : NetworkManager
 
         NetworkServer.SetClientReady(clientConnection);
 
-        // Hardcore scene name cause can't find a way around
+        // Hardcode scene name cause can't find a way around
         if(NetworkServer.active && activeScene.name != "Gameplay-Intermission"){
             ScoreBoard scoreBoard = NetworkManager.FindObjectOfType<ScoreBoard>();
-            scoreBoard.UpdateNetId(clientConnection);            
+            if(scoreBoard != null){
+                scoreBoard.UpdateNetId(clientConnection);           
+            } 
         }
     }
 

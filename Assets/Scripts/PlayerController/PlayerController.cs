@@ -346,13 +346,18 @@ public class PlayerController : NetworkBehaviour
     private void Interact(InputAction.CallbackContext context)
     {
         if (!isLocalPlayer) { return; }
+        GameObject hitObject = _raycastHit.collider.gameObject;
 
-        Collider hitCollider = _raycastHit.collider;
-
-        if (hitCollider != null)
+        if (hitObject != null)
         {
-            GameObject targetObject = hitCollider.transform.root.gameObject; // Interactable objects should always have their interactable script at the top-most level.
-            CmdInteract(targetObject);
+            if (hitObject.TryGetComponent(out SkinnedMeshRenderer skinnedMeshRenderer))
+            {
+                CmdInteract(hitObject);
+            }
+            else
+            {
+                CmdInteract(hitObject.transform.root.gameObject);
+            }
         }
     }
 
@@ -557,6 +562,7 @@ public class PlayerController : NetworkBehaviour
     /// <param name="newName">player's name</param>
     [Command]
     private void CmdUpdateName(string newName){
+        if(_scoreboard == null) return;
         if(!Application.isEditor){
             gameObject.name = newName;
         }
