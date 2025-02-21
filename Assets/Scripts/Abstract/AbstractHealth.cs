@@ -83,13 +83,13 @@ public abstract class AbstractHealth : NetworkBehaviour
             CurrentValue -= reducedDamage;
 
             Debug.Log($"{gameObject.name} took {reducedDamage} damage after defense. Remaining health: {CurrentValue}/{BaseValue}");
-
-            if (CurrentValue <= 0f) { TriggerDeath(); }
         }
         else
         {
             CurrentValue -= decreaseValue;
+            Debug.Log($"{gameObject.name} took {decreaseValue} damage. Remaining health: {CurrentValue}/{BaseValue}");
         }
+        if (CurrentValue <= 0f) { TriggerDeath(); }
     }
 
     /// <summary>
