@@ -17,7 +17,7 @@ public class Weapon : InventoryItem
     public float AttackCooldown => _attackCooldown;
     public float AttackDamage => _attackDamage;
 
-
+}
 /// <summary>
 /// Provides serialization and deserialization methods for <see cref="Weapon"/> objects over a network.
 /// </summary>
