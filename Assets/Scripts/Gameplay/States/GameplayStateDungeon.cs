@@ -23,9 +23,6 @@ public class GameplayStateDungeon : GameplayState
         StateContext._scriptsCollected = 0; // Reset scripts collected
         CountdownCallback = () =>
         {
-            Debug.Log("CountdownCallback: Scripts Needed: " + _scriptsNeeded);
-            Debug.Log("CountdownCallback: Scripts Collected: " + StateContext._scriptsCollected);
-            Debug.Log("Boolean: " + (StateContext._scriptsCollected >= _scriptsNeeded));
             if (_safeZone != null && _safeZone.ContainsPlayers && StateContext._scriptsCollected >= _scriptsNeeded)
             {
                 GameplayManager.Instance.TransitionToState(GameplayManager.State.Boss);

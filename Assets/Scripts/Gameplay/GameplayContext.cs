@@ -37,7 +37,6 @@ public class GameplayContext
     /// </summary>
     public void CollectScript()
     {
-        Debug.Log("Script collected in context");
         _scriptsCollected++;
         _lifetimeScriptsCollected++;
         Debug.Log("Current Scripts: " + _scriptsCollected);
