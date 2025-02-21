@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 public class GameplayStateDungeon : GameplayState
 {
     private SafeZone _safeZone;
-    private int _scriptsNeeded = 0; // This would change depending on difficulty, using predefined value for testing
+    private int _scriptsNeeded = 3; // This would change depending on difficulty, using predefined value for testing
 
     /// <summary>
     /// Sets a custom callback to be executed once the countdown finishes.
