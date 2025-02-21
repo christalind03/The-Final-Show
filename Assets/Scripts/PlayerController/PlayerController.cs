@@ -69,7 +69,8 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     public override void OnStartAuthority()
     {
-        CameraController cameraController = GetComponent<CameraController>();
+        _audioManager = gameObject.GetComponent<AudioManager>();
+        CameraController cameraController = gameObject.GetComponent<CameraController>();
 
         if (cameraController.alive)
         {
@@ -436,7 +437,7 @@ public class PlayerController : NetworkBehaviour
 
     private void Settings(InputAction.CallbackContext context)
     {
-        if (Application.isEditor) return;
+        if (Application.isEditor) { return; }
         if (_settings.ToggleSettingsMenu())
         {
             Cursor.visible = true;
@@ -454,7 +455,8 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     public override void OnStopClient()
     {
-        if (!isLocalPlayer) return;
+        if (!isLocalPlayer) { return; }
+
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
@@ -594,7 +596,7 @@ public class PlayerController : NetworkBehaviour
     [Command]
     private void CmdUpdateName(string newName)
     {
-        if (_scoreboard == null) return;
+        if (_scoreboard == null) { return; }
         if (!Application.isEditor)
         {
             gameObject.name = newName;
