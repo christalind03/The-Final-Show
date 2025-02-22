@@ -18,8 +18,10 @@ public class UITesting : MonoBehaviour
     [SerializeField] PlayableDirector switchSettingTabs;
     [SerializeField] PlayableDirector showTab;
     [SerializeField] UIDocument uIDocument;
+    [SerializeField] TimelineAsset menuOpenAnim;
+    [SerializeField] TimelineAsset menuCloseAnim;
     private Dictionary<string, VisualElement> tabElements = new Dictionary<string, VisualElement>();
-    private Dictionary<string, TimelineAsset> timelines = new Dictionary<string, TimelineAsset>();
+
     private VisualElement _rootVisualElement;
     private VisualElement _settingsMenu;
     private VisualElement _navContainer;
@@ -28,11 +30,6 @@ public class UITesting : MonoBehaviour
 
 
     void Start(){
-        TimelineAsset[] loadedTimelines = Resources.LoadAll<TimelineAsset>("UI/Timeline/");
-        foreach (TimelineAsset timeline in loadedTimelines){
-            timelines.Add(timeline.name, timeline);
-        }
-
         isOpen = false;
         _rootVisualElement = uIDocument.rootVisualElement;
         currentTab = "Setting-General-Container";
@@ -61,7 +58,7 @@ public class UITesting : MonoBehaviour
 
     private void OpenMenu(){
         if(!isOpen){
-            menuOpenClose.playableAsset = timelines["OpenSettings"];
+            menuOpenClose.playableAsset = menuOpenAnim;
             _settingsMenu.RemoveFromClassList("secondaryContainer");
             _settingsMenu.AddToClassList("primaryContainer");
             foreach(var elementsPair in tabElements){
@@ -77,7 +74,7 @@ public class UITesting : MonoBehaviour
             menuOpenClose.Play();   
             isOpen = true;
         }else{
-            TimelineAsset closeTimeline = timelines["CloseSettings"];
+            TimelineAsset closeTimeline = menuCloseAnim;
             menuOpenClose.playableAsset = closeTimeline;
             tabElements[GeneralTab].visible = true;     
             menuOpenClose.Play();   
@@ -88,45 +85,22 @@ public class UITesting : MonoBehaviour
         if(currentTab != newTab){
             if(switchSettingTabs.state == PlayState.Playing) return;
 
-            // Disgusting hardcode-in string using switch statement
-            // Mainly used to load the correct timeline
-            switch (currentTab){
-                case "Setting-General-Container":
-                    switchSettingTabs.playableAsset = timelines["SwitchGeneralTab"];
-                    break;
-                case "Setting-Audio-Container":
-                    switchSettingTabs.playableAsset = timelines["SwitchAudioTab"];
-                    break;
-                case "Setting-Controls-Container":
-                    switchSettingTabs.playableAsset = timelines["SwitchControlsTab"];
-                    break;
-                default:
-                    Debug.LogWarning("Invalid Tab");
-                    break;
-            }
-            switch (newTab){
-                case "Setting-General-Container":
-                    showTab.playableAsset = timelines["ShowGeneralTab"];
-                    break;
-                case "Setting-Audio-Container":
-                    showTab.playableAsset = timelines["ShowAudioTab"];
-                    break;
-                case "Setting-Controls-Container":
-                    showTab.playableAsset = timelines["ShowControlsTab"];
-                    break;
-                default:
-                    Debug.LogWarning("Invalid Tab");
-                    break;
-            }
+            // Manage which container in front
+            tabElements[newTab].BringToFront();
 
-            // Play animation
+            // Play animation and manage class to anim correct container
+            tabElements[currentTab].AddToClassList("settingTransitionContainer");
             switchSettingTabs.Play();
-            showTab.Play();
-
-            // Manage which container gets the active container class to keep track
             tabElements[currentTab].RemoveFromClassList("settingActiveContainer");
             currentTab = newTab;
             tabElements[currentTab].AddToClassList("settingActiveContainer");
+            showTab.Play();
+
+            // Remove class once done
+            switchSettingTabs.stopped += (PlayableDirector director) =>{
+                tabElements[currentTab].RemoveFromClassList("settingTransitionContainer");
+            };
+
             tabElements[currentTab].visible = true; //show new tab
         }
     }
