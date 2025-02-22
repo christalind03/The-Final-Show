@@ -270,7 +270,7 @@ GameObject:
   - component: {fileID: 598561150}
   - component: {fileID: 598561151}
   m_Layer: 0
-  m_Name: ShowAudioTab
+  m_Name: ShowTab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -300,7 +300,7 @@ PlayableDirector:
   m_GameObject: {fileID: 598561149}
   m_Enabled: 1
   serializedVersion: 3
-  m_PlayableAsset: {fileID: 11400000, guid: 166705fddf48fa247b1188f5ae280244, type: 2}
+  m_PlayableAsset: {fileID: 11400000, guid: ea00a784fe2af914c82e661c6abaeed7, type: 2}
   m_InitialState: 0
   m_WrapMode: 2
   m_DirectorUpdateMode: 1
@@ -404,9 +404,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7f4f86b262285945bc5fbf801349b99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  openMenu: {fileID: 1559141386}
+  menuOpenClose: {fileID: 1559141386}
   switchSettingTabs: {fileID: 1195331681}
-  showAudioTab: {fileID: 598561151}
+  showTab: {fileID: 598561151}
   uIDocument: {fileID: 904070124}
 --- !u!1 &1195331679
 GameObject:
@@ -419,7 +419,7 @@ GameObject:
   - component: {fileID: 1195331680}
   - component: {fileID: 1195331681}
   m_Layer: 0
-  m_Name: SwitchGeneralTab
+  m_Name: SwitchTab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -692,7 +692,7 @@ GameObject:
   - component: {fileID: 1559141385}
   - component: {fileID: 1559141386}
   m_Layer: 0
-  m_Name: OpenSettings
+  m_Name: MenuOpenCloseAnim
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -722,7 +722,7 @@ PlayableDirector:
   m_GameObject: {fileID: 1559141384}
   m_Enabled: 1
   serializedVersion: 3
-  m_PlayableAsset: {fileID: 11400000, guid: 14275c114063522418a9dca057944573, type: 2}
+  m_PlayableAsset: {fileID: 11400000, guid: 8d5a29931b7d5ed448d95d1a00892597, type: 2}
   m_InitialState: 0
   m_WrapMode: 2
   m_DirectorUpdateMode: 1
