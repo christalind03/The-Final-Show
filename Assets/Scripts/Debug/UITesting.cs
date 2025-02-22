@@ -73,6 +73,7 @@ public class UITesting : MonoBehaviour
             }
             currentTab = GeneralTab;
             tabElements[GeneralTab].visible = true;
+            tabElements[GeneralTab].AddToClassList("settingActiveContainer");
             menuOpenClose.Play();   
             isOpen = true;
         }else{
@@ -86,6 +87,9 @@ public class UITesting : MonoBehaviour
     private void SwitchTab(string newTab){
         if(currentTab != newTab){
             if(switchSettingTabs.state == PlayState.Playing) return;
+
+            // Disgusting hardcode-in string using switch statement
+            // Mainly used to load the correct timeline
             switch (currentTab){
                 case "Setting-General-Container":
                     switchSettingTabs.playableAsset = timelines["SwitchGeneralTab"];
@@ -114,17 +118,15 @@ public class UITesting : MonoBehaviour
                     Debug.LogWarning("Invalid Tab");
                     break;
             }
+
+            // Play animation
             switchSettingTabs.Play();
             showTab.Play();
-            tabElements[currentTab].RemoveFromClassList(".settingActiveContainer");
-            foreach(string name in tabElements[currentTab].GetClasses()){
-                Debug.Log(currentTab + " " + name);
-            }
+
+            // Manage which container gets the active container class to keep track
+            tabElements[currentTab].RemoveFromClassList("settingActiveContainer");
             currentTab = newTab;
-            tabElements[currentTab].AddToClassList(".settingActiveContainer");
-            foreach(string name in tabElements[currentTab].GetClasses()){
-                Debug.Log(currentTab + " " +name);
-            }
+            tabElements[currentTab].AddToClassList("settingActiveContainer");
             tabElements[currentTab].visible = true; //show new tab
         }
     }
