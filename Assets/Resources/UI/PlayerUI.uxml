@@ -4,7 +4,7 @@
     <ui:VisualElement name="Crosshair" style="position: absolute; width: 100%; height: 100%; align-items: center; justify-content: center; align-self: auto;">
         <ui:VisualElement name="Crosshair-Icon" style="background-image: url(&quot;project://database/Assets/Sprites/Crosshair.png?fileID=21300000&amp;guid=a1ab10aa65b87d9438c7d7418770974a&amp;type=3#Crosshair&quot;); width: 64px; height: 64px; align-self: center; justify-content: center; align-items: center;" />
     </ui:VisualElement>
-    <ui:VisualElement name="Primary-Container" class="secondaryContainer">
+    <ui:VisualElement name="Primary-Container" class="primaryContainer">
         <ui:Label tabindex="-1" text="0:00" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Server-Timer" class="defaultFont" style="font-size: 42px; opacity: 0;" />
         <ui:Label tabindex="-1" text="Server Message" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Server-Message" class="defaultFont" style="font-size: 60px; opacity: 0; top: 35%;" />
         <ui:VisualElement name="Status-Bars" style="flex-grow: 1; position: absolute;">
@@ -151,7 +151,7 @@
             <ui:Button text="Next" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Next" style="background-image: url(&quot;project://database/Assets/Sprites/Button.png?fileID=21300000&amp;guid=d320cdf6949077e4bb063177f3e09f3a&amp;type=3#Button&quot;); -unity-font-definition: initial; -unity-font: url(&quot;project://database/Assets/UI%20Toolkit/Mattehek.otf?fileID=12800000&amp;guid=e9462b1ffa385eb4c8248a458fe3ab6a&amp;type=3#Mattehek&quot;); width: 150px; height: 50px; font-size: 32px; border-left-color: rgba(0, 0, 0, 0); border-right-color: rgba(0, 0, 0, 0); border-top-color: rgba(0, 0, 0, 0); border-bottom-color: rgba(0, 0, 0, 0); background-color: rgba(0, 0, 0, 0);" />
         </ui:VisualElement>
     </ui:VisualElement>
-    <ui:VisualElement name="Settings-Container" tabindex="10" focusable="true" class="secondaryContainer" style="width: 100%; height: 100%; background-image: url(&quot;project://database/Assets/Sprites/Curtain.png?fileID=21300000&amp;guid=9e46fa0f4ce4f6b408538d22d2144a59&amp;type=3#Curtain&quot;); -unity-background-scale-mode: scale-and-crop; -unity-slice-scale: 0; align-items: center; justify-content: center; flex-direction: row;">
+    <ui:VisualElement name="Settings-Container" tabindex="10" focusable="true" class="secondaryContainer" style="width: 100%; height: 100%; background-image: url(&quot;project://database/Assets/Sprites/Curtain.png?fileID=21300000&amp;guid=9e46fa0f4ce4f6b408538d22d2144a59&amp;type=3#Curtain&quot;); -unity-background-scale-mode: scale-and-crop; -unity-slice-scale: 0; align-items: center; justify-content: center; flex-direction: row; position: absolute;">
         <ui:VisualElement name="Setting-Nav-Container" style="flex-grow: 1; max-height: 80%; min-height: 80%; max-width: 10%; min-width: 10%; position: absolute; left: 20%;">
             <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
             <ui:Button text="General" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Setting-GeneralBtn" class="defaultFont transparentBackground" style="background-image: url(&quot;project://database/Assets/Sprites/Setting_Side_Buttons.png?fileID=21300000&amp;guid=f391a1fbf76cf824190db81bfe66a3d1&amp;type=3#Setting_Side_Buttons&quot;); font-size: 50px;" />

@@ -5,7 +5,8 @@ using UnityEngine.Timeline;
 using UnityEngine.UIElements;
 
 public class UITesting : MonoBehaviour
-{    
+{   
+    // UI variables
     private const string GeneralTab = "Setting-General-Container";
     private const string AudioTab = "Setting-Audio-Container";
     private const string ControlsTab = "Setting-Controls-Container";
@@ -23,8 +24,24 @@ public class UITesting : MonoBehaviour
     private string currentTab;
     private bool isOpen;
 
-
+    // 
+    
     void Start(){
+        Setup();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if(Input.GetKeyDown("escape")){
+            OpenMenu();
+        }
+    }
+
+
+
+    #region UI Management 
+    private void Setup(){
         isOpen = false;
         _rootVisualElement = uIDocument.rootVisualElement;
         currentTab = "Setting-General-Container";
@@ -41,14 +58,6 @@ public class UITesting : MonoBehaviour
         RegisterButton("Setting-GeneralBtn", () => SwitchTab(GeneralTab));
         RegisterButton("Setting-AudioBtn", () => SwitchTab(AudioTab));
         RegisterButton("Setting-ControlsBtn", () => SwitchTab(ControlsTab));
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if(Input.GetKeyDown("escape")){
-            OpenMenu();
-        }
     }
 
     private void OpenMenu(){
@@ -111,4 +120,5 @@ public class UITesting : MonoBehaviour
             output.clicked += onClick;
         }
     }
+    #endregion
 }
