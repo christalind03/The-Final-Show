@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 using UnityEngine.InputSystem;
-using System.Linq;
 
 public class SettingsMenu : NetworkBehaviour
 {
@@ -20,6 +19,8 @@ public class SettingsMenu : NetworkBehaviour
     [SerializeField] TimelineAsset menuOpenAnim;
     [SerializeField] TimelineAsset menuCloseAnim;
     private Dictionary<string, VisualElement> tabElements = new Dictionary<string, VisualElement>();
+    private Dictionary<string, (Button button, System.Action action)> buttonActions = new Dictionary<string, (Button button, System.Action action)>();
+
 
     private VisualElement _rootVisualElement;
     private VisualElement _settingsMenu;
@@ -84,20 +85,31 @@ public class SettingsMenu : NetworkBehaviour
         RegisterButton(_navContainer, "Setting-AudioBtn", () => SwitchTab(AudioTab), out Button AudioBtn);
         RegisterButton(_navContainer, "Setting-ControlsBtn", () => SwitchTab(ControlsTab), out Button ControlsBtn);
         RegisterButton(tabElements[GeneralTab], "LeaveBtn", OnBtnLeaveGame, out Button LeaveBtn);
-        Button ForwardBtn = null;
-        Button InteractOrEquipBtn = null;
+
+        // Rebind buttons
+        Button ForwardBtn = null, BackwardBtn = null, LeftBtn = null, RightBtn = null, JumpBtn = null;
+        Button InteractOrEquipBtn = null, DropBtn = null;
+        Button AttackBtn = null, AltAttackBtn = null;
         RegisterButton(tabElements[ControlsTab], "ForwardBtn", () => StartRebind("Movement", ForwardBtn, 1), out ForwardBtn);
+        RegisterButton(tabElements[ControlsTab], "BackwardBtn", () => StartRebind("Movement", BackwardBtn, 3), out BackwardBtn);
+        RegisterButton(tabElements[ControlsTab], "LeftBtn", () => StartRebind("Movement", LeftBtn, 2), out LeftBtn);
+        RegisterButton(tabElements[ControlsTab], "RightBtn", () => StartRebind("Movement", RightBtn, 4), out RightBtn);
+        RegisterButton(tabElements[ControlsTab], "JumpBtn", () => StartRebind("Jump", JumpBtn), out JumpBtn);
         RegisterButton(tabElements[ControlsTab], "InteractOrEquipBtn", () => StartRebind("Interact", InteractOrEquipBtn), out InteractOrEquipBtn);
+        RegisterButton(tabElements[ControlsTab], "DropBtn", () => StartRebind("Drop", DropBtn), out DropBtn);
+        RegisterButton(tabElements[ControlsTab], "AttackBtn", () => StartRebind("Attack", AttackBtn), out AttackBtn);
+        RegisterButton(tabElements[ControlsTab], "AltAttackBtn", () => StartRebind("Alternate Attack", AltAttackBtn), out AltAttackBtn);
     } 
 
     /// <summary>
     /// List of all buttons that needs to unsub their actions
     /// </summary>
     private void UnsubActions(){
-        UnregisterButton(_navContainer, "Setting-GeneralBtn", () => SwitchTab(GeneralTab));
-        UnregisterButton(_navContainer, "Setting-AudioBtn", () => SwitchTab(AudioTab));
-        UnregisterButton(_navContainer, "Setting-ControlsBtn", () => SwitchTab(ControlsTab));
-        UnregisterButton(tabElements[GeneralTab], "LeaveBtn", OnBtnLeaveGame);
+        foreach(var kvp in buttonActions){
+            var (button, action) = kvp.Value;
+            if (button != null) button.clicked -= action;
+        }
+        buttonActions.Clear();
     }
 
     /// <summary>
@@ -137,6 +149,7 @@ public class SettingsMenu : NetworkBehaviour
         if(UnityUtils.ContainsElement(root, name, out Button output)){
             output.clicked += onClick;
             button = output;
+            buttonActions.Add(name, (output, onClick));
         }else{
             button = null;
         }
