@@ -26,7 +26,37 @@ public class InteractableUI : AbstractBillboard
     private void Start() {  
         interactableSprite = NetworkManager.FindObjectOfType<InteractableUISprites>();
         _infoText.text = message;
-        _interactImage.sprite = interactableSprite._keyDictionary.GetValueOrDefault(InputControlPath.ToHumanReadableString(Interact.action.bindings[0].effectivePath, InputControlPath.HumanReadableStringOptions.OmitDevice));
+        _interactImage.sprite = interactableSprite._keyDictionary.GetValueOrDefault(
+            InputControlPath.ToHumanReadableString(
+                Interact.action.bindings[0].effectivePath,
+                InputControlPath.HumanReadableStringOptions.OmitDevice
+            ));
+        InputSystem.onActionChange += OnActionChange;
+    }
+
+    /// <summary>
+    /// Disable the callback
+    /// </summary>
+    private void OnDestroy(){
+        InputSystem.onActionChange -= OnActionChange;
+    }
+
+    /// <summary>
+    /// Updates the picture when rebind happens
+    /// </summary>
+    /// <param name="obj">callback obj</param>
+    /// <param name="change">type of change</param>
+    private void OnActionChange(object obj, InputActionChange change)
+    {
+        if (change == InputActionChange.BoundControlsChanged && obj is InputActionAsset asset){
+            if (Interact.action.bindings.Count > 0){
+                string path = InputControlPath.ToHumanReadableString(
+                    Interact.action.bindings[0].effectivePath,
+                    InputControlPath.HumanReadableStringOptions.OmitDevice
+                );
+                _interactImage.sprite = interactableSprite._keyDictionary.GetValueOrDefault(path);
+            }
+        }
     }
     
     /// <summary>

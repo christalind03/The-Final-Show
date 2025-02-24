@@ -86,7 +86,7 @@ public class SettingsMenu : NetworkBehaviour
         RegisterButton(tabElements[GeneralTab], "LeaveBtn", OnBtnLeaveGame, out Button LeaveBtn);
         Button ForwardBtn = null;
         Button InteractOrEquipBtn = null;
-        RegisterButton(tabElements[ControlsTab], "ForwardBtn", () => StartRebind("Movement", ForwardBtn), out ForwardBtn);
+        RegisterButton(tabElements[ControlsTab], "ForwardBtn", () => StartRebind("Movement", ForwardBtn, 1), out ForwardBtn);
         RegisterButton(tabElements[ControlsTab], "InteractOrEquipBtn", () => StartRebind("Interact", InteractOrEquipBtn), out InteractOrEquipBtn);
     } 
 
@@ -154,7 +154,7 @@ public class SettingsMenu : NetworkBehaviour
         }
     }
 
-    private void StartRebind(string actionName, Button rebindButton, int bindingIndx = -1)
+    private void StartRebind(string actionName, Button rebindButton, int compositeIndx = 0)
     {
         _rebindOperation?.Cancel();
 
@@ -164,13 +164,13 @@ public class SettingsMenu : NetworkBehaviour
         }
         
         InputAction action = inputActions.FindAction(actionName);
-        if (action.enabled) action.Disable();
         if (action == null) return;
 
+        if (action.enabled) action.Disable();
         rebindButton.text = "Press any key...";
 
         _rebindOperation?.Cancel();
-        _rebindOperation = action.PerformInteractiveRebinding()
+        _rebindOperation = action.PerformInteractiveRebinding(compositeIndx)
             .OnCancel(operation =>
             {
                 action.Enable();
@@ -179,26 +179,20 @@ public class SettingsMenu : NetworkBehaviour
             .OnComplete(operation =>
             {
                 action.Enable();
-                UpdateRebindButtonText(action, rebindButton);
+                UpdateRebindButtonText(action, rebindButton, compositeIndx);
                 CleanUp();
             })
             .Start();
     }
 
-    private void UpdateRebindButtonText(InputAction action, Button rebindButton)
+    private void UpdateRebindButtonText(InputAction action, Button rebindButton, int compositeIndx = 0)
     {
-        Debug.Log(action == null);
-        Debug.Log(InputControlPath.ToHumanReadableString(
-                action.bindings[0].effectivePath,
-                InputControlPath.HumanReadableStringOptions.OmitDevice));
-        if (action != null && action.bindings.Count > 0)
-        {
+        if (action != null && action.bindings.Count > 0){
             rebindButton.text = InputControlPath.ToHumanReadableString(
-                action.bindings[0].effectivePath,
+                action.bindings[compositeIndx].effectivePath,
                 InputControlPath.HumanReadableStringOptions.OmitDevice);
         }
-        else
-        {
+        else{
             rebindButton.text = "Not Bound";
         }
     }

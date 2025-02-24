@@ -50,7 +50,7 @@ public class PlayerController : NetworkBehaviour
     private Vector3 _playerVelocity;
     
     private RaycastHit _raycastHit;
-    private PlayerControls _playerControls;
+    private PlayerInput _playerInput;
     private CombatController _combatController;
     private PlayerInventory _playerInventory;
     private PlayerStats _playerStats;
@@ -79,7 +79,7 @@ public class PlayerController : NetworkBehaviour
         _canJump = true;
         _canSprint = true;
 
-        _playerControls = new PlayerControls();
+        _playerInput = gameObject.GetComponent<PlayerInput>();
         _combatController = gameObject.GetComponent<CombatController>();
         _playerInventory = gameObject.GetComponent<PlayerInventory>();
         _playerStats = gameObject.GetComponent<PlayerStats>();
@@ -116,19 +116,20 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void EnableControls()
     {
-        _playerControls.Enable();
+        // _playerControls.Enable();
+        _playerInput.actions.Enable();
 
-        _playerControls.Player.Attack.performed += Attack;
-        _playerControls.Player.AlternateAttack.performed += AlternateAttack;
-        _playerControls.Player.Drop.performed += Drop;
-        _playerControls.Player.Interact.performed += Interact;
-        _playerControls.Player.Jump.performed += Jump;
-        _playerControls.Player.ScoreBoard.performed += ScoreBoard;
-        _playerControls.Player.Settings.performed += Settings;
+        _playerInput.actions["Attack"].performed += Attack;
+        _playerInput.actions["Alternate Attack"].performed += AlternateAttack;
+        _playerInput.actions["Drop"].performed += Drop;
+        _playerInput.actions["Interact"].performed += Interact;
+        _playerInput.actions["Jump"].performed += Jump;
+        _playerInput.actions["ScoreBoard"].performed += ScoreBoard;
+        _playerInput.actions["Settings"].performed += Settings;
 
         // Subscribe to inventory slot selection for all slots.
-        _playerControls.Inventory.CycleSlots.performed += _playerInventory.SelectSlot;
-        InputActionMap inventoryActions = _playerControls.asset.FindActionMap("Inventory");
+        _playerInput.actions["Cycle Slots"].performed += _playerInventory.SelectSlot;
+        InputActionMap inventoryActions = _playerInput.actions.FindActionMap("Inventory");
 
         foreach (InputAction inventorySlot in inventoryActions)
         {
@@ -144,7 +145,7 @@ public class PlayerController : NetworkBehaviour
         if (!isLocalPlayer) { return; }
         if (!NetworkClient.ready) { return; }
 
-        if (_characterController.enabled && _playerControls != null)
+        if (_characterController.enabled && _playerInput != null)
         {
             // Check to see if the player is on the ground or not.
             _isGrounded = Physics.Raycast(_playerTransform.position, Vector3.down, 1f) && _playerVelocity.y <= 0f;
@@ -195,11 +196,11 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void HandleLook()
     {
-        Vector2 lookInput = _cameraSensitivity * Time.deltaTime * _playerControls.Player.Look.ReadValue<Vector2>();
+        Vector2 lookInput = _cameraSensitivity * Time.deltaTime * _playerInput.actions["Look"].ReadValue<Vector2>();
 
         // Check to see if the player is aiming (via AlternateAttack) and if the current item in the player's inventory is a RangedWeapon.
         // If both conditions are true, activate the aim camera; otherwise, deactivate it.
-        bool isAiming = _playerControls.Player.AlternateAttack.IsPressed();
+        bool isAiming = _playerInput.actions["Alternate Attack"].IsPressed();
 
         if (isAiming && _playerInventory.GetItem() is RangedWeapon)
         {
@@ -236,7 +237,7 @@ public class PlayerController : NetworkBehaviour
         float totalSpeed = _isSprinting ? _sprintSpeed : _walkSpeed;
 
         // Ensure we always move relative to the direction we are looking at.
-        Vector2 moveInput = _playerControls.Player.Movement.ReadValue<Vector2>();
+        Vector2 moveInput = _playerInput.actions["Movement"].ReadValue<Vector2>();
         Vector3 moveDirection = _playerTransform.forward * moveInput.y + _playerTransform.right * moveInput.x;
 
         _playerVelocity.y += _gravity * Time.deltaTime;
@@ -259,10 +260,10 @@ public class PlayerController : NetworkBehaviour
         Stat playerStamina = _playerStats.Stamina;
 
         // Only sprint if the we are moving forward.
-        Vector2 moveInput = _playerControls.Player.Movement.ReadValue<Vector2>();
+        Vector2 moveInput = _playerInput.actions["Movement"].ReadValue<Vector2>();
         bool isForward = 0 < moveInput.y;
 
-        _isSprinting = _canSprint && isForward && 0 < playerStamina.CurrentValue && _playerControls.Player.Sprint.IsPressed();
+        _isSprinting = _canSprint && isForward && 0 < playerStamina.CurrentValue && _playerInput.actions["Sprint"].IsPressed();
 
         // Decrease/Increase stamina based on whether or not we are currently sprinting.
         if (_isSprinting)
@@ -436,18 +437,18 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void DisableControls()
     {
-        _playerControls.Disable();
+        _playerInput.actions.Disable();
 
-        _playerControls.Player.Attack.performed -= Attack;
-        _playerControls.Player.AlternateAttack.performed -= AlternateAttack;
-        _playerControls.Player.Drop.performed -= Drop;
-        _playerControls.Player.Interact.performed -= Interact;
-        _playerControls.Player.Jump.performed -= Jump;
-        _playerControls.Player.ScoreBoard.performed -= ScoreBoard;
-        _playerControls.Player.Settings.performed -= Settings;
+        _playerInput.actions["Attack"].performed -= Attack;
+        _playerInput.actions["Alternate Attack"].performed -= AlternateAttack;
+        _playerInput.actions["Drop"].performed -= Drop;
+        _playerInput.actions["Interact"].performed -= Interact;
+        _playerInput.actions["Jump"].performed -= Jump;
+        _playerInput.actions["ScoreBoard"].performed -= ScoreBoard;
+        _playerInput.actions["Settings"].performed -= Settings;
 
-        _playerControls.Inventory.CycleSlots.performed -= _playerInventory.SelectSlot;
-        InputActionMap inventoryActions = _playerControls.asset.FindActionMap("Inventory");
+        _playerInput.actions["Cycle Slots"].performed -= _playerInventory.SelectSlot;
+        InputActionMap inventoryActions = _playerInput.actions.FindActionMap("Inventory");
 
         foreach (InputAction inventorySlot in inventoryActions)
         {
