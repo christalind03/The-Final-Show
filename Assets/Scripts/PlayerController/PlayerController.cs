@@ -83,7 +83,7 @@ public class PlayerController : NetworkBehaviour
         _combatController = gameObject.GetComponent<CombatController>();
         _playerInventory = gameObject.GetComponent<PlayerInventory>();
         _playerStats = gameObject.GetComponent<PlayerStats>();
-        _settings = gameObject.GetComponent<SettingsMenu>();
+        _settings = gameObject.GetComponentInChildren<SettingsMenu>();
         _playerInterface = gameObject.GetComponent<PlayerInterface>();
 
         // To access the animator, we must retrieve the child gameObject that is rendering the player's mesh.
@@ -409,8 +409,8 @@ public class PlayerController : NetworkBehaviour
     }
 
     private void Settings(InputAction.CallbackContext context){
-        if (Application.isEditor) return;
-        if(_settings.ToggleSettingsMenu()){
+        // if (Application.isEditor) return;
+        if(_settings.OpenMenu()){
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
         }else{

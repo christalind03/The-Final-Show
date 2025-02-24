@@ -25,7 +25,7 @@ public class UITesting : MonoBehaviour
     private bool isOpen;
 
     // 
-    
+
     void Start(){
         Setup();
     }
@@ -37,8 +37,9 @@ public class UITesting : MonoBehaviour
             OpenMenu();
         }
     }
+    #region Functionality
 
-
+    #endregion
 
     #region UI Management 
     private void Setup(){
