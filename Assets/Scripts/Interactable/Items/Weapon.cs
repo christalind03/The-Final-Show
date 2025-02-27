@@ -11,13 +11,15 @@ public class Weapon : InventoryItem
     [SerializeField] protected LayerMask _attackLayers;
     [SerializeField] protected float _attackCooldown;
     [SerializeField] protected float _attackDamage;
+    [SerializeField, Range(0f, 1f)] protected float _criticalStrikeChance;
 
     public AudioResource AttackAudio => _attackAudio;
     public LayerMask AttackLayers => _attackLayers;
     public float AttackCooldown => _attackCooldown;
     public float AttackDamage => _attackDamage;
-}
+    public float CriticalStrikeChance => _criticalStrikeChance;
 
+}
 /// <summary>
 /// Provides serialization and deserialization methods for <see cref="Weapon"/> objects over a network.
 /// </summary>

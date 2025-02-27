@@ -34,7 +34,7 @@ public class PlayerInventory : NetworkBehaviour
 
         public override bool Equals(object otherObj)
         {
-            return otherObj is InventoryRestriction otherInventoryRestriction && 
+            return otherObj is InventoryRestriction otherInventoryRestriction &&
                 ItemCategory == otherInventoryRestriction.ItemCategory &&
                 ItemType == otherInventoryRestriction.ItemType;
         }
@@ -54,7 +54,7 @@ public class PlayerInventory : NetworkBehaviour
     [SerializeField] private List<EquippableReference> _equippableReferences;
 
     private readonly SyncDictionary<string, InventoryItem> _inventorySlots = new SyncDictionary<string, InventoryItem>();
-    
+
     private string _currentSlot;
     private List<string> _inventoryKeys;
     private Dictionary<string, InventoryRestriction> _inventoryRestrictions;
@@ -189,7 +189,7 @@ public class PlayerInventory : NetworkBehaviour
                 UnityUtils.LogError($"{upcomingSlot} is not a valid inventory slot key.");
             }
         }
-        
+
         // Handle input from mouse scroll wheel.
         if (context.control.device is Mouse)
         {

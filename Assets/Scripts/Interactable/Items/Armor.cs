@@ -12,7 +12,6 @@ public class Armor : InventoryItem
     [SerializeField] private float _defense;
     [SerializeField] private float _health;
     [SerializeField] private float _stamina;
-
     public float Attack => _attack;
     public float Defense => _defense;
     public float Health => _health;
