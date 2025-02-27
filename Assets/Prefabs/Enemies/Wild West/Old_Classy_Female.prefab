@@ -871,6 +871,7 @@ GameObject:
   - component: {fileID: 8473018324076476108}
   - component: {fileID: 2432960672169051269}
   - component: {fileID: 4212744059665530929}
+  - component: {fileID: -8043629776161248216}
   m_Layer: 7
   m_Name: Old_Classy_Female
   m_TagString: Untagged
@@ -963,6 +964,9 @@ MonoBehaviour:
   syncInterval: 0
   _baseValue: 100
   _healthBar: {fileID: 4690524650000163841}
+  _scriptPrefab: {fileID: 0}
+  _minScripts: 1
+  _maxScripts: 1
 --- !u!114 &7699988843532859068
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1075,6 +1079,26 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &-8043629776161248216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6085626376942215046}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7df4901fe27298949a289855428321ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  AudioAssets:
+  - Is3D: 1
+    Name: Wandering
+    Resource: {fileID: 11400000, guid: 47ffb9e233321324faa5e3b69e5ab632, type: 2}
+    AudioSource: {fileID: 0}
 --- !u!1 &7013241919094063513
 GameObject:
   m_ObjectHideFlags: 0
@@ -1150,6 +1174,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7900701416257724558}
+  - component: {fileID: 418959110726035792}
+  - component: {fileID: 8545617687693461838}
   m_Layer: 0
   m_Name: Old_Classy_Female
   m_TagString: Untagged
@@ -1178,6 +1204,44 @@ Transform:
   - {fileID: 5673005223660135807}
   m_Father: {fileID: 751489814099896231}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &418959110726035792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7417216073625762356}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f6f3bf89aa97405989c802ba270f815, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 1
+  syncMode: 0
+  syncInterval: 0
+  clientAuthority: 0
+  animator: {fileID: 8545617687693461838}
+--- !u!95 &8545617687693461838
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7417216073625762356}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: 4bde4848a2455a4459c026fc363f01f4, type: 3}
+  m_Controller: {fileID: 9100000, guid: db9d3b552c689374a9a4a83b8ed1e1e0, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 1
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &7458791108989980540
 GameObject:
   m_ObjectHideFlags: 0

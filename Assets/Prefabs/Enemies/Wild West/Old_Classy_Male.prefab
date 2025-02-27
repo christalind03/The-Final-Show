@@ -1134,7 +1134,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: db9d3b552c689374a9a4a83b8ed1e1e0, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
-  m_ApplyRootMotion: 0
+  m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_WarningMessage: 
@@ -1190,6 +1190,7 @@ GameObject:
   - component: {fileID: 8473018324076476108}
   - component: {fileID: 2432960672169051269}
   - component: {fileID: 4212744059665530929}
+  - component: {fileID: 1974910421715638992}
   m_Layer: 7
   m_Name: Old_Classy_Male
   m_TagString: Untagged
@@ -1282,6 +1283,9 @@ MonoBehaviour:
   syncInterval: 0
   _baseValue: 100
   _healthBar: {fileID: 4690524650000163841}
+  _scriptPrefab: {fileID: 0}
+  _minScripts: 1
+  _maxScripts: 1
 --- !u!114 &7699988843532859068
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1394,6 +1398,26 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &1974910421715638992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6085626376942215046}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7df4901fe27298949a289855428321ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  AudioAssets:
+  - Is3D: 1
+    Name: Wandering
+    Resource: {fileID: 11400000, guid: 47ffb9e233321324faa5e3b69e5ab632, type: 2}
+    AudioSource: {fileID: 0}
 --- !u!1 &6206058619910359266
 GameObject:
   m_ObjectHideFlags: 0
