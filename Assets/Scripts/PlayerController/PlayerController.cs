@@ -39,7 +39,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private Transform _cameraTransform;
     [SerializeField] private Transform _followTransform;
     [SerializeField] private Transform _playerTransform;
-    
+
     private bool _isGrounded;
     private bool _isSprinting;
     private bool _canJump;
@@ -48,7 +48,7 @@ public class PlayerController : NetworkBehaviour
     private float _xRotation;
     private float _yRotation;
     private Vector3 _playerVelocity;
-    
+
     private RaycastHit _raycastHit;
     private PlayerControls _playerControls;
     private CombatController _combatController;
@@ -75,7 +75,7 @@ public class PlayerController : NetworkBehaviour
         if (cameraController.alive)
         {
             Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;            
+            Cursor.lockState = CursorLockMode.Locked;
         }
 
         _canJump = true;
@@ -97,11 +97,14 @@ public class PlayerController : NetworkBehaviour
 
         EnableControls();
 
-        if(!Application.isEditor && SteamManager.Initialized){
+        if (!Application.isEditor && SteamManager.Initialized)
+        {
             playerName = SteamFriends.GetPersonaName();
             gameObject.name = playerName;
-            CmdUpdateName(playerName);                
-        }else{
+            CmdUpdateName(playerName);
+        }
+        else
+        {
             CmdUpdateName(gameObject.name);
         }
     }
@@ -227,7 +230,7 @@ public class PlayerController : NetworkBehaviour
 
         // Check to see if we're looking at anything of importance.
         Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out _raycastHit, _interactableDistance);
-        CmdLook(_followTransform.rotation, _aimCamera.Priority);  
+        CmdLook(_followTransform.rotation, _aimCamera.Priority);
     }
 
     /// <summary>
@@ -443,7 +446,7 @@ public class PlayerController : NetworkBehaviour
         else
         {
             Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked; 
+            Cursor.lockState = CursorLockMode.Locked;
         }
     }
 
@@ -506,7 +509,7 @@ public class PlayerController : NetworkBehaviour
         _aimCamera.Priority = aimCameraPriority;
 
         // Propagates the changes to all clients
-        RpcUpdatePlayerLook(_followTransform.rotation, aimCameraPriority);               
+        RpcUpdatePlayerLook(_followTransform.rotation, aimCameraPriority);
     }
 
     /// <summary>
