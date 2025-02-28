@@ -24,7 +24,6 @@ public class PushAbilityState : EnemyState
     public override void UpdateState()
     {
         // go through FOV's detected objects and use their character controller to move them away each frame
-        // TODO: only pushes the host away
         foreach (GameObject obj in StateContext.FieldOfView.DetectedObjects)
         {
             PlayerController playerController = obj.GetComponent<PlayerController>();
