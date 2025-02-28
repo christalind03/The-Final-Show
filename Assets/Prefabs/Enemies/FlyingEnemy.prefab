@@ -370,6 +370,7 @@ MonoBehaviour:
     _chaseBuffer: 5
     _startAimDist: 5
     _aimBuffer: 2.5
+  _audioManager: {fileID: 0}
   _attackAnimLength: 2.3
 --- !u!114 &295693870632516509
 MonoBehaviour:
@@ -719,7 +720,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: a73b4db9e2d82c3409cd4f94e6aa9ed4, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
-  m_ApplyRootMotion: 1
+  m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_WarningMessage: 
