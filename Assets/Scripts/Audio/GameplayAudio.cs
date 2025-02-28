@@ -3,24 +3,23 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameplayMusic : MonoBehaviour
+public class GameplayAudio : MonoBehaviour
 {
-    [Min(0f), SerializeField] private float fadeDuration;
-    [SerializeField] private AudioAsset[] audioAssets;
+    [Min(0f), SerializeField] public float FadeDuration;
+    [SerializeField] public AudioAsset[] AudioAssets;
 
-    private string currentScene;
-
-    public static GameplayMusic Instance;
+    public static GameplayAudio Instance;
+    [HideInInspector] public string CurrentScene;
 
     // TODO: Document
-    private void Awake()
+    public void Awake()
     {
         if (Instance == null)
         {
             // Load all AudioAssets
-            if (audioAssets != null)
+            if (AudioAssets != null)
             {
-                foreach (AudioAsset audioAsset in audioAssets)
+                foreach (AudioAsset audioAsset in AudioAssets)
                 {
                     audioAsset.AudioSource = gameObject.AddComponent<AudioSource>();
 
@@ -31,13 +30,13 @@ public class GameplayMusic : MonoBehaviour
                 }
             }
 
-            currentScene = gameObject.scene.name;
+            CurrentScene = gameObject.scene.name;
 
             Instance = this;
             DontDestroyOnLoad(gameObject);
 
             SceneManager.activeSceneChanged += OnSceneChanged;
-            Play(currentScene);
+            Play(CurrentScene);
         }
         else
         {
@@ -48,7 +47,7 @@ public class GameplayMusic : MonoBehaviour
     // TODO: Document
     private void Play(string sceneName)
     {
-        AudioAsset audioAsset = Array.Find(audioAssets, audioAsset => audioAsset.Name == sceneName);
+        AudioAsset audioAsset = Array.Find(AudioAssets, audioAsset => audioAsset.Name == sceneName);
 
         if (audioAsset == null)
         {
@@ -65,15 +64,15 @@ public class GameplayMusic : MonoBehaviour
     // TODO: Document
     private void OnSceneChanged(Scene _, Scene nextScene)
     {
-        StartCoroutine(CrossFade(currentScene, nextScene.name));
-        currentScene = nextScene.name;
+        StartCoroutine(CrossFade(CurrentScene, nextScene.name));
+        CurrentScene = nextScene.name;
     }
 
     // TODO: Document
     private IEnumerator CrossFade(string currentAudio, string upcomingAudio)
     {
-        AudioAsset currentTrack = Array.Find(audioAssets, audioAsset => audioAsset.Name == currentAudio);
-        AudioAsset upcomingTrack = Array.Find(audioAssets, audioAsset => audioAsset.Name == upcomingAudio);
+        AudioAsset currentTrack = Array.Find(AudioAssets, audioAsset => audioAsset.Name == currentAudio);
+        AudioAsset upcomingTrack = Array.Find(AudioAssets, audioAsset => audioAsset.Name == upcomingAudio);
 
         if (currentTrack == null || upcomingTrack == null)
         {
@@ -91,10 +90,10 @@ public class GameplayMusic : MonoBehaviour
 
         upcomingTrack.AudioSource.Play();
 
-        for (float currentTime = 0f; currentTime < fadeDuration; currentTime += Time.deltaTime)
+        for (float currentTime = 0f; currentTime < FadeDuration; currentTime += Time.deltaTime)
         {
-            currentTrack.AudioSource.volume = Mathf.Lerp(currentStartVolume, 0f, currentTime / fadeDuration);
-            upcomingTrack.AudioSource.volume = Mathf.Lerp(upcomingStartVolume, upcomingTrack.Resource.Volume, currentTime / fadeDuration);
+            currentTrack.AudioSource.volume = Mathf.Lerp(currentStartVolume, 0f, currentTime / FadeDuration);
+            upcomingTrack.AudioSource.volume = Mathf.Lerp(upcomingStartVolume, upcomingTrack.Resource.Volume, currentTime / FadeDuration);
             yield return null;
         }
 
@@ -111,9 +110,9 @@ public class GameplayMusic : MonoBehaviour
 
         audioAsset.AudioSource.Play();
 
-        for (float currentTime = 0f; currentTime < fadeDuration; currentTime += Time.deltaTime)
+        for (float currentTime = 0f; currentTime < FadeDuration; currentTime += Time.deltaTime)
         {
-            audioAsset.AudioSource.volume = Mathf.Lerp(startVolume, targetVolume, currentTime / fadeDuration);
+            audioAsset.AudioSource.volume = Mathf.Lerp(startVolume, targetVolume, currentTime / FadeDuration);
             yield return null;
         }
 
