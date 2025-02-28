@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4aada04f77404a644bd0e1f7de738bbf, type: 3}
+  m_Name: Spear
+  m_EditorClassIdentifier: 
+  _objectSprite: {fileID: 21300000, guid: 79c129b19329fcf408a1ed9881c01da8, type: 3}
+  _objectPrefab: {fileID: 4673696855174151546, guid: f9f4177cf7555a54181c48d914eb7da1,
+    type: 3}
+  _skinnedMeshRenderer: {fileID: 6368604196894419142, guid: fed0c97051a5eec4d821f0e85513575d,
+    type: 3}
+  _inventoryCategory: 3
+  _attackAudio: {fileID: 11400000, guid: 9fdbbae14e106a648957f1ae0483439e, type: 2}
+  _attackLayers:
+    serializedVersion: 2
+    m_Bits: 128
+  _attackCooldown: 1.7
+  _attackDamage: 15
+  _criticalStrikeChance: 0.15
+  _attackAngle: 45
+  _attackRange: 5
