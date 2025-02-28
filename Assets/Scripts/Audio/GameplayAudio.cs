@@ -27,6 +27,8 @@ public class GameplayAudio : MonoBehaviour
                     audioAsset.AudioSource.volume = audioAsset.Resource.Volume;
                     audioAsset.AudioSource.pitch = audioAsset.Resource.Pitch;
                     audioAsset.AudioSource.loop = audioAsset.Resource.Loop;
+
+                    audioAsset.AudioSource.outputAudioMixerGroup = audioAsset.Resource.AudioMixerGroup;
                 }
             }
 
