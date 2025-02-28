@@ -10,19 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4aada04f77404a644bd0e1f7de738bbf, type: 3}
-  m_Name: Claymore
+  m_Name: Axe_Double
   m_EditorClassIdentifier: 
   _objectSprite: {fileID: 21300000, guid: 79c129b19329fcf408a1ed9881c01da8, type: 3}
-  _objectPrefab: {fileID: 8874763682497869693, guid: 6722cd9ba3aa6ea47a21f3c4b64de02d,
+  _objectPrefab: {fileID: 1508160308319047064, guid: 851898b7a43efd04b8fbdd2d3718449a,
     type: 3}
-  _skinnedMeshRenderer: {fileID: 0}
+  _skinnedMeshRenderer: {fileID: 2870070692195637499, guid: 82c93d6b049190a44a5a1e0a9b8ee78a,
+    type: 3}
   _inventoryCategory: 3
-  _attackAudio: {fileID: 0}
+  _attackAudio: {fileID: 11400000, guid: 9fdbbae14e106a648957f1ae0483439e, type: 2}
   _attackLayers:
     serializedVersion: 2
-    m_Bits: 0
-  _attackCooldown: 0
-  _attackDamage: 0
-  _criticalStrikeChance: 0
-  _attackAngle: 0
-  _attackRange: 0
+    m_Bits: 128
+  _attackCooldown: 2
+  _attackDamage: 20
+  _criticalStrikeChance: 0.25
+  _attackAngle: 45
+  _attackRange: 3
