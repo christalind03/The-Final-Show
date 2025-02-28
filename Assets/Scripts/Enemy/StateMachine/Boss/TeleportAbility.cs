@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -11,8 +12,27 @@ public class TeleportAbilityState : EnemyState
     public override void EnterState()
     {
         Debug.Log("Entering Teleport State");
+        StateContext.Animator.SetBool("Is Teleporting", true);
+        StateContext.MonoBehaviour.StartCoroutine(Teleport());
+    }
+
+    public override void ExitState()
+    {
+        StateContext.Animator.SetBool("Is Teleporting", false);
+        Debug.Log("Leaving Teleport State");
+    }
+
+    public override void OnTriggerEnter(Collider otherCollider) { }
+    public override void OnTriggerExit(Collider otherCollider) { }
+    public override void OnTriggerStay(Collider otherCollider) { }
+    public override void UpdateState() { }
+
+    private IEnumerator Teleport()
+    {
+        yield return new WaitForSeconds(1.0f); // Wait 1 second for wind-up animation
         // Get a location behind the current target and warp the enemy there
-        Vector3 dest = StateContext.TargetTransform.position - _teleportDistance * StateContext.TargetTransform.forward;
+        Vector3 dest = _teleportDistance * (StateContext.TargetTransform.position - StateContext.Transform.position).normalized;
+        dest = dest + StateContext.TargetTransform.position;
         NavMeshHit hit;
         if (NavMesh.SamplePosition(dest, out hit, 1.0f, NavMesh.AllAreas))
         {
@@ -24,14 +44,4 @@ public class TeleportAbilityState : EnemyState
             Debug.Log("Ninja teleport sample failed");
         }
     }
-
-    public override void ExitState()
-    {
-        Debug.Log("Leaving Teleport State");
-    }
-
-    public override void OnTriggerEnter(Collider otherCollider) { }
-    public override void OnTriggerExit(Collider otherCollider) { }
-    public override void OnTriggerStay(Collider otherCollider) { }
-    public override void UpdateState() { }
 }
