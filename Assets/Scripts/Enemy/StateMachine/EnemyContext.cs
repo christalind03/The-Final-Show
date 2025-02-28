@@ -3,6 +3,7 @@ using UnityEngine.AI;
 
 public class EnemyContext
 {
+    public readonly MonoBehaviour MonoBehaviour;
     public readonly AudioManager AudioManager;
     public readonly AttackStats AttackStats;
     public readonly BehaviorStats BehaviorStats;
@@ -18,9 +19,10 @@ public class EnemyContext
     public Transform TargetTransform;
     public Material Material;
 
-    public EnemyContext(AudioManager audioManager, AttackStats attackStats, BehaviorStats behaviorStats, Vector3 initialPosition, Quaternion initialRoatation, Transform transform, 
+    public EnemyContext(MonoBehaviour monoBehaviour, AudioManager audioManager, AttackStats attackStats, BehaviorStats behaviorStats, Vector3 initialPosition, Quaternion initialRoatation, Transform transform, 
         FieldOfView fieldOfView, NavMeshAgent navMeshAgent, Animator animator, Material material)
     {
+        MonoBehaviour = monoBehaviour;
         AudioManager = audioManager;
         AttackStats = attackStats;
         BehaviorStats = behaviorStats;
