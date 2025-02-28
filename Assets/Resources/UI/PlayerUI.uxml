@@ -159,20 +159,23 @@
             <ui:Button text="Controls" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Setting-ControlsBtn" focusable="false" class="defaultFont transparentBackground" style="font-size: 50px; background-image: url(&quot;project://database/Assets/Sprites/Setting_Side_Buttons.png?fileID=21300000&amp;guid=f391a1fbf76cf824190db81bfe66a3d1&amp;type=3#Setting_Side_Buttons&quot;);" />
             <ui:VisualElement name="Spacer" style="flex-grow: 1;" />
         </ui:VisualElement>
-        <ui:VisualElement name="Setting-General-Container" style="flex-grow: 1; min-width: 40%; min-height: 80%; max-height: 80%; max-width: 40%; background-image: url(&quot;project://database/Assets/Sprites/Setting_Background.png?fileID=21300000&amp;guid=418eba4d740940147b16a45cf626e8c4&amp;type=3#Setting_Background&quot;); justify-content: center; position: absolute; padding-top: 1.5%; padding-right: 2%; padding-bottom: 1.5%; padding-left: 2%; opacity: 0;">
+        <ui:VisualElement name="Setting-General-Container" style="flex-grow: 1; min-width: 40%; min-height: 80%; max-height: 80%; max-width: 40%; background-image: url(&quot;project://database/Assets/Sprites/Setting_Background.png?fileID=21300000&amp;guid=418eba4d740940147b16a45cf626e8c4&amp;type=3#Setting_Background&quot;); justify-content: center; position: absolute; padding-top: 1.5%; padding-right: 2%; padding-bottom: 1.5%; padding-left: 2%; opacity: 1; visibility: hidden;">
             <ui:VisualElement name="Lobby-Banner" style="flex-grow: 1; max-height: 15%; align-items: center; justify-content: center; background-image: url(&quot;project://database/Assets/Sprites/Banner.png?fileID=21300000&amp;guid=3460e9d0766f6e94c974cb81dbc1b3bd&amp;type=3#Banner&quot;); align-self: auto;">
                 <ui:TextField label="Lobby Id:" value="PLACE HOLDER" name="Id" max-length="15" readonly="true" focusable="false" class="defaultFont my-input-field" style="top: 5%; font-size: 50px;" />
             </ui:VisualElement>
             <ui:VisualElement name="Spacer" style="flex-grow: 1; max-height: 5%;" />
-            <ui:VisualElement name="SreenSetting" class="defaultFont" style="flex-grow: 1; max-height: 70%; align-self: flex-start; color: rgb(0, 0, 0); font-size: 35px;">
-                <ui:DropdownField label="Screen Setting" choices="Full Screen, Board Window" index="0" class="woodbackground-popup-field_input" />
+            <ui:VisualElement name="Content" style="flex-grow: 1;">
+                <ui:VisualElement name="Slot1" class="defaultFont" style="flex-grow: 1; max-height: 70%; align-self: flex-start; color: rgb(0, 0, 0); font-size: 35px;">
+                    <ui:DropdownField label="Screen Setting" choices="Full Screen, Board Window" index="0" name="ScreenSetting" class="woodbackground-popup-field_input" />
+                    <ui:Slider label="Camera Sens." high-value="100" name="CameraSensitivity" class="defaultFont" style="font-size: 35px; color: rgb(0, 0, 0);" />
+                </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement name="Spacer" style="flex-grow: 1; max-height: 5%;" />
             <ui:VisualElement name="Quit-Button" style="flex-grow: 1; justify-content: flex-end; max-height: 10%; align-items: center;">
                 <ui:Button text="Leave Game" parse-escape-sequences="true" display-tooltip-when-elided="true" name="LeaveBtn" class="defaultFont unity-button transparentBackground" style="font-size: 50px; background-image: url(&quot;project://database/Assets/Sprites/Quit_Game.png?fileID=21300000&amp;guid=a8f623b56f249e042b51b5ae8ef95746&amp;type=3#Quit_Game&quot;);" />
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="Setting-Audio-Container" style="flex-grow: 1; position: absolute; background-image: url(&quot;project://database/Assets/Sprites/Setting_Background.png?fileID=21300000&amp;guid=418eba4d740940147b16a45cf626e8c4&amp;type=3#Setting_Background&quot;); max-width: 40%; min-width: 40%; max-height: 80%; min-height: 80%; padding-top: 1.5%; padding-right: 2%; padding-bottom: 1.5%; padding-left: 2%; opacity: 0;">
+        <ui:VisualElement name="Setting-Audio-Container" style="flex-grow: 1; position: absolute; background-image: url(&quot;project://database/Assets/Sprites/Setting_Background.png?fileID=21300000&amp;guid=418eba4d740940147b16a45cf626e8c4&amp;type=3#Setting_Background&quot;); max-width: 40%; min-width: 40%; max-height: 80%; min-height: 80%; padding-top: 1.5%; padding-right: 2%; padding-bottom: 1.5%; padding-left: 2%; opacity: 0; visibility: hidden;">
             <ui:VisualElement name="Title" class="defaultFont" style="flex-grow: 1; max-height: 15%; justify-content: center; align-self: auto; background-image: url(&quot;project://database/Assets/Sprites/Title_Banner.png?fileID=21300000&amp;guid=3199b44adcff66f479d4175d180d0498&amp;type=3#Title_Banner&quot;); font-size: 50px; align-items: center; -unity-background-scale-mode: scale-to-fit;">
                 <ui:Label tabindex="-1" text="Audio" parse-escape-sequences="true" display-tooltip-when-elided="true" name="TitleText" style="bottom: 5px;" />
             </ui:VisualElement>
@@ -184,7 +187,7 @@
             </ui:VisualElement>
             <ui:VisualElement name="Spacer" style="flex-grow: 1; max-height: 5%;" />
         </ui:VisualElement>
-        <ui:VisualElement name="Setting-Controls-Container" style="flex-grow: 1; position: absolute; background-image: url(&quot;project://database/Assets/Sprites/Setting_Background.png?fileID=21300000&amp;guid=418eba4d740940147b16a45cf626e8c4&amp;type=3#Setting_Background&quot;); max-width: 40%; min-width: 40%; max-height: 80%; min-height: 80%; padding-top: 1.5%; padding-right: 2%; padding-bottom: 1.5%; padding-left: 2%; opacity: 0;">
+        <ui:VisualElement name="Setting-Controls-Container" style="flex-grow: 1; position: absolute; background-image: url(&quot;project://database/Assets/Sprites/Setting_Background.png?fileID=21300000&amp;guid=418eba4d740940147b16a45cf626e8c4&amp;type=3#Setting_Background&quot;); max-width: 40%; min-width: 40%; max-height: 80%; min-height: 80%; padding-top: 1.5%; padding-right: 2%; padding-bottom: 1.5%; padding-left: 2%; opacity: 0; visibility: hidden;">
             <ui:VisualElement name="Title" class="defaultFont" style="flex-grow: 1; max-height: 15%; justify-content: center; align-self: auto; background-image: url(&quot;project://database/Assets/Sprites/Title_Banner.png?fileID=21300000&amp;guid=3199b44adcff66f479d4175d180d0498&amp;type=3#Title_Banner&quot;); font-size: 50px; align-items: center; -unity-background-scale-mode: scale-to-fit; min-height: 15%;">
                 <ui:Label tabindex="-1" text="Controls" parse-escape-sequences="true" display-tooltip-when-elided="true" name="TitleText" style="bottom: 5px;" />
             </ui:VisualElement>
