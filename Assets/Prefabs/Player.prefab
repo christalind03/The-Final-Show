@@ -194,7 +194,7 @@ MonoBehaviour:
   CameraCollisionFilter:
     serializedVersion: 2
     m_Bits: 257
-  IgnoreTag: 
+  IgnoreTag: Player
   CameraRadius: 0.001
   DampingIntoCollision: 0
   DampingFromCollision: 2
@@ -412,16 +412,19 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  AudioAssets:
+  audioAssets:
   - Is3D: 1
     Name: Footsteps_Running
     Resource: {fileID: 11400000, guid: 85c5003cd1b89464c91a56b6b68b1c56, type: 2}
+    AudioSource: {fileID: 0}
   - Is3D: 1
     Name: Footsteps_Walking
     Resource: {fileID: 11400000, guid: 47ffb9e233321324faa5e3b69e5ab632, type: 2}
+    AudioSource: {fileID: 0}
   - Is3D: 1
     Name: Weapon
     Resource: {fileID: 0}
+    AudioSource: {fileID: 0}
 --- !u!114 &2873006661348008412
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -560,6 +563,7 @@ MonoBehaviour:
   _attack: 0
   _defense: 0
   _stamina: 100
+  _criticalStrikeChance: 0
 --- !u!114 &280616967529671758
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -984,7 +988,7 @@ MonoBehaviour:
   CameraCollisionFilter:
     serializedVersion: 2
     m_Bits: 257
-  IgnoreTag: 
+  IgnoreTag: Player
   CameraRadius: 0.001
   DampingIntoCollision: 0
   DampingFromCollision: 2
