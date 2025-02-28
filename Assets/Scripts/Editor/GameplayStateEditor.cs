@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEditor;
 
 [CanEditMultipleObjects]
@@ -40,3 +41,4 @@ public class GameplayStateEditor : Editor
         serializedObject.ApplyModifiedProperties();
     }
 }
+#endif
