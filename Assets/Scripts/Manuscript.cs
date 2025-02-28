@@ -11,7 +11,7 @@ public class Manuscript : NetworkBehaviour
     [SerializeField] private float _launchSpeed = 1f;
     [Range(0f, 90f)]
     [SerializeField]
-    [Tooltip("The measured in degress upwards from the horizontal")]
+    [Tooltip("The angle measured in degress upwards from the horizontal")]
     private float _launchAngle = 45f;
     
     private Rigidbody rb;
