@@ -329,7 +329,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7418059434271071014}
   - component: {fileID: 5413580618602534881}
-  - component: {fileID: 2467164319665429688}
+  - component: {fileID: 1163320593352086002}
   m_Layer: 0
   m_Name: SettingsManager
   m_TagString: Untagged
@@ -378,34 +378,20 @@ MonoBehaviour:
   menuCloseAnim: {fileID: 11400000, guid: 8d5a29931b7d5ed448d95d1a00892597, type: 2}
   inputActions: {fileID: -944628639613478452, guid: 94c50b72e17103c4fb60bf0901a95c21,
     type: 3}
---- !u!114 &2467164319665429688
+--- !u!114 &1163320593352086002
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3162413088266213558}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc11d99b1a6682f4cbc4aba1fcd9ac5d, type: 3}
+  m_Script: {fileID: 11500000, guid: 5b6c2da2db9374dada6761b5e35121c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Action: {fileID: 0}
-  m_BindingId: 
-  m_DisplayStringOptions: -1
-  m_ActionLabel: {fileID: 0}
-  m_BindingText: {fileID: 0}
-  m_RebindOverlay: {fileID: 0}
-  m_RebindText: {fileID: 0}
-  m_UpdateBindingUIEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_RebindStartEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_RebindStopEvent:
-    m_PersistentCalls:
-      m_Calls: []
+  uIDocument: {fileID: 4434578188930889017}
+  actions: {fileID: -944628639613478452, guid: 94c50b72e17103c4fb60bf0901a95c21, type: 3}
 --- !u!1 &3233045660875188808
 GameObject:
   m_ObjectHideFlags: 0

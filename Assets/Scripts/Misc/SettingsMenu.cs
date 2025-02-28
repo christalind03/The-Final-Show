@@ -12,14 +12,15 @@ public class SettingsMenu : NetworkBehaviour
     private const string GeneralTab = "Setting-General-Container";
     private const string AudioTab = "Setting-Audio-Container";
     private const string ControlsTab = "Setting-Controls-Container";
-    [SerializeField] PlayableDirector menuOpenClose;
-    [SerializeField] PlayableDirector switchSettingTabs;
-    [SerializeField] PlayableDirector showTab;
-    [SerializeField] UIDocument uIDocument;
-    [SerializeField] TimelineAsset menuOpenAnim;
-    [SerializeField] TimelineAsset menuCloseAnim;
+    [SerializeField] private PlayableDirector menuOpenClose;
+    [SerializeField] private PlayableDirector switchSettingTabs;
+    [SerializeField] private PlayableDirector showTab;
+    [SerializeField] private UIDocument uIDocument;
+    [SerializeField] private TimelineAsset menuOpenAnim;
+    [SerializeField] private TimelineAsset menuCloseAnim;
     private Dictionary<string, VisualElement> tabElements = new Dictionary<string, VisualElement>();
     private Dictionary<string, (Button button, System.Action action)> buttonActions = new Dictionary<string, (Button button, System.Action action)>();
+    private Dictionary<string, Button> controlButtonMap = new Dictionary<string, Button>();
 
 
     private VisualElement _rootVisualElement;
@@ -35,6 +36,8 @@ public class SettingsMenu : NetworkBehaviour
     
     // Misc
     private SteamLobby steamLobby;
+
+    /// <summary>
 
     /// <summary>
     /// Setup the required variables.
@@ -59,13 +62,18 @@ public class SettingsMenu : NetworkBehaviour
     /// Assigns and populate all the required UI reference when the game starts up
     /// </summary>
     private void Setup(){
+        // Set lobby id
         steamLobby = NetworkManager.FindObjectOfType<SteamLobby>();
-        
-        _rootVisualElement = uIDocument.rootVisualElement;
         string lobbyId = NetworkManager.FindObjectOfType<CustomNetworkManager>().LobbyId;
+
+        // UI variable
+        _rootVisualElement = uIDocument.rootVisualElement;
+        
+        // animation variable
         isOpen = false;
         currentTab = "Setting-General-Container";
 
+        // Fill dictionary with correct reference of visual element
         if(UnityUtils.ContainsElement(_rootVisualElement, "Settings-Container", out VisualElement settings)){
             _settingsMenu = settings;
             if(UnityUtils.ContainsElement(settings, "Setting-Nav-Container", out VisualElement nav)){
@@ -81,24 +89,42 @@ public class SettingsMenu : NetworkBehaviour
             }
         }
 
-        RegisterButton(_navContainer, "Setting-GeneralBtn", () => SwitchTab(GeneralTab), out Button GeneralBtn);
-        RegisterButton(_navContainer, "Setting-AudioBtn", () => SwitchTab(AudioTab), out Button AudioBtn);
-        RegisterButton(_navContainer, "Setting-ControlsBtn", () => SwitchTab(ControlsTab), out Button ControlsBtn);
-        RegisterButton(tabElements[GeneralTab], "LeaveBtn", OnBtnLeaveGame, out Button LeaveBtn);
+        // Non-rebind buttons
+        RegisterButton(_navContainer, "Setting-GeneralBtn", () => SwitchTab(GeneralTab));
+        RegisterButton(_navContainer, "Setting-AudioBtn", () => SwitchTab(AudioTab));
+        RegisterButton(_navContainer, "Setting-ControlsBtn", () => SwitchTab(ControlsTab));
+        RegisterButton(tabElements[GeneralTab], "LeaveBtn", OnBtnLeaveGame);
 
         // Rebind buttons
-        Button ForwardBtn = null, BackwardBtn = null, LeftBtn = null, RightBtn = null, JumpBtn = null;
-        Button InteractOrEquipBtn = null, DropBtn = null;
-        Button AttackBtn = null, AltAttackBtn = null;
-        RegisterButton(tabElements[ControlsTab], "ForwardBtn", () => StartRebind("Movement", ForwardBtn, 1), out ForwardBtn);
-        RegisterButton(tabElements[ControlsTab], "BackwardBtn", () => StartRebind("Movement", BackwardBtn, 3), out BackwardBtn);
-        RegisterButton(tabElements[ControlsTab], "LeftBtn", () => StartRebind("Movement", LeftBtn, 2), out LeftBtn);
-        RegisterButton(tabElements[ControlsTab], "RightBtn", () => StartRebind("Movement", RightBtn, 4), out RightBtn);
-        RegisterButton(tabElements[ControlsTab], "JumpBtn", () => StartRebind("Jump", JumpBtn), out JumpBtn);
-        RegisterButton(tabElements[ControlsTab], "InteractOrEquipBtn", () => StartRebind("Interact", InteractOrEquipBtn), out InteractOrEquipBtn);
-        RegisterButton(tabElements[ControlsTab], "DropBtn", () => StartRebind("Drop", DropBtn), out DropBtn);
-        RegisterButton(tabElements[ControlsTab], "AttackBtn", () => StartRebind("Attack", AttackBtn), out AttackBtn);
-        RegisterButton(tabElements[ControlsTab], "AltAttackBtn", () => StartRebind("Alternate Attack", AltAttackBtn), out AltAttackBtn);
+        RegisterControl(tabElements[ControlsTab], "MovementBtn", "Movement", () => StartInteractiveRebind("Movement"));
+        RegisterControl(tabElements[ControlsTab], "JumpBtn", "Jump", () => StartInteractiveRebind("Jump"));
+        RegisterControl(tabElements[ControlsTab], "SprintBtn", "Sprint", () => StartInteractiveRebind("Sprint"));
+        RegisterControl(tabElements[ControlsTab], "InteractOrEquipBtn", "Interact", () => StartInteractiveRebind("Interact"));
+        RegisterControl(tabElements[ControlsTab], "DropBtn", "Drop", () => StartInteractiveRebind("Drop"));
+        RegisterControl(tabElements[ControlsTab], "AttackBtn", "Attack", () => StartInteractiveRebind("Attack"));
+        RegisterControl(tabElements[ControlsTab], "AltAttackBtn", "Alternate Attack", () => StartInteractiveRebind("Alternate Attack"));
+
+        // Overwrite UI for rebind buttons from playerprefs
+        foreach(InputAction action in inputActions.actionMaps[0].actions){
+            string displayString = string.Empty;
+            if(action.bindings[0].isComposite){
+                List<string> compositeParts = new List<string>();
+
+                for (int i = 1; i < action.bindings.Count && action.bindings[i].isPartOfComposite; i++) {
+                    compositeParts.Add(InputControlPath.ToHumanReadableString(action.bindings[i].effectivePath, InputControlPath.HumanReadableStringOptions.OmitDevice));
+                }
+
+                displayString = string.Join(" / ", compositeParts);
+            }
+            else{
+                displayString = InputControlPath.ToHumanReadableString(action.bindings[0].effectivePath, InputControlPath.HumanReadableStringOptions.OmitDevice);
+            }
+
+            if (controlButtonMap.ContainsKey(action.name)){
+                controlButtonMap[action.name].text = displayString;
+            }
+        }
+        
     } 
 
     /// <summary>
@@ -145,18 +171,29 @@ public class SettingsMenu : NetworkBehaviour
     /// <param name="root">the root visual element of where to start query</param>
     /// <param name="name">name of the button element</param>
     /// <param name="onClick">the action that needs to be performed when clicked</param>
-    private void RegisterButton(VisualElement root, string name, System.Action onClick, out Button button){
+    private void RegisterButton(VisualElement root, string name, System.Action onClick){
         if(UnityUtils.ContainsElement(root, name, out Button output)){
             output.clicked += onClick;
-            button = output;
             buttonActions.Add(name, (output, onClick));
-        }else{
-            button = null;
         }
     }
 
     /// <summary>
-    /// Unsubscribe button with their respective actio
+    /// Subscribe button to their respective action
+    /// </summary>
+    /// <param name="root">the root visual element of where to start query</param>
+    /// <param name="name">name of the button element</param>
+    /// <param name="onClick">the action that needs to be performed when clicked</param>
+    private void RegisterControl(VisualElement root, string name, string actionName, System.Action onClick){
+        if(UnityUtils.ContainsElement(root, name, out Button output)){
+            output.clicked += onClick;
+            buttonActions.Add(name, (output, onClick));
+            controlButtonMap.Add(actionName, output);
+        }
+    }
+
+    /// <summary>
+    /// Unsubscribe button with their respective action
     /// </summary>
     /// <param name="root">the root visual element of where to start query</param>
     /// <param name="name">name of the button element</param>
@@ -167,47 +204,178 @@ public class SettingsMenu : NetworkBehaviour
         }
     }
 
-    private void StartRebind(string actionName, Button rebindButton, int compositeIndx = 0)
+    /// NOTE: Based on the code from Unity rebind!! I've rewrote parts of it to fit our project better
+    /// <summary>
+    /// Return the action and binding index for the binding that is targeted by the component
+    /// according to
+    /// </summary>
+    /// <param name="actionName"></param>
+    /// <param name="action"></param>
+    /// <param name="bindingIndex"></param>
+    /// <returns></returns>
+    public bool ResolveActionAndBinding(string actionName, out InputAction action, out int bindingIndex)
     {
-        _rebindOperation?.Cancel();
+        bindingIndex = -1;
 
-        void CleanUp(){
+        action = inputActions.FindAction(actionName);
+        if (action == null)
+            return false;
+
+        // Look up binding index.
+        for (int i = 0; i < action.bindings.Count; i++)
+        {
+            if (!string.IsNullOrEmpty(action.bindings[i].path)) // Adjust the condition as needed
+            {
+                bindingIndex = i;
+                break;
+            }
+        }
+
+        if (bindingIndex == -1)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    /// NOTE: Taken from Unity rebind sample code!! 
+    /// <summary>
+    /// Initiate an interactive rebind that lets the player actuate a control to choose a new binding
+    /// for the action.
+    /// </summary>
+    /// <param name="actionName"></param>
+    public void StartInteractiveRebind(string actionName)
+    {
+        if (!ResolveActionAndBinding(actionName, out var action, out var bindingIndex))
+            return;
+
+        // If the binding is a composite, we need to rebind each part in turn.
+        if (action.bindings[bindingIndex].isComposite)
+        {
+            var firstPartIndex = bindingIndex + 1;
+            if (firstPartIndex < action.bindings.Count && action.bindings[firstPartIndex].isPartOfComposite)
+                PerformInteractiveRebind(action, firstPartIndex, allCompositeParts: true);
+        }
+        else
+        {
+            PerformInteractiveRebind(action, bindingIndex);
+        }
+    }
+
+    /// NOTE: Based on the code from Unity rebind!! I've rewrote parts of it to fit our project better
+    /// <summary>
+    /// Performs the actual rebinding process of the input action
+    /// </summary>
+    /// <param name="action">the action being modified</param>
+    /// <param name="bindingIndex">the binding index of the input action</param>
+    /// <param name="allCompositeParts">if input action has composite bindings</param>
+    private void PerformInteractiveRebind(InputAction action, int bindingIndex, bool allCompositeParts = false)
+    {
+        _rebindOperation?.Cancel(); 
+
+        void CleanUp()
+        {
             _rebindOperation?.Dispose();
             _rebindOperation = null;
         }
-        
-        InputAction action = inputActions.FindAction(actionName);
-        if (action == null) return;
 
-        if (action.enabled) action.Disable();
-        rebindButton.text = "Press any key...";
+        if(action.enabled) action.Disable();
 
-        _rebindOperation?.Cancel();
-        _rebindOperation = action.PerformInteractiveRebinding(compositeIndx)
-            .OnCancel(operation =>
-            {
-                action.Enable();
-                CleanUp();
-            })
-            .OnComplete(operation =>
-            {
-                action.Enable();
-                UpdateRebindButtonText(action, rebindButton, compositeIndx);
-                CleanUp();
-            })
-            .Start();
+        controlButtonMap[action.name].text = "Waiting for Key";
+
+        // Configure the rebind.
+        _rebindOperation = action.PerformInteractiveRebinding(bindingIndex)
+            .WithCancelingThrough("<Keyboard>/escape")
+            .OnCancel(
+                operation =>
+                {
+                    action.Enable();
+                    UpdateRebindButtonText(action, bindingIndex);
+                    CleanUp();
+                })
+            .OnComplete(
+                operation =>
+                {
+                    action.Enable();
+                    if(CheckDuplicateBindings(action, bindingIndex, allCompositeParts)) {
+                        action.RemoveBindingOverride(bindingIndex);
+                        CleanUp();
+                        PerformInteractiveRebind(action, bindingIndex, allCompositeParts);
+                        return;
+                    }   
+
+                    UpdateRebindButtonText(action, bindingIndex, allCompositeParts);
+                    CleanUp();
+
+                    // If there's more composite parts we should bind, initiate a rebind
+                    // for the next part.
+                    if (allCompositeParts)
+                    {
+                        var nextBindingIndex = bindingIndex + 1;
+                        if (nextBindingIndex < action.bindings.Count && action.bindings[nextBindingIndex].isPartOfComposite)
+                            PerformInteractiveRebind(action, nextBindingIndex, true);
+                    }
+                });
+
+        _rebindOperation.Start();
     }
 
-    private void UpdateRebindButtonText(InputAction action, Button rebindButton, int compositeIndx = 0)
-    {
-        if (action != null && action.bindings.Count > 0){
-            rebindButton.text = InputControlPath.ToHumanReadableString(
-                action.bindings[compositeIndx].effectivePath,
-                InputControlPath.HumanReadableStringOptions.OmitDevice);
+    /// <summary>
+    /// Update the display of the control button UIs
+    /// </summary>
+    /// <param name="action">the input action</param>
+    /// <param name="bindingIndx">the binding index of the action</param>
+    /// <param name="allCompositeParts">if the action has comoosite binding</param>
+    private void UpdateRebindButtonText(InputAction action, int bindingIndx, bool allCompositeParts = false) {
+        var displayString = string.Empty;
+        var deviceLayoutName = default(string);
+        var controlPath = default(string);
+
+        if (action != null)
+        {
+            if (allCompositeParts) {
+                List<string> compositeParts = new List<string>();
+
+                for (int i = 1; i < action.bindings.Count && action.bindings[i].isPartOfComposite; i++) {
+                    compositeParts.Add(action.GetBindingDisplayString(i, out deviceLayoutName, out controlPath));
+                }
+
+                displayString = string.Join(" / ", compositeParts);
+            }
+            else if (bindingIndx != -1)
+                displayString = action.GetBindingDisplayString(bindingIndx, out deviceLayoutName, out controlPath);
         }
-        else{
-            rebindButton.text = "Not Bound";
+
+        controlButtonMap[action.name].text = displayString;
+    }
+
+    /// <summary>
+    /// Checks for duplicate when rebinding a key
+    /// </summary>
+    /// <param name="action">the action</param>
+    /// <param name="bindingIndx">the index of the rebind input action</param>
+    /// <param name="allCompositeParts">if the action has composite bindings</param>
+    /// <returns>true is dupe exist, false otherwise</returns>
+    private bool CheckDuplicateBindings(InputAction action, int bindingIndx, bool allCompositeParts = false) {
+        InputBinding newBinding = action.bindings[bindingIndx];
+        foreach(InputBinding binding in action.actionMap.bindings) {
+            if(binding.action == newBinding.action){
+                continue;
+            }
+            if(binding.effectivePath == newBinding.effectivePath) {
+                return true;
+            }
         }
+
+        if(allCompositeParts){
+            for(int i = 0; i < bindingIndx; i++) {
+                if(action.bindings[i].effectivePath == newBinding.effectivePath){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     #endregion
 
