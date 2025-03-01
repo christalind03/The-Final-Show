@@ -16,6 +16,7 @@ public class CustomNetworkManager : NetworkManager
 
     private Dictionary<int, PlayerData> playerData = new Dictionary<int, PlayerData>();
     private Dictionary<string, Coroutine> activeCoroutines = new Dictionary<string, Coroutine>();
+    private SceneTransitionAnim sceneAnim;
 
     /// <summary>
     /// Called when the client connects to the server.
@@ -28,6 +29,11 @@ public class CustomNetworkManager : NetworkManager
         // Register handlers for custom network messages for every client that connects
         NetworkClient.RegisterHandler<CountdownMessage>(OnCountdown);
         NetworkClient.RegisterHandler<SpectateMessage>(OnSpectate);
+        SceneManager.sceneLoaded += OnSceneLoaded;
+
+        // Plays animation here because first load animation is not played for server
+        sceneAnim = FindObjectOfType<SceneTransitionAnim>();
+        sceneAnim.EnterAnim();
     }
 
     /// <summary>
@@ -124,6 +130,11 @@ public class CustomNetworkManager : NetworkManager
                 };
             }
         }
+    }
+
+    private void OnSceneLoaded(Scene activeScene, LoadSceneMode loadMode){
+        sceneAnim = FindObjectOfType<SceneTransitionAnim>();
+        sceneAnim.EnterAnim();
     }
 
     /// <summary>
@@ -264,6 +275,10 @@ public class CustomNetworkManager : NetworkManager
             {
                 int minutesRemaining = timeRemaining / 60;
                 int secondsRemaining = timeRemaining % 60;
+                if(secondsRemaining == 3){
+                    sceneAnim = FindObjectOfType<SceneTransitionAnim>();
+                    sceneAnim.ExitAnim();                    
+                }
                 string formattedMessage = countdownMessage.MessageFormat;
 
                 if (string.IsNullOrEmpty(formattedMessage))

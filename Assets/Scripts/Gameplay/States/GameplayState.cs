@@ -20,7 +20,6 @@ public abstract class GameplayState : BaseState<GameplayManager.State, GameplayC
     protected GameplayManager.State TransitionState;
     [SerializeField]
     [Tooltip("Animation Class for scene transition")]
-    protected GameplayAnim sceneAnim;
 
     protected Action CountdownCallback;
 
@@ -42,8 +41,6 @@ public abstract class GameplayState : BaseState<GameplayManager.State, GameplayC
     /// </summary>
     private void LoadScene()
     {   
-        sceneAnim = FindObjectOfType<GameplayAnim>();
-        sceneAnim.EnterAnim();
         Scene activeScene = SceneManager.GetActiveScene();
 
         if (activeScene.name != TargetScene)
@@ -61,7 +58,6 @@ public abstract class GameplayState : BaseState<GameplayManager.State, GameplayC
     protected virtual void OnSceneLoaded(Scene activeScene, LoadSceneMode loadMode)
     {
         if (activeScene.name != TargetScene) { return; }
-
         if (IsTimed)
         {
             CustomNetworkManager.Instance.Countdown(
