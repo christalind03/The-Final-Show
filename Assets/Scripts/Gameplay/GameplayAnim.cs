@@ -3,8 +3,8 @@ using UnityEngine.Playables;
 using UnityEngine.Timeline;
 using UnityEngine.UIElements;
 
-public class UITesting : MonoBehaviour
-{   
+public class GameplayAnim : MonoBehaviour
+{
     [SerializeField] private UIDocument uIDocument;
     [SerializeField] private PlayableDirector sceneAnim;
     [SerializeField] private TimelineAsset exitAnim;
@@ -15,16 +15,6 @@ public class UITesting : MonoBehaviour
             transition = output;
         }
         sceneAnim.stopped += OnAnimationFinished;
-    }
-
-    void Update()
-    {
-        if(Input.GetKeyDown(KeyCode.Q)) {
-            ExitAnim();
-        }
-        if(Input.GetKeyDown(KeyCode.E)) {
-            EnterAnim();
-        }
     }
     public void ExitAnim() {
         sceneAnim.playableAsset = exitAnim;

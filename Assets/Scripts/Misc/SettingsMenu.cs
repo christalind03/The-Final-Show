@@ -38,6 +38,7 @@ public class SettingsMenu : NetworkBehaviour
     
     // Misc
     private SteamLobby steamLobby;
+    PlayerController controller;
 
     /// <summary>
 
@@ -75,7 +76,7 @@ public class SettingsMenu : NetworkBehaviour
         isOpen = false;
         currentTab = "Setting-General-Container";
 
-        PlayerController controller = gameObject.transform.parent.GetComponent<PlayerController>();
+        controller = gameObject.transform.parent.GetComponent<PlayerController>();
         inputActions = controller.playerInput.actions;
 
         // Fill dictionary with correct reference of visual element
@@ -118,7 +119,7 @@ public class SettingsMenu : NetworkBehaviour
         // Camera Sens
         if(UnityUtils.ContainsElement(tabElements[GeneralTab], "CameraSens", out Slider cameraSlider)){
             sliderElements.Add("CameraSens", cameraSlider);
-            cameraSlider.RegisterValueChangedCallback(function => CameraSens(controller, cameraSlider));
+            cameraSlider.RegisterValueChangedCallback(function => CameraSens(cameraSlider));
         }
     } 
 
@@ -131,6 +132,8 @@ public class SettingsMenu : NetworkBehaviour
             if (button != null) button.clicked -= action;
         }
         buttonActions.Clear();
+        sliderElements["CameraSens"].UnregisterValueChangedCallback(function => CameraSens(sliderElements["CameraSens"]));
+        dropdownElements["ScreenSetting"].UnregisterValueChangedCallback(function => ScreenSetting(dropdownElements["ScreenSetting"]));
     }
 
     /// <summary>
@@ -184,18 +187,6 @@ public class SettingsMenu : NetworkBehaviour
             output.clicked += onClick;
             buttonActions.Add(name, (output, onClick));
             controlButtonMap.Add(actionName, output);
-        }
-    }
-
-    /// <summary>
-    /// Unsubscribe button with their respective action
-    /// </summary>
-    /// <param name="root">the root visual element of where to start query</param>
-    /// <param name="name">name of the button element</param>
-    /// <param name="onClick">the action that needs to be unsub</param>
-    private void UnregisterButton(VisualElement root, string name, System.Action onClick){
-        if(UnityUtils.ContainsElement(root, name, out Button output)){
-            output.clicked -= onClick;
         }
     }
 
@@ -376,10 +367,18 @@ public class SettingsMenu : NetworkBehaviour
     #endregion
 
     #region General Tab 
-    private void CameraSens(PlayerController controller, Slider slider) {
+    /// <summary>
+    /// Set the camera sensitivity based on the camera sens slider
+    /// </summary>
+    /// <param name="slider">the slider UI field</param>
+    private void CameraSens(Slider slider) {
         controller._cameraSensitivity = slider.value;
     }
 
+    /// <summary>
+    /// Set the screen setting based on the dropdown field value
+    /// </summary>
+    /// <param name="dropdown">the dropdown UI field</param>
     private void ScreenSetting(DropdownField dropdown) {
         switch(dropdown.index) {
             case 0:

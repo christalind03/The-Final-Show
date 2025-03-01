@@ -18,6 +18,9 @@ public abstract class GameplayState : BaseState<GameplayManager.State, GameplayC
     [SerializeField]
     [Tooltip("The state to transition to when the countdown is complete")]
     protected GameplayManager.State TransitionState;
+    [SerializeField]
+    [Tooltip("Animation Class for scene transition")]
+    protected GameplayAnim sceneAnim;
 
     protected Action CountdownCallback;
 
@@ -38,7 +41,9 @@ public abstract class GameplayState : BaseState<GameplayManager.State, GameplayC
     /// Loads the target scene on the server if it is not already the active scene.
     /// </summary>
     private void LoadScene()
-    {
+    {   
+        sceneAnim = FindObjectOfType<GameplayAnim>();
+        sceneAnim.EnterAnim();
         Scene activeScene = SceneManager.GetActiveScene();
 
         if (activeScene.name != TargetScene)
