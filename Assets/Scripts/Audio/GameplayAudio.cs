@@ -11,7 +11,10 @@ public class GameplayAudio : MonoBehaviour
     public static GameplayAudio Instance;
     [HideInInspector] public string CurrentScene;
 
-    // TODO: Document
+    /// <summary>
+    /// Initializes the singleton instance of the audio manager, assigns audio sources to all defined 
+    /// audio assets, and starts playing the scene-specific music.
+    /// </summary>
     public void Awake()
     {
         if (Instance == null)
@@ -46,7 +49,11 @@ public class GameplayAudio : MonoBehaviour
         }
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Attempts to play the audio associated with the given scene name by finding the corresponding 
+    /// <see cref="AudioAsset"/> and starting a fade-in effect if it is not already playing.
+    /// </summary>
+    /// <param name="sceneName">The name of the scene whose audio should be played.</param>
     private void Play(string sceneName)
     {
         AudioAsset audioAsset = Array.Find(AudioAssets, audioAsset => audioAsset.Name == sceneName);
@@ -63,14 +70,25 @@ public class GameplayAudio : MonoBehaviour
         }
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Handles scene transitions by initiating a crossfade between the current scene's audio and the new scene's audio.
+    /// Updates the <see cref="CurrentScene"/> to reflect the new scene.
+    /// </summary>
+    /// <param name="_">The previous scene (unused).</param>
+    /// <param name="nextScene">The newly loaded scene.</param>
     private void OnSceneChanged(Scene _, Scene nextScene)
     {
         StartCoroutine(CrossFade(CurrentScene, nextScene.name));
         CurrentScene = nextScene.name;
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Performs a crossfade transition between the current and upcoming scene audio.
+    /// The current track fades out while the new track fades in over a specified duration.
+    /// </summary>
+    /// <param name="currentAudio">The name of the currently playing audio track.</param>
+    /// <param name="upcomingAudio">The name of the audio track to transition to.</param>
+    /// <returns>An <see cref="IEnumerator"/> for use with <see cref="Coroutine"/>.</returns>
     private IEnumerator CrossFade(string currentAudio, string upcomingAudio)
     {
         AudioAsset currentTrack = Array.Find(AudioAssets, audioAsset => audioAsset.Name == currentAudio);
@@ -104,7 +122,11 @@ public class GameplayAudio : MonoBehaviour
         currentTrack.AudioSource.Stop();
     }
 
-    // TODO: Document
+    /// <summary>
+    /// Gradually increases the volume of the specified <see cref="AudioAsset"/> over a set duration, creating a fade-in effect.
+    /// </summary>
+    /// <param name="audioAsset">The <see cref="AudioAsset"/> to fade in.</param>
+    /// <returns>An <see cref="IEnumerator"/> for use with <see cref="Coroutine"/>.</returns>
     private IEnumerator FadeIn(AudioAsset audioAsset)
     {
         float startVolume = 0f;
