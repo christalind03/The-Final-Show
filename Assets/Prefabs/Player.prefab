@@ -390,7 +390,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b6c2da2db9374dada6761b5e35121c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uIDocument: {fileID: 4434578188930889017}
   actions: {fileID: -944628639613478452, guid: 94c50b72e17103c4fb60bf0901a95c21, type: 3}
 --- !u!1 &3233045660875188808
 GameObject:
@@ -413,7 +412,7 @@ GameObject:
   - component: {fileID: 7673011111465674341}
   - component: {fileID: 280616967529671758}
   - component: {fileID: 4434578188930889017}
-  - component: {fileID: 6991815601755152488}
+  - component: {fileID: 8207836862324262275}
   m_Layer: 9
   m_Name: Player
   m_TagString: Player
@@ -583,6 +582,7 @@ MonoBehaviour:
   _cameraTransform: {fileID: 8102490668816230080}
   _followTransform: {fileID: 1279517964111326137}
   _playerTransform: {fileID: 8203241780073711057}
+  _playerInput: {fileID: 0}
 --- !u!114 &4647677295001218243
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -689,7 +689,7 @@ MonoBehaviour:
   sourceAsset: {fileID: 9197481963319205126, guid: 1ca2cb09a03821e428953505e1384a08,
     type: 3}
   m_SortingOrder: 0
---- !u!114 &6991815601755152488
+--- !u!114 &8207836862324262275
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

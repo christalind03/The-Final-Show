@@ -18,9 +18,11 @@ public class SettingsMenu : NetworkBehaviour
     [SerializeField] private UIDocument uIDocument;
     [SerializeField] private TimelineAsset menuOpenAnim;
     [SerializeField] private TimelineAsset menuCloseAnim;
-    private Dictionary<string, VisualElement> tabElements = new Dictionary<string, VisualElement>();
-    private Dictionary<string, (Button button, System.Action action)> buttonActions = new Dictionary<string, (Button button, System.Action action)>();
-    private Dictionary<string, Button> controlButtonMap = new Dictionary<string, Button>();
+    public Dictionary<string, VisualElement> tabElements = new Dictionary<string, VisualElement>();
+    public Dictionary<string, Slider> sliderElements = new Dictionary<string, Slider>();
+    public Dictionary<string, DropdownField> dropdownElements = new Dictionary<string, DropdownField>();
+    public Dictionary<string, (Button button, System.Action action)> buttonActions = new Dictionary<string, (Button button, System.Action action)>();
+    public Dictionary<string, Button> controlButtonMap = new Dictionary<string, Button>();
 
 
     private VisualElement _rootVisualElement;
@@ -45,8 +47,8 @@ public class SettingsMenu : NetworkBehaviour
     /// </summary>
     public override void OnStartAuthority()
     {
-        Setup();
         base.OnStartAuthority();
+        Setup();
     }
     /// <summary>
     /// Unsubscribe from the button action 
@@ -72,6 +74,9 @@ public class SettingsMenu : NetworkBehaviour
         // animation variable
         isOpen = false;
         currentTab = "Setting-General-Container";
+
+        PlayerController controller = gameObject.transform.parent.GetComponent<PlayerController>();
+        inputActions = controller.playerInput.actions;
 
         // Fill dictionary with correct reference of visual element
         if(UnityUtils.ContainsElement(_rootVisualElement, "Settings-Container", out VisualElement settings)){
@@ -103,28 +108,18 @@ public class SettingsMenu : NetworkBehaviour
         RegisterControl(tabElements[ControlsTab], "DropBtn", "Drop", () => StartInteractiveRebind("Drop"));
         RegisterControl(tabElements[ControlsTab], "AttackBtn", "Attack", () => StartInteractiveRebind("Attack"));
         RegisterControl(tabElements[ControlsTab], "AltAttackBtn", "Alternate Attack", () => StartInteractiveRebind("Alternate Attack"));
-
-        // Overwrite UI for rebind buttons from playerprefs
-        foreach(InputAction action in inputActions.actionMaps[0].actions){
-            string displayString = string.Empty;
-            if(action.bindings[0].isComposite){
-                List<string> compositeParts = new List<string>();
-
-                for (int i = 1; i < action.bindings.Count && action.bindings[i].isPartOfComposite; i++) {
-                    compositeParts.Add(InputControlPath.ToHumanReadableString(action.bindings[i].effectivePath, InputControlPath.HumanReadableStringOptions.OmitDevice));
-                }
-
-                displayString = string.Join(" / ", compositeParts);
-            }
-            else{
-                displayString = InputControlPath.ToHumanReadableString(action.bindings[0].effectivePath, InputControlPath.HumanReadableStringOptions.OmitDevice);
-            }
-
-            if (controlButtonMap.ContainsKey(action.name)){
-                controlButtonMap[action.name].text = displayString;
-            }
-        }
         
+        // Screen Setting
+        if(UnityUtils.ContainsElement(tabElements[GeneralTab], "ScreenSetting", out DropdownField screenDropdown)){
+            dropdownElements.Add("ScreenSetting", screenDropdown);
+            screenDropdown.RegisterValueChangedCallback(function => ScreenSetting(screenDropdown));
+        }
+
+        // Camera Sens
+        if(UnityUtils.ContainsElement(tabElements[GeneralTab], "CameraSens", out Slider cameraSlider)){
+            sliderElements.Add("CameraSens", cameraSlider);
+            cameraSlider.RegisterValueChangedCallback(function => CameraSens(controller, cameraSlider));
+        }
     } 
 
     /// <summary>
@@ -204,6 +199,7 @@ public class SettingsMenu : NetworkBehaviour
         }
     }
 
+    #region Control Tab
     /// NOTE: Based on the code from Unity rebind!! I've rewrote parts of it to fit our project better
     /// <summary>
     /// Return the action and binding index for the binding that is targeted by the component
@@ -377,6 +373,29 @@ public class SettingsMenu : NetworkBehaviour
         }
         return false;
     }
+    #endregion
+
+    #region General Tab 
+    private void CameraSens(PlayerController controller, Slider slider) {
+        controller._cameraSensitivity = slider.value;
+    }
+
+    private void ScreenSetting(DropdownField dropdown) {
+        switch(dropdown.index) {
+            case 0:
+                Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
+                break;
+            case 1:
+                Screen.fullScreenMode = FullScreenMode.Windowed;
+                int screenWidth = Screen.currentResolution.width;
+                int screenHeight = Screen.currentResolution.height;
+                Screen.SetResolution(screenWidth, screenHeight, FullScreenMode.Windowed);
+                break;
+            default:
+                break;
+        }
+    }
+    #endregion
     #endregion
 
     #region UI Management 
