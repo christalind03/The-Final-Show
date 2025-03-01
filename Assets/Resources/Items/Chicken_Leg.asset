@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4aada04f77404a644bd0e1f7de738bbf, type: 3}
+  m_Name: Chicken_Leg
+  m_EditorClassIdentifier: 
+  _objectSprite: {fileID: 21300000, guid: 79c129b19329fcf408a1ed9881c01da8, type: 3}
+  _objectPrefab: {fileID: 3767874466901504336, guid: 3df979494527e49479e3881c02756eb9,
+    type: 3}
+  _skinnedMeshRenderer: {fileID: -7507432866300584617, guid: fa238ffa33564f84cacdd12c22a7a043,
+    type: 3}
+  _inventoryCategory: 3
+  _attackAudio: {fileID: 11400000, guid: 9fdbbae14e106a648957f1ae0483439e, type: 2}
+  _attackLayers:
+    serializedVersion: 2
+    m_Bits: 128
+  _attackCooldown: 1
+  _attackDamage: 20
+  _criticalStrikeChance: 0.2
+  _attackAngle: 45
+  _attackRange: 1
