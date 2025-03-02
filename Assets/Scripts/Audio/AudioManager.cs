@@ -8,32 +8,23 @@ using UnityEngine;
 /// </summary>
 public class AudioManager : NetworkBehaviour
 {
-    /// <summary>
-    /// Represents an audio asset with its associated properties.
-    /// </summary>
-    [System.Serializable]
-    public class AudioAsset
-    {
-        public bool Is3D;
-        public string Name;
-        public AudioResource Resource;
-        [HideInInspector] public AudioSource AudioSource;
-    }
-
-    public AudioAsset[] AudioAssets;
+    [SerializeField] private AudioAsset[] audioAssets;
 
     /// <summary>
     /// Initializes audio assets by creating AudioSource components and assigning its associated resource, if available.
     /// </summary>
     private void Awake()
     {
-        foreach (AudioAsset audioAsset in AudioAssets)
+        if (audioAssets != null)
         {
-            audioAsset.AudioSource = CreateAudioSource(audioAsset.Is3D);
-            
-            if (audioAsset.Resource != null)
+            foreach (AudioAsset audioAsset in audioAssets)
             {
-                InitializeAudio(audioAsset);
+                audioAsset.AudioSource = CreateAudioSource(audioAsset.Is3D);
+            
+                if (audioAsset.Resource != null)
+                {
+                    InitializeAudio(audioAsset);
+                }
             }
         }
     }
@@ -70,6 +61,8 @@ public class AudioManager : NetworkBehaviour
         audioAsset.AudioSource.volume = audioAsset.Resource.Volume;
         audioAsset.AudioSource.pitch = audioAsset.Resource.Pitch;
         audioAsset.AudioSource.loop = audioAsset.Resource.Loop;
+
+        audioAsset.AudioSource.outputAudioMixerGroup = audioAsset.Resource.AudioMixerGroup;
     }   
 
     /// <summary>
@@ -79,7 +72,7 @@ public class AudioManager : NetworkBehaviour
     /// <param name="audioResource">The <see cref="AudioResource"/> to assign.</param>
     public void ChangeAudio(string targetSource, AudioResource audioResource)
     {
-        AudioAsset targetAsset = Array.Find(AudioAssets, audioAsset => audioAsset.Name == targetSource);
+        AudioAsset targetAsset = Array.Find(audioAssets, audioAsset => audioAsset.Name == targetSource);
         targetAsset.Resource = audioResource;
         InitializeAudio(targetAsset);
     }
@@ -100,7 +93,7 @@ public class AudioManager : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void CmdStop()
     {
-        foreach (AudioAsset audioAsset in AudioAssets)
+        foreach (AudioAsset audioAsset in audioAssets)
         {
             RpcStop(audioAsset.Name);
         }
@@ -121,9 +114,9 @@ public class AudioManager : NetworkBehaviour
     /// </summary>
     /// <param name="audioName">The name of the <see cref="AudioAsset"/> to play.</param>
     [ClientRpc]
-    private void RpcPlay(string audioName)
+    protected void RpcPlay(string audioName)
     {
-        AudioAsset audioAsset = Array.Find(AudioAssets, audioAsset => audioAsset.Name == audioName);
+        AudioAsset audioAsset = Array.Find(audioAssets, audioAsset => audioAsset.Name == audioName);
 
         if (audioAsset == null)
         {
@@ -142,9 +135,9 @@ public class AudioManager : NetworkBehaviour
     /// </summary>
     /// <param name="audioName">The name of the <see cref="AudioAsset"/> to stop.</param>
     [ClientRpc]
-    private void RpcStop(string audioName)
+    protected void RpcStop(string audioName)
     {
-        AudioAsset audioAsset = Array.Find(AudioAssets, audioAsset => audioAsset.Name == audioName);
+        AudioAsset audioAsset = Array.Find(audioAssets, audioAsset => audioAsset.Name == audioName);
 
         if (audioAsset == null)
         {
