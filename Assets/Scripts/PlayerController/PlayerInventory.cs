@@ -421,6 +421,23 @@ public class PlayerInventory : NetworkBehaviour
     /// <returns><c>true</c> if the item should be equipped, otherwise <c>false</c>.</returns>
     private bool ShouldEquip(InventoryItem inventoryItem)
     {
+        if (_equippedRenderers == null)
+        {
+            Debug.Log("Equipped renderers is null");
+        }
+        if (inventoryItem == null)
+        {
+            Debug.Log("Inventory item is null");
+        }
+        else if (inventoryItem.ItemCategory == null)
+        {
+            Debug.Log("ItemCategory is null");
+        }
+        else if (_equippedRenderers[inventoryItem.ItemCategory] == null)
+        {
+            Debug.Log("Whole thing is null");
+        }
+
         GameObject equippableReference = _equippedRenderers[inventoryItem.ItemCategory];
 
         if (inventoryItem.ItemCategory == InventoryItem.InventoryCategory.Weapon)
