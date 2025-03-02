@@ -78,8 +78,10 @@ public class GameplayAudio : MonoBehaviour
     /// <param name="nextScene">The newly loaded scene.</param>
     private void OnSceneChanged(Scene _, Scene nextScene)
     {
-        StartCoroutine(CrossFade(CurrentScene, nextScene.name));
-        CurrentScene = nextScene.name;
+        if(Instance.isActiveAndEnabled){
+            StartCoroutine(CrossFade(CurrentScene, nextScene.name));
+            CurrentScene = nextScene.name;            
+        }
     }
 
     /// <summary>
