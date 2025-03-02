@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 using UnityEngine.InputSystem;
+using UnityEngine.Audio;
 
 public class SettingsMenu : NetworkBehaviour
 {
@@ -39,6 +40,7 @@ public class SettingsMenu : NetworkBehaviour
     // Misc
     private SteamLobby steamLobby;
     PlayerController controller;
+    [SerializeField] private AudioMixer mixer;
 
     /// <summary>
 
@@ -113,13 +115,19 @@ public class SettingsMenu : NetworkBehaviour
         // Screen Setting
         if(UnityUtils.ContainsElement(tabElements[GeneralTab], "ScreenSetting", out DropdownField screenDropdown)){
             dropdownElements.Add("ScreenSetting", screenDropdown);
-            screenDropdown.RegisterValueChangedCallback(function => ScreenSetting(screenDropdown));
+            screenDropdown.RegisterValueChangedCallback(function => ScreenSetting());
         }
 
         // Camera Sens
         if(UnityUtils.ContainsElement(tabElements[GeneralTab], "CameraSens", out Slider cameraSlider)){
             sliderElements.Add("CameraSens", cameraSlider);
-            cameraSlider.RegisterValueChangedCallback(function => CameraSens(cameraSlider));
+            cameraSlider.RegisterValueChangedCallback(function => CameraSens());
+        }
+
+        // Music Setting
+        if(UnityUtils.ContainsElement(tabElements[AudioTab], "MusicSlider", out Slider musicSlider)){
+            sliderElements.Add("MusicSlider", musicSlider);
+            musicSlider.RegisterValueChangedCallback(function => AdjustSound("Music"));
         }
     } 
 
@@ -132,8 +140,9 @@ public class SettingsMenu : NetworkBehaviour
             if (button != null) button.clicked -= action;
         }
         buttonActions.Clear();
-        sliderElements["CameraSens"].UnregisterValueChangedCallback(function => CameraSens(sliderElements["CameraSens"]));
-        dropdownElements["ScreenSetting"].UnregisterValueChangedCallback(function => ScreenSetting(dropdownElements["ScreenSetting"]));
+        sliderElements["CameraSens"].UnregisterValueChangedCallback(function => CameraSens());
+        dropdownElements["ScreenSetting"].UnregisterValueChangedCallback(function => ScreenSetting());
+        sliderElements["MusicSlider"].UnregisterValueChangedCallback(function => AdjustSound("Music"));
     }
 
     /// <summary>
@@ -371,7 +380,8 @@ public class SettingsMenu : NetworkBehaviour
     /// Set the camera sensitivity based on the camera sens slider
     /// </summary>
     /// <param name="slider">the slider UI field</param>
-    private void CameraSens(Slider slider) {
+    private void CameraSens() {
+        Slider slider = sliderElements["CameraSens"];
         controller._cameraSensitivity = slider.value;
     }
 
@@ -379,7 +389,8 @@ public class SettingsMenu : NetworkBehaviour
     /// Set the screen setting based on the dropdown field value
     /// </summary>
     /// <param name="dropdown">the dropdown UI field</param>
-    private void ScreenSetting(DropdownField dropdown) {
+    private void ScreenSetting() {
+        DropdownField dropdown = dropdownElements["ScreenSetting"];
         switch(dropdown.index) {
             case 0:
                 Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
@@ -394,6 +405,18 @@ public class SettingsMenu : NetworkBehaviour
                 break;
         }
     }
+    #endregion
+
+    #region Audio Tab 
+    /// <summary>
+    /// Used to adjust volume for the targeted sound type
+    /// </summary>
+    /// <param name="soundType">the group in audio mixer</param>
+    private void AdjustSound(string soundType){
+        float volume = sliderElements["MusicSlider"].value;
+        mixer.SetFloat(soundType, Mathf.Log10(volume)*20);
+    }
+
     #endregion
     #endregion
 

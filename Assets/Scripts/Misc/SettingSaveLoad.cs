@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
@@ -8,22 +9,33 @@ public class SettingSaveLoad : NetworkBehaviour
     public InputActionAsset actions;
     private SettingsMenu settingsMenu;
 
+    /// <summary>
+    /// Loads the saved setting once player joins the game
+    /// </summary>
     public override void OnStartAuthority() {
         base.OnStartAuthority();
         settingsMenu = GetComponent<SettingsMenu>();
         PlayerController controller = gameObject.transform.parent.GetComponent<PlayerController>();
         LoadRebind(controller);
-        LoadScreenSetting();
-        LoadCameraSens();
+        settingsMenu.dropdownElements["ScreenSetting"].index = LoadSetting("Screen Setting", 0);
+        settingsMenu.sliderElements["CameraSens"].value = LoadSetting("Camera Sensitivity", 3.5f);
+        settingsMenu.sliderElements["MusicSlider"].value = LoadSetting("Music Volume", 1.0f);
     }
-
+    /// <summary>
+    /// Saves the player setting once player leave the game 
+    /// </summary>
     public override void OnStopAuthority() {
-        SaveScreenSetting();
-        SaveCameraSens();
+        SaveSetting("Screen Setting", settingsMenu.dropdownElements["ScreenSetting"].index);
+        SaveSetting("Camera Sensitivity", settingsMenu.sliderElements["CameraSens"].value);
+        SaveSetting("Music Volume", settingsMenu.sliderElements["MusicSlider"].value);
         SaveRebind();
         base.OnStopAuthority();
     }
 
+    /// <summary>
+    /// Load key binds function 
+    /// </summary>
+    /// <param name="controller"></param>
     private void LoadRebind(PlayerController controller) {
         actions = controller.playerInput.actions;
         InputActionAsset inputActions = controller.playerInput.actions;
@@ -53,28 +65,46 @@ public class SettingSaveLoad : NetworkBehaviour
             }
         }
     }
+
+    /// <summary>
+    /// Save key binds function 
+    /// </summary>
     private void SaveRebind() {
         var rebinds = actions.SaveBindingOverridesAsJson();
         PlayerPrefs.SetString("Rebinds", rebinds);
     }
 
-    private void LoadCameraSens() {
-        float value = PlayerPrefs.GetFloat("Camera Sensitivity");
-        settingsMenu.sliderElements["CameraSens"].value = value;
+    /// <summary>
+    /// Universal save setting 
+    /// </summary>
+    /// <typeparam name="T">the type of value being saved</typeparam>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    private void SaveSetting<T>(string key, T value) {
+        if (typeof(T) == typeof(float)) {
+            PlayerPrefs.SetFloat(key, Convert.ToSingle(value));
+        } else if (typeof(T) == typeof(int)) {
+            PlayerPrefs.SetInt(key, Convert.ToInt32(value));
+        } else if (typeof(T) == typeof(string)) {
+            PlayerPrefs.SetString(key, value.ToString());
+        }
     }
 
-    private void SaveCameraSens() {
-        float value = settingsMenu.sliderElements["CameraSens"].value;
-        PlayerPrefs.SetFloat("Camera Sensitivity", value);
-    }
-
-    private void LoadScreenSetting() {
-        int value = PlayerPrefs.GetInt("Screen Setting");
-        settingsMenu.dropdownElements["ScreenSetting"].index = value;
-    }
-
-    private void SaveScreenSetting() {
-        int value = settingsMenu.dropdownElements["ScreenSetting"].index;
-        PlayerPrefs.SetInt("Screen Setting", value);
+    /// <summary>
+    /// Universal load setting 
+    /// </summary>
+    /// <typeparam name="T">the type of value being loaded</typeparam>
+    /// <param name="key"></param>
+    /// <param name="defaultValue">default value if key is not found</param>
+    /// <returns>the saved value in player prefs</returns>
+    private T LoadSetting<T>(string key, T defaultValue) {
+        if (typeof(T) == typeof(float)) {
+            return (T)(object)PlayerPrefs.GetFloat(key, Convert.ToSingle(defaultValue));
+        } else if (typeof(T) == typeof(int)) {
+            return (T)(object)PlayerPrefs.GetInt(key, Convert.ToInt32(defaultValue));
+        } else if (typeof(T) == typeof(string)) {
+            return (T)(object)PlayerPrefs.GetString(key, defaultValue.ToString());
+        }
+        return defaultValue;
     }
 }

@@ -378,6 +378,7 @@ MonoBehaviour:
   menuCloseAnim: {fileID: 11400000, guid: 8d5a29931b7d5ed448d95d1a00892597, type: 2}
   inputActions: {fileID: -944628639613478452, guid: 94c50b72e17103c4fb60bf0901a95c21,
     type: 3}
+  mixer: {fileID: 24100000, guid: a6e7c5cb4a604b543841f193ef882e61, type: 2}
 --- !u!114 &1163320593352086002
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -390,6 +391,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b6c2da2db9374dada6761b5e35121c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   actions: {fileID: -944628639613478452, guid: 94c50b72e17103c4fb60bf0901a95c21, type: 3}
 --- !u!1 &3233045660875188808
 GameObject:
@@ -611,7 +615,7 @@ MonoBehaviour:
   _cameraTransform: {fileID: 8102490668816230080}
   _followTransform: {fileID: 1279517964111326137}
   _playerTransform: {fileID: 8203241780073711057}
-  _playerInput: {fileID: 0}
+  playerInput: {fileID: 0}
 --- !u!114 &4647677295001218243
 MonoBehaviour:
   m_ObjectHideFlags: 0
