@@ -161,7 +161,7 @@
         </ui:VisualElement>
         <ui:VisualElement name="Setting-General-Container" style="flex-grow: 1; min-width: 40%; min-height: 80%; max-height: 80%; max-width: 40%; background-image: url(&quot;project://database/Assets/Sprites/Setting_Background.png?fileID=21300000&amp;guid=418eba4d740940147b16a45cf626e8c4&amp;type=3#Setting_Background&quot;); justify-content: center; position: absolute; padding-top: 1.5%; padding-right: 2%; padding-bottom: 1.5%; padding-left: 2%; opacity: 1; visibility: hidden;">
             <ui:VisualElement name="Lobby-Banner" style="flex-grow: 1; max-height: 15%; align-items: center; justify-content: center; background-image: url(&quot;project://database/Assets/Sprites/Banner.png?fileID=21300000&amp;guid=3460e9d0766f6e94c974cb81dbc1b3bd&amp;type=3#Banner&quot;); align-self: auto;">
-                <ui:TextField label="Lobby Id:" value="PLACE HOLDER" name="Id" max-length="15" readonly="true" focusable="false" class="defaultFont my-input-field" style="top: 5%; font-size: 50px;" />
+                <ui:TextField label="Lobby Id:" value="PLACE HOLDER" name="Id" max-length="15" readonly="true" focusable="true" class="defaultFont my-input-field" style="top: 5%; font-size: 50px;" />
             </ui:VisualElement>
             <ui:VisualElement name="Spacer" style="flex-grow: 1; max-height: 5%;" />
             <ui:VisualElement name="Content" style="flex-grow: 1;">
