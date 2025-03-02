@@ -74,11 +74,6 @@ public class PlayerStats : NetworkBehaviour
     {
         Attack = new Stat(_attack);
         Defense = new Stat(_defense);
-        Debug.Log("Defense initialized");
-        if (Defense == null)
-        {
-            Debug.Log("PlayerStats: Defense is null");
-        }
         Stamina = new Stat(_stamina);
         CriticalStrikeChance = new Stat(_criticalStrikeChance);
 
