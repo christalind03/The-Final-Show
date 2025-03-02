@@ -275,7 +275,7 @@ public class CustomNetworkManager : NetworkManager
             {
                 int minutesRemaining = timeRemaining / 60;
                 int secondsRemaining = timeRemaining % 60;
-                if(secondsRemaining == 3){
+                if(minutesRemaining <= 0 && secondsRemaining == 3){
                     sceneAnim = FindObjectOfType<SceneTransitionAnim>();
                     sceneAnim.ExitAnim();                    
                 }
