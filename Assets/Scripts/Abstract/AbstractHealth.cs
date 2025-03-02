@@ -79,6 +79,18 @@ public abstract class AbstractHealth : NetworkBehaviour
     {
         if (TryGetComponent(out PlayerStats playerStats))
         {
+            if (playerStats == null)
+            {
+                Debug.Log("PlayerStats is null");
+            }
+            else if (playerStats.Defense == null)
+            {
+                Debug.Log("Defense is null");
+            }
+            else if (playerStats.Defense.BaseValue == null)
+            {
+                Debug.Log("BaseValue is null");
+            }
             float reducedDamage = Mathf.Max(decreaseValue - playerStats.Defense.BaseValue, 0);
             CurrentValue -= reducedDamage;
 

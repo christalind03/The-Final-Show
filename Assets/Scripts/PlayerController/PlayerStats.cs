@@ -28,6 +28,11 @@ public class PlayerStats : NetworkBehaviour
     {
         Attack = new Stat(_attack);
         Defense = new Stat(_defense);
+        Debug.Log("Defense initialized");
+        if (Defense == null)
+        {
+            Debug.Log("PlayerStats: Defense is null");
+        }
         Stamina = new Stat(_stamina);
         CriticalStrikeChance = new Stat(_criticalStrikeChance);
 
@@ -40,6 +45,7 @@ public class PlayerStats : NetworkBehaviour
         CriticalStrikeChance.OnBaseChange += (float previousValue, float currentValue) => _playerInterface?.RefreshCriticalStrikeChance(currentValue);
 
         base.OnStartAuthority();
+        CmdInitialize();
     }
 
     /// <summary>
@@ -59,4 +65,30 @@ public class PlayerStats : NetworkBehaviour
             _playerInterface?.RefreshStamina(Stamina.BaseValue, currentValue);
         }
     }
+
+    /// <summary>
+    /// Initializes stat values on the server so that they aren't null when the server tries to access them.
+    /// </summary>
+    [Command]
+    private void CmdInitialize()
+    {
+        Attack = new Stat(_attack);
+        Defense = new Stat(_defense);
+        Debug.Log("Defense initialized");
+        if (Defense == null)
+        {
+            Debug.Log("PlayerStats: Defense is null");
+        }
+        Stamina = new Stat(_stamina);
+        CriticalStrikeChance = new Stat(_criticalStrikeChance);
+
+        _playerInterface = gameObject.GetComponent<PlayerInterface>();
+
+        Attack.OnBaseChange += (float previousValue, float currentValue) => _playerInterface.RefreshAttack(currentValue);
+        Defense.OnBaseChange += (float previousValue, float currentValue) => _playerInterface.RefreshDefense(currentValue);
+        Stamina.OnBaseChange += (float previousValue, float currentValue) => RefreshStamina(true, previousValue, currentValue);
+        Stamina.OnCurrentChange += (float previousValue, float currentValue) => RefreshStamina(false, previousValue, currentValue);
+        CriticalStrikeChance.OnBaseChange += (float previousValue, float currentValue) => _playerInterface?.RefreshCriticalStrikeChance(currentValue);
+    }
+
 }
