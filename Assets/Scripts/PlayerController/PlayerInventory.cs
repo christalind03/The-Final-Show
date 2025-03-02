@@ -34,7 +34,7 @@ public class PlayerInventory : NetworkBehaviour
 
         public override bool Equals(object otherObj)
         {
-            return otherObj is InventoryRestriction otherInventoryRestriction && 
+            return otherObj is InventoryRestriction otherInventoryRestriction &&
                 ItemCategory == otherInventoryRestriction.ItemCategory &&
                 ItemType == otherInventoryRestriction.ItemType;
         }
@@ -54,7 +54,7 @@ public class PlayerInventory : NetworkBehaviour
     [SerializeField] private List<EquippableReference> _equippableReferences;
 
     private readonly SyncDictionary<string, InventoryItem> _inventorySlots = new SyncDictionary<string, InventoryItem>();
-    
+
     private string _currentSlot;
     private List<string> _inventoryKeys;
     private Dictionary<string, InventoryRestriction> _inventoryRestrictions;
@@ -63,6 +63,8 @@ public class PlayerInventory : NetworkBehaviour
     private PlayerInterface _playerInterface;
     private PlayerHealth _playerHealth;
     private PlayerStats _playerStats;
+
+    private AudioManager _audioManager;
 
     public List<InventoryItem> Inventory
     {
@@ -75,6 +77,7 @@ public class PlayerInventory : NetworkBehaviour
     /// </summary>
     private void Start()
     {
+        _audioManager = gameObject.GetComponent<AudioManager>();
         _initialRenderers = new Dictionary<InventoryItem.InventoryCategory, Renderer>();
         _equippedRenderers = new Dictionary<InventoryItem.InventoryCategory, GameObject>();
 
@@ -159,7 +162,6 @@ public class PlayerInventory : NetworkBehaviour
         {
             if (inventoryItem != null)
             {
-                Debug.Log(inventoryItem.name);
                 AddItem(inventoryItem);
             }
         }
@@ -187,7 +189,7 @@ public class PlayerInventory : NetworkBehaviour
                 UnityUtils.LogError($"{upcomingSlot} is not a valid inventory slot key.");
             }
         }
-        
+
         // Handle input from mouse scroll wheel.
         if (context.control.device is Mouse)
         {
@@ -511,6 +513,11 @@ public class PlayerInventory : NetworkBehaviour
     [ClientRpc]
     private void RpcEquip(InventoryItem inventoryItem)
     {
+        if (inventoryItem is Weapon weaponItem)
+        {
+            _audioManager.ChangeAudio("Weapon", weaponItem.AttackAudio);
+        }
+
         GameObject equippableReference = _equippedRenderers[inventoryItem.ItemCategory];
         SkinnedMeshRenderer skinnedMeshRenderer = equippableReference.GetComponent<SkinnedMeshRenderer>();
 

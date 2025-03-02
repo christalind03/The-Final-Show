@@ -84,6 +84,7 @@ public abstract class StateManager<EState, TState, TStateContext> : NetworkBehav
     /// <param name="otherCollider">The other collider involved in this collision</param>
     private void OnTriggerEnter(Collider otherCollider)
     {
+        if (!isServer) { return; }
         CurrentState.OnTriggerEnter(otherCollider);
     }
 
@@ -93,6 +94,7 @@ public abstract class StateManager<EState, TState, TStateContext> : NetworkBehav
     /// <param name="otherCollider">The other collider involved in this collision</param>
     private void OnTriggerExit(Collider otherCollider)
     {
+        if (!isServer) { return; }
         CurrentState.OnTriggerExit(otherCollider);
     }
 
@@ -102,6 +104,7 @@ public abstract class StateManager<EState, TState, TStateContext> : NetworkBehav
     /// <param name="otherCollider">The other collider involved in this collision</param>
     private void OnTriggerStay(Collider otherCollider)
     {
+        if (!isServer) { return; }
         CurrentState.OnTriggerStay(otherCollider);
     }
 
@@ -111,6 +114,7 @@ public abstract class StateManager<EState, TState, TStateContext> : NetworkBehav
     /// <param name="stateKey">The enumerable member to transition to</param>
     public void TransitionToState(EState stateKey)
     {
+        if (!isServer) { return; }
         if (!CurrentState.StateKey.Equals(stateKey))
         {
             _isTransitioningState = true;

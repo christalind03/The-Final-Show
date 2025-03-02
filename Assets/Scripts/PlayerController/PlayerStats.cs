@@ -11,10 +11,12 @@ public class PlayerStats : NetworkBehaviour
     [SerializeField] private float _attack;
     [SerializeField] private float _defense;
     [SerializeField] private float _stamina;
+    [SerializeField] private float _criticalStrikeChance;
 
     public Stat Attack;
     public Stat Defense;
     public Stat Stamina;
+    public Stat CriticalStrikeChance;
 
     private PlayerInterface _playerInterface;
 
@@ -27,6 +29,7 @@ public class PlayerStats : NetworkBehaviour
         Attack = new Stat(_attack);
         Defense = new Stat(_defense);
         Stamina = new Stat(_stamina);
+        CriticalStrikeChance = new Stat(_criticalStrikeChance);
 
         _playerInterface = gameObject.GetComponent<PlayerInterface>();
 
@@ -34,6 +37,7 @@ public class PlayerStats : NetworkBehaviour
         Defense.OnBaseChange += (float previousValue, float currentValue) => _playerInterface.RefreshDefense(currentValue);
         Stamina.OnBaseChange += (float previousValue, float currentValue) => RefreshStamina(true, previousValue, currentValue);
         Stamina.OnCurrentChange += (float previousValue, float currentValue) => RefreshStamina(false, previousValue, currentValue);
+        CriticalStrikeChance.OnBaseChange += (float previousValue, float currentValue) => _playerInterface?.RefreshCriticalStrikeChance(currentValue);
 
         base.OnStartAuthority();
     }

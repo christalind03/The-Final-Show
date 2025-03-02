@@ -10,6 +10,11 @@ public class EnemyHealth : AbstractHealth
     [Header("User Interface")]
     [SerializeField] private StatusBar _healthBar; // Since we may have multiple StatusBar components, we have to manually set the correct reference.
 
+    [Header("Manuscript Settings")]
+    [SerializeField] private GameObject _scriptPrefab;
+    [Min(1), SerializeField] private int _minScripts = 1;
+    [Min(1), SerializeField] private int _maxScripts = 1;
+
     /// <summary>
     /// Called when <see cref="_baseValue"/> changes.
     /// Updates the enemy's health bar UI to reflect the current health value.
@@ -33,11 +38,29 @@ public class EnemyHealth : AbstractHealth
     }
 
     /// <summary>
-    /// Handles the death of an enemy by destroying the gameObject.
+    /// Handles the death of an enemy by spawning a script object and destroying the gameObject.
     /// </summary>
     [Server]
     protected override void TriggerDeath()
     {
+        SpawnScripts();
         Destroy(gameObject);
+    }
+
+    /// <summary>
+    /// Spawns a random number of scripts with evenly distributed rotations about the Y-axis
+    /// </summary>
+    protected void SpawnScripts()
+    {
+        int numScripts = Random.Range(_minScripts, _maxScripts + 1);
+        float curRotation = Random.Range(0f, 360f);
+        float degIncrement = 360f / numScripts;
+        for (int i = 0; i < numScripts; i++)
+        {
+            // Instantiates the object with the current rotation and one unit up from the enemy's position
+            GameObject script = Instantiate(_scriptPrefab, gameObject.transform.position + Vector3.up, Quaternion.AngleAxis(curRotation, Vector3.up));
+            NetworkServer.Spawn(script);
+            curRotation += degIncrement;
+        }
     }
 }

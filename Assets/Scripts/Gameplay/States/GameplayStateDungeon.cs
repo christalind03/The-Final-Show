@@ -9,6 +9,7 @@ using UnityEngine.SceneManagement;
 public class GameplayStateDungeon : GameplayState
 {
     private SafeZone _safeZone;
+    private int _scriptsNeeded = 3; // This would change depending on difficulty, using predefined value for testing
 
     /// <summary>
     /// Sets a custom callback to be executed once the countdown finishes.
@@ -19,10 +20,10 @@ public class GameplayStateDungeon : GameplayState
     public override void EnterState()
     {
         Debug.Log("Entered dungeon state...");
-
+        StateContext._scriptsCollected = 0; // Reset scripts collected
         CountdownCallback = () =>
         {
-            if (_safeZone != null && _safeZone.ContainsPlayers)
+            if (_safeZone != null && _safeZone.ContainsPlayers && StateContext._scriptsCollected >= _scriptsNeeded)
             {
                 GameplayManager.Instance.TransitionToState(GameplayManager.State.Boss);
 
