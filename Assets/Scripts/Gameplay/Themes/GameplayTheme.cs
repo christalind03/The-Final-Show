@@ -5,4 +5,5 @@ public class GameplayTheme : ScriptableObject
 {
     public string Theme;
     public GameObject[] EnemyPrefabs;
+    public GameObject BossPrefab;
 }
