@@ -7,26 +7,31 @@ using UnityEngine.SceneManagement;
 [CreateAssetMenu(fileName = "New Boss Gameplay State", menuName = "Base State/Gameplay/Boss")]
 public class GameplayStateBoss : GameplayState
 {
-    private bool _enemyExists;
     private EnemyHealth _enemyHealth;
+    private bool _sceneLoaded;
 
     /// <summary>
-    /// When the target scene is loaded, searches for the primary enemy in the scene and initializes the enemy's health reference, if found.
+    /// Initializes _sceneLoaded to false to ensure we don't transition to Intermission prematurely.
+    /// </summary>
+    public override void EnterState()
+    {
+        Debug.Log("Entering BOSS State");
+        _sceneLoaded = false;
+        base.EnterState();
+    }
+
+    /// <summary>
+    /// When the target scene is loaded, instantiates and spawns the boss depending on the active theme.
     /// </summary>
     /// <param name="activeScene">The scene that was loaded</param>
     /// <param name="loadMode">The mode in which the scene was loaded</param>
     protected override void OnSceneLoaded(Scene activeScene, LoadSceneMode loadMode)
     {
         base.OnSceneLoaded(activeScene, loadMode);
-
-        GameplayManager.Instance.FindObject((EnemyHealth targetObject) =>
-        {
-            if (targetObject != null)
-            {
-                _enemyExists = true;
-                _enemyHealth = targetObject;
-            }
-        });
+        GameObject boss = Instantiate(StateContext.GameplayTheme.BossPrefab, new Vector3(0, 0, 20), Quaternion.Euler(0, 180, 0)); // Spawned at arbitrary position and rotation
+        NetworkServer.Spawn(boss);
+        _enemyHealth = boss.GetComponent<EnemyHealth>();
+        _sceneLoaded = true;
     }
 
     public override void OnTriggerEnter(Collider otherCollider) { }
@@ -35,15 +40,15 @@ public class GameplayStateBoss : GameplayState
     
     /// <summary>
     /// Updates the state logic during gameplay.
-    /// Monitors the primary enemy's health status and triggers a state transition into <see cref="GameplayManager.State.Intermission"/>
-    /// when the enemy is defeated
+    /// Monitors the boss' health status and triggers a state transition into <see cref="GameplayManager.State.Intermission"/>
+    /// when the boss is defeated.
     /// </summary>
     public override void UpdateState()
     {
-        // The primary enemy's health script becomes null when the enemy is defeated, as the reference is destroyed
+        // The boss' health script becomes null when the boss is defeated, as the reference is destroyed
         // However, when initially loading in to the scene, this health script is automatically set to be null
-        // So, we have an additional check to ensure that the enemy existed at some point during this scene to prevent transitioning states too early
-        if (_enemyExists && _enemyHealth == null)
+        // So, we have an additional check to ensure that the scene finished loading to prevent transitioning states too early
+        if (_sceneLoaded && _enemyHealth == null)
         {
             CustomNetworkManager.Instance.StopAllCoroutines();
             GameplayManager.Instance.TransitionToState(GameplayManager.State.Intermission);
