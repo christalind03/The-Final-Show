@@ -149,15 +149,18 @@ public class SettingsMenu : NetworkBehaviour
     /// Stops the host or client when the leave the game
     /// </summary>
     private void OnBtnLeaveGame(){
-        if(isServer){
-            NetworkManager.singleton.StopHost();
-        }else{
-            NetworkManager.singleton.StopClient();
+        if(isServer && isClient){
+            CustomNetworkManager.Instance.StopHost();
+        }
+        else if(isClient){
+            CustomNetworkManager.Instance.StopClient();
         }
 
-        // Delete the network game object when the player leaves the game. Doesn't work for some reason....
-        CustomNetworkManager networkManager = GameObject.FindObjectOfType<CustomNetworkManager>();
-        Destroy(networkManager.gameObject);
+        // Delete stuff that are on Dont destroy on load
+        Destroy(CustomNetworkManager.Instance.gameObject);
+        Destroy(ScoreBoard.Instance.gameObject);
+        Destroy(GameplayManager.Instance.gameObject);
+        Destroy(GameplayAudio.Instance.gameObject);
     }
 
     /// <summary>

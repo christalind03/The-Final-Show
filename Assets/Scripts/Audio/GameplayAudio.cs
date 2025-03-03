@@ -50,6 +50,14 @@ public class GameplayAudio : MonoBehaviour
     }
 
     /// <summary>
+    /// Unsub from event
+    /// </summary>
+    private void OnDestroy()
+    {
+        SceneManager.activeSceneChanged -= OnSceneChanged;
+    }
+
+    /// <summary>
     /// Attempts to play the audio associated with the given scene name by finding the corresponding 
     /// <see cref="AudioAsset"/> and starting a fade-in effect if it is not already playing.
     /// </summary>
@@ -78,6 +86,7 @@ public class GameplayAudio : MonoBehaviour
     /// <param name="nextScene">The newly loaded scene.</param>
     private void OnSceneChanged(Scene _, Scene nextScene)
     {
+        if(SceneManager.GetActiveScene().name == "Network-Lobby") return;
         if(Instance.isActiveAndEnabled){
             StartCoroutine(CrossFade(CurrentScene, nextScene.name));
             CurrentScene = nextScene.name;            

@@ -95,8 +95,6 @@ public class PlayerController : NetworkBehaviour
         _animatorMovementX = Animator.StringToHash("Movement X");
         _animatorMovementZ = Animator.StringToHash("Movement Z");
 
-        EnableControls();
-
         if (!Application.isEditor && SteamManager.Initialized)
         {
             playerName = SteamFriends.GetPersonaName();
@@ -114,6 +112,12 @@ public class PlayerController : NetworkBehaviour
         base.OnStartServer();
 
         _scoreboard = NetworkManager.FindObjectOfType<ScoreBoard>();
+    }
+
+    public override void OnStartLocalPlayer()
+    {
+        base.OnStartLocalPlayer();
+        EnableControls();
     }
 
     /// <summary>
@@ -373,7 +377,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (!isLocalPlayer) { return; }
 
-        GameObject hitObject = _raycastHit.collider.gameObject;
+        GameObject hitObject = _raycastHit.collider?.gameObject;
 
         if (hitObject != null)
         {
@@ -452,7 +456,7 @@ public class PlayerController : NetworkBehaviour
     /// <summary>
     /// When the client no longer has authority over this object, ensure the cursor is visible and disables the controls.
     /// </summary>
-    public override void OnStopAuthority()
+    public override void OnStopClient()
     {
         if (!isLocalPlayer) { return; }
 
