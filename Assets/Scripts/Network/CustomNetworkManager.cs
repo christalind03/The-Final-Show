@@ -59,7 +59,9 @@ public class CustomNetworkManager : NetworkManager
 
         // Updates scoreboard when player connects
         ScoreBoard scoreBoard = NetworkManager.FindObjectOfType<ScoreBoard>();
-        if(scoreBoard != null){
+        
+        if (scoreBoard != null)
+        {
             StartCoroutine(scoreBoard.PlayerJoinedUpdatePlayerList(conn));
         }
     }
@@ -72,7 +74,9 @@ public class CustomNetworkManager : NetworkManager
     {
         // Updates scoreboard when player disconnects
         ScoreBoard scoreBoard = NetworkManager.FindObjectOfType<ScoreBoard>();
-        if(scoreBoard != null){
+        
+        if (scoreBoard != null)
+        {
             scoreBoard.PlayerLeftUpdatePlayerList(conn);
         }
 
@@ -88,6 +92,7 @@ public class CustomNetworkManager : NetworkManager
     {
         // I really didn't want to hardcode this but ermmm oh well
         Scene activeScene = SceneManager.GetActiveScene();
+
         if (activeScene.name == "Gameplay-Dungeon")
         {
             StartCoroutine(SpawnAfterDungeonGeneration(clientConnection));
@@ -100,9 +105,12 @@ public class CustomNetworkManager : NetworkManager
         NetworkServer.SetClientReady(clientConnection);
 
         // Hardcode scene name cause can't find a way around
-        if(NetworkServer.active && activeScene.name != "Gameplay-Intermission"){
+        if(NetworkServer.active && activeScene.name != "Gameplay-Intermission")
+        {
             ScoreBoard scoreBoard = NetworkManager.FindObjectOfType<ScoreBoard>();
-            if(scoreBoard != null){
+            
+            if (scoreBoard != null)
+            {
                 scoreBoard.UpdateNetId(clientConnection);           
             } 
         }

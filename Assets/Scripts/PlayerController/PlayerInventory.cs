@@ -75,7 +75,7 @@ public class PlayerInventory : NetworkBehaviour
     /// Initializes dictionaries for tracking the initial and equipped renderers,
     /// mapping inventory categories to their respective visual representations.
     /// </summary>
-    private void Start()
+    private void Awake()
     {
         _audioManager = gameObject.GetComponent<AudioManager>();
         _initialRenderers = new Dictionary<InventoryItem.InventoryCategory, Renderer>();
@@ -428,10 +428,6 @@ public class PlayerInventory : NetworkBehaviour
         if (inventoryItem == null)
         {
             Debug.Log("Inventory item is null");
-        }
-        else if (inventoryItem.ItemCategory == null)
-        {
-            Debug.Log("ItemCategory is null");
         }
         else if (_equippedRenderers[inventoryItem.ItemCategory] == null)
         {
