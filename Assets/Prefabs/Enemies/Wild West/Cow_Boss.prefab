@@ -81,6 +81,7 @@ GameObject:
   - component: {fileID: 5986255012892755312}
   - component: {fileID: -611135261354465096}
   - component: {fileID: 535284225997233683}
+  - component: {fileID: 5288186795450727540}
   m_Layer: 7
   m_Name: Cow_Boss
   m_TagString: Untagged
@@ -331,14 +332,14 @@ MonoBehaviour:
     _attackDamage: 5
   _behaviorStats:
     _startChaseDist: 10
-    _chaseBuffer: 5
+    _chaseBuffer: 10
     _startAimDist: 1.5
     _aimBuffer: 0.5
   _audioManager: {fileID: -611135261354465096}
   _attackAnimLength: 1
   _abilityStats:
   - _abilityCooldown: 10
-    _abilityDuration: 3
+    _abilityDuration: 2
 --- !u!114 &5986255012892755312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -406,6 +407,29 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!136 &5288186795450727540
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 169783458958843592}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.75
+  m_Height: 3
+  m_Direction: 1
+  m_Center: {x: 0, y: 1.5, z: 0.5}
 --- !u!1 &264045150960291850
 GameObject:
   m_ObjectHideFlags: 0
