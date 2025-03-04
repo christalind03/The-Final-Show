@@ -48,6 +48,8 @@ public class PlayerHealth : AbstractHealth
     [Server]
     protected override void TriggerDeath()
     {
+        ScoreBoard scoreboard = NetworkManager.FindObjectOfType<ScoreBoard>();
+        scoreboard.CmdUpdateDeathData(netId, 1, 1);
         Spectate();
         RpcTriggerDeath();
     }

@@ -9,6 +9,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     public enum EEnemyState
     {
         Idle,
+        Wandering,
         Chasing,
         Aiming,
         Attacking,
@@ -21,6 +22,8 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     [Header("Behavior Parameters")]
     [SerializeField] protected BehaviorStats _behaviorStats;
 
+    [SerializeField] protected AudioManager _audioManager;
+
     protected Vector3 _initialPosition;
     protected Quaternion _initialRotation;
 
@@ -31,8 +34,12 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     protected bool _hasTarget;
 
     protected bool _canAttack;
+    protected bool _isAttacking;
 
     protected Material _material;
+
+    private Animator _enemyAnimator;
+    [SerializeField] private float _attackAnimLength;
 
     /// <summary>
     /// Stores the enemy's initial position and rotation for later use.
@@ -47,10 +54,16 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
         _navMeshAgent = GetComponent<NavMeshAgent>();
         _material = GetComponentsInChildren<Renderer>()[0].material;
 
+        // To access the animator, we must retrieve the child gameObject that is rendering the player's mesh.
+        // This should be the first child of the current gameObject
+        _enemyAnimator = transform.GetChild(0).GetComponent<Animator>();
+
         _canAttack = true;
         _hasTarget = false;
 
-        StateContext = new EnemyContext(_attackStats, _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _material);
+        _navMeshAgent.stoppingDistance = _behaviorStats.StartAimDist;
+
+        StateContext = new EnemyContext(this, _audioManager, _attackStats, _behaviorStats, _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _enemyAnimator, _material);
     }
 
     /// <summary>
@@ -104,8 +117,8 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
         if (_hasTarget)
         {
             distToTarget = Vector3.Distance(transform.position, _targetTransform.position); // recalculate distToTarget
-            // If Idle and target is closer than startChaseDist, start chasing
-            if (CurrentState.StateKey.Equals(EEnemyState.Idle) && distToTarget < _behaviorStats.StartChaseDist)
+            // If in default state and target is closer than startChaseDist, start chasing
+            if (CurrentState.StateKey.Equals(_defaultState) && distToTarget < _behaviorStats.StartChaseDist)
             {
                 TransitionToState(EEnemyState.Chasing);
             }
@@ -136,12 +149,13 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
                 {
                     TransitionToState(EEnemyState.Attacking);
                     _canAttack = false;
+                    _isAttacking = true;
                     StartCoroutine(AttackCooldown());
-                    // TODO: add a delay here for duration of attack animation
+                    StartCoroutine(AttackAnimationCooldown());
                 }
             }
-            // If Attacking but can no longer attack, start Aiming
-            else if (CurrentState.StateKey.Equals(EEnemyState.Attacking) && !_canAttack)
+            // If Attacking and the animation is completed, start Aiming
+            else if (CurrentState.StateKey.Equals(EEnemyState.Attacking) && !_isAttacking)
             {
                 TransitionToState(EEnemyState.Aiming);
             }
@@ -159,7 +173,8 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
             // No target and couldn't find a new one -> go to Idle
             else
             {
-                TransitionToState(EEnemyState.Idle);
+                //TransitionToState(EEnemyState.Idle);
+                TransitionToState(_defaultState);
             }
         }
     }
@@ -172,6 +187,16 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     {
         yield return new WaitForSeconds(_attackStats.AttackCooldown);
         _canAttack = true;
+    }
+
+    /// <summary>
+    /// Used to ensure that the enemy remains in the attacking state for the duration of the animation
+    /// </summary>
+    [Server]
+    protected IEnumerator AttackAnimationCooldown()
+    {
+        yield return new WaitForSeconds(_attackAnimLength); // float for duration of attack animation
+        _isAttacking = false;
     }
     
 }

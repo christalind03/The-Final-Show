@@ -1,7 +1,7 @@
 using Mirror;
-using Steamworks;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -24,7 +24,6 @@ public class PlayerInterface : NetworkBehaviour
 
         if (uiDocument.visualTreeAsset.name != "PlayerUI")
         {
-            Debug.Log("Updating visual tree asset...");
             uiDocument.visualTreeAsset = Resources.Load<VisualTreeAsset>("UI/PlayerUI");
         }
 
@@ -95,7 +94,7 @@ public class PlayerInterface : NetworkBehaviour
         // The `GameUI` inventory is structured as #Slot-Key > #Item, where #Item renders the item icon.
         VisualElement itemElement = _rootVisualElement.Query<VisualElement>(slotKey).Children<VisualElement>().ToList()[0];
 
-        if (itemElement != null )
+        if (itemElement != null)
         {
             if (itemSprite != null)
             {
@@ -138,7 +137,7 @@ public class PlayerInterface : NetworkBehaviour
     {
         RefreshStatus("Attack-Value", totalAttack);
     }
-    
+
     /// <summary>
     /// Refreshes the defense statistic display in the UI.
     /// </summary>
@@ -167,7 +166,16 @@ public class PlayerInterface : NetworkBehaviour
     {
         RefreshStatusBar("Stamina-Foreground", baseStamina, currentStamina);
     }
-    
+
+    /// <summary>
+    /// Refreshes the critical strike chance display in the UI.
+    /// </summary>
+    /// <param name="critChance">The total critical strike chance to display.</param>
+    public void RefreshCriticalStrikeChance(float critChance)
+    {
+        RefreshStatus("CriticalStrike-Value", critChance);
+    }
+
     /// <summary>
     /// Toggles the visibility of the ammunition UI.
     /// </summary>
@@ -179,23 +187,26 @@ public class PlayerInterface : NetworkBehaviour
             ammoElement.style.opacity = displayAmmo ? 1 : 0;
         }
     }
-    
+
     /// <summary>
     /// Toggle the score board visibility based on the current class list on the visualelement
     /// </summary>
     /// <returns>True = scoreboard enabled / False = scoreboard disabled or ScoreBoard not found</returns>
-    public bool ToggleScoreBoardVisibility(){
+    public bool ToggleScoreBoardVisibility()
+    {
         if (UnityUtils.ContainsElement(_rootVisualElement, "ScoreBoard", out VisualElement board))
         {
             if (board.ClassListContains("hide"))
             {
                 board.RemoveFromClassList("hide");
                 return true;
-            }else{
+            }
+            else
+            {
                 board.AddToClassList("hide");
             }
         }
-        return false;        
+        return false;
     }
 
     /// <summary>
@@ -203,34 +214,59 @@ public class PlayerInterface : NetworkBehaviour
     /// The slot will then be assigned a player name from scoreboard's playerName dictionary.
     /// The unfilled slots will be cleared and put into hidden
     /// </summary>
-    public void RefreshScoreBoard(){
-        if(!isLocalPlayer)return;
-        ScoreBoard scoreboard = gameObject.GetComponent<ScoreBoard>();
-        List<TextElement> slotNames = new List<TextElement>();
+    public void RefreshScoreBoard()
+    {
+        if (!isLocalPlayer) return;
+        ScoreBoard scoreboard = NetworkManager.FindObjectOfType<ScoreBoard>();
         int Counter = 0;
-        
-        if(_rootVisualElement == null){
+
+        // Gets a list of all player visual elements for scoreboard
+        List<VisualElement> playerSlots = new List<VisualElement>();
+        if (_rootVisualElement == null)
+        {
             _rootVisualElement = gameObject.GetComponent<UIDocument>().rootVisualElement;
         }
-
-        if(UnityUtils.ContainsElement(_rootVisualElement, "ScoreBoard", out VisualElement board)){
-            if(UnityUtils.ContainsElement(board, "Background", out VisualElement background)){
-                slotNames = background.Query<TextElement>(className: "unity-text-element").ToList();
+        if (UnityUtils.ContainsElement(_rootVisualElement, "ScoreBoard", out VisualElement board))
+        {
+            if (UnityUtils.ContainsElement(board, "Background", out VisualElement background))
+            {
+                playerSlots = background.Query<VisualElement>(className: "player").ToList();
             }
         }
 
-        foreach(KeyValuePair<uint, string> name in scoreboard.playerName){
-            if(UnityUtils.ContainsElement(_rootVisualElement, slotNames[Counter].name, out TextElement textEle)){
-                textEle.text = name.Value;
-                textEle.RemoveFromClassList("hide");
+        foreach (KeyValuePair<uint, string> data in scoreboard.playerName)
+        {
+            // Handles player name updating
+            if (UnityUtils.ContainsElement(playerSlots[Counter], playerSlots[Counter].name + "-Name", out TextElement textElement))
+            {
+                textElement.text = data.Value;
+                playerSlots[Counter].RemoveFromClassList("hide");
             }
+
+            // Handles stats updating
+            if (UnityUtils.ContainsElement(playerSlots[Counter], playerSlots[Counter].name + "-Kills", out TextElement killElement))
+            {
+                killElement.text = scoreboard.PlayerKDA.GetValueOrDefault(data.Key).KillData.ToString();
+            }
+            if (UnityUtils.ContainsElement(playerSlots[Counter], playerSlots[Counter].name + "-Deaths", out TextElement deathElement))
+            {
+                deathElement.text = scoreboard.PlayerKDA.GetValueOrDefault(data.Key).DeathData.ToString();
+            }
+            if (UnityUtils.ContainsElement(playerSlots[Counter], playerSlots[Counter].name + "-Assists", out TextElement assistElement))
+            {
+                assistElement.text = scoreboard.PlayerKDA.GetValueOrDefault(data.Key).AssistData.ToString();
+            }
+
             Counter++;
         }
 
-        for(int i = Counter; i < slotNames.Count; i++){
-            if(UnityUtils.ContainsElement(_rootVisualElement, slotNames[i].name, out TextElement textEle)){
+        // Hides player visual element if they do not exist in scoreboard.playerName
+        for (int i = Counter; i < playerSlots.Count; i++)
+        {
+            if (UnityUtils.ContainsElement(playerSlots[Counter], playerSlots[Counter].name + "-Name", out TextElement textEle))
+            {
                 textEle.text = null;
-                textEle.AddToClassList("hide");
+                playerSlots[Counter].AddToClassList("hide");
             }
             Counter++;
         }

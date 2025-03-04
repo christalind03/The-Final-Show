@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEditor;
 
 [CustomEditor(typeof(InteractableGameplayController))]
@@ -36,3 +37,4 @@ public class InteractableGameplayControllerEditor : Editor
         serializedObject.ApplyModifiedProperties();
     }
 }
+#endif

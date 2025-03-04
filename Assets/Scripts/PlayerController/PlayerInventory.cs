@@ -14,12 +14,19 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(PlayerStats))]
 public class PlayerInventory : NetworkBehaviour
 {
-    private struct PlayerInventoryRestriction
+    [System.Serializable]
+    private struct EquippableReference
     {
-        public EquippableItem.EquippableCategory ItemCategory { get; private set; }
+        public InventoryItem.InventoryCategory InventoryCategory;
+        public GameObject Reference;
+    }
+
+    private struct InventoryRestriction
+    {
+        public InventoryItem.InventoryCategory ItemCategory { get; private set; }
         public Type ItemType { get; private set; }
 
-        public PlayerInventoryRestriction(EquippableItem.EquippableCategory itemCategory, Type itemType)
+        public InventoryRestriction(InventoryItem.InventoryCategory itemCategory, Type itemType)
         {
             ItemCategory = itemCategory;
             ItemType = itemType;
@@ -27,7 +34,7 @@ public class PlayerInventory : NetworkBehaviour
 
         public override bool Equals(object otherObj)
         {
-            return otherObj is PlayerInventoryRestriction otherInventoryRestriction && 
+            return otherObj is InventoryRestriction otherInventoryRestriction &&
                 ItemCategory == otherInventoryRestriction.ItemCategory &&
                 ItemType == otherInventoryRestriction.ItemType;
         }
@@ -38,42 +45,93 @@ public class PlayerInventory : NetworkBehaviour
         }
     }
 
-    [Header("Equippable References")]
-    [SerializeField] private GameObject _handReference;
-    [SerializeField] private GameObject _headReference;
+    private struct Renderer
+    {
+        public Mesh Mesh;
+        public Material[] Materials;
+    }
+
+    [SerializeField] private List<EquippableReference> _equippableReferences;
+
+    private readonly SyncDictionary<string, InventoryItem> _inventorySlots = new SyncDictionary<string, InventoryItem>();
 
     private string _currentSlot;
     private List<string> _inventoryKeys;
-    private Dictionary<string, InventoryItem> _inventorySlots;
-    private Dictionary<string, PlayerInventoryRestriction> _inventoryRestrictions;
+    private Dictionary<string, InventoryRestriction> _inventoryRestrictions;
+    private Dictionary<InventoryItem.InventoryCategory, Renderer> _initialRenderers;
+    private Dictionary<InventoryItem.InventoryCategory, GameObject> _equippedRenderers;
     private PlayerInterface _playerInterface;
     private PlayerHealth _playerHealth;
     private PlayerStats _playerStats;
 
+    private AudioManager _audioManager;
+
+    public List<InventoryItem> Inventory
+    {
+        get { return _inventorySlots.Values.ToList(); }
+    }
+
     /// <summary>
-    /// Sets up the default slot and creates an empty inventory with inventory restrictions.
+    /// Initializes dictionaries for tracking the initial and equipped renderers,
+    /// mapping inventory categories to their respective visual representations.
+    /// </summary>
+    private void Awake()
+    {
+        _audioManager = gameObject.GetComponent<AudioManager>();
+        _initialRenderers = new Dictionary<InventoryItem.InventoryCategory, Renderer>();
+        _equippedRenderers = new Dictionary<InventoryItem.InventoryCategory, GameObject>();
+
+        foreach (EquippableReference equippableReference in _equippableReferences)
+        {
+            _equippedRenderers[equippableReference.InventoryCategory] = equippableReference.Reference;
+        }
+
+        foreach ((InventoryItem.InventoryCategory inventoryCategory, GameObject initialRender) in _equippedRenderers)
+        {
+            SkinnedMeshRenderer skinnedMeshRenderer = initialRender.GetComponent<SkinnedMeshRenderer>();
+
+            _initialRenderers[inventoryCategory] = new Renderer
+            {
+                Mesh = skinnedMeshRenderer.sharedMesh,
+                Materials = skinnedMeshRenderer.materials,
+            };
+        }
+    }
+
+    /// <summary>
+    /// Called when the server starts. 
+    /// This function initializes the inventory slots to null, effectively clearing the server's default inventory.
+    /// </summary>
+    public override void OnStartServer()
+    {
+        _inventorySlots["Slot-1"] = null;
+        _inventorySlots["Slot-2"] = null;
+        _inventorySlots["Slot-3"] = null;
+        _inventorySlots["Slot-4"] = null;
+        _inventorySlots["Slot-5"] = null;
+        _inventorySlots["Slot-6"] = null;
+        _inventorySlots["Slot-7"] = null;
+        _inventorySlots["Slot-8"] = null;
+        _inventorySlots["Slot-9"] = null;
+
+        base.OnStartServer();
+    }
+
+    /// <summary>
+    /// Called on the client when the client gains authority over the player object.
+    /// This function sets up inventory slot restrictions, sorts inventory keys, retrieves
+    /// references to player components, and sets the initial active inventory slot.
     /// </summary>
     public override void OnStartAuthority()
     {
-        // Define inventory slots and their respective restrictions
-        _inventorySlots = new Dictionary<string, InventoryItem>
+        // Define inventory slot restrictions
+        _inventoryRestrictions = new Dictionary<string, InventoryRestriction>
         {
-            { "Slot-1", null }, // Melee
-            { "Slot-2", null }, // Ranged
-            { "Slot-3", null }, // Armor (Head)
-            { "Slot-4", null }, // Armor (Chest)
-            { "Slot-5", null }, // Armor (Legs)
-            { "Slot-6", null }, // Armor (Feet)
-            { "Slot-7", null }, // Undefined (Reserved for non-armor/weapon types)
-            { "Slot-8", null }, // Undefined (Reserved for non-armor/weapon types)
-            { "Slot-9", null }, // Undefined (Reserved for non-armor/weapon types)
-        };
-
-        _inventoryRestrictions = new Dictionary<string, PlayerInventoryRestriction>
-        {
-            { "Slot-1", new PlayerInventoryRestriction(EquippableItem.EquippableCategory.Hand, typeof(MeleeWeapon)) },
-            { "Slot-2", new PlayerInventoryRestriction(EquippableItem.EquippableCategory.Hand, typeof(RangedWeapon)) },
-            { "Slot-3", new PlayerInventoryRestriction(EquippableItem.EquippableCategory.Head, typeof(Armor)) },
+            { "Slot-1", new InventoryRestriction(InventoryItem.InventoryCategory.Weapon, typeof(MeleeWeapon)) },
+            { "Slot-2", new InventoryRestriction(InventoryItem.InventoryCategory.Weapon, typeof(RangedWeapon)) },
+            { "Slot-3", new InventoryRestriction(InventoryItem.InventoryCategory.Helmet, typeof(Armor)) },
+            { "Slot-4", new InventoryRestriction(InventoryItem.InventoryCategory.Chest, typeof(Armor)) },
+            { "Slot-5", new InventoryRestriction(InventoryItem.InventoryCategory.Legs, typeof(Armor)) },
         };
 
         // Extract and sort the inventory keys to ensure proper cycling
@@ -89,6 +147,24 @@ public class PlayerInventory : NetworkBehaviour
         SelectSlot(_currentSlot);
 
         base.OnStartAuthority();
+    }
+
+    /// <summary>
+    /// Loads the player's inventory on the client.
+    /// This function is called by the server to synchronize the client's inventory with the saved data.
+    /// </summary>
+    /// <param name="clientConnection">The network connection of the client whose inventory is being loaded.</param>
+    /// <param name="inventoryItems">A list of InventoryItem objects representing the player's inventory.</param>
+    [TargetRpc]
+    public void TargetLoadInventory(NetworkConnectionToClient clientConnection, List<InventoryItem> inventoryItems)
+    {
+        foreach (InventoryItem inventoryItem in inventoryItems)
+        {
+            if (inventoryItem != null)
+            {
+                AddItem(inventoryItem);
+            }
+        }
     }
 
     /// <summary>
@@ -113,7 +189,7 @@ public class PlayerInventory : NetworkBehaviour
                 UnityUtils.LogError($"{upcomingSlot} is not a valid inventory slot key.");
             }
         }
-        
+
         // Handle input from mouse scroll wheel.
         if (context.control.device is Mouse)
         {
@@ -187,31 +263,40 @@ public class PlayerInventory : NetworkBehaviour
     public bool AddItem(InventoryItem inventoryItem)
     {
         if (!isLocalPlayer) { return false; }
+        if (inventoryItem == null) { return false; }
 
         string availableSlot = FindAvailableSlot(inventoryItem);
 
         if (availableSlot != null)
         {
-            if (inventoryItem is EquippableItem equippableItem)
+            if (inventoryItem is Armor armorItem)
             {
-                if (equippableItem is Armor armorItem)
-                {
-                    ApplyStats(armorItem);
-                }
-
-                if (ShouldEquip(equippableItem))
-                {
-                    CmdEquip(equippableItem);
-                }
+                ApplyStats(armorItem);
             }
 
-            _inventorySlots[availableSlot] = inventoryItem;
+            if (ShouldEquip(inventoryItem))
+            {
+                CmdEquip(inventoryItem);
+            }
+
+            CmdAddItem(availableSlot, inventoryItem);
             _playerInterface.RenderInventoryIcon(availableSlot, inventoryItem.ObjectSprite);
             return true;
         }
 
         _playerInterface.DisplayInventoryMessage("INVENTORY FULL!");
         return false;
+    }
+
+    /// <summary>
+    /// Adds an item to the specified inventory slot on the server.
+    /// </summary>
+    /// <param name="availableSlot">The slot to assign the item to.</param>
+    /// <param name="inventoryItem">The item to add.</param>
+    [Command]
+    private void CmdAddItem(string availableSlot, InventoryItem inventoryItem)
+    {
+        _inventorySlots[availableSlot] = inventoryItem;
     }
 
     /// <summary>
@@ -238,20 +323,30 @@ public class PlayerInventory : NetworkBehaviour
 
         InventoryItem removedItem = _inventorySlots[_currentSlot];
 
-        if (removedItem is EquippableItem equippableItem)
+        if (removedItem != null)
         {
-            if (equippableItem is Armor armorItem)
+            if (removedItem is Armor armorItem)
             {
                 RemoveStats(armorItem);
             }
 
-            CmdUnequip(equippableItem);
+            CmdUnequip(removedItem);
         }
 
-        _inventorySlots[_currentSlot] = null;
+        CmdRemoveItem(_currentSlot);
         _playerInterface.RenderInventoryIcon(_currentSlot, null);
 
         return removedItem;
+    }
+
+    /// <summary>
+    /// Removes an item from the specified inventory slot on the server.
+    /// </summary>
+    /// <param name="slotKey">The key of the slot to clear.</param>
+    [Command]
+    private void CmdRemoveItem(string slotKey)
+    {
+        _inventorySlots[slotKey] = null;
     }
 
     /// <summary>
@@ -263,14 +358,14 @@ public class PlayerInventory : NetworkBehaviour
         InventoryItem previousItem = GetItem(previousSlot);
         InventoryItem currentItem = GetItem();
 
-        if (previousItem is EquippableItem previousEquippableItem && previousEquippableItem.EquipmentCategory == EquippableItem.EquippableCategory.Hand)
+        if (previousItem != null && previousItem.ItemCategory == InventoryItem.InventoryCategory.Weapon)
         {
-            CmdUnequip(previousEquippableItem);
+            CmdUnequip(previousItem);
         }
 
-        if (currentItem is EquippableItem currentEquippableItem && currentEquippableItem.EquipmentCategory == EquippableItem.EquippableCategory.Hand)
+        if (currentItem != null && currentItem.ItemCategory == InventoryItem.InventoryCategory.Weapon)
         {
-            CmdEquip(currentEquippableItem);
+            CmdEquip(currentItem);
         }
     }
 
@@ -324,15 +419,28 @@ public class PlayerInventory : NetworkBehaviour
     /// </summary>
     /// <param name="equippableItem">The equippable item to check.</param>
     /// <returns><c>true</c> if the item should be equipped, otherwise <c>false</c>.</returns>
-    private bool ShouldEquip(EquippableItem equippableItem)
+    private bool ShouldEquip(InventoryItem inventoryItem)
     {
-        GameObject equippableReference = FindEquippableReference(equippableItem.EquipmentCategory);
-
-        if (equippableItem.EquipmentCategory == EquippableItem.EquippableCategory.Hand)
+        if (_equippedRenderers == null)
         {
-            PlayerInventoryRestriction inventoryRestriction = new PlayerInventoryRestriction(EquippableItem.EquippableCategory.Hand, equippableItem.GetType());
+            Debug.Log("Equipped renderers is null");
+        }
+        if (inventoryItem == null)
+        {
+            Debug.Log("Inventory item is null");
+        }
+        else if (_equippedRenderers[inventoryItem.ItemCategory] == null)
+        {
+            Debug.Log("Whole thing is null");
+        }
+
+        GameObject equippableReference = _equippedRenderers[inventoryItem.ItemCategory];
+
+        if (inventoryItem.ItemCategory == InventoryItem.InventoryCategory.Weapon)
+        {
+            InventoryRestriction inventoryRestriction = new InventoryRestriction(InventoryItem.InventoryCategory.Weapon, inventoryItem.GetType());
             bool isSlotValid = _currentSlot == GeneralUtils.LocateDictionaryKey(_inventoryRestrictions, inventoryRestriction);
-            bool isHandheld = GetItem() is not EquippableItem { EquipmentCategory: EquippableItem.EquippableCategory.Hand };
+            bool isHandheld = GetItem() is not InventoryItem { ItemCategory: InventoryItem.InventoryCategory.Weapon };
             bool isEmpty = equippableReference?.transform.childCount == 0;
 
             return isSlotValid && isHandheld && isEmpty;
@@ -372,25 +480,18 @@ public class PlayerInventory : NetworkBehaviour
     /// </summary>
     /// <param name="equippableItem">The equippable item to equip.</param>
     [Command]
-    private void CmdEquip(EquippableItem equippableItem)
+    private void CmdEquip(InventoryItem inventoryItem)
     {
-        GameObject equippableReference = FindEquippableReference(equippableItem.EquipmentCategory);
+        GameObject equippableReference = _equippedRenderers[inventoryItem.ItemCategory];
 
-        // Since it will take a small amount of time to swap between items, the total child count for this reference should be less than 2.
-        if (equippableReference != null && equippableReference.transform.childCount < 2)
+        if (equippableReference != null)
         {
-            if (equippableItem is RangedWeapon)
+            if (inventoryItem is RangedWeapon)
             {
                 TargetToggleAmmoVisibility(connectionToClient, true);
             }
 
-            Vector3 spawnPosition = equippableReference.transform.position + equippableItem.PositionOffset;
-            Quaternion spawnRotation = equippableReference.transform.rotation * equippableItem.ObjectPrefab.transform.rotation;
-
-            GameObject equippedObject = Instantiate(equippableItem.ObjectPrefab, spawnPosition, spawnRotation);            
-            NetworkServer.Spawn(equippedObject);
-
-            RpcEquip(equippableItem, equippedObject);
+            RpcEquip(inventoryItem);
         }
     }
 
@@ -399,23 +500,20 @@ public class PlayerInventory : NetworkBehaviour
     /// The item is destroyed from the reference slot and removed from the player.
     /// This function is executed on the server and synchronizes the unequip action across all clients.
     /// </summary>
-    /// <param name="equippableItem">The equippable item to unequip.</param>
+    /// <param name="inventoryItem">The inventory item to unequip.</param>
     [Command]
-    private void CmdUnequip(EquippableItem equippableItem)
+    private void CmdUnequip(InventoryItem inventoryItem)
     {
-        GameObject equippableReference = FindEquippableReference(equippableItem.EquipmentCategory);
+        GameObject equippableReference = _equippedRenderers[inventoryItem.ItemCategory];
 
-        if (equippableReference != null && equippableReference.transform.childCount > 0)
+        if (equippableReference != null)
         {
-            if (equippableItem is RangedWeapon)
+            if (inventoryItem is RangedWeapon)
             {
                 TargetToggleAmmoVisibility(connectionToClient, false);
             }
 
-            GameObject targetObject = equippableReference.transform.GetChild(0).gameObject;
-            
-            NetworkServer.Destroy(targetObject);
-            Destroy(targetObject);
+            RpcUnequip(inventoryItem);
         }
     }
 
@@ -423,36 +521,36 @@ public class PlayerInventory : NetworkBehaviour
     /// ClientRpc method to synchronize the equipping of an item across clients.
     /// This method is called to update the client's local state of the equipment.
     /// </summary>
-    /// <param name="equippableItem">The equippable item to equip.</param>
+    /// <param name="inventoryItem">The equippable item to equip.</param>
     /// <param name="equippedObject">The GameObject representing the equipped item.</param>
     [ClientRpc]
-    private void RpcEquip(EquippableItem equippableItem, GameObject equippedObject)
+    private void RpcEquip(InventoryItem inventoryItem)
     {
-        GameObject equippableReference = FindEquippableReference(equippableItem.EquipmentCategory);
-        equippedObject.transform.SetParent(equippableReference.transform);
+        if (inventoryItem is Weapon weaponItem)
+        {
+            _audioManager.ChangeAudio("Weapon", weaponItem.AttackAudio);
+        }
+
+        GameObject equippableReference = _equippedRenderers[inventoryItem.ItemCategory];
+        SkinnedMeshRenderer skinnedMeshRenderer = equippableReference.GetComponent<SkinnedMeshRenderer>();
+
+        skinnedMeshRenderer.sharedMesh = inventoryItem.SkinnedMeshRenderer.sharedMesh;
+        skinnedMeshRenderer.sharedMaterials = inventoryItem.SkinnedMeshRenderer.sharedMaterials;
     }
 
     /// <summary>
-    /// Finds the reference GameObject where the given equippable item should be attached based on its category.
+    /// Restores the initial mesh adn materials for the specified inventory item to all clients.
     /// </summary>
-    /// <param name="equippableCategory">The category of the equippable item.</param>
-    /// <returns>
-    /// The GameObject reference where the equippable item should be attached, or <c>null</c> if no reference exists for the given category.
-    /// </returns>
-    private GameObject FindEquippableReference(EquippableItem.EquippableCategory equippableCategory)
+    /// <param name="inventoryItem">The item to unequip.</param>
+    [ClientRpc]
+    private void RpcUnequip(InventoryItem inventoryItem)
     {
-        switch (equippableCategory)
-        {
-            case EquippableItem.EquippableCategory.Hand:
-                return _handReference;
+        Renderer initialRenderer = _initialRenderers[inventoryItem.ItemCategory];
+        GameObject equippableReference = _equippedRenderers[inventoryItem.ItemCategory];
+        SkinnedMeshRenderer skinnedMeshRenderer = equippableReference.GetComponent<SkinnedMeshRenderer>();
 
-            case EquippableItem.EquippableCategory.Head:
-                return _headReference;
-
-            default:
-                UnityUtils.LogWarning($"CmdEquip() support for {equippableCategory} has not yet been implemented.");
-                return null;
-        }
+        skinnedMeshRenderer.sharedMesh = initialRenderer.Mesh;
+        skinnedMeshRenderer.materials = initialRenderer.Materials;
     }
 
     /// <summary>

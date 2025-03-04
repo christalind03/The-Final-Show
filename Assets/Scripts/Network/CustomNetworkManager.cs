@@ -1,9 +1,9 @@
 using Mirror;
-using Steamworks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 /// <summary>
@@ -13,7 +13,10 @@ public class CustomNetworkManager : NetworkManager
 {
     public string LobbyId { get; set; }
     public static CustomNetworkManager Instance => (CustomNetworkManager)NetworkManager.singleton;
+
+    private Dictionary<int, PlayerData> playerData = new Dictionary<int, PlayerData>();
     private Dictionary<string, Coroutine> activeCoroutines = new Dictionary<string, Coroutine>();
+    private SceneTransitionAnim sceneAnim;
 
     /// <summary>
     /// Called when the client connects to the server.
@@ -26,6 +29,11 @@ public class CustomNetworkManager : NetworkManager
         // Register handlers for custom network messages for every client that connects
         NetworkClient.RegisterHandler<CountdownMessage>(OnCountdown);
         NetworkClient.RegisterHandler<SpectateMessage>(OnSpectate);
+        SceneManager.sceneLoaded += OnSceneLoaded;
+
+        // Plays animation here because first load animation is not played for server
+        sceneAnim = FindObjectOfType<SceneTransitionAnim>();
+        sceneAnim.EnterAnim();
     }
 
     /// <summary>
@@ -42,66 +50,163 @@ public class CustomNetworkManager : NetworkManager
     }
 
     /// <summary>
+    /// Called when player connects
+    /// </summary>
+    /// <param name="conn">connection of player who has connected</param>
+    public override void OnServerConnect(NetworkConnectionToClient conn)
+    {
+        base.OnServerConnect(conn);
+
+        // Updates scoreboard when player connects
+        ScoreBoard scoreBoard = NetworkManager.FindObjectOfType<ScoreBoard>();
+        
+        if (scoreBoard != null)
+        {
+            StartCoroutine(scoreBoard.PlayerJoinedUpdatePlayerList(conn));
+        }
+    }
+
+    /// <summary>
+    /// Called when player disconnects
+    /// </summary>
+    /// <param name="conn"></param>
+    public override void OnServerDisconnect(NetworkConnectionToClient conn)
+    {
+        // Updates scoreboard when player disconnects
+        ScoreBoard scoreBoard = NetworkManager.FindObjectOfType<ScoreBoard>();
+        
+        if (scoreBoard != null)
+        {
+            scoreBoard.PlayerLeftUpdatePlayerList(conn);
+        }
+
+        base.OnServerDisconnect(conn);
+    }
+
+    /// <summary>
     /// Called when the client is ready (has the scene loaded) on the server.
     /// Spawns or relocates the player based on the client identity.
     /// </summary>
     /// <param name="clientConnection">The connection of the client that is ready</param>
     public override void OnServerReady(NetworkConnectionToClient clientConnection)
     {
-        if (clientConnection.isReady) { return; }
+        // I really didn't want to hardcode this but ermmm oh well
+        Scene activeScene = SceneManager.GetActiveScene();
 
-        base.OnServerReady(clientConnection);
-
-        if (clientConnection.identity == null)
+        if (activeScene.name == "Gameplay-Dungeon")
         {
-            StartCoroutine(SpawnPlayer(clientConnection));
+            StartCoroutine(SpawnAfterDungeonGeneration(clientConnection));
         }
         else
         {
-            StartCoroutine(RelocatePlayer(clientConnection));
+            SpawnPlayer(clientConnection);
         }
-    }
 
-    /// <summary>
-    /// Spawns a new player for the given client connection.
-    /// </summary>
-    /// <param name="clientConnection">The connection of the client to spawn the player for</param>
-    /// <returns>An <c>IEnumerator</c> for coroutine execution.</returns>
-    public IEnumerator SpawnPlayer(NetworkConnectionToClient clientConnection)
-    {
-        if (clientConnection.identity != null) { yield break; }
+        NetworkServer.SetClientReady(clientConnection);
 
-        Transform startPosition = GetStartPosition();
-        GameObject networkPlayer = Instantiate(playerPrefab, startPosition.position, startPosition.rotation);
-
-        yield return new WaitForEndOfFrame();
-
-        NetworkServer.AddPlayerForConnection(clientConnection, networkPlayer);
-    }
-
-    /// <summary>
-    /// Relocates the player for the given client connection to a new spawn position.
-    /// </summary>
-    /// <param name="clientConnection">The connection of the client to relocate the player for</param>
-    /// <returns>An <c>IEnumerator</c> for coroutine execution.</returns>
-    public IEnumerator RelocatePlayer(NetworkConnectionToClient clientConnection)
-    {
-        if (clientConnection.identity == null) { yield break; }
-
-        GameObject networkPlayer = clientConnection.identity.gameObject;
-        Transform startPosition = GetStartPosition();
-
-        NetworkServer.RemovePlayerForConnection(clientConnection);
-
-        if (startPosition != null)
+        // Hardcode scene name cause can't find a way around
+        if(NetworkServer.active && activeScene.name != "Gameplay-Intermission")
         {
-            networkPlayer.transform.position = startPosition.position;
-            networkPlayer.transform.rotation = startPosition.rotation;
+            ScoreBoard scoreBoard = NetworkManager.FindObjectOfType<ScoreBoard>();
+            
+            if (scoreBoard != null)
+            {
+                scoreBoard.UpdateNetId(clientConnection);           
+            } 
+        }
+    }
+
+    /// <summary>
+    /// Called on the server when the scene changes.  This function saves the player inventory data
+    /// for each connected client before the scene change occurs.
+    /// </summary>
+    /// <param name="sceneName">The name of the scene that is being loaded.</param>
+    public override void OnServerChangeScene(string sceneName)
+    {
+        foreach (NetworkConnectionToClient clientConnection in NetworkServer.connections.Values)
+        {
+            if (clientConnection.identity == null) { continue; }
+
+            int connectionID = clientConnection.connectionId;
+            GameObject clientObject = clientConnection.identity.gameObject;
+
+            if (clientObject.TryGetComponent(out PlayerInventory playerInventory))
+            {
+                playerData[connectionID] = new PlayerData
+                {
+                    Inventory = playerInventory.Inventory,
+                };
+            }
+        }
+    }
+
+    private void OnSceneLoaded(Scene activeScene, LoadSceneMode loadMode){
+        sceneAnim = FindObjectOfType<SceneTransitionAnim>();
+        sceneAnim.EnterAnim();
+    }
+
+    /// <summary>
+    /// Spawns a player for a newly connected client.
+    /// This function checks if player data exists for the client. If it does, it initiates the player loading process.
+    /// Otherwise, it calls the server's add player function to auto-generate a player.
+    /// </summary>
+    /// <param name="clientConnection">The network connection of the client for whom the player is being spawned.</param>
+    private void SpawnPlayer(NetworkConnectionToClient clientConnection)
+    {
+        int connectionID = clientConnection.connectionId;
+
+        if (playerData.ContainsKey(connectionID))
+        {
+            StartCoroutine(LoadPlayer(clientConnection));
+        }
+        else
+        {
+            // This is the function typically used to auto-generate players.
+            OnServerAddPlayer(clientConnection);
+        }
+    }
+
+    /// <summary>
+    /// Loads player data and inventory for a newly connected client.
+    /// This coroutine handles the loading process, including calling the server's add player function, 
+    /// retrieving player data, and loading the player's inventory.
+    /// </summary>
+    /// <param name="clientConnection">The network connection of the client whose data is being loaded.</param>
+    /// <returns>An IEnumerator used for the coroutine.</returns>
+    private IEnumerator LoadPlayer(NetworkConnectionToClient clientConnection)
+    {
+        int connectionID = clientConnection.connectionId;
+
+        OnServerAddPlayer(clientConnection);
+
+        PlayerData clientData = playerData[connectionID];
+        GameObject clientObject = clientConnection.identity.gameObject;
+
+        // Allow the player inventory to be further established.
+        yield return new WaitForEndOfFrame();
+
+        if (clientObject.TryGetComponent(out PlayerInventory playerInventory))
+        {
+            playerInventory.TargetLoadInventory(clientConnection, clientData.Inventory);
+        }
+    }
+
+    /// <summary>
+    /// Spawns a player after the dungeon has been generated.
+    /// This coroutine waits for the dungeon generation to complete before spawning the player.
+    /// </summary>
+    /// <param name="clientConnection">The network connection of the client for whom the player is being spawned.</param>
+    /// <returns>An IEnumerator used for the coroutine.</returns>
+    private IEnumerator SpawnAfterDungeonGeneration(NetworkConnectionToClient clientConnection)
+    {
+        DungeonGenerator dungeonGenerator = GameObject.FindObjectOfType<DungeonGenerator>();
+
+        while (!dungeonGenerator.IsGenerated)
+        {
+            yield return null;
         }
 
-        yield return new WaitForEndOfFrame();
-        
-        NetworkServer.AddPlayerForConnection(clientConnection, networkPlayer);
+        SpawnPlayer(clientConnection);
     }
 
     #region CountdownMessage Functionality
@@ -178,6 +283,10 @@ public class CustomNetworkManager : NetworkManager
             {
                 int minutesRemaining = timeRemaining / 60;
                 int secondsRemaining = timeRemaining % 60;
+                if(minutesRemaining <= 0 && secondsRemaining == 3){
+                    sceneAnim = FindObjectOfType<SceneTransitionAnim>();
+                    sceneAnim.ExitAnim();                    
+                }
                 string formattedMessage = countdownMessage.MessageFormat;
 
                 if (string.IsNullOrEmpty(formattedMessage))

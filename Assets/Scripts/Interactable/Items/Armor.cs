@@ -5,14 +5,13 @@ using UnityEngine;
 /// Represents a piece of armor that can be equipped by a player or entity.
 /// </summary>
 [CreateAssetMenu(fileName = "New Armor", menuName = "Inventory Item/Armor")]
-public class Armor : EquippableItem
+public class Armor : InventoryItem
 {
     [Header("Armor Details")]
     [SerializeField] private float _attack;
     [SerializeField] private float _defense;
     [SerializeField] private float _health;
     [SerializeField] private float _stamina;
-
     public float Attack => _attack;
     public float Defense => _defense;
     public float Health => _health;

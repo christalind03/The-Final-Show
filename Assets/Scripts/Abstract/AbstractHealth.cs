@@ -77,9 +77,18 @@ public abstract class AbstractHealth : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void CmdDamage(float decreaseValue)
     {
-        CurrentValue -= decreaseValue;
+        if (TryGetComponent(out PlayerStats playerStats))
+        {
+            float reducedDamage = Mathf.Max(decreaseValue - playerStats.Defense.BaseValue, 0);
+            CurrentValue -= reducedDamage;
 
-        Debug.Log($"{gameObject.name} took {decreaseValue} damage. Remaining health: {CurrentValue}/{BaseValue}");
+            Debug.Log($"{gameObject.name} took {reducedDamage} damage after defense. Remaining health: {CurrentValue}/{BaseValue}");
+        }
+        else
+        {
+            CurrentValue -= decreaseValue;
+            Debug.Log($"{gameObject.name} took {decreaseValue} damage. Remaining health: {CurrentValue}/{BaseValue}");
+        }
         if (CurrentValue <= 0f) { TriggerDeath(); }
     }
 

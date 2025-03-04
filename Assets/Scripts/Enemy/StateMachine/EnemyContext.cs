@@ -3,11 +3,10 @@ using UnityEngine.AI;
 
 public class EnemyContext
 {
+    public readonly MonoBehaviour MonoBehaviour;
+    public readonly AudioManager AudioManager;
     public readonly AttackStats AttackStats;
-    public readonly float StartChaseDist;
-    public readonly float EndChaseDist;
-    public readonly float StartAttackDist;
-    public readonly float EndAttackDist;
+    public readonly BehaviorStats BehaviorStats;
 
     public readonly Vector3 InitialPosition;
     public readonly Quaternion InitialRotation;
@@ -15,20 +14,25 @@ public class EnemyContext
 
     public readonly FieldOfView FieldOfView;
     public readonly NavMeshAgent NavMeshAgent;
+    public readonly Animator Animator;
 
     public Transform TargetTransform;
     public Material Material;
 
-    public EnemyContext(AttackStats attackStats, Vector3 initialPosition, Quaternion initialRoatation, Transform transform, 
-        FieldOfView fieldOfView, NavMeshAgent navMeshAgent, Material material)
+    public EnemyContext(MonoBehaviour monoBehaviour, AudioManager audioManager, AttackStats attackStats, BehaviorStats behaviorStats, Vector3 initialPosition, Quaternion initialRoatation, Transform transform, 
+        FieldOfView fieldOfView, NavMeshAgent navMeshAgent, Animator animator, Material material)
     {
+        MonoBehaviour = monoBehaviour;
+        AudioManager = audioManager;
         AttackStats = attackStats;
+        BehaviorStats = behaviorStats;
         InitialPosition = initialPosition;
         InitialRotation = initialRoatation;
         Transform = transform;
 
         FieldOfView = fieldOfView;
         NavMeshAgent = navMeshAgent;
+        Animator = animator;
         Material = material;
     }
 }

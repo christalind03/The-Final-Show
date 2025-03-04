@@ -9,6 +9,7 @@ using UnityEngine.SceneManagement;
 public class GameplayStateDungeon : GameplayState
 {
     private SafeZone _safeZone;
+    private int _scriptsNeeded = 1; // This would change depending on difficulty, using predefined value for testing
 
     /// <summary>
     /// Sets a custom callback to be executed once the countdown finishes.
@@ -19,10 +20,10 @@ public class GameplayStateDungeon : GameplayState
     public override void EnterState()
     {
         Debug.Log("Entered dungeon state...");
-
+        StateContext._scriptsCollected = 0; // Reset scripts collected
         CountdownCallback = () =>
         {
-            if (_safeZone != null && _safeZone.ContainsPlayers)
+            if (_safeZone != null && _safeZone.ContainsPlayers && StateContext._scriptsCollected >= _scriptsNeeded)
             {
                 GameplayManager.Instance.TransitionToState(GameplayManager.State.Boss);
 
@@ -71,12 +72,12 @@ public class GameplayStateDungeon : GameplayState
     /// <returns>An <c>IEnumerator</c> for coroutine execution.</returns>
     private IEnumerator OnDungeonGenerationComplete(DungeonGenerator dungeonGenerator)
     {
-        while (!dungeonGenerator.IsGenerated())
+        while (!dungeonGenerator.IsGenerated)
         {
             yield return null;
         }
 
-        RelocatePlayers();
+        //RelocatePlayers();
         dungeonGenerator.SpawnEnemies(StateContext.GameplayTheme.EnemyPrefabs);
 
         GameplayManager.Instance.FindObject((SafeZone targetObject) =>
@@ -97,20 +98,20 @@ public class GameplayStateDungeon : GameplayState
         }
     }
 
-    /// <summary>
-    /// Relocates all ready players to their respective spawn positions in the game.
-    /// This method is invoked for each connected client to ensure proper placement in the newly generated dungeon.
-    /// </summary>
-    private void RelocatePlayers()
-    {
-        foreach (NetworkConnectionToClient clientConnection in NetworkServer.connections.Values)
-        {
-            if (clientConnection.isReady)
-            {
-                CustomNetworkManager.Instance.StartCoroutine(CustomNetworkManager.Instance.RelocatePlayer(clientConnection));
-            }
-        }
-    }
+    ///// <summary>
+    ///// Relocates all ready players to their respective spawn positions in the game.
+    ///// This method is invoked for each connected client to ensure proper placement in the newly generated dungeon.
+    ///// </summary>
+    //private void RelocatePlayers()
+    //{
+    //    foreach (NetworkConnectionToClient clientConnection in NetworkServer.connections.Values)
+    //    {
+    //        if (clientConnection.isReady)
+    //        {
+    //            CustomNetworkManager.Instance.StartCoroutine(CustomNetworkManager.Instance.RelocatePlayer(clientConnection));
+    //        }
+    //    }
+    //}
 
     public override void OnTriggerEnter(Collider otherCollider) { }
     public override void OnTriggerExit(Collider otherCollider) { }

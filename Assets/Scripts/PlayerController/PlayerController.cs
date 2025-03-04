@@ -14,11 +14,12 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(CombatController))]
 [RequireComponent(typeof(PlayerInventory))]
 [RequireComponent(typeof(PlayerStats))]
-[RequireComponent(typeof(ScoreBoard))]
 public class PlayerController : NetworkBehaviour
 {
+    [SyncVar] public string playerName = null;
+
     [Header("Camera Parameters")]
-    [SerializeField] private float _cameraSensitivity;
+    [SerializeField] public float _cameraSensitivity;
     [SerializeField] private float _interactableDistance;
 
     [Header("Movement Parameters")]
@@ -38,7 +39,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private Transform _cameraTransform;
     [SerializeField] private Transform _followTransform;
     [SerializeField] private Transform _playerTransform;
-    
+
     private bool _isGrounded;
     private bool _isSprinting;
     private bool _canJump;
@@ -47,58 +48,45 @@ public class PlayerController : NetworkBehaviour
     private float _xRotation;
     private float _yRotation;
     private Vector3 _playerVelocity;
+    public PlayerInput playerInput;
     
     private RaycastHit _raycastHit;
-    private PlayerControls _playerControls;
     private CombatController _combatController;
     private PlayerInventory _playerInventory;
     private PlayerStats _playerStats;
-    private ScoreBoard _scoreBoard;
+    private PlayerInterface _playerInterface;
     private SettingsMenu _settings;
+    private ScoreBoard _scoreboard;
 
+    private AudioManager _audioManager;
     private Animator _playerAnimator;
     private int _animatorIsJumping;
     private int _animatorMovementX;
     private int _animatorMovementZ;
-    [SyncVar] public string playerName = null;
-
-    /// <summary>
-    /// Ensures this object instance persists throughout scenes.
-    /// </summary>
-    private void Start()
-    {
-        DontDestroyOnLoad(gameObject);
-    }
 
     /// <summary>
     /// Configure the cursor settings and initialize a new instance of PlayerControls when the script is first loaded.
     /// </summary>
     public override void OnStartAuthority()
     {
-        if (SteamManager.Initialized) {
-            playerName = SteamFriends.GetPersonaName();
-            gameObject.name = playerName;            
-            CmdUpdateName(playerName);
-        }
+        _audioManager = gameObject.GetComponent<AudioManager>();
+        CameraController cameraController = gameObject.GetComponent<CameraController>();
 
-
-        CameraController cameraController= GetComponent<CameraController>();
-        
         if (cameraController.alive)
         {
             Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;            
+            Cursor.lockState = CursorLockMode.Locked;
         }
 
         _canJump = true;
         _canSprint = true;
 
-        _playerControls = new PlayerControls();
+        playerInput = gameObject.GetComponent<PlayerInput>();
         _combatController = gameObject.GetComponent<CombatController>();
         _playerInventory = gameObject.GetComponent<PlayerInventory>();
         _playerStats = gameObject.GetComponent<PlayerStats>();
-        _scoreBoard = gameObject.GetComponent<ScoreBoard>();
-        _settings = gameObject.GetComponent<SettingsMenu>();
+        _settings = gameObject.GetComponentInChildren<SettingsMenu>();
+        _playerInterface = gameObject.GetComponent<PlayerInterface>();
 
         // To access the animator, we must retrieve the child gameObject that is rendering the player's mesh.
         // This should be the first child of the current gameObject, `BaseCharacter`
@@ -107,6 +95,28 @@ public class PlayerController : NetworkBehaviour
         _animatorMovementX = Animator.StringToHash("Movement X");
         _animatorMovementZ = Animator.StringToHash("Movement Z");
 
+        if (!Application.isEditor && SteamManager.Initialized)
+        {
+            playerName = SteamFriends.GetPersonaName();
+            gameObject.name = playerName;
+            CmdUpdateName(playerName);
+        }
+        else
+        {
+            CmdUpdateName(gameObject.name);
+        }
+    }
+
+    public override void OnStartServer()
+    {
+        base.OnStartServer();
+
+        _scoreboard = NetworkManager.FindObjectOfType<ScoreBoard>();
+    }
+
+    public override void OnStartLocalPlayer()
+    {
+        base.OnStartLocalPlayer();
         EnableControls();
     }
 
@@ -115,58 +125,25 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void EnableControls()
     {
-        _playerControls.Enable();
+        // _playerControls.Enable();
+        playerInput.actions.Enable();
 
-        _playerControls.Player.Attack.performed += Attack;
-        _playerControls.Player.AlternateAttack.performed += AlternateAttack;
-        _playerControls.Player.Drop.performed += Drop;
-        _playerControls.Player.Interact.performed += Interact;
-        _playerControls.Player.Jump.performed += Jump;
-        _playerControls.Player.ScoreBoard.performed += ScoreBoard;
-        _playerControls.Player.Settings.performed += Settings;
+        playerInput.actions["Attack"].performed += Attack;
+        playerInput.actions["Alternate Attack"].performed += AlternateAttack;
+        playerInput.actions["Drop"].performed += Drop;
+        playerInput.actions["Interact"].performed += Interact;
+        playerInput.actions["Jump"].performed += Jump;
+        playerInput.actions["ScoreBoard"].performed += ScoreBoard;
+        playerInput.actions["Settings"].performed += Settings;
 
         // Subscribe to inventory slot selection for all slots.
-        _playerControls.Inventory.CycleSlots.performed += _playerInventory.SelectSlot;
-        InputActionMap inventoryActions = _playerControls.asset.FindActionMap("Inventory");
+        playerInput.actions["Cycle Slots"].performed += _playerInventory.SelectSlot;
+        InputActionMap inventoryActions = playerInput.actions.FindActionMap("Inventory");
 
         foreach (InputAction inventorySlot in inventoryActions)
         {
             inventorySlot.performed += _playerInventory.SelectSlot;
         }
-    }
-
-    /// <summary>
-    /// Called when the player joins a server to register their name and network identity to a registery
-    /// </summary>
-    public override void OnStartServer()
-    {
-        if(connectionToClient != null){
-            if(_scoreBoard == null){
-                _scoreBoard = connectionToClient.identity.GetComponent<ScoreBoard>();
-            }
-            PlayerManager.RegisterPlayer(netIdentity.netId, gameObject);
-            ScoreBoard serverScoreBoard = NetworkServer.localConnection.identity.GetComponent<ScoreBoard>();
-            _scoreBoard.InitialAddPlayerData();          
-            StartCoroutine(serverScoreBoard.PlayerJoinedUpdatePlayerList(netIdentity));
-        }
-
-        base.OnStartServer();
-    }
-
-    /// <summary>
-    /// Called when the player leaves a server to unregister their details
-    /// </summary>
-    public override void OnStopServer()
-    {
-        if(connectionToClient != null){
-            PlayerManager.UnregisterPlayer(netIdentity.netId);
-            PlayerManager.RegisterPlayer(netIdentity.netId, gameObject);
-            if(NetworkServer.localConnection != null){
-                ScoreBoard serverScoreBoard = NetworkServer.localConnection.identity.GetComponent<ScoreBoard>();
-                serverScoreBoard.PlayerLeftUpdatePlayerList(netIdentity);                
-            }
-        }
-        base.OnStopServer();
     }
 
     /// <summary>
@@ -177,7 +154,7 @@ public class PlayerController : NetworkBehaviour
         if (!isLocalPlayer) { return; }
         if (!NetworkClient.ready) { return; }
 
-        if (_characterController.enabled && _playerControls != null)
+        if (_characterController.enabled && playerInput != null)
         {
             // Check to see if the player is on the ground or not.
             _isGrounded = Physics.Raycast(_playerTransform.position, Vector3.down, 1f) && _playerVelocity.y <= 0f;
@@ -228,11 +205,11 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void HandleLook()
     {
-        Vector2 lookInput = _cameraSensitivity * Time.deltaTime * _playerControls.Player.Look.ReadValue<Vector2>();
+        Vector2 lookInput = _cameraSensitivity * Time.deltaTime * playerInput.actions["Look"].ReadValue<Vector2>();
 
         // Check to see if the player is aiming (via AlternateAttack) and if the current item in the player's inventory is a RangedWeapon.
         // If both conditions are true, activate the aim camera; otherwise, deactivate it.
-        bool isAiming = _playerControls.Player.AlternateAttack.IsPressed();
+        bool isAiming = playerInput.actions["Alternate Attack"].IsPressed();
 
         if (isAiming && _playerInventory.GetItem() is RangedWeapon)
         {
@@ -258,7 +235,7 @@ public class PlayerController : NetworkBehaviour
 
         // Check to see if we're looking at anything of importance.
         Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out _raycastHit, _interactableDistance);
-        CmdLook(_followTransform.rotation, _aimCamera.Priority);  
+        CmdLook(_followTransform.rotation, _aimCamera.Priority);
     }
 
     /// <summary>
@@ -269,7 +246,7 @@ public class PlayerController : NetworkBehaviour
         float totalSpeed = _isSprinting ? _sprintSpeed : _walkSpeed;
 
         // Ensure we always move relative to the direction we are looking at.
-        Vector2 moveInput = _playerControls.Player.Movement.ReadValue<Vector2>();
+        Vector2 moveInput = playerInput.actions["Movement"].ReadValue<Vector2>();
         Vector3 moveDirection = _playerTransform.forward * moveInput.y + _playerTransform.right * moveInput.x;
 
         _playerVelocity.y += _gravity * Time.deltaTime;
@@ -282,6 +259,26 @@ public class PlayerController : NetworkBehaviour
         // To prevent repeated if-else statements, we instead have a ternary operator to trigger the correct animation with its respective direction.
         _playerAnimator.SetFloat(_animatorMovementX, moveInput.x == 0 ? 0 : totalSpeed * Mathf.Sign(moveInput.x), 0.1f, Time.deltaTime); // 0.1f is an arbitrary dampening value to transition between different animations.
         _playerAnimator.SetFloat(_animatorMovementZ, moveInput.y == 0 ? 0 : totalSpeed * Mathf.Sign(moveInput.y), 0.1f, Time.deltaTime);
+
+        // Update the audio clip being played based on the player's movement.
+        if (moveInput == Vector2.zero)
+        {
+            _audioManager.CmdStop("Footsteps_Running");
+            _audioManager.CmdStop("Footsteps_Walking");
+        }
+        else
+        {
+            if (_isSprinting)
+            {
+                _audioManager.CmdStop("Footsteps_Walking");
+                _audioManager.CmdPlay("Footsteps_Running");
+            }
+            else
+            {
+                _audioManager.CmdStop("Footsteps_Running");
+                _audioManager.CmdPlay("Footsteps_Walking");
+            }
+        }
     }
 
     /// <summary>
@@ -292,10 +289,10 @@ public class PlayerController : NetworkBehaviour
         Stat playerStamina = _playerStats.Stamina;
 
         // Only sprint if the we are moving forward.
-        Vector2 moveInput = _playerControls.Player.Movement.ReadValue<Vector2>();
+        Vector2 moveInput = playerInput.actions["Movement"].ReadValue<Vector2>();
         bool isForward = 0 < moveInput.y;
 
-        _isSprinting = _canSprint && isForward && 0 < playerStamina.CurrentValue && _playerControls.Player.Sprint.IsPressed();
+        _isSprinting = _canSprint && isForward && 0 < playerStamina.CurrentValue && playerInput.actions["Sprint"].IsPressed();
 
         // Decrease/Increase stamina based on whether or not we are currently sprinting.
         if (_isSprinting)
@@ -380,12 +377,18 @@ public class PlayerController : NetworkBehaviour
     {
         if (!isLocalPlayer) { return; }
 
-        Collider hitCollider = _raycastHit.collider;
+        GameObject hitObject = _raycastHit.collider?.gameObject;
 
-        if (hitCollider != null)
+        if (hitObject != null)
         {
-            GameObject targetObject = hitCollider.transform.root.gameObject; // Interactable objects should always have their interactable script at the top-most level.
-            CmdInteract(targetObject);
+            if (hitObject.TryGetComponent(out SkinnedMeshRenderer skinnedMeshRenderer))
+            {
+                CmdInteract(hitObject);
+            }
+            else
+            {
+                CmdInteract(hitObject.transform.root.gameObject);
+            }
         }
     }
 
@@ -431,25 +434,32 @@ public class PlayerController : NetworkBehaviour
     /// <summary>
     /// When the player press Tab, the player list will open/close based on the current display status
     /// </summary>
-    private void ScoreBoard(InputAction.CallbackContext context){
-        _scoreBoard.ShowScoreBoard();
+    private void ScoreBoard(InputAction.CallbackContext context)
+    {
+        _playerInterface.RefreshScoreBoard();
+        _playerInterface.ToggleScoreBoardVisibility();
     }
 
     private void Settings(InputAction.CallbackContext context){
-        if(_settings.ToggleSettingsMenu()){
+        // if (Application.isEditor) return;
+        if(_settings.OpenMenu()){
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
-        }else{
+        }
+        else
+        {
             Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked; 
+            Cursor.lockState = CursorLockMode.Locked;
         }
     }
 
     /// <summary>
     /// When the client no longer has authority over this object, ensure the cursor is visible and disables the controls.
     /// </summary>
-    public override void OnStopAuthority()
+    public override void OnStopClient()
     {
+        if (!isLocalPlayer) { return; }
+
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
@@ -461,18 +471,18 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void DisableControls()
     {
-        _playerControls.Disable();
+        playerInput.actions.Disable();
 
-        _playerControls.Player.Attack.performed -= Attack;
-        _playerControls.Player.AlternateAttack.performed -= AlternateAttack;
-        _playerControls.Player.Drop.performed -= Drop;
-        _playerControls.Player.Interact.performed -= Interact;
-        _playerControls.Player.Jump.performed -= Jump;
-        _playerControls.Player.ScoreBoard.performed -= ScoreBoard;
-        _playerControls.Player.Settings.performed -= Settings;
+        playerInput.actions["Attack"].performed -= Attack;
+        playerInput.actions["Alternate Attack"].performed -= AlternateAttack;
+        playerInput.actions["Drop"].performed -= Drop;
+        playerInput.actions["Interact"].performed -= Interact;
+        playerInput.actions["Jump"].performed -= Jump;
+        playerInput.actions["ScoreBoard"].performed -= ScoreBoard;
+        playerInput.actions["Settings"].performed -= Settings;
 
-        _playerControls.Inventory.CycleSlots.performed -= _playerInventory.SelectSlot;
-        InputActionMap inventoryActions = _playerControls.asset.FindActionMap("Inventory");
+        playerInput.actions["Cycle Slots"].performed -= _playerInventory.SelectSlot;
+        InputActionMap inventoryActions = playerInput.actions.FindActionMap("Inventory");
 
         foreach (InputAction inventorySlot in inventoryActions)
         {
@@ -502,7 +512,7 @@ public class PlayerController : NetworkBehaviour
         _aimCamera.Priority = aimCameraPriority;
 
         // Propagates the changes to all clients
-        RpcUpdatePlayerLook(_followTransform.rotation, aimCameraPriority);               
+        RpcUpdatePlayerLook(_followTransform.rotation, aimCameraPriority);
     }
 
     /// <summary>
@@ -546,7 +556,8 @@ public class PlayerController : NetworkBehaviour
     /// <param name="rotationPlayer">Player rotation</param>
     /// <param name="rotationFollow">Follow Camera rotation</param>
     [ClientRpc]
-    private void RpcUpdatePlayerLook(Quaternion rotationFollow, int aimCamPrio){
+    private void RpcUpdatePlayerLook(Quaternion rotationFollow, int aimCamPrio)
+    {
         if (isLocalPlayer) { return; }
         _followTransform.rotation = rotationFollow;
         _aimCamera.Priority = aimCamPrio;
@@ -586,10 +597,15 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     /// <param name="newName">player's name</param>
     [Command]
-    private void CmdUpdateName(string newName){
-        if(!isLocalPlayer){
+    private void CmdUpdateName(string newName)
+    {
+        if (_scoreboard == null) { return; }
+        if (!Application.isEditor)
+        {
             gameObject.name = newName;
         }
+
+        _scoreboard.nameReady = true;
     }
 
     /// <summary>

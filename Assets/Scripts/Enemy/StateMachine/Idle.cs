@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.AI;
 
 [CreateAssetMenu(menuName = "Base State/Enemy/Idle")]
 public class IdleState : EnemyState
@@ -24,6 +25,8 @@ public class IdleState : EnemyState
         _isReset = hasInitialPosition && hasInitialRotation;
 
         StateContext.NavMeshAgent.SetDestination(StateContext.InitialPosition);
+        StateContext.NavMeshAgent.stoppingDistance = 0; // Allows the enemy to return to exact start position
+        StateContext.Animator.SetBool("Is Aiming", false);
     }
 
     public override void ExitState() 
@@ -40,6 +43,7 @@ public class IdleState : EnemyState
         if (!_isReset)
         {
             // Rotate enemy back to original rotation once it's close to initial position
+            // TODO: still bugged, won't always rotate back
             if (StateContext.NavMeshAgent.remainingDistance < 0.1f)
             {
                 StateContext.Transform.rotation = Quaternion.Slerp(StateContext.Transform.rotation, StateContext.InitialRotation, _rotationSpeed * Time.deltaTime);
@@ -50,5 +54,6 @@ public class IdleState : EnemyState
                 _isReset = true;
             }
         }
+        StateContext.Animator.SetFloat("Speed", StateContext.NavMeshAgent.velocity.magnitude);
     }
 }
