@@ -26,6 +26,7 @@ public class IdleState : EnemyState
 
         StateContext.NavMeshAgent.SetDestination(StateContext.InitialPosition);
         StateContext.NavMeshAgent.stoppingDistance = 0; // Allows the enemy to return to exact start position
+        StateContext.Animator.SetBool("Is Aiming", false);
     }
 
     public override void ExitState() 

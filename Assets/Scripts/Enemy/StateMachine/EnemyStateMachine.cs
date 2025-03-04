@@ -63,7 +63,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
 
         _navMeshAgent.stoppingDistance = _behaviorStats.StartAimDist;
 
-        StateContext = new EnemyContext(_audioManager, _attackStats, _behaviorStats, _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _enemyAnimator, _material);
+        StateContext = new EnemyContext(this, _audioManager, _attackStats, _behaviorStats, _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _enemyAnimator, _material);
     }
 
     /// <summary>
