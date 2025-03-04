@@ -16,6 +16,7 @@ public class CustomNetworkManager : NetworkManager
 
     private Dictionary<int, PlayerData> playerData = new Dictionary<int, PlayerData>();
     private Dictionary<string, Coroutine> activeCoroutines = new Dictionary<string, Coroutine>();
+    private SceneTransitionAnim sceneAnim;
 
     /// <summary>
     /// Called when the client connects to the server.
@@ -28,6 +29,11 @@ public class CustomNetworkManager : NetworkManager
         // Register handlers for custom network messages for every client that connects
         NetworkClient.RegisterHandler<CountdownMessage>(OnCountdown);
         NetworkClient.RegisterHandler<SpectateMessage>(OnSpectate);
+        SceneManager.sceneLoaded += OnSceneLoaded;
+
+        // Plays animation here because first load animation is not played for server
+        sceneAnim = FindObjectOfType<SceneTransitionAnim>();
+        sceneAnim.EnterAnim();
     }
 
     /// <summary>
@@ -53,7 +59,9 @@ public class CustomNetworkManager : NetworkManager
 
         // Updates scoreboard when player connects
         ScoreBoard scoreBoard = NetworkManager.FindObjectOfType<ScoreBoard>();
-        if(scoreBoard != null){
+        
+        if (scoreBoard != null)
+        {
             StartCoroutine(scoreBoard.PlayerJoinedUpdatePlayerList(conn));
         }
     }
@@ -66,7 +74,9 @@ public class CustomNetworkManager : NetworkManager
     {
         // Updates scoreboard when player disconnects
         ScoreBoard scoreBoard = NetworkManager.FindObjectOfType<ScoreBoard>();
-        if(scoreBoard != null){
+        
+        if (scoreBoard != null)
+        {
             scoreBoard.PlayerLeftUpdatePlayerList(conn);
         }
 
@@ -82,6 +92,7 @@ public class CustomNetworkManager : NetworkManager
     {
         // I really didn't want to hardcode this but ermmm oh well
         Scene activeScene = SceneManager.GetActiveScene();
+
         if (activeScene.name == "Gameplay-Dungeon")
         {
             StartCoroutine(SpawnAfterDungeonGeneration(clientConnection));
@@ -94,9 +105,12 @@ public class CustomNetworkManager : NetworkManager
         NetworkServer.SetClientReady(clientConnection);
 
         // Hardcode scene name cause can't find a way around
-        if(NetworkServer.active && activeScene.name != "Gameplay-Intermission"){
+        if(NetworkServer.active && activeScene.name != "Gameplay-Intermission")
+        {
             ScoreBoard scoreBoard = NetworkManager.FindObjectOfType<ScoreBoard>();
-            if(scoreBoard != null){
+            
+            if (scoreBoard != null)
+            {
                 scoreBoard.UpdateNetId(clientConnection);           
             } 
         }
@@ -124,6 +138,11 @@ public class CustomNetworkManager : NetworkManager
                 };
             }
         }
+    }
+
+    private void OnSceneLoaded(Scene activeScene, LoadSceneMode loadMode){
+        sceneAnim = FindObjectOfType<SceneTransitionAnim>();
+        sceneAnim.EnterAnim();
     }
 
     /// <summary>
@@ -264,6 +283,10 @@ public class CustomNetworkManager : NetworkManager
             {
                 int minutesRemaining = timeRemaining / 60;
                 int secondsRemaining = timeRemaining % 60;
+                if(minutesRemaining <= 0 && secondsRemaining == 3){
+                    sceneAnim = FindObjectOfType<SceneTransitionAnim>();
+                    sceneAnim.ExitAnim();                    
+                }
                 string formattedMessage = countdownMessage.MessageFormat;
 
                 if (string.IsNullOrEmpty(formattedMessage))
