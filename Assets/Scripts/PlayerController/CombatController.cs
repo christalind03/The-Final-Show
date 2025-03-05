@@ -8,16 +8,18 @@ using UnityEngine;
 public class CombatController : NetworkBehaviour
 {
     [Header("Combat References")]
+    [SerializeField] private Animator _playerAnimator;
     [SerializeField] private Transform _cameraTransform;
 
     private AudioManager _audioManager;
-    private PlayerStats _playerStats;
     private bool _canAttack;
+    private int _animatorAttack;
 
     // TODO: Document
     private void Awake()
     {
         _audioManager = gameObject.GetComponent<AudioManager>();
+        _animatorAttack = Animator.StringToHash("Attack");
     }
 
     /// <summary>
@@ -25,7 +27,6 @@ public class CombatController : NetworkBehaviour
     /// </summary>
     public override void OnStartAuthority()
     {
-        _playerStats = gameObject.GetComponent<PlayerStats>();
         _canAttack = true;
 
         base.OnStartAuthority();
@@ -55,6 +56,7 @@ public class CombatController : NetworkBehaviour
             }
 
             _audioManager.CmdPlay("Weapon");
+            StartCoroutine(TriggerAnimation());
             StartCoroutine(TriggerCooldown(playerWeapon.AttackCooldown));
         }
     }
@@ -144,6 +146,16 @@ public class CombatController : NetworkBehaviour
 
         Rigidbody projectileRigidbody = projectileObject.GetComponent<Rigidbody>();
         projectileRigidbody.velocity = targetDirection * rangedWeapon.ProjectileSpeed;
+    }
+
+    // TODO: Document?
+    private IEnumerator TriggerAnimation()
+    {
+        float animationDuration = _playerAnimator.GetCurrentAnimatorClipInfo(0).Length;
+
+        _playerAnimator.SetTrigger(_animatorAttack);
+        yield return new WaitForSeconds(animationDuration);
+        _playerAnimator.SetTrigger(_animatorAttack);
     }
 
     /// <summary>

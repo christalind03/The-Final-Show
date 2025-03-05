@@ -1,4 +1,5 @@
 using Mirror;
+using UnityEditor.Animations;
 using UnityEngine;
 
 /// <summary>
@@ -13,13 +14,17 @@ public class Weapon : InventoryItem
     [SerializeField] protected float _attackDamage;
     [SerializeField, Range(0f, 1f)] protected float _criticalStrikeChance;
 
+    [Header("Animation Parameters")]
+    [SerializeField] protected AnimatorOverrideController _animatorController;
+
     public AudioResource AttackAudio => _attackAudio;
     public LayerMask AttackLayers => _attackLayers;
     public float AttackCooldown => _attackCooldown;
     public float AttackDamage => _attackDamage;
     public float CriticalStrikeChance => _criticalStrikeChance;
-
+    public AnimatorOverrideController AnimatorController => _animatorController;
 }
+
 /// <summary>
 /// Provides serialization and deserialization methods for <see cref="Weapon"/> objects over a network.
 /// </summary>

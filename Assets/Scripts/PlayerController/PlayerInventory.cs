@@ -51,6 +51,7 @@ public class PlayerInventory : NetworkBehaviour
         public Material[] Materials;
     }
 
+    [SerializeField] private Animator _playerAnimator;
     [SerializeField] private List<EquippableReference> _equippableReferences;
 
     private readonly SyncDictionary<string, InventoryItem> _inventorySlots = new SyncDictionary<string, InventoryItem>();
@@ -519,6 +520,7 @@ public class PlayerInventory : NetworkBehaviour
         if (inventoryItem is Weapon weaponItem)
         {
             _audioManager.ChangeAudio("Weapon", weaponItem.AttackAudio);
+            _playerAnimator.runtimeAnimatorController = weaponItem.AnimatorController;
         }
 
         GameObject equippableReference = _equippedRenderers[inventoryItem.ItemCategory];
