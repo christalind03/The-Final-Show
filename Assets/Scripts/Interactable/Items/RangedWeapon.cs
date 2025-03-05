@@ -10,11 +10,9 @@ public class RangedWeapon : Weapon
     // This will be displayed underneath the `Weapon Parameters` header (inherited from `Weapon`)
     [Header("Projectile Parameters")]
     [SerializeField] private GameObject _projectilePrefab;
-    [SerializeField] private Vector3 _projectileOffset;
     [SerializeField] private float _projectileSpeed;
 
     public GameObject ProjectilePrefab => _projectilePrefab;
-    public Vector3 ProjectileOffset => _projectileOffset;
     public float ProjectileSpeed => _projectileSpeed;
 }
 

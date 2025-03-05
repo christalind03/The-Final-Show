@@ -1,4 +1,5 @@
 using Mirror;
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -10,6 +11,7 @@ public class CombatController : NetworkBehaviour
     [Header("Combat References")]
     [SerializeField] private Animator _playerAnimator;
     [SerializeField] private Transform _cameraTransform;
+    [SerializeField] private Transform _projectileTransform;
 
     private AudioManager _audioManager;
     private bool _canAttack;
@@ -81,7 +83,7 @@ public class CombatController : NetworkBehaviour
                 float finalDamage = playerWeapon.AttackDamage;
                 float critChance = playerWeapon.CriticalStrikeChance;
 
-                if (Random.value < critChance)
+                if (UnityEngine.Random.value < critChance)
                 {
                     finalDamage *= 2;
                     Debug.Log("Critical Strike! Damage: " + finalDamage);
@@ -105,7 +107,7 @@ public class CombatController : NetworkBehaviour
     {
         Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out RaycastHit raycastHit);
 
-        Vector3 initialPosition = transform.position + rangedWeapon.ProjectileOffset;
+        Vector3 initialPosition = _projectileTransform.position;
         Vector3 finalPosition = raycastHit.point;
 
         GameObject projectileObject = Instantiate(rangedWeapon.ProjectilePrefab, initialPosition, Quaternion.identity);
@@ -128,7 +130,7 @@ public class CombatController : NetworkBehaviour
         float finalDamage = rangedWeapon.AttackDamage;
         float critChance = rangedWeapon.CriticalStrikeChance;
 
-        if (Random.value < critChance)
+        if (UnityEngine.Random.value < critChance)
         {
             finalDamage *= 2;
             Debug.Log("Critical Strike! Damage: " + finalDamage);

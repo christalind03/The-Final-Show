@@ -6,6 +6,7 @@ public class Projectile : NetworkBehaviour
 {
     public float AttackDamage;
     public LayerMask AttackLayers;
+    public LayerMask IgnoreLayers;
 
     /// <summary>
     /// Handles collision events for the object.
@@ -22,8 +23,11 @@ public class Projectile : NetworkBehaviour
             {
                 healthComponent.CmdDamage(AttackDamage);
             }
-        }
 
-        Destroy(gameObject);
+            if (!UnityUtils.ContainsLayer(IgnoreLayers, collisionObject.layer))
+            {
+                NetworkServer.Destroy(gameObject);
+            }
+        }
     }
 }
