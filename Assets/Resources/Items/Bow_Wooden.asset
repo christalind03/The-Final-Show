@@ -9,23 +9,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4aada04f77404a644bd0e1f7de738bbf, type: 3}
-  m_Name: Spear
+  m_Script: {fileID: 11500000, guid: 5b7d40dcff620a94eb7c7ecc37dd6bea, type: 3}
+  m_Name: Bow_Wooden
   m_EditorClassIdentifier: 
   _objectSprite: {fileID: 21300000, guid: 79c129b19329fcf408a1ed9881c01da8, type: 3}
-  _objectPrefab: {fileID: 4673696855174151546, guid: f9f4177cf7555a54181c48d914eb7da1,
+  _objectPrefab: {fileID: 4856169330315800855, guid: 4d3b06cee9d95dc449405ad9d163401e,
     type: 3}
-  _skinnedMeshRenderer: {fileID: 6368604196894419142, guid: fed0c97051a5eec4d821f0e85513575d,
+  _skinnedMeshRenderer: {fileID: 1094818852516666810, guid: 1669357f7af7ab74eba2b1bc16642399,
     type: 3}
   _inventoryCategory: 3
   _attackAudio: {fileID: 11400000, guid: 9fdbbae14e106a648957f1ae0483439e, type: 2}
   _attackLayers:
     serializedVersion: 2
     m_Bits: 128
-  _attackCooldown: 1.7
-  _attackDamage: 15
-  _criticalStrikeChance: 0.15
-  _animatorController: {fileID: 22100000, guid: 2116a835159977c498e5bd6b7f46b3c1,
+  _attackCooldown: 0.25
+  _attackDamage: 5
+  _criticalStrikeChance: 0
+  _animatorController: {fileID: 22100000, guid: 926699ad4b0bff149a00032392f9a7ec,
     type: 2}
-  _attackAngle: 45
-  _attackRange: 5
+  _projectilePrefab: {fileID: 3767777009258638877, guid: 7f7013935ec70b646952cde741e0b431,
+    type: 3}
+  _projectileSpeed: 15

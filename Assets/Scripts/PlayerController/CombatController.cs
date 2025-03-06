@@ -1,4 +1,5 @@
 using Mirror;
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -8,17 +9,19 @@ using UnityEngine;
 public class CombatController : NetworkBehaviour
 {
     [Header("Combat References")]
+    [SerializeField] private Animator _playerAnimator;
     [SerializeField] private Transform _cameraTransform;
+    [SerializeField] private Transform _projectileTransform;
 
     private AudioManager _audioManager;
-    private PlayerInterface _playerInterface;
-    private PlayerStats _playerStats;
     private bool _canAttack;
+    private int _animatorAttack;
 
     // TODO: Document
     private void Awake()
     {
         _audioManager = gameObject.GetComponent<AudioManager>();
+        _animatorAttack = Animator.StringToHash("Attack");
     }
 
     /// <summary>
@@ -26,8 +29,6 @@ public class CombatController : NetworkBehaviour
     /// </summary>
     public override void OnStartAuthority()
     {
-        _playerInterface = gameObject.GetComponent<PlayerInterface>();
-        _playerStats = gameObject.GetComponent<PlayerStats>();
         _canAttack = true;
 
         base.OnStartAuthority();
@@ -48,7 +49,7 @@ public class CombatController : NetworkBehaviour
                     break;
 
                 case RangedWeapon rangedWeapon:
-                    Shoot(rangedWeapon);
+                    CmdShoot(rangedWeapon);
                     break;
 
                 default:
@@ -57,6 +58,7 @@ public class CombatController : NetworkBehaviour
             }
 
             _audioManager.CmdPlay("Weapon");
+            StartCoroutine(TriggerAnimation());
             StartCoroutine(TriggerCooldown(playerWeapon.AttackCooldown));
         }
     }
@@ -81,7 +83,7 @@ public class CombatController : NetworkBehaviour
                 float finalDamage = playerWeapon.AttackDamage;
                 float critChance = playerWeapon.CriticalStrikeChance;
 
-                if (Random.value < critChance)
+                if (UnityEngine.Random.value < critChance)
                 {
                     finalDamage *= 2;
                     Debug.Log("Critical Strike! Damage: " + finalDamage);
@@ -97,36 +99,6 @@ public class CombatController : NetworkBehaviour
     }
 
     /// <summary>
-    /// Fires a ranged weapon, consuming ammunition and spawning projectiles if available.
-    /// Automatically reloads the weapon if the clip is empty.
-    /// </summary>
-    /// <param name="rangedWeapon">The ranged weapon used for shooting.</param>
-    private void Shoot(RangedWeapon rangedWeapon)
-    {
-        if (0 < rangedWeapon.AmmoCount)
-        {
-            rangedWeapon.AmmoCount--;
-            CmdShoot(rangedWeapon);
-        }
-        else
-        {
-            if (0 < rangedWeapon.ClipCount)
-            {
-                rangedWeapon.ClipCount--;
-                Reload(rangedWeapon);
-            }
-            else
-            {
-                // TODO: Play some sort of sound indicator notifying the user that their ammo is out.
-                Debug.Log($"{rangedWeapon.name} ran out of ammunition!");
-            }
-        }
-
-        // TODO: If the user reloads before the current clip is gone, ensure that the difference between the clip capacity and current amount is added to the remaining amount
-        _playerInterface.RefreshAmmo(rangedWeapon.AmmoCount, rangedWeapon.ClipCapacity * rangedWeapon.ClipCount);
-    }
-
-    /// <summary>
     /// Spawns and launches a projectile on the server for a ranged weapon attack.
     /// </summary>
     /// <param name="rangedWeapon">The ranged weapon being used for the attack.</param>
@@ -135,7 +107,7 @@ public class CombatController : NetworkBehaviour
     {
         Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out RaycastHit raycastHit);
 
-        Vector3 initialPosition = transform.position + rangedWeapon.ProjectileOffset;
+        Vector3 initialPosition = _projectileTransform.position;
         Vector3 finalPosition = raycastHit.point;
 
         GameObject projectileObject = Instantiate(rangedWeapon.ProjectilePrefab, initialPosition, Quaternion.identity);
@@ -158,7 +130,7 @@ public class CombatController : NetworkBehaviour
         float finalDamage = rangedWeapon.AttackDamage;
         float critChance = rangedWeapon.CriticalStrikeChance;
 
-        if (Random.value < critChance)
+        if (UnityEngine.Random.value < critChance)
         {
             finalDamage *= 2;
             Debug.Log("Critical Strike! Damage: " + finalDamage);
@@ -178,13 +150,14 @@ public class CombatController : NetworkBehaviour
         projectileRigidbody.velocity = targetDirection * rangedWeapon.ProjectileSpeed;
     }
 
-    /// <summary>
-    /// Reloads a ranged weapon by refilling its ammunition count from its clip capacity.
-    /// </summary>
-    /// <param name="rangedWeapon">The ranged weapon to reload.</param>
-    private void Reload(RangedWeapon rangedWeapon)
+    // TODO: Document?
+    private IEnumerator TriggerAnimation()
     {
-        rangedWeapon.AmmoCount = rangedWeapon.ClipCapacity;
+        float animationDuration = _playerAnimator.GetCurrentAnimatorClipInfo(0).Length;
+
+        _playerAnimator.SetTrigger(_animatorAttack);
+        yield return new WaitForSeconds(animationDuration);
+        _playerAnimator.SetTrigger(_animatorAttack);
     }
 
     /// <summary>

@@ -188,7 +188,7 @@ GameObject:
   - component: {fileID: 103120818524795355}
   - component: {fileID: 3722646166315641881}
   - component: {fileID: 933908488270745726}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: cm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -257,7 +257,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1025035789335363843}
   - component: {fileID: 8799199552286307878}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: FollowCamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -584,7 +584,9 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  _playerAnimator: {fileID: 1455237012604870471}
   _cameraTransform: {fileID: 1025035789335363843}
+  _projectileTransform: {fileID: 8630103690000874132}
 --- !u!114 &2413865861525508875
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -605,6 +607,7 @@ MonoBehaviour:
   _interactableDistance: 15
   _gravity: -9.8
   _jumpHeight: 1.25
+  _aimSpeed: 1.75
   _sprintSpeed: 8.5
   _walkSpeed: 3.5
   _staminaCost: 5.5
@@ -663,6 +666,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  _playerAnimator: {fileID: 1455237012604870471}
   _equippableReferences:
   - InventoryCategory: 0
     Reference: {fileID: 3473927142445562354}
@@ -764,7 +768,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3300813902486172896}
   - component: {fileID: 5764944521598878711}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: AimCamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -949,7 +953,7 @@ SkinnedMeshRenderer:
   m_SortingOrder: 0
   serializedVersion: 2
   m_Quality: 0
-  m_UpdateWhenOffscreen: 0
+  m_UpdateWhenOffscreen: 1
   m_SkinnedMotionVectors: 1
   m_Mesh: {fileID: 0}
   m_Bones:
@@ -1101,7 +1105,7 @@ SkinnedMeshRenderer:
   m_SortingOrder: 0
   serializedVersion: 2
   m_Quality: 0
-  m_UpdateWhenOffscreen: 0
+  m_UpdateWhenOffscreen: 1
   m_SkinnedMotionVectors: 1
   m_Mesh: {fileID: 0}
   m_Bones:
@@ -1139,7 +1143,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2433569610824222916}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: VirtualCameras
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1174,7 +1178,7 @@ GameObject:
   - component: {fileID: 3853055685343220504}
   - component: {fileID: 8122590597706812618}
   - component: {fileID: 8347435532025493331}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: cm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1578,6 +1582,11 @@ PrefabInstance:
       propertyPath: m_AABB.m_Extent.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -8179688861800902055, guid: 4bde4848a2455a4459c026fc363f01f4,
+        type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: -5888112294040307122, guid: 4bde4848a2455a4459c026fc363f01f4,
         type: 3}
       propertyPath: m_AABB.m_Center.x
@@ -1607,6 +1616,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AABB.m_Extent.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5888112294040307122, guid: 4bde4848a2455a4459c026fc363f01f4,
+        type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 4bde4848a2455a4459c026fc363f01f4,
         type: 3}
@@ -1642,6 +1656,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AABB.m_Extent.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4521450952586636099, guid: 4bde4848a2455a4459c026fc363f01f4,
+        type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1825,6 +1844,12 @@ Transform:
 --- !u!4 &8593340847018955040 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -4066140993138187107, guid: 4bde4848a2455a4459c026fc363f01f4,
+    type: 3}
+  m_PrefabInstance: {fileID: 3518304957934826941}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &8630103690000874132 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5122789751354117929, guid: 4bde4848a2455a4459c026fc363f01f4,
     type: 3}
   m_PrefabInstance: {fileID: 3518304957934826941}
   m_PrefabAsset: {fileID: 0}

@@ -113,23 +113,6 @@ public class PlayerInterface : NetworkBehaviour
     }
 
     /// <summary>
-    /// Refreshes the ammunition UI with the current clip and remaining ammo amounts.
-    /// </summary>
-    /// <param name="clipAmount">The current clip count.</param>
-    /// <param name="remainingAmount">The remaining amount of ammo.</param>
-    public void RefreshAmmo(int clipAmount, int remainingAmount)
-    {
-        if (UnityUtils.ContainsElement(_rootVisualElement, "Ammo-Count", out Label ammoCount))
-        {
-            if (UnityUtils.ContainsElement(_rootVisualElement, "Ammo-Remaining", out Label ammoRemaining))
-            {
-                ammoCount.text = clipAmount.ToString();
-                ammoRemaining.text = remainingAmount.ToString();
-            }
-        }
-    }
-
-    /// <summary>
     /// Refreshes the attack statistic display in the UI.
     /// </summary>
     /// <param name="totalAttack">The total attack value to display.</param>
@@ -174,18 +157,6 @@ public class PlayerInterface : NetworkBehaviour
     public void RefreshCriticalStrikeChance(float critChance)
     {
         RefreshStatus("CriticalStrike-Value", critChance);
-    }
-
-    /// <summary>
-    /// Toggles the visibility of the ammunition UI.
-    /// </summary>
-    /// <param name="displayAmmo">If true, the ammunition UI will be displayed; otherwise, hides it.</param>
-    public void ToggleAmmoVisibility(bool displayAmmo)
-    {
-        if (UnityUtils.ContainsElement(_rootVisualElement, "Ammo", out VisualElement ammoElement))
-        {
-            ammoElement.style.opacity = displayAmmo ? 1 : 0;
-        }
     }
 
     /// <summary>

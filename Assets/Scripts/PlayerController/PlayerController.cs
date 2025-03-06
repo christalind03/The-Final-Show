@@ -25,6 +25,7 @@ public class PlayerController : NetworkBehaviour
     [Header("Movement Parameters")]
     [SerializeField] private float _gravity;
     [SerializeField] private float _jumpHeight;
+    [SerializeField] private float _aimSpeed;
     [SerializeField] private float _sprintSpeed;
     [SerializeField] private float _walkSpeed;
 
@@ -40,6 +41,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private Transform _followTransform;
     [SerializeField] private Transform _playerTransform;
 
+    private bool _isAiming;
     private bool _isGrounded;
     private bool _isSprinting;
     private bool _canJump;
@@ -60,6 +62,7 @@ public class PlayerController : NetworkBehaviour
 
     private AudioManager _audioManager;
     private Animator _playerAnimator;
+    private int _animatorIsAiming;
     private int _animatorIsJumping;
     private int _animatorMovementX;
     private int _animatorMovementZ;
@@ -91,6 +94,7 @@ public class PlayerController : NetworkBehaviour
         // To access the animator, we must retrieve the child gameObject that is rendering the player's mesh.
         // This should be the first child of the current gameObject, `BaseCharacter`
         _playerAnimator = transform.GetChild(0).GetComponent<Animator>();
+        _animatorIsAiming = Animator.StringToHash("Is Aiming");
         _animatorIsJumping = Animator.StringToHash("Is Jumping");
         _animatorMovementX = Animator.StringToHash("Movement X");
         _animatorMovementZ = Animator.StringToHash("Movement Z");
@@ -129,7 +133,6 @@ public class PlayerController : NetworkBehaviour
         playerInput.actions.Enable();
 
         playerInput.actions["Attack"].performed += Attack;
-        playerInput.actions["Alternate Attack"].performed += AlternateAttack;
         playerInput.actions["Drop"].performed += Drop;
         playerInput.actions["Interact"].performed += Interact;
         playerInput.actions["Jump"].performed += Jump;
@@ -209,16 +212,20 @@ public class PlayerController : NetworkBehaviour
 
         // Check to see if the player is aiming (via AlternateAttack) and if the current item in the player's inventory is a RangedWeapon.
         // If both conditions are true, activate the aim camera; otherwise, deactivate it.
-        bool isAiming = playerInput.actions["Alternate Attack"].IsPressed();
+        _isAiming = playerInput.actions["Alternate Attack"].IsPressed();
 
-        if (isAiming && _playerInventory.GetItem() is RangedWeapon)
+        if (_isAiming && _playerInventory.GetItem() is RangedWeapon)
         {
+            // Need to somehow handle attacking while aiming
             _aimCamera.Priority = 2;
+            _playerAnimator.SetBool(_animatorIsAiming, true);
         }
         else
         {
             _aimCamera.Priority = 0;
+            _playerAnimator.SetBool(_animatorIsAiming, false);
         }
+
 
         // Since the axes in which we move our input device are opposite in Unity, we must swap them to ensure correct behavior.
         // For example, moving the mouse up and/or down corresponds to side-to-side mouse movement in Unity, so we need to adjust for this.
@@ -243,7 +250,11 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void HandleMovement()
     {
-        float totalSpeed = _isSprinting ? _sprintSpeed : _walkSpeed;
+        float totalSpeed = _isAiming
+            ? _aimSpeed
+            : _isSprinting
+                ? _sprintSpeed
+                : _walkSpeed;
 
         // Ensure we always move relative to the direction we are looking at.
         Vector2 moveInput = playerInput.actions["Movement"].ReadValue<Vector2>();
@@ -329,15 +340,6 @@ public class PlayerController : NetworkBehaviour
         {
             _combatController.Attack(playerWeapon);
         }
-    }
-
-    /// <summary>
-    /// Handle the player's input for the alternate attack on any given weapon.
-    /// </summary>
-    /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
-    private void AlternateAttack(InputAction.CallbackContext context)
-    {
-        if (!isLocalPlayer) { return; }
     }
 
     /// <summary>
@@ -474,7 +476,6 @@ public class PlayerController : NetworkBehaviour
         playerInput.actions.Disable();
 
         playerInput.actions["Attack"].performed -= Attack;
-        playerInput.actions["Alternate Attack"].performed -= AlternateAttack;
         playerInput.actions["Drop"].performed -= Drop;
         playerInput.actions["Interact"].performed -= Interact;
         playerInput.actions["Jump"].performed -= Jump;
