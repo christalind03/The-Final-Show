@@ -3,7 +3,6 @@ using Mirror;
 using Steamworks;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -365,7 +364,7 @@ public class PlayerController : NetworkBehaviour
         if (droppedItem != null)
         {
             // 3 is an arbitrary value representing how far away the dropped item should be from the player.
-            Vector3 droppedPosition = targetPosition ?? transform.position + transform.forward * 3;
+            Vector3 droppedPosition = targetPosition ?? transform.position + transform.forward + transform.up * 1.5f;
 
             CmdDrop(droppedItem, droppedPosition);
         }
@@ -524,10 +523,10 @@ public class PlayerController : NetworkBehaviour
     [Command]
     private void CmdDrop(InventoryItem droppedItem, Vector3 droppedPosition)
     {
-        GameObject droppedObject = Instantiate(Resources.Load<GameObject>("Items/Interactable Inventory Item"));
-
-        droppedObject.transform.position = droppedPosition;
+        float curRotation = UnityEngine.Random.Range(0f, 360f);
+        GameObject droppedObject = Instantiate(Resources.Load<GameObject>("Items/Interactable Inventory Item"), droppedPosition, Quaternion.AngleAxis(curRotation, Vector3.up));
         droppedObject.GetComponent<InteractableInventoryItem>().InventoryItem = droppedItem;
+        droppedObject.GetComponent<InteractableInventoryItem>().Drop(gameObject.transform);
 
         NetworkServer.Spawn(droppedObject);
 
