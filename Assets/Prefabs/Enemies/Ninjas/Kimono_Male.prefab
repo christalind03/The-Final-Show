@@ -129,10 +129,10 @@ Animator:
   m_GameObject: {fileID: 250228745048303394}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 4bde4848a2455a4459c026fc363f01f4, type: 3}
-  m_Controller: {fileID: 9100000, guid: db9d3b552c689374a9a4a83b8ed1e1e0, type: 2}
+  m_Controller: {fileID: 9100000, guid: 5a47101c491016c468ff1d6974570934, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
-  m_ApplyRootMotion: 0
+  m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_WarningMessage: 
@@ -1244,11 +1244,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  AudioAssets:
-  - Is3D: 1
-    Name: Wandering
-    Resource: {fileID: 11400000, guid: 47ffb9e233321324faa5e3b69e5ab632, type: 2}
-    AudioSource: {fileID: 0}
+  audioAssets: []
 --- !u!1 &6445235933170209300
 GameObject:
   m_ObjectHideFlags: 0
