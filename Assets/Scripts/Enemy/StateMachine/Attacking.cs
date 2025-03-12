@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Base State/Enemy/Attacking")]
@@ -12,10 +13,7 @@ public class AttackingState : EnemyState
         StateContext.Material.SetColor("_BaseColor", Color.magenta);
 
         StateContext.Animator.SetBool("Is Attacking", true);
-        if (StateContext.TargetTransform.root.TryGetComponent(out AbstractHealth targetHealth))
-        {
-            targetHealth.CmdDamage(StateContext.AttackStats.AttackDamage);
-        }
+        StateContext.MonoBehaviour.StartCoroutine(Attack());
     }
 
     public override void ExitState() 
@@ -28,4 +26,13 @@ public class AttackingState : EnemyState
     public override void OnTriggerExit(Collider otherCollider) { }
     public override void OnTriggerStay(Collider otherCollider) { }
     public override void UpdateState() { }
+
+    private IEnumerator Attack()
+    {
+        yield return new WaitForSeconds(StateContext.AttackDelay);
+        if (StateContext.TargetTransform.root.TryGetComponent(out AbstractHealth targetHealth))
+        {
+            targetHealth.CmdDamage(StateContext.AttackStats.AttackDamage);
+        }
+    }
 }
