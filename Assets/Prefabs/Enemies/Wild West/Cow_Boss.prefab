@@ -336,7 +336,8 @@ MonoBehaviour:
     _startAimDist: 1.5
     _aimBuffer: 0.5
   _audioManager: {fileID: -611135261354465096}
-  _attackAnimLength: 1
+  _attackAnimLength: 2.6
+  _attackAnimDelay: 1.1
   _abilityStats:
   - _abilityCooldown: 10
     _abilityDuration: 2
@@ -1591,7 +1592,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: ea7386ba6299c19499771c63776ec905, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
-  m_ApplyRootMotion: 0
+  m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_WarningMessage: 
