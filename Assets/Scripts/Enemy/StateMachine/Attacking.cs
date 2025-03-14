@@ -8,10 +8,6 @@ public class AttackingState : EnemyState
     public override void EnterState()
     {
         Debug.Log("Entering Attacking State");
-
-        // For debugging purposes only.
-        StateContext.Material.SetColor("_BaseColor", Color.magenta);
-
         StateContext.Animator.SetBool("Is Attacking", true);
         StateContext.MonoBehaviour.StartCoroutine(Attack());
     }
