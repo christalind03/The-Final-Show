@@ -1178,12 +1178,12 @@ GameObject:
   - component: {fileID: 751489814099896231}
   - component: {fileID: -4826652722677796615}
   - component: {fileID: -3513101740733121024}
+  - component: {fileID: 7219325769524346077}
   - component: {fileID: 3076233964290131508}
   - component: {fileID: 7699988843532859068}
   - component: {fileID: 8473018324076476108}
   - component: {fileID: 2432960672169051269}
   - component: {fileID: 4212744059665530929}
-  - component: {fileID: 7219325769524346077}
   m_Layer: 7
   m_Name: Ninja_Female
   m_TagString: Untagged
@@ -1259,6 +1259,30 @@ MonoBehaviour:
   rotationSensitivity: 0.01
   positionPrecision: 0.01
   scalePrecision: 0.01
+--- !u!114 &7219325769524346077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6085626376942215046}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7df4901fe27298949a289855428321ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  audioAssets:
+  - Is3D: 1
+    Name: Wander
+    Resource: {fileID: 11400000, guid: 47ffb9e233321324faa5e3b69e5ab632, type: 2}
+    AudioSource: {fileID: 0}
+  - Is3D: 1
+    Name: Chase
+    Resource: {fileID: 11400000, guid: 85c5003cd1b89464c91a56b6b68b1c56, type: 2}
+    AudioSource: {fileID: 0}
 --- !u!114 &3076233964290131508
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1393,22 +1417,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &7219325769524346077
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6085626376942215046}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7df4901fe27298949a289855428321ae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  audioAssets: []
 --- !u!1 &6260069298116203883
 GameObject:
   m_ObjectHideFlags: 0
