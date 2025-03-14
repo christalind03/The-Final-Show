@@ -17,10 +17,12 @@ public class ChasingState : EnemyState
 
         // For debugging purposes only.
         StateContext.Material.SetColor("_BaseColor", Color.yellow);
+        StateContext.AudioManager?.CmdPlay("Chase");
     }
 
     public override void ExitState() 
     {
+        StateContext.AudioManager?.CmdStop("Chase");
         Debug.Log("Leaving Chasing State");
     }
  
