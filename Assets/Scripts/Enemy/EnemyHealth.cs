@@ -68,6 +68,7 @@ public class EnemyHealth : AbstractHealth
         }
         _latestSource = sourceId;
         if (CurrentValue <= 0f) { TriggerDeath(); }
+        // TODO: If the enemy has no target, make it aggro on the player who did damage
     }
 
     /// <summary>

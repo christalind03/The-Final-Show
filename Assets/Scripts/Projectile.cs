@@ -30,7 +30,6 @@ public class Projectile : NetworkBehaviour
                 {
                     healthComponent.CmdDamage(AttackDamage);
                 }
-                //healthComponent.CmdDamage(AttackDamage);
             }
 
             if (!UnityUtils.ContainsLayer(IgnoreLayers, collisionObject.layer))
