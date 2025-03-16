@@ -92,8 +92,14 @@ public class CombatController : NetworkBehaviour
                 {
                     Debug.Log("Normal Attack. Damage: " + finalDamage);
                 }
-
-                healthComponent.CmdDamage(finalDamage);
+                if (healthComponent is EnemyHealth enemyHealth)
+                {
+                    enemyHealth.CmdDamageSource(finalDamage, netId);
+                }
+                else
+                {
+                    healthComponent.CmdDamage(finalDamage);
+                }
             }
         }
     }

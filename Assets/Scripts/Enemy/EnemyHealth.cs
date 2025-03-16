@@ -1,4 +1,5 @@
 using Mirror;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -14,6 +15,9 @@ public class EnemyHealth : AbstractHealth
     [SerializeField] private GameObject _scriptPrefab;
     [Min(1), SerializeField] private int _minScripts = 1;
     [Min(1), SerializeField] private int _maxScripts = 1;
+
+    private List<uint> _sourceNetids = new List<uint>();
+    private uint _latestSource;
 
     /// <summary>
     /// Called when <see cref="_baseValue"/> changes.
@@ -38,11 +42,47 @@ public class EnemyHealth : AbstractHealth
     }
 
     /// <summary>
-    /// Handles the death of an enemy by spawning a script object and destroying the gameObject.
+    /// Decreases the current value of the stat by the specified amount and adds the player who dealt damage to the list of sourceNetids.
+    /// If the current value is below zero, then call <c>TriggerDeath()</c>.
+    /// </summary>
+    /// <param name="decreaseValue">The amount to decrease the current value by.</param>
+    [Command(requiresAuthority = false)]
+    public void CmdDamageSource(float decreaseValue, uint sourceId)
+    {
+        if (TryGetComponent(out PlayerStats playerStats))
+        {
+            float reducedDamage = Mathf.Max(decreaseValue - playerStats.Defense.BaseValue, 0);
+            CurrentValue -= reducedDamage;
+
+            Debug.Log($"{gameObject.name} took {reducedDamage} damage after defense. Remaining health: {CurrentValue}/{BaseValue}");
+        }
+        else
+        {
+            CurrentValue -= decreaseValue;
+            Debug.Log($"{gameObject.name} took {decreaseValue} damage. Remaining health: {CurrentValue}/{BaseValue}");
+        }
+        // Add the player's netid if it isn't already in the list
+        if (!_sourceNetids.Contains(sourceId))
+        {
+            _sourceNetids.Add(sourceId);
+        }
+        _latestSource = sourceId;
+        if (CurrentValue <= 0f) { TriggerDeath(); }
+    }
+
+    /// <summary>
+    /// Handles the death of an enemy by awarding assists and kills, spawning script objects, and destroying the gameObject.
     /// </summary>
     [Server]
     protected override void TriggerDeath()
     {
+        ScoreBoard scoreboard = NetworkManager.FindObjectOfType<ScoreBoard>();
+        _sourceNetids.Remove(_latestSource);
+        foreach (var source in _sourceNetids)
+        {
+            scoreboard.CmdUpdateAssistData(source, 1, 1);
+        }
+        scoreboard.CmdUpdateKillData(_latestSource, 1, 1);
         SpawnScripts();
         Destroy(gameObject);
     }
