@@ -148,6 +148,7 @@ public class CombatController : NetworkBehaviour
       
         projectileComponent.AttackDamage = finalDamage;
         projectileComponent.AttackLayers = rangedWeapon.AttackLayers;
+        projectileComponent.SourceId = netId;
         projectileComponent.transform.LookAt(finalPosition);
 
         Vector3 targetDirection = (finalPosition - initialPosition).normalized;
