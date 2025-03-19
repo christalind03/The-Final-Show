@@ -36,10 +36,11 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     protected bool _canAttack;
     protected bool _isAttacking;
 
-    protected Material _material;
-
     private Animator _enemyAnimator;
     [SerializeField] private float _attackAnimLength;
+    [SerializeField]
+    [Tooltip("The amount of time to wait before dealing damage to account for the wind-up on attack animations.")]
+    private float _attackAnimDelay = 0f;
 
     /// <summary>
     /// Stores the enemy's initial position and rotation for later use.
@@ -52,7 +53,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
 
         _fieldOfView = GetComponent<FieldOfView>();
         _navMeshAgent = GetComponent<NavMeshAgent>();
-        _material = GetComponentsInChildren<Renderer>()[0].material;
 
         // To access the animator, we must retrieve the child gameObject that is rendering the player's mesh.
         // This should be the first child of the current gameObject
@@ -63,7 +63,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
 
         _navMeshAgent.stoppingDistance = _behaviorStats.StartAimDist;
 
-        StateContext = new EnemyContext(this, _audioManager, _attackStats, _behaviorStats, _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _enemyAnimator, _material);
+        StateContext = new EnemyContext(this, _audioManager, _attackStats, _behaviorStats, _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _enemyAnimator, _attackAnimDelay);
     }
 
     /// <summary>
