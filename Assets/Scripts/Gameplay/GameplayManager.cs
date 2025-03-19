@@ -56,4 +56,9 @@ public class GameplayManager : StateManager<GameplayManager.State, GameplayState
     {
         StateContext.CollectScript();
     }
+
+    public string GetTheme()
+    {
+        return StateContext.GameplayTheme.Theme;
+    }
 }

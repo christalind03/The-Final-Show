@@ -1,8 +1,8 @@
 using Mirror;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 /// <summary>
@@ -28,6 +28,21 @@ public class PlayerInterface : NetworkBehaviour
         }
 
         _rootVisualElement = uiDocument.rootVisualElement;
+
+
+        if(SceneManager.GetActiveScene().name == "Gameplay-Preparation")
+        {
+            if (UnityUtils.ContainsElement(_rootVisualElement, "RoundTheme", out VisualElement themeContainer))
+            {
+                themeContainer.visible = true;
+                if(themeContainer.visible == false) return; 
+                if (UnityUtils.ContainsElement(_rootVisualElement, "ThemeText", out TextElement themeText))
+                {
+                    ThemeName themeName = NetworkManager.FindObjectOfType<ThemeName>();
+                    themeText.text = themeName.theme;
+                }
+            }   
+        }
         base.OnStartAuthority();
     }
 

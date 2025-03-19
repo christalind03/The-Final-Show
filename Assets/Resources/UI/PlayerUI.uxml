@@ -6,6 +6,9 @@
     </ui:VisualElement>
     <ui:VisualElement name="Primary-Container" class="primaryContainer">
         <ui:Label tabindex="-1" text="0:00" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Server-Timer" class="defaultFont" style="font-size: 42px; opacity: 0;" />
+        <ui:VisualElement name="RoundTheme" style="flex-grow: 1; position: absolute; align-items: center; align-self: center; justify-content: center; top: 10%; background-image: url(&quot;project://database/Assets/Sprites/Button.png?fileID=21300000&amp;guid=d320cdf6949077e4bb063177f3e09f3a&amp;type=3#Button&quot;); max-width: 30%; min-width: 30%; max-height: 10%; min-height: 10%; visibility: hidden;">
+            <ui:Label tabindex="-1" text="Place Holder" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ThemeText" class="defaultFont" style="color: rgb(0, 0, 0); font-size: 35px;" />
+        </ui:VisualElement>
         <ui:Label tabindex="-1" text="Server Message" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Server-Message" class="defaultFont" style="font-size: 60px; opacity: 0; top: 35%;" />
         <ui:VisualElement name="Status-Bars" style="flex-grow: 1; position: absolute;">
             <ui:VisualElement name="Health" style="height: 32px; width: 575px;">
