@@ -16,13 +16,13 @@ public class WanderingState : EnemyState
         StateContext.NavMeshAgent.speed = movementSpeed; // Update speed
         StateContext.Animator.SetBool("Is Aiming", false);
 
-        StateContext.AudioManager?.CmdPlay("Wandering");
+        StateContext.AudioManager?.CmdPlay("Wander");
     }
 
     public override void ExitState()
     {
+        StateContext.AudioManager?.CmdStop("Wander");
         Debug.Log("Leaving Wandering State");
-        StateContext.AudioManager?.CmdStop("Wandering");
     }
 
     public override void OnTriggerEnter(Collider otherCollider) { }

@@ -9,9 +9,6 @@ public class AimingState : EnemyState
     public override void EnterState()
     {
         Debug.Log("Entering Aiming State");
-
-        // For debugging purposes only.
-        StateContext.Material.SetColor("_BaseColor", Color.red);
         StateContext.Animator.SetBool("Is Aiming", true);
     }
 

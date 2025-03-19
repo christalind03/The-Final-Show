@@ -14,13 +14,12 @@ public class ChasingState : EnemyState
         // We want the enemy to stop once the target is within aim distance
         StateContext.NavMeshAgent.stoppingDistance = StateContext.BehaviorStats.StartAimDist;
         StateContext.Animator.SetBool("Is Aiming", false);
-
-        // For debugging purposes only.
-        StateContext.Material.SetColor("_BaseColor", Color.yellow);
+        StateContext.AudioManager?.CmdPlay("Chase");
     }
 
     public override void ExitState() 
     {
+        StateContext.AudioManager?.CmdStop("Chase");
         Debug.Log("Leaving Chasing State");
     }
  

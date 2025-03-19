@@ -17,10 +17,10 @@ public class EnemyContext
     public readonly Animator Animator;
 
     public Transform TargetTransform;
-    public Material Material;
+    public float AttackDelay;
 
     public EnemyContext(MonoBehaviour monoBehaviour, AudioManager audioManager, AttackStats attackStats, BehaviorStats behaviorStats, Vector3 initialPosition, Quaternion initialRoatation, Transform transform, 
-        FieldOfView fieldOfView, NavMeshAgent navMeshAgent, Animator animator, Material material)
+        FieldOfView fieldOfView, NavMeshAgent navMeshAgent, Animator animator, float attackDelay)
     {
         MonoBehaviour = monoBehaviour;
         AudioManager = audioManager;
@@ -33,6 +33,6 @@ public class EnemyContext
         FieldOfView = fieldOfView;
         NavMeshAgent = navMeshAgent;
         Animator = animator;
-        Material = material;
+        AttackDelay = attackDelay;
     }
 }

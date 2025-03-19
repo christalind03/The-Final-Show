@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Base State/Enemy/Attacking")]
@@ -7,15 +8,8 @@ public class AttackingState : EnemyState
     public override void EnterState()
     {
         Debug.Log("Entering Attacking State");
-
-        // For debugging purposes only.
-        StateContext.Material.SetColor("_BaseColor", Color.magenta);
-
         StateContext.Animator.SetBool("Is Attacking", true);
-        if (StateContext.TargetTransform.root.TryGetComponent(out AbstractHealth targetHealth))
-        {
-            targetHealth.CmdDamage(StateContext.AttackStats.AttackDamage);
-        }
+        StateContext.MonoBehaviour.StartCoroutine(Attack());
     }
 
     public override void ExitState() 
@@ -28,4 +22,18 @@ public class AttackingState : EnemyState
     public override void OnTriggerExit(Collider otherCollider) { }
     public override void OnTriggerStay(Collider otherCollider) { }
     public override void UpdateState() { }
+
+    /// <summary>
+    /// Waits an amount of time given by AttackDelay for the animation to wind up, then deals damage to the player.
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator Attack()
+    {
+        yield return new WaitForSeconds(StateContext.AttackDelay);
+        // TODO: Check if the target is still in range after the wind-up
+        if (StateContext.TargetTransform.root.TryGetComponent(out AbstractHealth targetHealth))
+        {
+            targetHealth.CmdDamage(StateContext.AttackStats.AttackDamage);
+        }
+    }
 }
