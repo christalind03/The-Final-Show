@@ -40,7 +40,5 @@ public class GameplayContext
     {
         scriptsCollected++;
         lifetimeScriptsCollected++;
-        Debug.Log("Current Scripts: " + scriptsCollected);
-        Debug.Log("Lifetime Scripts: " + lifetimeScriptsCollected);
     }
 }
