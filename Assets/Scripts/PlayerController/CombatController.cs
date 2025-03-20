@@ -92,8 +92,14 @@ public class CombatController : NetworkBehaviour
                 {
                     Debug.Log("Normal Attack. Damage: " + finalDamage);
                 }
-
-                healthComponent.CmdDamage(finalDamage);
+                if (healthComponent is EnemyHealth enemyHealth)
+                {
+                    enemyHealth.CmdDamageSource(finalDamage, netId);
+                }
+                else
+                {
+                    healthComponent.CmdDamage(finalDamage);
+                }
             }
         }
     }
@@ -142,6 +148,7 @@ public class CombatController : NetworkBehaviour
       
         projectileComponent.AttackDamage = finalDamage;
         projectileComponent.AttackLayers = rangedWeapon.AttackLayers;
+        projectileComponent.SourceId = netId;
         projectileComponent.transform.LookAt(finalPosition);
 
         Vector3 targetDirection = (finalPosition - initialPosition).normalized;
