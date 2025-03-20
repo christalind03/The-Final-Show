@@ -1,4 +1,5 @@
 using System;
+using Mirror;
 using UnityEngine;
 
 public class GameplayManager : StateManager<GameplayManager.State, GameplayState, GameplayContext>
@@ -55,10 +56,18 @@ public class GameplayManager : StateManager<GameplayManager.State, GameplayState
     public void CollectScript()
     {
         StateContext.CollectScript();
+        ScriptManagement scriptManager = NetworkManager.FindObjectOfType<ScriptManagement>();
+        scriptManager.currentScript = StateContext.scriptsCollected;
+        scriptManager.UpdateMessage();
     }
 
     public string GetTheme()
     {
         return StateContext.GameplayTheme.Theme;
+    }
+
+    public int GetScriptsNeeded()
+    {
+        return StateContext.scriptsNeeded;
     }
 }
