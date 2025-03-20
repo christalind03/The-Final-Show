@@ -11,7 +11,8 @@ public class ScriptManagement : NetworkBehaviour
     public override void OnStartServer()
     {
         base.OnStartServer();
-        scriptsNeeded = NetworkManager.FindObjectOfType<GameplayManager>().GetScriptsNeeded();
+        GameplayManager manager = NetworkManager.FindObjectOfType<GameplayManager>();
+        scriptsNeeded = manager.GetScriptsNeeded();
     }
 
     /// <summary>

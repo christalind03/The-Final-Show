@@ -18,8 +18,9 @@ public class PlayerInterface : NetworkBehaviour
     /// <summary>
     /// Initializes the root UI element and the visibility of certain UI elements.
     /// </summary>
-    public override void OnStartAuthority()
+    public override void OnStartLocalPlayer()
     {
+        base.OnStartLocalPlayer();
         UIDocument uiDocument = gameObject.GetComponent<UIDocument>();
 
         if (uiDocument.visualTreeAsset.name != "PlayerUI")
@@ -47,13 +48,13 @@ public class PlayerInterface : NetworkBehaviour
                 if (UnityUtils.ContainsElement(_rootVisualElement, "Script-Counter", out TextElement scriptCounter))
                 {
                     scriptCounter.visible = true;
-                    FindObjectOfType<ScriptManagement>().UpdateMessage();
+                    ScriptManagement scriptManager = NetworkManager.FindObjectOfType<ScriptManagement>();
+                    scriptManager.UpdateMessage();
                 }
                 break;
             default:
                 break;
         }
-        base.OnStartAuthority();
     }
 
     /// <summary>
@@ -273,9 +274,10 @@ public class PlayerInterface : NetworkBehaviour
     /// Updates the UI displaying the script collection task
     /// </summary>
     /// <param name="info"></param>
-    [TargetRpc]
+    [ClientRpc]
     public void RpcRefreshScriptCount(string info)
     {
+        if(!isOwned) return;
         if (UnityUtils.ContainsElement(_rootVisualElement, "Script-Counter", out TextElement scriptCounter))
         {
             scriptCounter.text = info;
