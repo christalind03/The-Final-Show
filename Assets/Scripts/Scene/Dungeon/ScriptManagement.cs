@@ -2,7 +2,7 @@ using Mirror;
 
 public class ScriptManagement : NetworkBehaviour
 {
-    [SyncVar] private int scriptsNeeded;
+    [SyncVar] public int scriptsNeeded;
     [SyncVar] public int currentScript;
     
     /// <summary>
