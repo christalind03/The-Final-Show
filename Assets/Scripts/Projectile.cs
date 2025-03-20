@@ -7,6 +7,7 @@ public class Projectile : NetworkBehaviour
     public float AttackDamage;
     public LayerMask AttackLayers;
     public LayerMask IgnoreLayers;
+    public uint SourceId;
 
     /// <summary>
     /// Handles collision events for the object.
@@ -21,7 +22,14 @@ public class Projectile : NetworkBehaviour
 
             if (UnityUtils.ContainsLayer(AttackLayers, collisionObject.layer) && collisionObject.TryGetComponent(out AbstractHealth healthComponent))
             {
-                healthComponent.CmdDamage(AttackDamage);
+                if (healthComponent is EnemyHealth enemyHealth)
+                {
+                    enemyHealth.CmdDamageSource(AttackDamage, SourceId);
+                }
+                else
+                {
+                    healthComponent.CmdDamage(AttackDamage);
+                }
             }
 
             if (!UnityUtils.ContainsLayer(IgnoreLayers, collisionObject.layer))
