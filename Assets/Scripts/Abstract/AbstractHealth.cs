@@ -43,7 +43,7 @@ public abstract class AbstractHealth : NetworkBehaviour
     public float CurrentValue
     {
         get => _currentValue;
-        private set
+        protected set
         {
             _currentValue = Mathf.Clamp(value, 0f, BaseValue);
         }

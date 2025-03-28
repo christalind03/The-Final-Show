@@ -16,6 +16,17 @@ public class InteractableInventoryItem : NetworkBehaviour, IInteractable
     private Mesh _initialMesh;
     private Material[] _initialMaterials;
 
+    [Tooltip("Drop settings")]
+    [SerializeField] private float _rotationSpeed = 10f;
+    [SerializeField] private float _dropSpeed = 1f;
+
+    [Tooltip("The angle measured in degress upwards from the horizontal")]
+    [Range(0f, 90f)]
+    [SerializeField] private float _dropAngle = 45f;
+
+    private Rigidbody rb;
+    private bool dropped = false;
+
     /// <summary>
     /// Sets the object's visual representation based on the assigned inventory item.
     /// </summary>
@@ -48,6 +59,7 @@ public class InteractableInventoryItem : NetworkBehaviour, IInteractable
     /// <param name="playerObject">The player interacting with the object</param>
     public void Interact(GameObject playerObject)
     {
+        dropped = false;
         if (playerObject.TryGetComponent(out PlayerInventory playerInventory))
         {
             if (playerInventory.AddItem(InventoryItem))
@@ -82,5 +94,25 @@ public class InteractableInventoryItem : NetworkBehaviour, IInteractable
     {
         _skinnedMeshRenderer.sharedMesh = _initialMesh;
         _skinnedMeshRenderer.materials = _initialMaterials;
+    }
+
+    /// <summary>
+    /// Creates drop physics when a player drops an item
+    /// </summary>
+    public void Drop(Transform player)
+    {
+        rb = GetComponent<Rigidbody>();
+        dropped = true;
+        Vector3 launchDir = Quaternion.AngleAxis(_dropAngle, -player.right) * player.forward;
+        rb.AddForce(_dropSpeed * launchDir, ForceMode.VelocityChange);
+    }
+
+    /// <summary>
+    /// Creates the spinning effect after an item is dropped
+    /// </summary>
+    private void FixedUpdate()
+    {
+        if (!dropped) return;
+        transform.Rotate(0, Time.deltaTime * _rotationSpeed, 0);
     }
 }
