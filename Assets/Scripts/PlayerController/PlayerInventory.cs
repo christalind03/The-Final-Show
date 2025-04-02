@@ -123,7 +123,7 @@ public class PlayerInventory : NetworkBehaviour
     /// This function sets up inventory slot restrictions, sorts inventory keys, retrieves
     /// references to player components, and sets the initial active inventory slot.
     /// </summary>
-    public override void OnStartAuthority()
+    public override void OnStartLocalPlayer()
     {
         // Define inventory slot restrictions
         _inventoryRestrictions = new Dictionary<string, InventoryRestriction>
@@ -147,7 +147,7 @@ public class PlayerInventory : NetworkBehaviour
         _currentSlot = "Slot-1";
         SelectSlot(_currentSlot);
 
-        base.OnStartAuthority();
+        base.OnStartLocalPlayer();
     }
 
     /// <summary>

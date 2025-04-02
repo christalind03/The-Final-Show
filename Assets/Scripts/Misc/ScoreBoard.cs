@@ -184,7 +184,6 @@ public class ScoreBoard : NetworkBehaviour
     /// <param name="netid">player netidentity used as key</param>
     /// <param name="k">amount of kill(s) to update by</param>
     /// <param name="mode">1 = add, 2 = set, 3 = remove, 0 = reset</param>
-    /// <returns>returns true is success, false otherwise</returns>
     [Command(requiresAuthority = false)]
     public void CmdUpdateKillData(uint netid, int k, int mode)
     {
@@ -206,9 +205,7 @@ public class ScoreBoard : NetworkBehaviour
                     break;
             }
             PlayerKDA[netid] = data;
-            // return true;
         }
-        // return false;
     }
 
     /// <summary>
@@ -217,7 +214,6 @@ public class ScoreBoard : NetworkBehaviour
     /// <param name="netid">player netidentity used as key</param>
     /// <param name="d">amount of death(s) to update by</param>
     /// <param name="mode">1 = add, 2 = set, 3 = remove, 0 = reset</param>
-    /// <returns>returns true is success, false otherwise</returns>
     [Command(requiresAuthority = false)]
     public void CmdUpdateDeathData(uint netid, int d, int mode)
     {
@@ -248,7 +244,6 @@ public class ScoreBoard : NetworkBehaviour
     /// <param name="netid">player netidentity used as key</param>
     /// <param name="a">amount of assist(s) to update by</param>
     /// <param name="mode">1 = add, 2 = set, 3 = remove, 0 = reset</param>
-    /// <returns>returns true is success, false otherwise</returns>
     [Command(requiresAuthority = false)]
     public void CmdUpdateAssistData(uint netid, int a, int mode)
     {
