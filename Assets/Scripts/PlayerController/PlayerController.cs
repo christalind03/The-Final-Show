@@ -457,13 +457,12 @@ public class PlayerController : NetworkBehaviour
     /// <summary>
     /// When the client no longer has authority over this object, ensure the cursor is visible and disables the controls.
     /// </summary>
-    public override void OnStopClient()
+    private void OnDisable() 
     {
         if (!isLocalPlayer) { return; }
 
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
-
         DisableControls();
     }
 

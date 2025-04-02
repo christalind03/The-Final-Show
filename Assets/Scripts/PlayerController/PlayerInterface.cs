@@ -1,8 +1,8 @@
 using Mirror;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 /// <summary>
@@ -18,8 +18,9 @@ public class PlayerInterface : NetworkBehaviour
     /// <summary>
     /// Initializes the root UI element and the visibility of certain UI elements.
     /// </summary>
-    public override void OnStartAuthority()
+    public override void OnStartLocalPlayer()
     {
+        base.OnStartLocalPlayer();
         UIDocument uiDocument = gameObject.GetComponent<UIDocument>();
 
         if (uiDocument.visualTreeAsset.name != "PlayerUI")
@@ -28,7 +29,32 @@ public class PlayerInterface : NetworkBehaviour
         }
 
         _rootVisualElement = uiDocument.rootVisualElement;
-        base.OnStartAuthority();
+
+        switch (SceneManager.GetActiveScene().name)
+        {
+            case "Gameplay-Preparation":
+                if (UnityUtils.ContainsElement(_rootVisualElement, "RoundTheme", out VisualElement themeContainer))
+                {
+                    themeContainer.visible = true;
+                    if (themeContainer.visible == false) return;
+                    if (UnityUtils.ContainsElement(_rootVisualElement, "ThemeText", out TextElement themeText))
+                    {
+                        ThemeName themeName = NetworkManager.FindObjectOfType<ThemeName>();
+                        themeText.text = themeName.theme;
+                    }
+                }
+                break;
+            case "Gameplay-Dungeon":
+                if (UnityUtils.ContainsElement(_rootVisualElement, "Script-Counter", out TextElement scriptCounter))
+                {
+                    scriptCounter.visible = true;
+                    ScriptManagement scriptManager = NetworkManager.FindObjectOfType<ScriptManagement>();
+                    scriptManager.UpdateMessage();
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     /// <summary>
@@ -240,6 +266,21 @@ public class PlayerInterface : NetworkBehaviour
                 playerSlots[Counter].AddToClassList("hide");
             }
             Counter++;
+        }
+    }
+
+
+    /// <summary>
+    /// Updates the UI displaying the script collection task
+    /// </summary>
+    /// <param name="info"></param>
+    [ClientRpc]
+    public void RpcRefreshScriptCount(string info)
+    {
+        if(!isOwned) return;
+        if (UnityUtils.ContainsElement(_rootVisualElement, "Script-Counter", out TextElement scriptCounter))
+        {
+            scriptCounter.text = info;
         }
     }
 
