@@ -15,7 +15,7 @@ public class TestManuscript
 
         context.CollectScript();
 
-        Assert.AreEqual(1, context._scriptsCollected);
-        Assert.AreEqual(1, context._lifetimeScriptsCollected);
+        Assert.AreEqual(1, context.scriptsCollected);
+        Assert.AreEqual(1, context.lifetimeScriptsCollected);
     }
 }
