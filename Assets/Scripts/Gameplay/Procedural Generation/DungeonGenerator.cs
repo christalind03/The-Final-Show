@@ -16,10 +16,10 @@ public class DungeonGenerator : NetworkBehaviour
     [SyncVar] private int _randomSeed;
 
     [Header("Dungeon Segments")]
-    [SerializeField] private GameObject[] _entrancePrefabs;
-    [SerializeField] private GameObject[] _exitPrefabs;
-    [SerializeField] private GameObject[] _hallwayPrefabs;
-    [SerializeField] private GameObject[] _roomPrefabs;
+    private GameObject[] _entrancePrefabs;
+    private GameObject[] _exitPrefabs;
+    private GameObject[] _hallwayPrefabs;
+    private GameObject[] _roomPrefabs;
 
     [Header("Dungeon Size")]
     [Tooltip("The size of the dungeon is inclusive to the entrance and exit rooms.")]
@@ -352,5 +352,17 @@ public class DungeonGenerator : NetworkBehaviour
     private Bounds[] RetrieveSegmentBounds()
     {
         return _dungeonSegments.Select(dungeonSegment => dungeonSegment.RetrieveBounds()).ToArray();
+    }
+
+    /// <summary>
+    /// Reads in the list of prefabs for the current theme from GameplayTheme.cs
+    /// </summary>
+    /// <param name="theme"></param>
+    public void SetThemePrefabs(GameplayTheme theme)
+    {
+        _entrancePrefabs = theme.EntrancePrefabs;
+        _exitPrefabs = theme.ExitPrefabs;
+        _hallwayPrefabs = theme.HallwayPrefabs;
+        _roomPrefabs = theme.RoomPrefabs;
     }
 }

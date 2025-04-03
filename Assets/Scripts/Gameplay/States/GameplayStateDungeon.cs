@@ -46,7 +46,7 @@ public class GameplayStateDungeon : GameplayState
 
     /// <summary>
     /// Searches for the safe zone object within the loaded scene.
-    /// If found, then set the safe zone reference to the one found.
+    /// If found, then add prefab arrays from theme and set the safe zone reference to the one found.
     /// </summary>
     /// <param name="activeScene">The scene that was loaded</param>
     /// <param name="loadMode">The mode in which the scene was loaded</param>
@@ -58,6 +58,8 @@ public class GameplayStateDungeon : GameplayState
         {
             if (targetObject != null)
             {
+                targetObject.SetThemePrefabs(StateContext.GameplayTheme);
+
                 GameplayManager.Instance.StartCoroutine(OnDungeonGenerationComplete(targetObject));
             }
         });
