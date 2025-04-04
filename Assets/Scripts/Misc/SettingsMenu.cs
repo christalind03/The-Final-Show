@@ -165,12 +165,6 @@ public class SettingsMenu : NetworkBehaviour
         {
             CustomNetworkManager.Instance.StopClient();
         }
-
-        // Delete stuff that are on Dont destroy on load
-        Destroy(CustomNetworkManager.Instance.gameObject);
-        Destroy(ScoreBoard.Instance.gameObject);
-        Destroy(GameplayManager.Instance.gameObject);
-        Destroy(GameplayAudio.Instance.gameObject);
     }
 
     /// <summary>

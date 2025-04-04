@@ -466,6 +466,15 @@ public class PlayerController : NetworkBehaviour
         DisableControls();
     }
 
+    public override void OnStopAuthority()
+    {
+        if (!isLocalPlayer) { return; }
+
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+        DisableControls();
+    }
+
     /// <summary>
     /// Disable the PlayerControls actions and action maps when the component is disabled.
     /// </summary>

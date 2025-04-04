@@ -38,6 +38,16 @@ public class SteamLobby : MonoBehaviour
         LobbyRequest = Callback<GameLobbyJoinRequested_t>.Create(OnLobbyRequest);
 
     }
+    
+    /// <summary>
+    /// Unsub from callbacks
+    /// </summary>
+    private void OnDisable()
+    {
+        LobbyCreated?.Dispose();
+        LobbyEntered?.Dispose();
+        LobbyRequest?.Dispose();
+    }
 
     /// <summary>
     /// When a user joins the game via steam ui, this function is called to let them join the lobby
