@@ -41,6 +41,12 @@ public class GameplayStateDungeon : GameplayState
             }
         };
 
+        SteamLobby steamLobby = NetworkManager.FindObjectOfType<SteamLobby>();
+        if(NetworkClient.activeHost && steamLobby != null)
+        {
+            steamLobby.SetSceneData("Dungeon");         
+        }
+
         base.EnterState();
     }
 
