@@ -1,3 +1,4 @@
+using System.Collections;
 using Mirror;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,7 +14,13 @@ public class HostNameDisplay : NetworkBehaviour
     /// </summary>
     public override void OnStartClient()
     {
+        StartCoroutine(Display());
         base.OnStartClient();
+    }
+
+    private IEnumerator Display()
+    {
+        yield return new WaitForEndOfFrame();
 
         if (isServer)
         {
@@ -31,6 +38,5 @@ public class HostNameDisplay : NetworkBehaviour
                 _hostText.text = "STARRING " + hostName;
             }
         }
-
     }
 }

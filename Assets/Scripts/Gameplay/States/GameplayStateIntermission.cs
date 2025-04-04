@@ -24,7 +24,7 @@ public class GameplayStateIntermission : GameplayState
         SteamLobby steamLobby = NetworkManager.FindObjectOfType<SteamLobby>();
         if(NetworkClient.activeHost&& steamLobby != null)
         {
-            steamLobby.SetSceneData("Preparation");  
+            steamLobby.SetSceneData("Intermission");  
             
         }
 

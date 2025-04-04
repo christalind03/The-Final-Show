@@ -1,3 +1,4 @@
+using System.Collections;
 using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -17,6 +18,7 @@ public class UIManager : MonoBehaviour
     private Button _mainExitButton;
     private Button _joinJoinButton;
     private Button _joinBackButton;
+    private Coroutine _errorMsgDelay;
 
     /// <summary>
     /// Get the different components needed to run the script
@@ -36,29 +38,36 @@ public class UIManager : MonoBehaviour
 
         // Find and save the different views for navigating menu
         // VisualElements
-        if(UnityUtils.ContainsElement(rootVisualElement, "LobbyMenu", out VisualElement mainmenu)){
+        if (UnityUtils.ContainsElement(rootVisualElement, "LobbyMenu", out VisualElement mainmenu))
+        {
             _menuView = mainmenu;
         }
-        if(UnityUtils.ContainsElement(rootVisualElement, "LobbyJoin", out VisualElement joinmenu)){
+        if (UnityUtils.ContainsElement(rootVisualElement, "LobbyJoin", out VisualElement joinmenu))
+        {
             _joinView = joinmenu;
         }
 
         // Buttons - main menu
-        if(UnityUtils.ContainsElement(mainmenu, "hostButton", out Button mainHostBtn)){
+        if (UnityUtils.ContainsElement(mainmenu, "hostButton", out Button mainHostBtn))
+        {
             _mainHostButton = mainHostBtn;
         }
-        if(UnityUtils.ContainsElement(mainmenu, "joinButton", out Button mainJoinBtn)){
+        if (UnityUtils.ContainsElement(mainmenu, "joinButton", out Button mainJoinBtn))
+        {
             _mainJoinButton = mainJoinBtn;
         }
-        if(UnityUtils.ContainsElement(mainmenu, "exitButton", out Button mainExitBtn)){
+        if (UnityUtils.ContainsElement(mainmenu, "exitButton", out Button mainExitBtn))
+        {
             _mainExitButton = mainExitBtn;
         }
 
         // Buttons - join menu
-        if(UnityUtils.ContainsElement(_joinView, "joinButton", out Button joinJoinBtn)){
+        if (UnityUtils.ContainsElement(_joinView, "joinButton", out Button joinJoinBtn))
+        {
             _joinJoinButton = joinJoinBtn;
         }
-        if(UnityUtils.ContainsElement(_joinView, "backButton", out Button joinBackBtn)){
+        if (UnityUtils.ContainsElement(_joinView, "backButton", out Button joinBackBtn))
+        {
             _joinBackButton = joinBackBtn;
         }
     }
@@ -102,7 +111,8 @@ public class UIManager : MonoBehaviour
     /// <summary>
     /// Change from main menu screen to join screen
     /// </summary>
-    private void JoinScreen(){
+    private void JoinScreen()
+    {
         SwitchUI(_menuView, _joinView);
     }
 
@@ -113,7 +123,8 @@ public class UIManager : MonoBehaviour
     {
         TextField idField = new TextField("");
         // Get the id field from the current screen and save the value
-        if(UnityUtils.ContainsElement(_joinView, "id", out TextField id)){
+        if (UnityUtils.ContainsElement(_joinView, "id", out TextField id))
+        {
             idField = id;
         }
 
@@ -126,6 +137,21 @@ public class UIManager : MonoBehaviour
     public void invalidLobby()
     {
         JoinScreen();
+    }
+
+    public void invalidLobbyText(string ErrorText)
+    {
+        if (UnityUtils.ContainsElement(rootVisualElement, "Warning", out VisualElement ErrorMsgContainer))
+        {
+            ErrorMsgContainer.visible = true;
+            if (UnityUtils.ContainsElement(ErrorMsgContainer, "InvaidLobbyText", out TextElement ErrorMsg))
+            {
+                ErrorMsg.text = ErrorText;
+            }
+
+            if (_errorMsgDelay != null) {StopCoroutine(_errorMsgDelay);}
+            _errorMsgDelay = StartCoroutine(HideErrorAfterDelay(ErrorMsgContainer, 3.0f));
+        }
     }
 
     /// <summary>
@@ -148,5 +174,17 @@ public class UIManager : MonoBehaviour
             newScreen.AddToClassList("show");
             newScreen.SetEnabled(true);
         }
+    }
+
+    /// <summary>
+    /// Starts a delay to track when the disable the error message container
+    /// </summary>
+    /// <param name="element">the error message visual element</param>
+    /// <param name="delay">amount of wait by</param>
+    /// <returns></returns>
+    private IEnumerator HideErrorAfterDelay(VisualElement element, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        element.visible = false;
     }
 }

@@ -10,7 +10,7 @@ public class GameplayStateDefeat : GameplayState
         SteamLobby steamLobby = NetworkManager.FindObjectOfType<SteamLobby>();
         if(NetworkClient.activeHost && steamLobby != null)
         {
-            steamLobby.SetSceneData("Boss");         
+            steamLobby.SetSceneData("Defeat");         
         }
         base.EnterState();
     }

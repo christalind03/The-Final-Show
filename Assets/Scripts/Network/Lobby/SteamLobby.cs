@@ -81,12 +81,14 @@ public class SteamLobby : MonoBehaviour
             if (string.IsNullOrWhiteSpace(SteamMatchmaking.GetLobbyData(new CSteamID(callback.m_ulSteamIDLobby), HostAddressKey)))
             {
                 uIManagar.invalidLobby();
+                uIManagar.invalidLobbyText("Invalid Lobby Id!");
                 return;
             }
 
             if (SteamMatchmaking.GetLobbyData(new CSteamID(callback.m_ulSteamIDLobby), "Scene") != "Intermission")
             {
                 uIManagar.invalidLobby();
+                uIManagar.invalidLobbyText("Lobby already started!");
                 return;
             }
 
@@ -161,6 +163,7 @@ public class SteamLobby : MonoBehaviour
         else
         {
             uIManagar.invalidLobby();
+            uIManagar.invalidLobbyText("Invalid Lobby Id!");
         }
     }
 
