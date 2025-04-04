@@ -10,7 +10,7 @@ public class HostNameDisplay : NetworkBehaviour
 
 
     /// <summary>
-    /// Displays the host name on the "Starring" text in intermission
+    /// Starts the display function with a delay
     /// </summary>
     public override void OnStartClient()
     {
@@ -18,6 +18,10 @@ public class HostNameDisplay : NetworkBehaviour
         base.OnStartClient();
     }
 
+    /// <summary>
+    /// Displays the host name on the "Starring" text in intermission
+    /// </summary>
+    /// <returns></returns>
     private IEnumerator Display()
     {
         yield return new WaitForEndOfFrame();

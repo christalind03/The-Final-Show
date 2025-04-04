@@ -98,7 +98,7 @@ public class PlayerController : NetworkBehaviour
         _animatorMovementX = Animator.StringToHash("Movement X");
         _animatorMovementZ = Animator.StringToHash("Movement Z");
 
-        if (!Application.isEditor && SteamManager.Initialized)
+        if (!Application.isEditor || SteamManager.Initialized)
         {
             playerName = SteamFriends.GetPersonaName();
             gameObject.name = playerName;
