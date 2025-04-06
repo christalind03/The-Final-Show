@@ -147,11 +147,15 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
                 // and can attack, Attack
                 else if (CurrentState.StateKey.Equals(EEnemyState.Aiming) && _canAttack)
                 {
-                    TransitionToState(EEnemyState.Attacking);
-                    _canAttack = false;
-                    _isAttacking = true;
-                    StartCoroutine(AttackCooldown());
-                    StartCoroutine(AttackAnimationCooldown());
+                    // don't attack until we are facing the target
+                    if (Vector3.Angle(transform.forward, _targetTransform.position - transform.position) < 10f) // choose an arbitrary angle to count as "facing"
+                    {
+                        TransitionToState(EEnemyState.Attacking);
+                        _canAttack = false;
+                        _isAttacking = true;
+                        StartCoroutine(AttackCooldown());
+                        StartCoroutine(AttackAnimationCooldown());
+                    }
                 }
             }
             // If Attacking and the animation is completed, start Aiming
@@ -176,6 +180,19 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
                 //TransitionToState(EEnemyState.Idle);
                 TransitionToState(_defaultState);
             }
+        }
+    }
+
+    /// <summary>
+    /// Called by another script to target the player with the given netId if the enemy doesn't have one
+    /// </summary>
+    public void ExternalAggro(uint netId)
+    {
+        if (!_hasTarget)
+        {
+            _hasTarget = true;
+            _targetTransform = NetworkServer.spawned[netId].gameObject.transform;
+            StateContext.TargetTransform = _targetTransform;
         }
     }
 

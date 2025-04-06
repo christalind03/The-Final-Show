@@ -18,6 +18,13 @@ public class EnemyHealth : AbstractHealth
 
     private List<uint> _sourceNetids = new List<uint>();
     private uint _latestSource;
+    private EnemyStateMachine _enemyController;
+
+    protected override void Start()
+    {
+        base.Start();
+        _enemyController = GetComponent<EnemyStateMachine>();
+    }
 
     /// <summary>
     /// Called when <see cref="_baseValue"/> changes.
@@ -68,7 +75,8 @@ public class EnemyHealth : AbstractHealth
         }
         _latestSource = sourceId;
         if (CurrentValue <= 0f) { TriggerDeath(); }
-        // TODO: If the enemy has no target, make it aggro on the player who did damage
+        // If the enemy has no target, make it aggro on the player who did damage
+        _enemyController.ExternalAggro(sourceId);
     }
 
     /// <summary>
