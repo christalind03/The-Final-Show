@@ -4,39 +4,56 @@ using UnityEngine.Timeline;
 using UnityEngine.UIElements;
 
 public class UITesting : MonoBehaviour
-{   
+{
     [SerializeField] private UIDocument uIDocument;
     [SerializeField] private PlayableDirector sceneAnim;
-    [SerializeField] private TimelineAsset exitAnim;
-    [SerializeField] private TimelineAsset enterAnim;
-    VisualElement transition;
-    void Start() {
-        if(UnityUtils.ContainsElement(uIDocument.rootVisualElement, "Transition-Container", out VisualElement output)){
-            transition = output;
+    [SerializeField] private TimelineAsset testAnim;
+    private VisualElement _menuView;
+    private VisualElement _joinView;
+
+    void Start()
+    {
+        VisualElement rootVisualElement = uIDocument.rootVisualElement;
+        if (UnityUtils.ContainsElement(rootVisualElement, "LobbyMenu", out VisualElement mainmenu))
+        {
+            _menuView = mainmenu;
         }
-        sceneAnim.stopped += OnAnimationFinished;
+        if (UnityUtils.ContainsElement(rootVisualElement, "LobbyJoin", out VisualElement joinmenu))
+        {
+            _joinView = joinmenu;
+        }
     }
 
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Q)) {
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            SwitchUI(_menuView, _joinView);
+        }
+        if (Input.GetKeyDown(KeyCode.E))
+        {
             ExitAnim();
         }
-        if(Input.GetKeyDown(KeyCode.E)) {
-            EnterAnim();
+    }
+    public void ExitAnim()
+    {
+        sceneAnim.playableAsset = testAnim;
+        sceneAnim.Play();
+    }
+    private void SwitchUI(VisualElement curScreen, VisualElement newScreen)
+    {
+        if (curScreen != null)
+        {
+            curScreen.RemoveFromClassList("show");
+            curScreen.AddToClassList("hide");
+            curScreen.SetEnabled(false);
         }
-    }
-    public void ExitAnim() {
-        sceneAnim.playableAsset = exitAnim;
-        transition.visible = true;
-        sceneAnim.Play();   
-    }
-    public void EnterAnim() {
-        sceneAnim.playableAsset = enterAnim;
-        transition.visible = true;
-        sceneAnim.Play();   
-    }
-    private void OnAnimationFinished(PlayableDirector director){
-        transition.visible = false;
+
+        if (newScreen != null)
+        {
+            newScreen.RemoveFromClassList("hide");
+            newScreen.AddToClassList("show");
+            newScreen.SetEnabled(true);
+        }
     }
 }

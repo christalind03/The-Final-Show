@@ -47,6 +47,15 @@ public class CustomNetworkManager : NetworkManager
         // Unregister handlers for custom network messages for every client that disconnects
         NetworkClient.UnregisterHandler<CountdownMessage>();
         NetworkClient.UnregisterHandler<SpectateMessage>();
+
+        // Delete stuff that are on Dont destroy on load
+        if (NetworkClient.activeHost)
+        {
+            Destroy(GameplayManager.Instance.gameObject);
+        }
+        Destroy(ScoreBoard.Instance.gameObject);
+        Destroy(GameplayAudio.Instance.gameObject);
+        Destroy(CustomNetworkManager.Instance.gameObject);
     }
 
     /// <summary>
