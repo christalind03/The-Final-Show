@@ -1,4 +1,5 @@
 using Mirror;
+using Steamworks;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Intermission Gameplay State", menuName = "Base State/Gameplay/Intermission")]
@@ -18,6 +19,13 @@ public class GameplayStateIntermission : GameplayState
             clientHealth.TargetResetHealth(clientIdentity.connectionToClient);
             clientVisibility.RpcToggleVisbility(true);
             clientCamera.TargetPlay(clientIdentity.connectionToClient);
+        }
+
+        SteamLobby steamLobby = NetworkManager.FindObjectOfType<SteamLobby>();
+        if(NetworkClient.activeHost&& steamLobby != null)
+        {
+            steamLobby.SetSceneData("Intermission");  
+            
         }
 
         base.EnterState();

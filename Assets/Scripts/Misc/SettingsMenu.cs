@@ -38,7 +38,6 @@ public class SettingsMenu : NetworkBehaviour
 
 
     // Misc
-    private SteamLobby steamLobby;
     PlayerController controller;
     [SerializeField] private AudioMixer mixer;
 
@@ -69,7 +68,6 @@ public class SettingsMenu : NetworkBehaviour
     private void Setup()
     {
         // Set lobby id
-        steamLobby = NetworkManager.FindObjectOfType<SteamLobby>();
         string lobbyId = NetworkManager.FindObjectOfType<CustomNetworkManager>().LobbyId;
 
         // UI variable
@@ -167,12 +165,6 @@ public class SettingsMenu : NetworkBehaviour
         {
             CustomNetworkManager.Instance.StopClient();
         }
-
-        // Delete stuff that are on Dont destroy on load
-        Destroy(CustomNetworkManager.Instance.gameObject);
-        Destroy(ScoreBoard.Instance.gameObject);
-        Destroy(GameplayManager.Instance.gameObject);
-        Destroy(GameplayAudio.Instance.gameObject);
     }
 
     /// <summary>
