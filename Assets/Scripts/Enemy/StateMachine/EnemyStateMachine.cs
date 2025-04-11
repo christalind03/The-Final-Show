@@ -41,6 +41,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     [SerializeField]
     [Tooltip("The amount of time to wait before dealing damage to account for the wind-up on attack animations.")]
     private float _attackAnimDelay = 0f;
+    private float _attackAngle = 10f; // choose an arbitrary angle to count as "facing" the target
 
     /// <summary>
     /// Stores the enemy's initial position and rotation for later use.
@@ -148,7 +149,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
                 else if (CurrentState.StateKey.Equals(EEnemyState.Aiming) && _canAttack)
                 {
                     // don't attack until we are facing the target
-                    if (Vector3.Angle(transform.forward, _targetTransform.position - transform.position) < 10f) // choose an arbitrary angle to count as "facing"
+                    if (Vector3.Angle(transform.forward, _targetTransform.position - transform.position) < _attackAngle)
                     {
                         TransitionToState(EEnemyState.Attacking);
                         _canAttack = false;
