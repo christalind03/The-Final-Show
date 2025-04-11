@@ -88,12 +88,16 @@ public class InteractableInventoryItem : NetworkBehaviour, IInteractable
 
     /// <summary>
     /// Resets the skinned mesh renderer to its initial state on all clients.
+    /// Additionally prevents the user from duplicating items from mannequins.
     /// </summary>
     [ClientRpc]
     private void RpcRemove()
     {
         _skinnedMeshRenderer.sharedMesh = _initialMesh;
         _skinnedMeshRenderer.materials = _initialMaterials;
+        
+        Destroy(this);
+        Destroy(transform.GetChild(0).gameObject); // Delete the InteractableUI
     }
 
     /// <summary>
