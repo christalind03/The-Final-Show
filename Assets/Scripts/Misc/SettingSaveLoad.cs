@@ -26,7 +26,7 @@ public class SettingSaveLoad : NetworkBehaviour
     /// <summary>
     /// Saves the player setting once player leave the game 
     /// </summary>
-    public override void OnStopClient()
+    private void OnDisable()
     {
         if (!isLocalPlayer) return;
         SaveSetting("Screen Setting", settingsMenu.dropdownElements["ScreenSetting"].index);
