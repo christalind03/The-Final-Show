@@ -193,6 +193,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 677778714222790998}
+  - component: {fileID: 3924188323497844717}
   m_Layer: 0
   m_Name: Fantasy_Defeat_Room
   m_TagString: Untagged
@@ -220,6 +221,23 @@ Transform:
   - {fileID: 2543242239572982355}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3924188323497844717
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 708539300786485945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneId: 0
+  _assetId: 3626334840
+  serverOnly: 0
+  visibility: 0
+  hasSpawned: 0
 --- !u!1 &994584392878463440
 GameObject:
   m_ObjectHideFlags: 0
@@ -1395,7 +1413,6 @@ GameObject:
   - component: {fileID: 6385979339324596488}
   - component: {fileID: 389232382768669845}
   - component: {fileID: 1317577202323943260}
-  - component: {fileID: 2871231162330666021}
   - component: {fileID: 5735014270719756985}
   m_Layer: 0
   m_Name: Cube
@@ -1490,23 +1507,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2871231162330666021
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5068205913203591589}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sceneId: 0
-  _assetId: 3626334840
-  serverOnly: 1
-  visibility: 0
-  hasSpawned: 0
 --- !u!114 &5735014270719756985
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -80,6 +80,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 456967791793558804}
+  - component: {fileID: -5698363777892114573}
   m_Layer: 0
   m_Name: WildWest_Defeat_Room
   m_TagString: Untagged
@@ -108,6 +109,23 @@ Transform:
   - {fileID: 277399711763512672}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-5698363777892114573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1648158959644324785}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneId: 0
+  _assetId: 2800050340
+  serverOnly: 0
+  visibility: 0
+  hasSpawned: 0
 --- !u!1 &1997991088941178139
 GameObject:
   m_ObjectHideFlags: 0
@@ -2523,7 +2541,6 @@ GameObject:
   - component: {fileID: 3564453674089585158}
   - component: {fileID: 5604539808427149424}
   - component: {fileID: 8103697781047330832}
-  - component: {fileID: 2402842884597843212}
   - component: {fileID: 3116633607694761648}
   m_Layer: 8
   m_Name: Cube
@@ -2618,23 +2635,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2402842884597843212
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7645028067842835814}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sceneId: 0
-  _assetId: 2800050340
-  serverOnly: 1
-  visibility: 0
-  hasSpawned: 0
 --- !u!114 &3116633607694761648
 MonoBehaviour:
   m_ObjectHideFlags: 0

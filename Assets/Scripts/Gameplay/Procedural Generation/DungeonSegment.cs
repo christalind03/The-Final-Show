@@ -77,4 +77,10 @@ public class DungeonSegment : MonoBehaviour
     {
         return _collisionDetectors;
     }
+
+    public List<DungeonEntrance> GetEntrances()
+    {
+        return _dungeonEntrances;
+    }
+
 }

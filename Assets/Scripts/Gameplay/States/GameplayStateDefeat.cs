@@ -13,6 +13,11 @@ public class GameplayStateDefeat : GameplayState
             steamLobby.SetSceneData("Defeat");         
         }
         base.EnterState();
+
+        //Spawns in the map for the correct theme
+        GameplayTheme theme = StateContext.GameplayTheme;
+        GameObject defeatRoom = Instantiate(theme.DefeatRoomPrefab, Vector3.zero, Quaternion.identity);
+        NetworkServer.Spawn(defeatRoom);
     }
 
     public override void ExitState()

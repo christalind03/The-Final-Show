@@ -1,5 +1,6 @@
 using Mirror;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.AI.Navigation;
@@ -41,7 +42,6 @@ public class DungeonGenerator : NetworkBehaviour
 
     private List<DungeonSegment> _connectableSegments;
     private List<DungeonSegment> _dungeonSegments;
-
     /// <summary>
     /// Ensures the dungeon generation parameters are valid when the inspector values change.
     /// </summary>
@@ -72,10 +72,11 @@ public class DungeonGenerator : NetworkBehaviour
         _connectableSegments = new List<DungeonSegment>();
         _dungeonSegments = new List<DungeonSegment>();
 
-        GenerateDungeon();
-        gameObject.GetComponent<NavMeshSurface>().BuildNavMesh();
+        //GenerateDungeon();
+        //gameObject.GetComponent<NavMeshSurface>().BuildNavMesh();
 
-        IsGenerated = true;
+        //IsGenerated = true;
+        StartCoroutine(WaitAndGenerate());
     }
 
     /// <summary>
@@ -158,6 +159,7 @@ public class DungeonGenerator : NetworkBehaviour
             _connectableSegments.Add(entranceSegment);
             _dungeonSegments.Add(entranceSegment);
         }
+       
     }
 
     /// <summary>
@@ -364,5 +366,31 @@ public class DungeonGenerator : NetworkBehaviour
         _exitPrefabs = theme.ExitPrefabs;
         _hallwayPrefabs = theme.HallwayPrefabs;
         _roomPrefabs = theme.RoomPrefabs;
+
     }
+    /// <summary>
+    /// Waits until all the required dungeon prefabs have been assigned
+    /// then generates the dungeon layout and builds the navigation mesh
+    /// Makes sure the dungeon generation doesnt happen before the theme is applied
+    /// </summary>
+    private IEnumerator WaitAndGenerate()
+    {
+        int timeout = 100;
+        while ((_entrancePrefabs == null || _entrancePrefabs.Length == 0) && timeout > 0)
+        {
+            yield return null;
+            timeout--;
+        }
+
+        if (timeout <= 0)
+        {
+            Debug.LogError("[DungeonGenerator] Timed out waiting for prefabs. Dungeon generation skipped.");
+            yield break;
+        }
+
+        GenerateDungeon();
+        gameObject.GetComponent<NavMeshSurface>().BuildNavMesh();
+        IsGenerated = true;
+    }
+
 }

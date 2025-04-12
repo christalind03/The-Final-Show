@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4310314958827801042}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Grass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -102,7 +102,7 @@ GameObject:
   - component: {fileID: 212378882928892999}
   - component: {fileID: 3845334029998642146}
   - component: {fileID: 1349296088147470120}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Fence (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -152,7 +152,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -4770390735465466038, guid: 0468fc3a149aec9469c13e585f8cb44b, type: 3}
+  - {fileID: 2100000, guid: 415bf606d8e543942b0170839a37b305, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -185,7 +185,7 @@ GameObject:
   - component: {fileID: 189732125409903757}
   - component: {fileID: 3822935725666896680}
   - component: {fileID: 1362686884011474914}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Grass_Common_Short (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -268,7 +268,7 @@ GameObject:
   - component: {fileID: -8679921383154817045}
   - component: {fileID: -5754084199372789682}
   - component: {fileID: -7511558181221131132}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Well
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -355,7 +355,7 @@ GameObject:
   - component: {fileID: 1809082618503323816}
   - component: {fileID: 3365592565196156685}
   - component: {fileID: 671049344558209991}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Grass_Common_Tall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -436,7 +436,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7439423933946547688}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CornerFence (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -474,7 +474,7 @@ GameObject:
   - component: {fileID: 7085590722365584573}
   - component: {fileID: 5007075931183477051}
   - component: {fileID: 3107328587702221217}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Wall_Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3600,7 +3600,7 @@ GameObject:
   - component: {fileID: 2210296163124357336}
   - component: {fileID: 2955301657398781821}
   - component: {fileID: 1074003486283158455}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Fence
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3650,7 +3650,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -4770390735465466038, guid: 0468fc3a149aec9469c13e585f8cb44b, type: 3}
+  - {fileID: 2100000, guid: 415bf606d8e543942b0170839a37b305, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3682,6 +3682,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7598005439084465570}
   - component: {fileID: 571066563951975158}
+  - component: {fileID: 425183187699032428}
   m_Layer: 0
   m_Name: WildWest_Entrance
   m_TagString: Untagged
@@ -3728,6 +3729,23 @@ MonoBehaviour:
   - {fileID: 4914380084558020026}
   _collisionDetectors:
   - {fileID: 514939627090916845}
+--- !u!114 &425183187699032428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1794746067759193405}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneId: 0
+  _assetId: 3034232827
+  serverOnly: 0
+  visibility: 0
+  hasSpawned: 0
 --- !u!1 &2097869587948748082
 GameObject:
   m_ObjectHideFlags: 0
@@ -3739,7 +3757,7 @@ GameObject:
   - component: {fileID: 1609739908123453320}
   - component: {fileID: 2448034600261838893}
   - component: {fileID: 440751563630714087}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Grass_Wispy_Short (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3822,7 +3840,7 @@ GameObject:
   - component: {fileID: 3142853936461024483}
   - component: {fileID: 2031812369020977990}
   - component: {fileID: 4311780874328569740}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Fence (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3872,7 +3890,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -4770390735465466038, guid: 0468fc3a149aec9469c13e585f8cb44b, type: 3}
+  - {fileID: 2100000, guid: 415bf606d8e543942b0170839a37b305, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3993,7 +4011,7 @@ GameObject:
   - component: {fileID: 6248023514641577268}
   - component: {fileID: 6197170359938417446}
   - component: {fileID: 4719653425035237574}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cactus_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4075,7 +4093,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8853712041083080002}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CornerFence (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4110,7 +4128,7 @@ GameObject:
   - component: {fileID: 3444513919066627013}
   - component: {fileID: 1757112754593191008}
   - component: {fileID: 4577473565053755562}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Grass_Wispy_Tall (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4238,7 +4256,7 @@ GameObject:
   - component: {fileID: 4492375199195736702}
   - component: {fileID: 718259150996973019}
   - component: {fileID: 3320054170669142289}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Fence (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4288,7 +4306,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -4770390735465466038, guid: 0468fc3a149aec9469c13e585f8cb44b, type: 3}
+  - {fileID: 2100000, guid: 415bf606d8e543942b0170839a37b305, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4321,7 +4339,7 @@ GameObject:
   - component: {fileID: 3524793235217365115}
   - component: {fileID: 523912140799326174}
   - component: {fileID: 2351362898511217428}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Grass_Common_Tall (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4447,7 +4465,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4971478910337593781}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Models
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4563,7 +4581,7 @@ GameObject:
   - component: {fileID: 5556037143558908088}
   - component: {fileID: 8841931443106703133}
   - component: {fileID: 6723925391904052183}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Grass_Wispy_Short
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4644,7 +4662,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5878647395618831414}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Fencing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4724,7 +4742,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1006756855307988078}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Environment
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4760,7 +4778,7 @@ GameObject:
   - component: {fileID: 5117123141062551182}
   - component: {fileID: 8118996134488828203}
   - component: {fileID: 6289418434143395297}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Fence
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4810,7 +4828,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -4770390735465466038, guid: 0468fc3a149aec9469c13e585f8cb44b, type: 3}
+  - {fileID: 2100000, guid: 415bf606d8e543942b0170839a37b305, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4843,7 +4861,7 @@ GameObject:
   - component: {fileID: 5154239466829983883}
   - component: {fileID: 8081800695717314350}
   - component: {fileID: 6326613684096125924}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Grass_Wispy_Short
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4959,7 +4977,7 @@ GameObject:
   - component: {fileID: 4965988462719334098}
   - component: {fileID: 8306159056341301623}
   - component: {fileID: 6098314724645866941}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Grass_Common_Short
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5110,7 +5128,7 @@ GameObject:
   - component: {fileID: 7740274025245897362}
   - component: {fileID: 6684786202055933239}
   - component: {fileID: 8872609049844713981}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Grass_Common_Tall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5193,7 +5211,7 @@ GameObject:
   - component: {fileID: 7770153680978682748}
   - component: {fileID: 6663913543443852505}
   - component: {fileID: 8907571709313439763}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Grass_Common_Short (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5629,7 +5647,7 @@ GameObject:
   - component: {fileID: 8007212117136663819}
   - component: {fileID: 6390765558231296686}
   - component: {fileID: 9175090435654000228}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Fence (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5679,7 +5697,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -4770390735465466038, guid: 0468fc3a149aec9469c13e585f8cb44b, type: 3}
+  - {fileID: 2100000, guid: 415bf606d8e543942b0170839a37b305, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5712,7 +5730,7 @@ GameObject:
   - component: {fileID: 7925112827581011789}
   - component: {fileID: 6508954586623285480}
   - component: {fileID: 9056885068521565218}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Grass_Wispy_Tall (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5839,7 +5857,7 @@ GameObject:
   - component: {fileID: 6927052641518451062}
   - component: {fileID: 6308995763287127763}
   - component: {fileID: 8100561145825100313}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Fence
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5889,7 +5907,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -4770390735465466038, guid: 0468fc3a149aec9469c13e585f8cb44b, type: 3}
+  - {fileID: 2100000, guid: 415bf606d8e543942b0170839a37b305, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5922,7 +5940,7 @@ GameObject:
   - component: {fileID: 7475760980328718599}
   - component: {fileID: 5769364652906983074}
   - component: {fileID: 8643553223403625064}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Grass_Common_Short
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6003,7 +6021,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1469366520312056286}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CornerFence (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6156,7 +6174,7 @@ GameObject:
   - component: {fileID: 8812848340658599366}
   - component: {fileID: 5612150661594987107}
   - component: {fileID: 7639980748686446249}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Grass_Wispy_Tall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6239,7 +6257,7 @@ GameObject:
   - component: {fileID: 8744242794271514616}
   - component: {fileID: 5689754881458278493}
   - component: {fileID: 7571367509745296535}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Grass_Wispy_Short (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6710,7 +6728,7 @@ GameObject:
   - component: {fileID: 8701406599390340648}
   - component: {fileID: 5723583260238915981}
   - component: {fileID: 7533035566388567367}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Fence
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6760,7 +6778,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -4770390735465466038, guid: 0468fc3a149aec9469c13e585f8cb44b, type: 3}
+  - {fileID: 2100000, guid: 415bf606d8e543942b0170839a37b305, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -7308,7 +7326,7 @@ GameObject:
   - component: {fileID: 8139296219456272364}
   - component: {fileID: 5141788461070678089}
   - component: {fileID: 6971495347654823043}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Grass_Wispy_Tall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7389,7 +7407,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8991664486988488597}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CornerFence
   m_TagString: Untagged
   m_Icon: {fileID: 0}

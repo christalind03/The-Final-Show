@@ -25,7 +25,7 @@ public class GameplayContext
     }
 
     /// <summary>
-    /// Randomizes the gameplay theme by selecting one at random from te available themes.
+    /// Randomizes the gameplay theme by selecting one at random from the available themes.
     /// </summary>
     public void RandomizeTheme()
     {
