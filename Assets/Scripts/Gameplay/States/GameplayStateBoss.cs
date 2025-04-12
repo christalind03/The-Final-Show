@@ -17,6 +17,11 @@ public class GameplayStateBoss : GameplayState
     {
         Debug.Log("Entering BOSS State");
         _sceneLoaded = false;
+        SteamLobby steamLobby = NetworkManager.FindObjectOfType<SteamLobby>();
+        if(NetworkClient.activeHost && steamLobby != null)
+        {
+            steamLobby.SetSceneData("Boss");         
+        }
         base.EnterState();
     }
 
