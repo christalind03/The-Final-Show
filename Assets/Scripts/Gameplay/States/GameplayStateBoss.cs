@@ -33,9 +33,8 @@ public class GameplayStateBoss : GameplayState
     protected override void OnSceneLoaded(Scene activeScene, LoadSceneMode loadMode)
     {
         base.OnSceneLoaded(activeScene, loadMode);
-        GameplayTheme theme = StateContext.GameplayTheme;
-        GameObject room = Instantiate(theme.BossRoomPrefab, Vector3.zero, Quaternion.identity);
-        NetworkServer.Spawn(room);
+        GameObject bossRoom = Instantiate(StateContext.GameplayTheme.BossRoomPrefab, Vector3.zero, Quaternion.identity);
+        NetworkServer.Spawn(bossRoom);
         GameObject boss = Instantiate(StateContext.GameplayTheme.BossPrefab, new Vector3(0, 0, 20), Quaternion.Euler(0, 180, 0)); // Spawned at arbitrary position and rotation
         NetworkServer.Spawn(boss);
         _enemyHealth = boss.GetComponent<EnemyHealth>();

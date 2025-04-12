@@ -15,8 +15,7 @@ public class GameplayStateDefeat : GameplayState
         base.EnterState();
 
         //Spawns in the map for the correct theme
-        GameplayTheme theme = StateContext.GameplayTheme;
-        GameObject defeatRoom = Instantiate(theme.DefeatRoomPrefab, Vector3.zero, Quaternion.identity);
+        GameObject defeatRoom = Instantiate(StateContext.GameplayTheme.DefeatRoomPrefab, Vector3.zero, Quaternion.identity);
         NetworkServer.Spawn(defeatRoom);
     }
 
