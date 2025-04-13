@@ -3,6 +3,7 @@ using Mirror;
 using Cinemachine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>
 /// Controls the cameras when the player loads in to make sure the correct camera is assigned to each player
@@ -140,8 +141,20 @@ public class CameraController : NetworkBehaviour
             }
 
             RequestPlayerList();
-            PrintDictionaryDebug();
+            CmdRegisterSpectatorMessage();
         }
+    }
+
+
+    /// <summary>
+    /// Add to invalid player list once the playe goes into spectator mode
+    /// </summary>
+    [Command]
+    private void CmdRegisterSpectatorMessage()
+    {
+        GameplayManager gameplayManager = NetworkManager.FindObjectOfType<GameplayManager>();
+        GameObject playerObj = connectionToClient.identity.gameObject;
+        gameplayManager.AddInvalidPlayer(playerObj);
     }
 
     /// <summary>
@@ -249,6 +262,6 @@ public class CameraController : NetworkBehaviour
         {
             Debug.Log(data);
         }
-        Debug.Log(currentCameraPos);
+        Debug.Log("Current Camera Pos " + currentCameraPos);
     }
 }
