@@ -31,6 +31,11 @@ public class InteractableUI : AbstractBillboard
                 Interact.action.bindings[0].effectivePath,
                 InputControlPath.HumanReadableStringOptions.OmitDevice
             ));
+
+        if (_interactImage.sprite == null)
+        {
+            _interactImage.sprite = Resources.Load<Sprite>("Sprites/Keys/Symbols/Keyboard_question");
+        }
         InputSystem.onActionChange += OnActionChange;
     }
 
@@ -55,6 +60,10 @@ public class InteractableUI : AbstractBillboard
                     InputControlPath.HumanReadableStringOptions.OmitDevice
                 );
                 _interactImage.sprite = interactableSprite._keyDictionary.GetValueOrDefault(path);
+                if (_interactImage.sprite == null)
+                {
+                    _interactImage.sprite = Resources.Load<Sprite>("Sprites/Keys/Symbols/Keyboard_question");
+                }
             }
         }
     }
