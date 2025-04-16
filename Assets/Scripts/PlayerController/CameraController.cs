@@ -139,8 +139,19 @@ public class CameraController : NetworkBehaviour
                 NextBtn.clicked += OnNextClicked;
             }
 
-            RequestPlayerList();
+            RequestPlayerList(netId);
             CmdRegisterSpectatorMessage();
+        }
+    }
+
+    /// <summary>
+    /// Reset position of spectator camera.
+    /// </summary>
+    public void ResetSpectator(uint netid)
+    {
+        if (isOwned && !alive)
+        {
+            RequestPlayerList(netid);
         }
     }
 
@@ -219,7 +230,7 @@ public class CameraController : NetworkBehaviour
     /// <summary>
     /// Request the player list
     /// </summary>
-    private void RequestPlayerList()
+    private void RequestPlayerList(ulong netid)
     {
         ScoreBoard scoreboard = NetworkManager.FindObjectOfType<ScoreBoard>();
         playerName = new Dictionary<uint, string>();
@@ -239,7 +250,7 @@ public class CameraController : NetworkBehaviour
         {
             playerObj.Add(data.netId, data.gameObject);
             playerNetIds.Add(data.netId);
-            if (data.netId == netId)
+            if (data.netId == netid)
             {
                 currentCameraPos = i;
             }
