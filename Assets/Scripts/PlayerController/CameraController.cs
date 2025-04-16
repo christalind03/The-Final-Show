@@ -3,7 +3,6 @@ using Mirror;
 using Cinemachine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
-using System.Linq;
 
 /// <summary>
 /// Controls the cameras when the player loads in to make sure the correct camera is assigned to each player
@@ -90,7 +89,7 @@ public class CameraController : NetworkBehaviour
             }
 
             gameObject.GetComponent<PlayerInterface>().enabled = true;
-            gameObject.GetComponent<PlayerController>().enabled = true;
+            gameObject.GetComponent<CharacterController>().enabled = true;
 
             gameObject.layer = 6;
             currentVirtualCameraHolder.transform.Find("FollowCamera").gameObject.GetComponent<CinemachineVirtualCamera>().Priority = 0;
@@ -110,7 +109,7 @@ public class CameraController : NetworkBehaviour
             UnityEngine.Cursor.visible = true;
             UnityEngine.Cursor.lockState = CursorLockMode.None;
 
-            gameObject.GetComponent<PlayerController>().enabled = false;
+            gameObject.GetComponent<CharacterController>().enabled = false;
             gameObject.GetComponent<PlayerInterface>().enabled = false;
 
             if (UnityUtils.ContainsElement(rootVisualElement, "Primary-Container", out VisualElement primContainer))
