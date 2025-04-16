@@ -23,8 +23,21 @@ public class SettingSaveLoad : NetworkBehaviour
         settingsMenu.sliderElements["CameraSens"].value = LoadSetting("Camera Sensitivity", 3.5f);
         settingsMenu.sliderElements["MusicSlider"].value = LoadSetting("Music Volume", 1.0f);
     }
+
     /// <summary>
-    /// Saves the player setting once player leave the game 
+    /// Save setting when game is stopped 
+    /// </summary>
+    private void OnApplicationQuit()
+    {
+        if (!isLocalPlayer) return;
+        SaveSetting("Screen Setting", settingsMenu.dropdownElements["ScreenSetting"].index);
+        SaveSetting("Camera Sensitivity", settingsMenu.sliderElements["CameraSens"].value);
+        SaveSetting("Music Volume", settingsMenu.sliderElements["MusicSlider"].value);
+        SaveRebind();
+    }
+
+    /// <summary>
+    /// Saves the player setting once player switch scene the game 
     /// </summary>
     private void OnDisable()
     {
@@ -33,7 +46,6 @@ public class SettingSaveLoad : NetworkBehaviour
         SaveSetting("Camera Sensitivity", settingsMenu.sliderElements["CameraSens"].value);
         SaveSetting("Music Volume", settingsMenu.sliderElements["MusicSlider"].value);
         SaveRebind();
-        base.OnStopAuthority();
     }
 
     /// <summary>
