@@ -36,6 +36,9 @@ public class ChargeAbilityState : EnemyState
             {
                 playerHealth.CmdDamage(_chargeDamage);
             }
+            // apply an upwards velocity
+            PlayerController playerController = obj.GetComponent<PlayerController>();
+            playerController.RpcExternalUp(_launchStrength);
         }
     }
 
@@ -46,6 +49,7 @@ public class ChargeAbilityState : EnemyState
     public override void OnTriggerStay(Collider otherCollider)
     {
         // When a player stays in the trigger, move them away
+        /*
         GameObject obj = otherCollider.gameObject;
         if (obj.tag == "Player")
         {
@@ -71,6 +75,7 @@ public class ChargeAbilityState : EnemyState
                 playerController.RpcExternalMove(vect);
             }
         }
+        */
     }
     
     public override void UpdateState()

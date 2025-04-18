@@ -630,4 +630,16 @@ public class PlayerController : NetworkBehaviour
         if (!isLocalPlayer) { return; } // only move the local player
         _characterController.Move(vect);
     }
+
+    /// <summary>
+    /// Allow other GameObjects on the server to tell clients to launch their character upward
+    /// </summary>
+    /// <param name="vel">velocity to apply in the y direction</param>
+    [ClientRpc]
+    public void RpcExternalUp(float vel)
+    {
+        if (!isLocalPlayer) { return; } // only move the local player
+        //_playerVelocity.y += vel;
+        _playerVelocity = new Vector3(_playerVelocity.x, vel, _playerVelocity.z);
+    }
 }
