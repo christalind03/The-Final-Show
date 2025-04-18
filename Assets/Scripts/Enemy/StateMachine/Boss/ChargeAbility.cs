@@ -43,40 +43,7 @@ public class ChargeAbilityState : EnemyState
     }
 
     public override void OnTriggerExit(Collider otherCollider) { }
-    
-    // TODO: Currently is a little janky. A better solution would be to apply a velocity when a player enters the trigger.
-    // This would require modifying the PlayerController script.
-    public override void OnTriggerStay(Collider otherCollider)
-    {
-        // When a player stays in the trigger, move them away
-        /*
-        GameObject obj = otherCollider.gameObject;
-        if (obj.tag == "Player")
-        {
-            PlayerController playerController = obj.GetComponent<PlayerController>();
-            if (playerController)
-            {
-                Vector3 dir = obj.transform.position - StateContext.Transform.position;
-                // Get the cross product between the boss' forward vector and the vector pointing toward the player
-                // If the y-component is positive, then the player is to the boss' right
-                // If the y-component is negative, then the player is to the boss' left
-                Vector3 cross = Vector3.Cross(StateContext.Transform.forward, dir);
-                if (cross.y > 0f)
-                {
-                    // apply force to boss' right
-                    dir = (StateContext.Transform.forward + StateContext.Transform.right + Vector3.up).normalized;
-                }
-                else
-                {
-                    // apply force to boss' left
-                    dir = (StateContext.Transform.forward - StateContext.Transform.right + Vector3.up).normalized;
-                }
-                Vector3 vect = dir * Time.deltaTime * _launchStrength;
-                playerController.RpcExternalMove(vect);
-            }
-        }
-        */
-    }
+    public override void OnTriggerStay(Collider otherCollider) { }
     
     public override void UpdateState()
     {
