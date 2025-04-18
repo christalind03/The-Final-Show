@@ -61,13 +61,26 @@ public class GameplayManager : StateManager<GameplayManager.State, GameplayState
         scriptManager.UpdateMessage();
     }
 
+    /// <summary>
+    /// Get theme of the dungeon 
+    /// </summary>
+    /// <returns></returns>
     public string GetTheme()
     {
         return StateContext.GameplayTheme.Theme;
     }
 
+    /// <summary>
+    /// Get amount of scripts needed to continue to boss
+    /// </summary>
+    /// <returns></returns>
     public int GetScriptsNeeded()
     {
         return StateContext.scriptsNeeded;
+    }
+
+    public void AddInvalidPlayer(GameObject invalidPlayer)
+    {
+        StateContext.invalidPlayers.Add(invalidPlayer);
     }
 }

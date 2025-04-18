@@ -49,7 +49,7 @@ public class PlayerInterface : NetworkBehaviour
                 {
                     scriptCounter.visible = true;
                     ScriptManagement scriptManager = NetworkManager.FindObjectOfType<ScriptManagement>();
-                    scriptManager.UpdateMessage();
+                    scriptManager.FirstLoad();
                 }
                 break;
             default:
@@ -274,8 +274,21 @@ public class PlayerInterface : NetworkBehaviour
     /// Updates the UI displaying the script collection task
     /// </summary>
     /// <param name="info"></param>
-    [ClientRpc]
+    [TargetRpc]
     public void RpcRefreshScriptCount(string info)
+    {
+        if(!isOwned) return;
+        if (UnityUtils.ContainsElement(_rootVisualElement, "Script-Counter", out TextElement scriptCounter))
+        {
+            scriptCounter.text = info;
+        }
+    }
+
+    /// <summary>
+    /// Used for loading display first time, locally not using network
+    /// </summary>
+    /// <param name="info"></param>
+    public void RefreshScriptCount(string info)
     {
         if(!isOwned) return;
         if (UnityUtils.ContainsElement(_rootVisualElement, "Script-Counter", out TextElement scriptCounter))

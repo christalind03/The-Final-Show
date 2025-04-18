@@ -1,4 +1,7 @@
+using System.Collections;
 using Mirror;
+using UnityEngine;
+using UnityEngine.SocialPlatforms;
 
 public class ScriptManagement : NetworkBehaviour
 {
@@ -13,6 +16,16 @@ public class ScriptManagement : NetworkBehaviour
         base.OnStartServer();
         GameplayManager manager = NetworkManager.FindObjectOfType<GameplayManager>();
         scriptsNeeded = manager.GetScriptsNeeded();
+    }
+
+    /// <summary>
+    /// First load of script UI
+    /// </summary>
+    public void FirstLoad()
+    {
+        GameObject localPlayer = NetworkUtils.RetrieveLocalPlayer();
+        PlayerInterface playerInterface = localPlayer.GetComponent<PlayerInterface>();
+        playerInterface.RefreshScriptCount(GetInfo());
     }
 
     /// <summary>

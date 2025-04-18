@@ -89,7 +89,7 @@ public class CameraController : NetworkBehaviour
             }
 
             gameObject.GetComponent<PlayerInterface>().enabled = true;
-            gameObject.GetComponent<PlayerController>().enabled = true;
+            gameObject.GetComponent<CharacterController>().enabled = true;
 
             gameObject.layer = 6;
             currentVirtualCameraHolder.transform.Find("FollowCamera").gameObject.GetComponent<CinemachineVirtualCamera>().Priority = 0;
@@ -109,7 +109,7 @@ public class CameraController : NetworkBehaviour
             UnityEngine.Cursor.visible = true;
             UnityEngine.Cursor.lockState = CursorLockMode.None;
 
-            gameObject.GetComponent<PlayerController>().enabled = false;
+            gameObject.GetComponent<CharacterController>().enabled = false;
             gameObject.GetComponent<PlayerInterface>().enabled = false;
 
             if (UnityUtils.ContainsElement(rootVisualElement, "Primary-Container", out VisualElement primContainer))
@@ -139,9 +139,32 @@ public class CameraController : NetworkBehaviour
                 NextBtn.clicked += OnNextClicked;
             }
 
-            RequestPlayerList();
-            PrintDictionaryDebug();
+            RequestPlayerList(netId);
+            CmdRegisterSpectatorMessage();
         }
+    }
+
+    /// <summary>
+    /// Reset position of spectator camera.
+    /// </summary>
+    public void ResetSpectator(uint netid)
+    {
+        if (isOwned && !alive)
+        {
+            RequestPlayerList(netid);
+        }
+    }
+
+
+    /// <summary>
+    /// Add to invalid player list once the playe goes into spectator mode
+    /// </summary>
+    [Command]
+    private void CmdRegisterSpectatorMessage()
+    {
+        GameplayManager gameplayManager = NetworkManager.FindObjectOfType<GameplayManager>();
+        GameObject playerObj = connectionToClient.identity.gameObject;
+        gameplayManager.AddInvalidPlayer(playerObj);
     }
 
     /// <summary>
@@ -207,7 +230,7 @@ public class CameraController : NetworkBehaviour
     /// <summary>
     /// Request the player list
     /// </summary>
-    private void RequestPlayerList()
+    private void RequestPlayerList(ulong netid)
     {
         ScoreBoard scoreboard = NetworkManager.FindObjectOfType<ScoreBoard>();
         playerName = new Dictionary<uint, string>();
@@ -227,7 +250,7 @@ public class CameraController : NetworkBehaviour
         {
             playerObj.Add(data.netId, data.gameObject);
             playerNetIds.Add(data.netId);
-            if (data.netId == netId)
+            if (data.netId == netid)
             {
                 currentCameraPos = i;
             }
@@ -249,6 +272,6 @@ public class CameraController : NetworkBehaviour
         {
             Debug.Log(data);
         }
-        Debug.Log(currentCameraPos);
+        Debug.Log("Current Camera Pos " + currentCameraPos);
     }
 }

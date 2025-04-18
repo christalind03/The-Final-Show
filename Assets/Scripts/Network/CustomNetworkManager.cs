@@ -362,7 +362,7 @@ public class CustomNetworkManager : NetworkManager
 
     /// <summary>
     /// Handles spectating functionality.
-    /// Whena spectate message is received, the player is marked as
+    /// When a spectate message is received, the player is marked as
     /// not alive with their visibility is toggled off, enabling spectator mode.
     /// </summary>
     /// <param name="spectateMessage">The <see cref="SpectateMessage"/> received from the server</param>
