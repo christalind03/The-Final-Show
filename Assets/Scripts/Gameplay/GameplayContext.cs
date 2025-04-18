@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -8,6 +9,7 @@ public class GameplayContext
     public GameplayTheme GameplayTheme { get; private set; }
 
     private readonly GameplayTheme[] _gameplayThemes;
+    public List<GameObject> invalidPlayers = new List<GameObject>();
 
     public int scriptsCollected; // Stores the number of scripts collected in the current run
     public int lifetimeScriptsCollected; // Stores the total number of scripts collected across all runs

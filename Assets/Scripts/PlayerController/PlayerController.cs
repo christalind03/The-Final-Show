@@ -58,6 +58,7 @@ public class PlayerController : NetworkBehaviour
     private PlayerInterface _playerInterface;
     private SettingsMenu _settings;
     private ScoreBoard _scoreboard;
+    private CameraController _cameraController;
 
     private AudioManager _audioManager;
     private Animator _playerAnimator;
@@ -72,9 +73,9 @@ public class PlayerController : NetworkBehaviour
     public override void OnStartAuthority()
     {
         _audioManager = gameObject.GetComponent<AudioManager>();
-        CameraController cameraController = gameObject.GetComponent<CameraController>();
+        _cameraController = gameObject.GetComponent<CameraController>();
 
-        if (cameraController.alive)
+        if (_cameraController.alive)
         {
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
@@ -449,8 +450,11 @@ public class PlayerController : NetworkBehaviour
         }
         else
         {
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
+            if(_cameraController.alive)
+            {
+                Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked;
+            }
         }
     }
 

@@ -14,8 +14,8 @@ public class SettingSaveLoad : NetworkBehaviour
     /// </summary>
     public override void OnStartClient()
     {
-        if (!isLocalPlayer) return;
         base.OnStartAuthority();
+        if (!isLocalPlayer) return;
         settingsMenu = GetComponent<SettingsMenu>();
         PlayerController controller = gameObject.transform.parent.GetComponent<PlayerController>();
         LoadRebind(controller);
@@ -23,17 +23,17 @@ public class SettingSaveLoad : NetworkBehaviour
         settingsMenu.sliderElements["CameraSens"].value = LoadSetting("Camera Sensitivity", 3.5f);
         settingsMenu.sliderElements["MusicSlider"].value = LoadSetting("Music Volume", 1.0f);
     }
+
     /// <summary>
-    /// Saves the player setting once player leave the game 
+    /// Saves the player setting once player switch scene the game 
     /// </summary>
-    private void OnDisable()
+    public override void OnStopClient()
     {
-        if (!isLocalPlayer) return;
+        base.OnStopClient();
         SaveSetting("Screen Setting", settingsMenu.dropdownElements["ScreenSetting"].index);
         SaveSetting("Camera Sensitivity", settingsMenu.sliderElements["CameraSens"].value);
         SaveSetting("Music Volume", settingsMenu.sliderElements["MusicSlider"].value);
         SaveRebind();
-        base.OnStopAuthority();
     }
 
     /// <summary>

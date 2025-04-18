@@ -25,11 +25,20 @@ public class GameplayStateDungeon : GameplayState
             if (_safeZone != null && _safeZone.ContainsPlayers && StateContext.scriptsCollected >= StateContext.scriptsNeeded)
             {
                 GameplayManager.Instance.TransitionToState(GameplayManager.State.Boss);
+                List<GameObject> NotInSafeZonePlayer = NetworkUtils.RetrievePlayers().Except(_safeZone.SafePlayers).ToList();
 
-                List<GameObject> invalidPlayers = NetworkUtils.RetrievePlayers().Except(_safeZone.SafePlayers).ToList();
-
-                foreach (GameObject invalidPlayer in invalidPlayers)
+                foreach (GameObject player in NotInSafeZonePlayer)
                 {
+                    if (!StateContext.invalidPlayers.Contains(player))
+                    {
+                        StateContext.invalidPlayers.Add(player);
+                    }
+                }
+
+
+                foreach (GameObject invalidPlayer in StateContext.invalidPlayers)
+                {
+                    Debug.Log(invalidPlayer.name);
                     NetworkIdentity invalidPlayerIdentity = invalidPlayer.GetComponent<NetworkIdentity>();
 
                     invalidPlayerIdentity.connectionToClient.Send(new SpectateMessage { });
@@ -42,9 +51,9 @@ public class GameplayStateDungeon : GameplayState
         };
 
         SteamLobby steamLobby = NetworkManager.FindObjectOfType<SteamLobby>();
-        if(NetworkClient.activeHost && steamLobby != null)
+        if (NetworkClient.activeHost && steamLobby != null)
         {
-            steamLobby.SetSceneData("Dungeon");         
+            steamLobby.SetSceneData("Dungeon");
         }
 
         base.EnterState();
@@ -93,7 +102,7 @@ public class GameplayStateDungeon : GameplayState
                 _safeZone = targetObject;
             }
         });
-        
+
         if (IsTimed)
         {
             CustomNetworkManager.Instance.Countdown(

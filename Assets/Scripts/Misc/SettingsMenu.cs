@@ -133,6 +133,8 @@ public class SettingsMenu : NetworkBehaviour
         {
             sliderElements.Add("MusicSlider", musicSlider);
             musicSlider.RegisterValueChangedCallback(function => AdjustSound("Music"));
+            float volume = sliderElements["MusicSlider"].value;
+            mixer.SetFloat("Music", Mathf.Log10(volume) * 20);
         }
     }
 
