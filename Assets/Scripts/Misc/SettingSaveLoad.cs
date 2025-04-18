@@ -25,23 +25,10 @@ public class SettingSaveLoad : NetworkBehaviour
     }
 
     /// <summary>
-    /// Save setting when game is stopped 
-    /// </summary>
-    private void OnApplicationQuit()
-    {
-        if (!isLocalPlayer) return;
-        SaveSetting("Screen Setting", settingsMenu.dropdownElements["ScreenSetting"].index);
-        SaveSetting("Camera Sensitivity", settingsMenu.sliderElements["CameraSens"].value);
-        SaveSetting("Music Volume", settingsMenu.sliderElements["MusicSlider"].value);
-        SaveRebind();
-    }
-
-    /// <summary>
     /// Saves the player setting once player switch scene the game 
     /// </summary>
-    private void OnDisable()
+    public override void OnStopClient()
     {
-        if (!isLocalPlayer) return;
         SaveSetting("Screen Setting", settingsMenu.dropdownElements["ScreenSetting"].index);
         SaveSetting("Camera Sensitivity", settingsMenu.sliderElements["CameraSens"].value);
         SaveSetting("Music Volume", settingsMenu.sliderElements["MusicSlider"].value);
