@@ -389,8 +389,12 @@ public class DungeonGenerator : NetworkBehaviour
         }
 
         GenerateDungeon();
-        gameObject.GetComponent<NavMeshSurface>().BuildNavMesh();
         IsGenerated = true;
+    }
+
+    public void GenerateNavMesh()
+    {
+        gameObject.GetComponent<NavMeshSurface>().BuildNavMesh();
     }
 
 }

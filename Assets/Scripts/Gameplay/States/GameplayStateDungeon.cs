@@ -94,6 +94,7 @@ public class GameplayStateDungeon : GameplayState
         }
 
         //RelocatePlayers();
+        dungeonGenerator.GenerateNavMesh();
         dungeonGenerator.SpawnEnemies(StateContext.GameplayTheme.EnemyPrefabs);
 
         GameplayManager.Instance.FindObject((SafeZone targetObject) =>
