@@ -26,13 +26,15 @@ public class GameplayStateBoss : GameplayState
     }
 
     /// <summary>
-    /// When the target scene is loaded, instantiates and spawns the boss depending on the active theme.
+    /// When the target scene is loaded, instantiates and spawns the boss and map depending on the active theme.
     /// </summary>
     /// <param name="activeScene">The scene that was loaded</param>
     /// <param name="loadMode">The mode in which the scene was loaded</param>
     protected override void OnSceneLoaded(Scene activeScene, LoadSceneMode loadMode)
     {
         base.OnSceneLoaded(activeScene, loadMode);
+        GameObject bossRoom = Instantiate(StateContext.GameplayTheme.BossRoomPrefab, Vector3.zero, Quaternion.identity);
+        NetworkServer.Spawn(bossRoom);
         GameObject boss = Instantiate(StateContext.GameplayTheme.BossPrefab, new Vector3(0, 0, 20), Quaternion.Euler(0, 180, 0)); // Spawned at arbitrary position and rotation
         NetworkServer.Spawn(boss);
         _enemyHealth = boss.GetComponent<EnemyHealth>();
