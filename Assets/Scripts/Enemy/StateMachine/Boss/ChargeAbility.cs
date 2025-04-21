@@ -38,7 +38,7 @@ public class ChargeAbilityState : EnemyState
             }
             // apply an upwards velocity
             PlayerController playerController = obj.GetComponent<PlayerController>();
-            playerController.RpcExternalUp(_launchStrength);
+            playerController.RpcExternalMove(new Vector3(0, _launchStrength, 0));
         }
     }
 
