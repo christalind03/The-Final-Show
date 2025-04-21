@@ -2,23 +2,37 @@ using UnityEngine;
 using Mirror;
 using System.Collections;
 
+/// <summary>
+/// Handles the spawning of mannequins in a networked environment -- instantiating and networking mannequins at specified spawn points.
+/// </summary>
 [RequireComponent(typeof(NetworkIdentity))]
 public class MannequinSpawner : NetworkBehaviour
 {
+    [Header("Spawn Settings")]
     [SerializeField] private GameObject[] mannequinPrefabs;
     [SerializeField] private Transform[] spawnPoints;
     [SerializeField] private bool spawnOnStart = true;
 
+    /// <summary>
+    /// Called when the script instance is being loaded.
+    /// </summary>
     private void Awake()
     {
         Debug.Log("MannequinSpawner Awake");
     }
 
+    /// <summary>
+    /// Called on the frame when the script is enabled just before any of the Update methods are called the first time.
+    /// </summary>
     private void Start()
     {
         Debug.Log("MannequinSpawner Start");
     }
 
+    /// <summary>
+    /// Called on the server when the object is spawned.
+    /// Initializes the spawner and starts the spawning process if spawnOnStart is true.
+    /// </summary>
     public override void OnStartServer()
     {
         Debug.Log("MannequinSpawner OnStartServer");
@@ -39,6 +53,9 @@ public class MannequinSpawner : NetworkBehaviour
         StartCoroutine(WaitForNetworkReady());
     }
 
+    /// <summary>
+    /// Waits for the network to be ready before spawning mannequins.
+    /// </summary>
     private IEnumerator WaitForNetworkReady()
     {
         // Wait until the network is ready
@@ -54,6 +71,9 @@ public class MannequinSpawner : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Spawns mannequins at each spawn point -- called on the server and will spawn a random mannequin from the mannequinPrefabs array at each spawn point.
+    /// </summary>
     [Server]
     public void SpawnMannequins()
     {
@@ -63,30 +83,37 @@ public class MannequinSpawner : NetworkBehaviour
         {
             if (mannequinPrefabs.Length > 0)
             {
+                // Spawn a random mannequin at this point
                 GameObject randomMannequin = mannequinPrefabs[Random.Range(0, mannequinPrefabs.Length)];
-                Debug.Log($"Instantiating mannequin: {randomMannequin.name} at {spawnPoint.position}");
+                Debug.Log($"Spawning mannequin: {randomMannequin.name} at {spawnPoint.position}");
                 
+                // Instantiate the mannequin directly at the spawn point
                 GameObject spawnedMannequin = Instantiate(randomMannequin, spawnPoint.position, spawnPoint.rotation);
-                
-                // Get all NetworkIdentity components in the spawned mannequin and its children
-                NetworkIdentity[] identities = spawnedMannequin.GetComponentsInChildren<NetworkIdentity>();
-                Debug.Log($"Found {identities.Length} NetworkIdentity components");
-                
-                // First spawn the root object
-                NetworkServer.Spawn(spawnedMannequin);
-                
-                // Then spawn all networked objects
-                foreach (NetworkIdentity identity in identities)
+
+                // Verify NetworkIdentity
+                if (!spawnedMannequin.TryGetComponent<NetworkIdentity>(out var netId))
                 {
-                    if (identity.gameObject != spawnedMannequin) // Skip the root object -- already spawned
-                    {
-                        Debug.Log($"Spawning networked object: {identity.gameObject.name}");
-                        NetworkServer.Spawn(identity.gameObject);
-                    }
+                    Debug.LogError($"Spawned mannequin {spawnedMannequin.name} is missing NetworkIdentity!");
+                }
+                else
+                {
+                    Debug.Log($"Spawning networked mannequin {spawnedMannequin.name} with netId {netId.netId}");
                 }
                 
-                Debug.Log($"Spawned mannequin with {identities.Length} networked objects at {spawnPoint.position}");
+                // Spawn the mannequin on the network
+                NetworkServer.Spawn(spawnedMannequin);
+                
+                Debug.Log($"Spawned mannequin at {spawnPoint.position}");
             }
         }
+    }
+
+    /// <summary>
+    /// Called on clients when the object is spawned.
+    /// </summary>
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+        Debug.Log("MannequinSpawner OnStartClient");
     }
 } 
