@@ -1,74 +1,86 @@
 using UnityEngine;
 using Mirror;
+using System.Collections;
 
 [RequireComponent(typeof(NetworkIdentity))]
 public class MannequinSpawner : NetworkBehaviour
 {
     [SerializeField] private GameObject[] mannequinPrefabs;
+    [SerializeField] private Transform[] spawnPoints;
     [SerializeField] private bool spawnOnStart = true;
+
+    private void Awake()
+    {
+        Debug.Log("MannequinSpawner Awake");
+    }
+
+    private void Start()
+    {
+        Debug.Log("MannequinSpawner Start");
+    }
 
     public override void OnStartServer()
     {
+        Debug.Log("MannequinSpawner OnStartServer");
+        
         if (mannequinPrefabs == null || mannequinPrefabs.Length == 0)
         {
             Debug.LogError("No mannequin prefabs assigned!");
             return;
         }
 
-        // Register the spawn handler
-        NetworkClient.RegisterSpawnHandler(GetComponent<NetworkIdentity>().assetId, SpawnMannequin, UnSpawnMannequin);
+        if (spawnPoints == null || spawnPoints.Length == 0)
+        {
+            Debug.LogError("No spawn points assigned!");
+            return;
+        }
+
+        // Wait for the network to be ready
+        StartCoroutine(WaitForNetworkReady());
+    }
+
+    private System.Collections.IEnumerator WaitForNetworkReady()
+    {
+        // Wait until the network is ready
+        while (!NetworkServer.active)
+        {
+            yield return null;
+        }
 
         if (spawnOnStart)
         {
-            SpawnRandomMannequin();
+            Debug.Log("Network is ready, attempting to spawn mannequins");
+            SpawnMannequins();
         }
     }
 
     [Server]
-    public void SpawnRandomMannequin()
+    public void SpawnMannequins()
     {
-        if (mannequinPrefabs.Length > 0)
+        Debug.Log($"MannequinSpawner SpawnMannequins - Prefab count: {mannequinPrefabs.Length}, Spawn points: {spawnPoints.Length}");
+        
+        foreach (Transform spawnPoint in spawnPoints)
         {
-            GameObject randomMannequin = mannequinPrefabs[Random.Range(0, mannequinPrefabs.Length)];
-            GameObject spawnedMannequin = Instantiate(randomMannequin, transform.position, transform.rotation);
-            
-            // Get all NetworkIdentity components in the spawned mannequin and its children
-            NetworkIdentity[] identities = spawnedMannequin.GetComponentsInChildren<NetworkIdentity>();
-            
-            // Spawn all networked objects
-            foreach (NetworkIdentity identity in identities)
+            if (mannequinPrefabs.Length > 0)
             {
-                NetworkServer.Spawn(identity.gameObject);
+                GameObject randomMannequin = mannequinPrefabs[Random.Range(0, mannequinPrefabs.Length)];
+                Debug.Log($"Instantiating mannequin: {randomMannequin.name} at {spawnPoint.position}");
+                
+                GameObject spawnedMannequin = Instantiate(randomMannequin, spawnPoint.position, spawnPoint.rotation);
+                
+                // Get all NetworkIdentity components in the spawned mannequin and its children
+                NetworkIdentity[] identities = spawnedMannequin.GetComponentsInChildren<NetworkIdentity>();
+                Debug.Log($"Found {identities.Length} NetworkIdentity components");
+                
+                // Spawn all networked objects
+                foreach (NetworkIdentity identity in identities)
+                {
+                    Debug.Log($"Spawning networked object: {identity.gameObject.name}");
+                    NetworkServer.Spawn(identity.gameObject);
+                }
+                
+                Debug.Log($"Spawned mannequin with {identities.Length} networked objects at {spawnPoint.position}");
             }
-            
-            Debug.Log($"Spawned mannequin with {identities.Length} networked objects at {transform.position}");
         }
-    }
-
-    private GameObject SpawnMannequin(SpawnMessage msg)
-    {
-        if (mannequinPrefabs == null || mannequinPrefabs.Length == 0)
-        {
-            Debug.LogError("No mannequin prefabs assigned!");
-            return null;
-        }
-
-        // Choose a random mannequin
-        GameObject randomMannequin = mannequinPrefabs[Random.Range(0, mannequinPrefabs.Length)];
-        GameObject spawnedMannequin = Instantiate(randomMannequin, msg.position, msg.rotation);
-
-        // Spawn all networked objects in the mannequin
-        NetworkIdentity[] identities = spawnedMannequin.GetComponentsInChildren<NetworkIdentity>();
-        foreach (NetworkIdentity identity in identities)
-        {
-            NetworkServer.Spawn(identity.gameObject);
-        }
-
-        return spawnedMannequin;
-    }
-
-    private void UnSpawnMannequin(GameObject spawned)
-    {
-        Destroy(spawned);
     }
 } 

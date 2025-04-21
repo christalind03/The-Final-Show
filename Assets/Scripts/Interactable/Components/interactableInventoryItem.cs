@@ -96,8 +96,13 @@ public class InteractableInventoryItem : NetworkBehaviour, IInteractable
         _skinnedMeshRenderer.sharedMesh = _initialMesh;
         _skinnedMeshRenderer.materials = _initialMaterials;
         
+        // Only destroy the child if it exists
+        if (transform.childCount > 0)
+        {
+            Destroy(transform.GetChild(0).gameObject); // Delete the InteractableUI
+        }
+        
         Destroy(this);
-        Destroy(transform.GetChild(0).gameObject); // Delete the InteractableUI
     }
 
     /// <summary>
