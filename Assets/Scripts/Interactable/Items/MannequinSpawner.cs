@@ -39,7 +39,7 @@ public class MannequinSpawner : NetworkBehaviour
         StartCoroutine(WaitForNetworkReady());
     }
 
-    private System.Collections.IEnumerator WaitForNetworkReady()
+    private IEnumerator WaitForNetworkReady()
     {
         // Wait until the network is ready
         while (!NetworkServer.active)
@@ -72,11 +72,17 @@ public class MannequinSpawner : NetworkBehaviour
                 NetworkIdentity[] identities = spawnedMannequin.GetComponentsInChildren<NetworkIdentity>();
                 Debug.Log($"Found {identities.Length} NetworkIdentity components");
                 
-                // Spawn all networked objects
+                // First spawn the root object
+                NetworkServer.Spawn(spawnedMannequin);
+                
+                // Then spawn all networked objects
                 foreach (NetworkIdentity identity in identities)
                 {
-                    Debug.Log($"Spawning networked object: {identity.gameObject.name}");
-                    NetworkServer.Spawn(identity.gameObject);
+                    if (identity.gameObject != spawnedMannequin) // Skip the root object -- already spawned
+                    {
+                        Debug.Log($"Spawning networked object: {identity.gameObject.name}");
+                        NetworkServer.Spawn(identity.gameObject);
+                    }
                 }
                 
                 Debug.Log($"Spawned mannequin with {identities.Length} networked objects at {spawnPoint.position}");
