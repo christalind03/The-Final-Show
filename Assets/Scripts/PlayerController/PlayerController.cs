@@ -99,6 +99,8 @@ public class PlayerController : NetworkBehaviour
         _animatorMovementX = Animator.StringToHash("Movement X");
         _animatorMovementZ = Animator.StringToHash("Movement Z");
 
+        SetInitialRotation();
+
         if (!Application.isEditor && SteamManager.Initialized)
         {
             playerName = SteamFriends.GetPersonaName();
@@ -108,6 +110,19 @@ public class PlayerController : NetworkBehaviour
         else
         {
             CmdUpdateName(gameObject.name);
+        }
+    }
+
+    private void SetInitialRotation()
+    {
+        transform.rotation = Quaternion.Euler(0, 180f, 0);
+        if (_followTransform != null)
+        {
+            _followTransform.rotation = Quaternion.Euler(0, 180f, 0);
+        }
+        if (_cameraTransform != null)
+        {
+            _cameraTransform.rotation = Quaternion.Euler(0, 180f, 0);
         }
     }
 
@@ -629,17 +644,5 @@ public class PlayerController : NetworkBehaviour
     {
         if (!isLocalPlayer) { return; } // only move the local player
         _characterController.Move(vect);
-    }
-
-    /// <summary>
-    /// Allow other GameObjects on the server to tell clients to launch their character upward
-    /// </summary>
-    /// <param name="vel">velocity to apply in the y direction</param>
-    [ClientRpc]
-    public void RpcExternalUp(float vel)
-    {
-        if (!isLocalPlayer) { return; } // only move the local player
-        //_playerVelocity.y += vel;
-        _playerVelocity = new Vector3(_playerVelocity.x, vel, _playerVelocity.z);
     }
 }
