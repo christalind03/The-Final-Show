@@ -325,42 +325,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Slot-6"",
-                    ""type"": ""Button"",
-                    ""id"": ""92c2550d-0613-494b-a431-b9210c2ba185"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Slot-7"",
-                    ""type"": ""Button"",
-                    ""id"": ""7cee67cc-9cb0-4336-8993-e88f22d364bd"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Slot-8"",
-                    ""type"": ""Button"",
-                    ""id"": ""b8214767-75c0-4460-a7a6-f9011d4ff7b6"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Slot-9"",
-                    ""type"": ""Button"",
-                    ""id"": ""02662254-4c51-4453-a3ad-75f52350d0f5"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""Cycle Slots"",
                     ""type"": ""Value"",
                     ""id"": ""490bfc61-a28b-400b-a2aa-2b57cc5bd02e"",
@@ -428,50 +392,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""9c37151f-4fd6-4e17-b94b-e7c3c406708c"",
-                    ""path"": ""<Keyboard>/6"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard and Mouse"",
-                    ""action"": ""Slot-6"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""452695cb-1df4-46d2-9223-27eda826e641"",
-                    ""path"": ""<Keyboard>/7"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard and Mouse"",
-                    ""action"": ""Slot-7"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""56ca91bf-fee3-4766-a6da-21840b0e2bfb"",
-                    ""path"": ""<Keyboard>/8"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard and Mouse"",
-                    ""action"": ""Slot-8"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""40960815-1b38-498d-a4ce-b5d11f8046e5"",
-                    ""path"": ""<Keyboard>/9"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard and Mouse"",
-                    ""action"": ""Slot-9"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""e4f79c08-d817-4967-a82e-017626d97794"",
                     ""path"": ""<Mouse>/scroll"",
                     ""interactions"": """",
@@ -522,10 +442,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Inventory_Slot3 = m_Inventory.FindAction("Slot-3", throwIfNotFound: true);
         m_Inventory_Slot4 = m_Inventory.FindAction("Slot-4", throwIfNotFound: true);
         m_Inventory_Slot5 = m_Inventory.FindAction("Slot-5", throwIfNotFound: true);
-        m_Inventory_Slot6 = m_Inventory.FindAction("Slot-6", throwIfNotFound: true);
-        m_Inventory_Slot7 = m_Inventory.FindAction("Slot-7", throwIfNotFound: true);
-        m_Inventory_Slot8 = m_Inventory.FindAction("Slot-8", throwIfNotFound: true);
-        m_Inventory_Slot9 = m_Inventory.FindAction("Slot-9", throwIfNotFound: true);
         m_Inventory_CycleSlots = m_Inventory.FindAction("Cycle Slots", throwIfNotFound: true);
     }
 
@@ -711,10 +627,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Inventory_Slot3;
     private readonly InputAction m_Inventory_Slot4;
     private readonly InputAction m_Inventory_Slot5;
-    private readonly InputAction m_Inventory_Slot6;
-    private readonly InputAction m_Inventory_Slot7;
-    private readonly InputAction m_Inventory_Slot8;
-    private readonly InputAction m_Inventory_Slot9;
     private readonly InputAction m_Inventory_CycleSlots;
     public struct InventoryActions
     {
@@ -725,10 +637,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         public InputAction @Slot3 => m_Wrapper.m_Inventory_Slot3;
         public InputAction @Slot4 => m_Wrapper.m_Inventory_Slot4;
         public InputAction @Slot5 => m_Wrapper.m_Inventory_Slot5;
-        public InputAction @Slot6 => m_Wrapper.m_Inventory_Slot6;
-        public InputAction @Slot7 => m_Wrapper.m_Inventory_Slot7;
-        public InputAction @Slot8 => m_Wrapper.m_Inventory_Slot8;
-        public InputAction @Slot9 => m_Wrapper.m_Inventory_Slot9;
         public InputAction @CycleSlots => m_Wrapper.m_Inventory_CycleSlots;
         public InputActionMap Get() { return m_Wrapper.m_Inventory; }
         public void Enable() { Get().Enable(); }
@@ -754,18 +662,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Slot5.started += instance.OnSlot5;
             @Slot5.performed += instance.OnSlot5;
             @Slot5.canceled += instance.OnSlot5;
-            @Slot6.started += instance.OnSlot6;
-            @Slot6.performed += instance.OnSlot6;
-            @Slot6.canceled += instance.OnSlot6;
-            @Slot7.started += instance.OnSlot7;
-            @Slot7.performed += instance.OnSlot7;
-            @Slot7.canceled += instance.OnSlot7;
-            @Slot8.started += instance.OnSlot8;
-            @Slot8.performed += instance.OnSlot8;
-            @Slot8.canceled += instance.OnSlot8;
-            @Slot9.started += instance.OnSlot9;
-            @Slot9.performed += instance.OnSlot9;
-            @Slot9.canceled += instance.OnSlot9;
             @CycleSlots.started += instance.OnCycleSlots;
             @CycleSlots.performed += instance.OnCycleSlots;
             @CycleSlots.canceled += instance.OnCycleSlots;
@@ -788,18 +684,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Slot5.started -= instance.OnSlot5;
             @Slot5.performed -= instance.OnSlot5;
             @Slot5.canceled -= instance.OnSlot5;
-            @Slot6.started -= instance.OnSlot6;
-            @Slot6.performed -= instance.OnSlot6;
-            @Slot6.canceled -= instance.OnSlot6;
-            @Slot7.started -= instance.OnSlot7;
-            @Slot7.performed -= instance.OnSlot7;
-            @Slot7.canceled -= instance.OnSlot7;
-            @Slot8.started -= instance.OnSlot8;
-            @Slot8.performed -= instance.OnSlot8;
-            @Slot8.canceled -= instance.OnSlot8;
-            @Slot9.started -= instance.OnSlot9;
-            @Slot9.performed -= instance.OnSlot9;
-            @Slot9.canceled -= instance.OnSlot9;
             @CycleSlots.started -= instance.OnCycleSlots;
             @CycleSlots.performed -= instance.OnCycleSlots;
             @CycleSlots.canceled -= instance.OnCycleSlots;
@@ -849,10 +733,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         void OnSlot3(InputAction.CallbackContext context);
         void OnSlot4(InputAction.CallbackContext context);
         void OnSlot5(InputAction.CallbackContext context);
-        void OnSlot6(InputAction.CallbackContext context);
-        void OnSlot7(InputAction.CallbackContext context);
-        void OnSlot8(InputAction.CallbackContext context);
-        void OnSlot9(InputAction.CallbackContext context);
         void OnCycleSlots(InputAction.CallbackContext context);
     }
 }
