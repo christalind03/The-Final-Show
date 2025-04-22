@@ -119,7 +119,6 @@ public class CombatController : NetworkBehaviour
 
         Vector3 initialPosition = _projectileTransform.position;
         Vector3 finalPosition = raycastHit.point;
-        float targetDist = (finalPosition - initialPosition).magnitude;
 
         GameObject projectileObject = Instantiate(rangedWeapon.ProjectilePrefab, initialPosition, Quaternion.identity);
         NetworkServer.Spawn(projectileObject);
