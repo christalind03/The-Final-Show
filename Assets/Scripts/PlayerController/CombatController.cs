@@ -14,6 +14,7 @@ public class CombatController : NetworkBehaviour
     [SerializeField] private Transform _projectileTransform;
 
     private AudioManager _audioManager;
+    private PlayerStats _playerStats;
     private bool _canAttack;
     private int _animatorAttack;
 
@@ -22,6 +23,7 @@ public class CombatController : NetworkBehaviour
     {
         _audioManager = gameObject.GetComponent<AudioManager>();
         _animatorAttack = Animator.StringToHash("Attack");
+        _playerStats = gameObject.GetComponent<PlayerStats>();
     }
 
     /// <summary>
@@ -80,7 +82,7 @@ public class CombatController : NetworkBehaviour
 
             if (inRange && hitCollider.TryGetComponent(out AbstractHealth healthComponent))
             {
-                float finalDamage = playerWeapon.AttackDamage;
+                float finalDamage = playerWeapon.AttackDamage + _playerStats.Attack.BaseValue;
                 float critChance = playerWeapon.CriticalStrikeChance;
 
                 if (UnityEngine.Random.value < critChance)
@@ -111,7 +113,9 @@ public class CombatController : NetworkBehaviour
     [Command]
     private void CmdShoot(RangedWeapon rangedWeapon)
     {
-        Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out RaycastHit raycastHit);
+        Physics.Raycast(_cameraTransform.position, _cameraTransform.forward, out RaycastHit raycastHit, Mathf.Infinity, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+        Debug.DrawRay(_cameraTransform.position, _cameraTransform.forward * raycastHit.distance, Color.yellow, 5.0f);
+        
 
         Vector3 initialPosition = _projectileTransform.position;
         Vector3 finalPosition = raycastHit.point;
@@ -133,7 +137,7 @@ public class CombatController : NetworkBehaviour
     private void RpcShoot(RangedWeapon rangedWeapon, GameObject projectileObject, Vector3 initialPosition, Vector3 finalPosition)
     {
         Projectile projectileComponent = projectileObject.GetComponent<Projectile>();
-        float finalDamage = rangedWeapon.AttackDamage;
+        float finalDamage = rangedWeapon.AttackDamage + _playerStats.Attack.BaseValue;
         float critChance = rangedWeapon.CriticalStrikeChance;
 
         if (UnityEngine.Random.value < critChance)
