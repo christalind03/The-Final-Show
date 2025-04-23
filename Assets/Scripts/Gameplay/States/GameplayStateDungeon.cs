@@ -73,7 +73,18 @@ public class GameplayStateDungeon : GameplayState
         {
             if (targetObject != null)
             {
-                targetObject.SetThemePrefabs(StateContext.GameplayTheme);
+                int index = -1;
+                for (int i = 0; i < StateContext._gameplayThemes.Length; i++)
+                {
+                    if (StateContext._gameplayThemes[i].Theme == StateContext.GameplayTheme.Theme)
+                    {
+                        index = i;
+                        break;
+                    }
+                }
+                Debug.Log("Theme Index: " + index);
+                targetObject.SetActiveTheme(index);
+                //targetObject.SetThemePrefabs(StateContext.GameplayTheme);
 
                 GameplayManager.Instance.StartCoroutine(OnDungeonGenerationComplete(targetObject));
             }

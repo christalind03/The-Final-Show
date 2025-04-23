@@ -16,6 +16,9 @@ public class DungeonGenerator : NetworkBehaviour
 {
     [SyncVar] private int _randomSeed;
 
+    [SerializeField] private GameplayTheme[] _gameplayThemes;
+    GameplayTheme _activeTheme;
+
     [Header("Dungeon Segments")]
     private GameObject[] _entrancePrefabs;
     private GameObject[] _exitPrefabs;
@@ -366,8 +369,40 @@ public class DungeonGenerator : NetworkBehaviour
         _exitPrefabs = theme.ExitPrefabs;
         _hallwayPrefabs = theme.HallwayPrefabs;
         _roomPrefabs = theme.RoomPrefabs;
-
+        SetThemePrefabsRpc(theme);
     }
+
+    [ClientRpc]
+    public void SetThemePrefabsRpc(GameplayTheme theme)
+    {
+        if (!isLocalPlayer) { return; }
+        _entrancePrefabs = theme.EntrancePrefabs;
+        _exitPrefabs = theme.ExitPrefabs;
+        _hallwayPrefabs = theme.HallwayPrefabs;
+        _roomPrefabs = theme.RoomPrefabs;
+    }
+
+    public void SetActiveTheme(int ind)
+    {
+        _activeTheme = _gameplayThemes[ind];
+        _entrancePrefabs = _activeTheme.EntrancePrefabs;
+        _exitPrefabs = _activeTheme.ExitPrefabs;
+        _hallwayPrefabs = _activeTheme.HallwayPrefabs;
+        _roomPrefabs = _activeTheme.RoomPrefabs;
+        SetActiveThemeRpc(ind);
+    }
+
+    [ClientRpc]
+    public void SetActiveThemeRpc(int ind)
+    {
+        if (!isLocalPlayer) { return; }
+        _activeTheme = _gameplayThemes[ind];
+        _entrancePrefabs = _activeTheme.EntrancePrefabs;
+        _exitPrefabs = _activeTheme.ExitPrefabs;
+        _hallwayPrefabs = _activeTheme.HallwayPrefabs;
+        _roomPrefabs = _activeTheme.RoomPrefabs;
+    }
+
     /// <summary>
     /// Waits until all the required dungeon prefabs have been assigned
     /// then generates the dungeon layout and builds the navigation mesh
