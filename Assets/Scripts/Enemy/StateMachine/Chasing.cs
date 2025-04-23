@@ -9,7 +9,6 @@ public class ChasingState : EnemyState
 
     public override void EnterState()
     {
-        Debug.Log("Entering Chasing State");
         StateContext.NavMeshAgent.speed = movementSpeed; // Update speed
         // We want the enemy to stop once the target is within aim distance
         StateContext.NavMeshAgent.stoppingDistance = StateContext.BehaviorStats.StartAimDist;
@@ -20,7 +19,6 @@ public class ChasingState : EnemyState
     public override void ExitState() 
     {
         StateContext.AudioManager?.CmdStop("Chase");
-        Debug.Log("Leaving Chasing State");
     }
  
     public override void OnTriggerEnter(Collider otherCollider) { }
