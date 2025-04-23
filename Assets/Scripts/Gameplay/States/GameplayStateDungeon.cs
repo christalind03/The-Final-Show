@@ -34,11 +34,9 @@ public class GameplayStateDungeon : GameplayState
                         StateContext.invalidPlayers.Add(player);
                     }
                 }
-
-
+                
                 foreach (GameObject invalidPlayer in StateContext.invalidPlayers)
                 {
-                    Debug.Log(invalidPlayer.name);
                     NetworkIdentity invalidPlayerIdentity = invalidPlayer.GetComponent<NetworkIdentity>();
 
                     invalidPlayerIdentity.connectionToClient.Send(new SpectateMessage { });
@@ -73,8 +71,6 @@ public class GameplayStateDungeon : GameplayState
         {
             if (targetObject != null)
             {
-                targetObject.SetThemePrefabs(StateContext.GameplayTheme);
-
                 GameplayManager.Instance.StartCoroutine(OnDungeonGenerationComplete(targetObject));
             }
         });
@@ -94,14 +90,12 @@ public class GameplayStateDungeon : GameplayState
         }
 
         //RelocatePlayers();
-        dungeonGenerator.GenerateNavMesh();
         dungeonGenerator.SpawnEnemies(StateContext.GameplayTheme.EnemyPrefabs);
 
         GameplayManager.Instance.FindObject((SafeZone targetObject) =>
         {
             if (targetObject != null)
             {
-                Debug.Log("Found the safe zone!");
                 _safeZone = targetObject;
             }
         });
