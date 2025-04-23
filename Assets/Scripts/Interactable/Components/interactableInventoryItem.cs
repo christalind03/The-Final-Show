@@ -11,7 +11,26 @@ public class InteractableInventoryItem : NetworkBehaviour, IInteractable
     [SerializeField] private bool _isSkinned;
     [SerializeField] private InventoryItem[] _possibleItems;
 
-    public InventoryItem InventoryItem { get; set; }
+    [SyncVar(hook = nameof(OnItemChanged))]
+    private string _itemName;
+    private InventoryItem _inventoryItem;
+    public InventoryItem InventoryItem
+    {
+        get => _inventoryItem;
+        set
+        {
+            if (isServer)
+            {
+                _itemName = value?.name ?? string.Empty;
+            }
+            _inventoryItem = value;
+            if (value != null)
+            {
+                SetupVisuals();
+            }
+        }
+    }
+
     private SkinnedMeshRenderer _skinnedMeshRenderer;
     private Mesh _initialMesh;
     private Material[] _initialMaterials;
@@ -27,16 +46,30 @@ public class InteractableInventoryItem : NetworkBehaviour, IInteractable
     private Rigidbody rb;
     private bool dropped = false;
 
-    /// <summary>
-    /// Sets the object's visual representation based on the assigned inventory item.
-    /// </summary>
-    private void Start()
+    private void OnItemChanged(string oldName, string newName)
     {
+        if (!string.IsNullOrEmpty(newName))
+        {
+            _inventoryItem = Resources.Load<InventoryItem>($"Items/{newName}");
+            if (_inventoryItem != null)
+            {
+                SetupVisuals();
+            }
+        }
+    }
+
+    public override void OnStartServer()
+    {
+        base.OnStartServer();
+        
         if (_possibleItems != null && _possibleItems.Length > 0 && InventoryItem == null)
         {
             InventoryItem = _possibleItems[Random.Range(0, _possibleItems.Length)];
         }
+    }
 
+    private void SetupVisuals()
+    {
         if (InventoryItem != null)
         {
             if (_isSkinned)
@@ -82,12 +115,20 @@ public class InteractableInventoryItem : NetworkBehaviour, IInteractable
     {
         if (_isSkinned)
         {
+            // Reset the skinned mesh renderer on the server first
+            if (_skinnedMeshRenderer != null)
+            {
+                _skinnedMeshRenderer.sharedMesh = _initialMesh;
+                _skinnedMeshRenderer.materials = _initialMaterials;
+            }
+            
+            // Then tell all clients to do the same
             RpcRemove();
         }
         else
         {
-            NetworkServer.Destroy(gameObject);
-            Destroy(gameObject);
+            // For non-skinned objects, just remove the child object
+            RpcRemove();
         }
     }
 
@@ -98,16 +139,26 @@ public class InteractableInventoryItem : NetworkBehaviour, IInteractable
     [ClientRpc]
     private void RpcRemove()
     {
-        _skinnedMeshRenderer.sharedMesh = _initialMesh;
-        _skinnedMeshRenderer.materials = _initialMaterials;
-        
-        // Only destroy the child if it exists
-        if (transform.childCount > 0)
+        if (_isSkinned)
         {
-            Destroy(transform.GetChild(0).gameObject); // Delete the InteractableUI
+            if (_skinnedMeshRenderer != null)
+            {
+                _skinnedMeshRenderer.sharedMesh = _initialMesh;
+                _skinnedMeshRenderer.materials = _initialMaterials;
+            }
+        }
+        else
+        {
+            // For non-skinned objects, destroy the child object
+            if (transform.childCount > 0)
+            {
+                Destroy(transform.GetChild(0).gameObject);
+            }
         }
         
-        Destroy(this);
+        // Clear the inventory item reference
+        _inventoryItem = null;
+        _itemName = string.Empty;
     }
 
     /// <summary>
