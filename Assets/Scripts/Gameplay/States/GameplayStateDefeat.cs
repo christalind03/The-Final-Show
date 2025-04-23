@@ -8,7 +8,6 @@ public class GameplayStateDefeat : GameplayState
     private bool _sceneLoaded;
     public override void EnterState()
     {
-        Debug.Log("Entering the DEFEAT gameplay state...");
         SteamLobby steamLobby = NetworkManager.FindObjectOfType<SteamLobby>();
         if(NetworkClient.activeHost && steamLobby != null)
         {
@@ -32,7 +31,6 @@ public class GameplayStateDefeat : GameplayState
     }
     public override void ExitState()
     {
-        Debug.Log("Exiting the DEFEAT gameplay state...");
         base.ExitState();
     }
 
