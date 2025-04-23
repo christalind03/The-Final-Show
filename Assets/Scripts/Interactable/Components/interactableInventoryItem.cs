@@ -9,9 +9,9 @@ using UnityEngine;
 public class InteractableInventoryItem : NetworkBehaviour, IInteractable
 {
     [SerializeField] private bool _isSkinned;
+    [SerializeField] private InventoryItem[] _possibleItems;
 
-    public InventoryItem InventoryItem;
-
+    public InventoryItem InventoryItem { get; set; }
     private SkinnedMeshRenderer _skinnedMeshRenderer;
     private Mesh _initialMesh;
     private Material[] _initialMaterials;
@@ -32,6 +32,11 @@ public class InteractableInventoryItem : NetworkBehaviour, IInteractable
     /// </summary>
     private void Start()
     {
+        if (_possibleItems != null && _possibleItems.Length > 0 && InventoryItem == null)
+        {
+            InventoryItem = _possibleItems[Random.Range(0, _possibleItems.Length)];
+        }
+
         if (InventoryItem != null)
         {
             if (_isSkinned)

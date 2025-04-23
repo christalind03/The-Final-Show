@@ -3,14 +3,21 @@ using Mirror;
 using System.Collections;
 
 /// <summary>
-/// Handles the spawning of mannequins in a networked environment -- instantiating and networking mannequins at specified spawn points.
+/// Handles the spawning of mannequins and their skinned items in a networked environment.
+/// Spawns the mannequin and its items separately, then connects them through parenting.
 /// </summary>
 [RequireComponent(typeof(NetworkIdentity))]
 public class MannequinSpawner : NetworkBehaviour
 {
-    [Header("Spawn Settings")]
+    [Header("Mannequin Settings")]
     [SerializeField] private GameObject[] mannequinPrefabs;
+    
+    [Header("Item Settings")]
+    [SerializeField] private GameObject[] skinnedItemPrefabs;
+    
+    [Header("Spawn Settings")]
     [SerializeField] private Transform[] spawnPoints;
+    
     [SerializeField] private bool spawnOnStart = true;
 
     /// <summary>
@@ -43,13 +50,20 @@ public class MannequinSpawner : NetworkBehaviour
             return;
         }
 
+        if (skinnedItemPrefabs == null || skinnedItemPrefabs.Length == 0)
+        {
+            Debug.LogError("No skinned item prefabs assigned!");
+            return;
+        }
+
         if (spawnPoints == null || spawnPoints.Length == 0)
         {
             Debug.LogError("No spawn points assigned!");
             return;
         }
 
-        // Wait for the network to be ready
+        Debug.Log($"MannequinSpawner setup: {mannequinPrefabs.Length} mannequin prefabs, {skinnedItemPrefabs.Length} skinned items, {spawnPoints.Length} spawn points");
+
         StartCoroutine(WaitForNetworkReady());
     }
 
@@ -58,17 +72,13 @@ public class MannequinSpawner : NetworkBehaviour
     /// </summary>
     private IEnumerator WaitForNetworkReady()
     {
-        // Wait until the network is ready
+        Debug.Log("Waiting for network to be ready...");
         while (!NetworkServer.active)
         {
             yield return null;
         }
-
-        if (spawnOnStart)
-        {
-            Debug.Log("Network is ready, attempting to spawn mannequins");
-            SpawnMannequins();
-        }
+        Debug.Log("Network is ready, attempting to spawn mannequins");
+        SpawnMannequins();
     }
 
     /// <summary>
@@ -77,33 +87,29 @@ public class MannequinSpawner : NetworkBehaviour
     [Server]
     public void SpawnMannequins()
     {
-        Debug.Log($"MannequinSpawner SpawnMannequins - Prefab count: {mannequinPrefabs.Length}, Spawn points: {spawnPoints.Length}");
+        Debug.Log($"MannequinSpawner SpawnMannequins - Mannequin prefabs: {mannequinPrefabs.Length}, Item prefabs: {skinnedItemPrefabs.Length}, Spawn points: {spawnPoints.Length}");
         
         foreach (Transform spawnPoint in spawnPoints)
         {
+            Debug.Log($"Attempting to spawn at point: {spawnPoint.position}");
             if (mannequinPrefabs.Length > 0)
             {
-                // Spawn a random mannequin at this point
                 GameObject randomMannequin = mannequinPrefabs[Random.Range(0, mannequinPrefabs.Length)];
                 Debug.Log($"Spawning mannequin: {randomMannequin.name} at {spawnPoint.position}");
                 
-                // Instantiate the mannequin directly at the spawn point
                 GameObject spawnedMannequin = Instantiate(randomMannequin, spawnPoint.position, spawnPoint.rotation);
-
-                // Verify NetworkIdentity
-                if (!spawnedMannequin.TryGetComponent<NetworkIdentity>(out var netId))
-                {
-                    Debug.LogError($"Spawned mannequin {spawnedMannequin.name} is missing NetworkIdentity!");
-                }
-                else
-                {
-                    Debug.Log($"Spawning networked mannequin {spawnedMannequin.name} with netId {netId.netId}");
-                }
-                
-                // Spawn the mannequin on the network
                 NetworkServer.Spawn(spawnedMannequin);
-                
-                Debug.Log($"Spawned mannequin at {spawnPoint.position}");
+                Debug.Log($"Spawned mannequin with network ID: {spawnedMannequin.GetComponent<NetworkIdentity>().netId}");
+
+                foreach (GameObject itemPrefab in skinnedItemPrefabs)
+                {
+                    Debug.Log($"Attempting to spawn item: {itemPrefab.name}");
+                    
+                    GameObject spawnedItem = Instantiate(itemPrefab, spawnedMannequin.transform.position, spawnedMannequin.transform.rotation);
+                    NetworkServer.Spawn(spawnedItem);
+                    
+                    Debug.Log($"Spawned item {spawnedItem.name} at mannequin position");
+                }
             }
         }
     }

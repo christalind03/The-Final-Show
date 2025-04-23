@@ -9,7 +9,7 @@ public class ItemSpawner : NetworkBehaviour
 {
     [Header("Spawn Settings")]
     [Tooltip("Array of item prefabs that can be spawned. Each prefab must have a NetworkIdentity component.")]
-    [SerializeField] private GameObject[] itemPrefabs;
+    [SerializeField] private GameObject[] skinnedItemPrefabs;
     
     [Tooltip("Array of transforms representing spawn points where items will be instantiated.")]
     [SerializeField] private Transform[] spawnPoints;
@@ -41,9 +41,9 @@ public class ItemSpawner : NetworkBehaviour
     {
         Debug.Log("ItemSpawner OnStartServer");
         
-        if (itemPrefabs == null || itemPrefabs.Length == 0)
+        if (skinnedItemPrefabs == null || skinnedItemPrefabs.Length == 0)
         {
-            Debug.LogError("No item prefabs assigned!");
+            Debug.LogError("No skinned item prefabs assigned!");
             return;
         }
 
@@ -81,39 +81,14 @@ public class ItemSpawner : NetworkBehaviour
     [Server]
     public void SpawnItems()
     {
-        Debug.Log($"ItemSpawner SpawnItems - Prefab count: {itemPrefabs.Length}, Spawn points: {spawnPoints.Length}");
+        Debug.Log($"ItemSpawner SpawnItems - Prefab count: {skinnedItemPrefabs.Length}, Spawn points: {spawnPoints.Length}");
         
         foreach (Transform spawnPoint in spawnPoints)
         {
-            if (itemPrefabs.Length > 0)
+            foreach (GameObject itemPrefab in skinnedItemPrefabs)
             {
-                // Spawn a random item at this point
-                GameObject randomItem = itemPrefabs[Random.Range(0, itemPrefabs.Length)];
-                Debug.Log($"Spawning item: {randomItem.name} at {spawnPoint.position}");
-                
-                // Instantiate the item directly at the spawn point
-                GameObject spawnedItem = Instantiate(randomItem, spawnPoint.position, spawnPoint.rotation);
-                
-                // Make sure it has the InteractableInventoryItem component
-                if (!spawnedItem.TryGetComponent<InteractableInventoryItem>(out var interactable))
-                {
-                    interactable = spawnedItem.AddComponent<InteractableInventoryItem>();
-                }
-
-                // Verify NetworkIdentity
-                if (!spawnedItem.TryGetComponent<NetworkIdentity>(out var netId))
-                {
-                    Debug.LogError($"Spawned item {spawnedItem.name} is missing NetworkIdentity!");
-                }
-                else
-                {
-                    Debug.Log($"Spawning networked item {spawnedItem.name} with netId {netId.netId}");
-                }
-                
-                // Spawn the item on the network
+                GameObject spawnedItem = Instantiate(itemPrefab, spawnPoint.position, spawnPoint.rotation);
                 NetworkServer.Spawn(spawnedItem);
-                
-                Debug.Log($"Spawned item at {spawnPoint.position}");
             }
         }
     }
