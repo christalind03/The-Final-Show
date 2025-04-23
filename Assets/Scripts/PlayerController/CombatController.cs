@@ -88,11 +88,6 @@ public class CombatController : NetworkBehaviour
                 if (UnityEngine.Random.value < critChance)
                 {
                     finalDamage *= 2;
-                    Debug.Log("Critical Strike! Damage: " + finalDamage);
-                }
-                else
-                {
-                    Debug.Log("Normal Attack. Damage: " + finalDamage);
                 }
                 if (healthComponent is EnemyHealth enemyHealth)
                 {
@@ -143,11 +138,6 @@ public class CombatController : NetworkBehaviour
         if (UnityEngine.Random.value < critChance)
         {
             finalDamage *= 2;
-            Debug.Log("Critical Strike! Damage: " + finalDamage);
-        }
-        else
-        {
-            Debug.Log("Normal Attack. Damage: " + finalDamage);
         }
       
         projectileComponent.AttackDamage = finalDamage;
