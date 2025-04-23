@@ -13,7 +13,6 @@ public class TeleportAbilityState : EnemyState
     [SerializeField] GameObject _poofPrefab;
     public override void EnterState()
     {
-        Debug.Log("Entering Teleport State");
         StateContext.NavMeshAgent.isStopped = true;
         StateContext.Animator.SetBool("Is Teleporting", true);
         StateContext.MonoBehaviour.StartCoroutine(Teleport());
@@ -22,7 +21,6 @@ public class TeleportAbilityState : EnemyState
     public override void ExitState()
     {
         StateContext.Animator.SetBool("Is Teleporting", false);
-        Debug.Log("Leaving Teleport State");
     }
 
     public override void OnTriggerEnter(Collider otherCollider) { }
