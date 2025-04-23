@@ -136,6 +136,7 @@ public class DungeonGenerator : NetworkBehaviour
 
                 if (ContainsIntersections(generatedSegment))
                 {
+                    generatedSegment.gameObject.SetActive(false); // Disable the segment so the NavMeshSurface ignores it
                     Destroy(generatedSegment.gameObject);
                     continue;
                 }
