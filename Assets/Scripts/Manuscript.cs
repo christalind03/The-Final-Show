@@ -57,7 +57,6 @@ public class Manuscript : NetworkBehaviour
             {
                 _gameplayManager.CollectScript();
             }
-            Debug.Log("Script Collected");
             // Destroy object
             Destroy(gameObject);
         }

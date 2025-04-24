@@ -15,7 +15,6 @@ public class GameplayStateBoss : GameplayState
     /// </summary>
     public override void EnterState()
     {
-        Debug.Log("Entering BOSS State");
         _sceneLoaded = false;
         SteamLobby steamLobby = NetworkManager.FindObjectOfType<SteamLobby>();
         if(NetworkClient.activeHost && steamLobby != null)

@@ -7,7 +7,6 @@ public class AttackingState : EnemyState
 {
     public override void EnterState()
     {
-        Debug.Log("Entering Attacking State");
         StateContext.Animator.SetBool("Is Attacking", true);
         StateContext.MonoBehaviour.StartCoroutine(Attack());
     }
@@ -15,7 +14,6 @@ public class AttackingState : EnemyState
     public override void ExitState() 
     {
         StateContext.Animator.SetBool("Is Attacking", false);
-        Debug.Log("Leaving Attacking State");
     }
 
     public override void OnTriggerEnter(Collider otherCollider) { }

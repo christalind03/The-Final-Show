@@ -422,6 +422,7 @@ public class PlayerInventory : NetworkBehaviour
     /// <returns><c>true</c> if the item should be equipped, otherwise <c>false</c>.</returns>
     private bool ShouldEquip(InventoryItem inventoryItem)
     {
+#if UNITY_EDITOR
         if (_equippedRenderers == null)
         {
             Debug.Log("Equipped renderers is null");
@@ -434,6 +435,7 @@ public class PlayerInventory : NetworkBehaviour
         {
             Debug.Log("Whole thing is null");
         }
+#endif
 
         GameObject equippableReference = _equippedRenderers[inventoryItem.ItemCategory];
 

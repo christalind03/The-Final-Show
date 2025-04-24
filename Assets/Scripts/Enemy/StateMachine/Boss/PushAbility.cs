@@ -10,7 +10,6 @@ public class PushAbilityState : EnemyState
     private bool _pushReady = false;
     public override void EnterState()
     {
-        Debug.Log("Entering Pushing State");
         StateContext.NavMeshAgent.destination = StateContext.Transform.position; // Stop moving to use ability
         StateContext.Animator.SetBool("Is Pushing", true);
         _pushReady = false;
@@ -20,7 +19,6 @@ public class PushAbilityState : EnemyState
     public override void ExitState()
     {
         StateContext.Animator.SetBool("Is Pushing", false);
-        Debug.Log("Leaving Pushing State");
     }
 
     public override void OnTriggerEnter(Collider otherCollider) { }
