@@ -11,7 +11,6 @@ public class ChargeAbilityState : EnemyState
 
     public override void EnterState()
     {
-        Debug.Log("Entering Charging State");
         StateContext.Animator.SetBool("Is Charging", true);
         dir = (StateContext.TargetTransform.position - StateContext.Transform.position).normalized;
         dir.y = 0;
@@ -22,7 +21,6 @@ public class ChargeAbilityState : EnemyState
     public override void ExitState()
     {
         StateContext.Animator.SetBool("Is Charging", false);
-        Debug.Log("Leaving Charging State");
     }
 
     public override void OnTriggerEnter(Collider otherCollider)

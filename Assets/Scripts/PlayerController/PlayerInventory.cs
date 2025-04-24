@@ -110,10 +110,10 @@ public class PlayerInventory : NetworkBehaviour
         _inventorySlots["Slot-3"] = null;
         _inventorySlots["Slot-4"] = null;
         _inventorySlots["Slot-5"] = null;
-        _inventorySlots["Slot-6"] = null;
-        _inventorySlots["Slot-7"] = null;
-        _inventorySlots["Slot-8"] = null;
-        _inventorySlots["Slot-9"] = null;
+        // _inventorySlots["Slot-6"] = null;
+        // _inventorySlots["Slot-7"] = null;
+        // _inventorySlots["Slot-8"] = null;
+        // _inventorySlots["Slot-9"] = null;
 
         base.OnStartServer();
     }
@@ -422,6 +422,7 @@ public class PlayerInventory : NetworkBehaviour
     /// <returns><c>true</c> if the item should be equipped, otherwise <c>false</c>.</returns>
     private bool ShouldEquip(InventoryItem inventoryItem)
     {
+#if UNITY_EDITOR
         if (_equippedRenderers == null)
         {
             Debug.Log("Equipped renderers is null");
@@ -434,6 +435,7 @@ public class PlayerInventory : NetworkBehaviour
         {
             Debug.Log("Whole thing is null");
         }
+#endif
 
         GameObject equippableReference = _equippedRenderers[inventoryItem.ItemCategory];
 

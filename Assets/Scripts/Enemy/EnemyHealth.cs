@@ -60,13 +60,10 @@ public class EnemyHealth : AbstractHealth
         {
             float reducedDamage = Mathf.Max(decreaseValue - playerStats.Defense.BaseValue, 0);
             CurrentValue -= reducedDamage;
-
-            Debug.Log($"{gameObject.name} took {reducedDamage} damage after defense. Remaining health: {CurrentValue}/{BaseValue}");
         }
         else
         {
             CurrentValue -= decreaseValue;
-            Debug.Log($"{gameObject.name} took {decreaseValue} damage. Remaining health: {CurrentValue}/{BaseValue}");
         }
         // Add the player's netid if it isn't already in the list
         if (!_sourceNetids.Contains(sourceId))
