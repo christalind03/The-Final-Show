@@ -1,6 +1,5 @@
 using Mirror;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.AI.Navigation;
@@ -14,13 +13,23 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshSurface))]
 public class DungeonGenerator : NetworkBehaviour
 {
+    [System.Serializable]
+    struct DungeonThemes
+    {
+        public GameObject[] EntracePrefabs;
+        public GameObject[] ExitPrefabs;
+        public GameObject[] HallwayPrefabs;
+        public GameObject[] RoomPrefabs;
+    }
+    
     [SyncVar] private int _randomSeed;
 
-    [Header("Dungeon Segments")]
-    private GameObject[] _entrancePrefabs;
-    private GameObject[] _exitPrefabs;
-    private GameObject[] _hallwayPrefabs;
-    private GameObject[] _roomPrefabs;
+    [Header("Dungeon Data")]
+    [SerializeField] private DungeonThemes[] _dungeonThemes;
+    // private GameObject[] _entrancePrefabs;
+    // private GameObject[] _exitPrefabs;
+    // private GameObject[] _hallwayPrefabs;
+    // private GameObject[] _roomPrefabs;
 
     [Header("Dungeon Size")]
     [Tooltip("The size of the dungeon is inclusive to the entrance and exit rooms.")]
@@ -40,8 +49,10 @@ public class DungeonGenerator : NetworkBehaviour
 
     public bool IsGenerated { get; private set; }
 
+    private int _themeIndex;
     private List<DungeonSegment> _connectableSegments;
     private List<DungeonSegment> _dungeonSegments;
+
     /// <summary>
     /// Ensures the dungeon generation parameters are valid when the inspector values change.
     /// </summary>
@@ -59,7 +70,7 @@ public class DungeonGenerator : NetworkBehaviour
             _maximumEnemies = _minimumEnemies;
         }
     }
-
+    
     /// <summary>
     /// Initializes dungeon generation on the client, generating the dungeon itself and its navigation mesh.
     /// </summary>
@@ -72,11 +83,10 @@ public class DungeonGenerator : NetworkBehaviour
         _connectableSegments = new List<DungeonSegment>();
         _dungeonSegments = new List<DungeonSegment>();
 
-        //GenerateDungeon();
-        //gameObject.GetComponent<NavMeshSurface>().BuildNavMesh();
+        GenerateDungeon();
+        gameObject.GetComponent<NavMeshSurface>().BuildNavMesh();
 
-        //IsGenerated = true;
-        StartCoroutine(WaitAndGenerate());
+        IsGenerated = true;
     }
 
     /// <summary>
@@ -94,6 +104,7 @@ public class DungeonGenerator : NetworkBehaviour
     /// </summary>
     private void GenerateDungeon()
     {
+        int themeIndex = UnityEngine.Random.Range(0, _dungeonThemes.Length);
         int totalRooms = UnityEngine.Random.Range(_minimumRooms, _maximumRooms + 1); // Since the maximum parameter is exclusive, ensure we add by one to make it inclusive
         int exitIndex = UnityEngine.Random.Range(1, totalRooms); // Entrance occupies the 0th index
 
@@ -125,6 +136,7 @@ public class DungeonGenerator : NetworkBehaviour
 
                 if (ContainsIntersections(generatedSegment))
                 {
+                    generatedSegment.gameObject.SetActive(false); // Disable the segment so the NavMeshSurface ignores it
                     Destroy(generatedSegment.gameObject);
                     continue;
                 }
@@ -151,15 +163,14 @@ public class DungeonGenerator : NetworkBehaviour
     /// </summary>
     private void SpawnEntrance()
     {
-        int entranceIndex = UnityEngine.Random.Range(0, _entrancePrefabs.Length);
-        GameObject entranceObject = Instantiate(_entrancePrefabs[entranceIndex], transform);
+        int entranceIndex = UnityEngine.Random.Range(0, _dungeonThemes[_themeIndex].EntracePrefabs.Length);
+        GameObject entranceObject = Instantiate(_dungeonThemes[_themeIndex].EntracePrefabs[entranceIndex], transform);
 
         if (entranceObject.TryGetComponent(out DungeonSegment entranceSegment) && entranceSegment.ContainsEntryPoints())
         {
             _connectableSegments.Add(entranceSegment);
             _dungeonSegments.Add(entranceSegment);
         }
-       
     }
 
     /// <summary>
@@ -230,17 +241,17 @@ public class DungeonGenerator : NetworkBehaviour
     {
         if (isExit)
         {
-            return _exitPrefabs;
+            return _dungeonThemes[_themeIndex].ExitPrefabs;
         }
         else
         {
             if (isHallway)
             {
-                return _hallwayPrefabs;
+                return _dungeonThemes[_themeIndex].HallwayPrefabs;
             }
             else
             {
-                return _roomPrefabs;
+                return _dungeonThemes[_themeIndex].RoomPrefabs;
             }
         }
     }
@@ -355,46 +366,4 @@ public class DungeonGenerator : NetworkBehaviour
     {
         return _dungeonSegments.Select(dungeonSegment => dungeonSegment.RetrieveBounds()).ToArray();
     }
-
-    /// <summary>
-    /// Reads in the list of prefabs for the current theme from GameplayTheme.cs
-    /// </summary>
-    /// <param name="theme"></param>
-    public void SetThemePrefabs(GameplayTheme theme)
-    {
-        _entrancePrefabs = theme.EntrancePrefabs;
-        _exitPrefabs = theme.ExitPrefabs;
-        _hallwayPrefabs = theme.HallwayPrefabs;
-        _roomPrefabs = theme.RoomPrefabs;
-
-    }
-    /// <summary>
-    /// Waits until all the required dungeon prefabs have been assigned
-    /// then generates the dungeon layout and builds the navigation mesh
-    /// Makes sure the dungeon generation doesnt happen before the theme is applied
-    /// </summary>
-    private IEnumerator WaitAndGenerate()
-    {
-        int timeout = 100;
-        while ((_entrancePrefabs == null || _entrancePrefabs.Length == 0) && timeout > 0)
-        {
-            yield return null;
-            timeout--;
-        }
-
-        if (timeout <= 0)
-        {
-            Debug.LogError("[DungeonGenerator] Timed out waiting for prefabs. Dungeon generation skipped.");
-            yield break;
-        }
-
-        GenerateDungeon();
-        IsGenerated = true;
-    }
-
-    public void GenerateNavMesh()
-    {
-        gameObject.GetComponent<NavMeshSurface>().BuildNavMesh();
-    }
-
 }

@@ -33,8 +33,7 @@ public class GameplayStateDungeon : GameplayState
                         StateContext.invalidPlayers.Add(player);
                     }
                 }
-
-
+                
                 foreach (GameObject invalidPlayer in StateContext.invalidPlayers)
                 {
                     NetworkIdentity invalidPlayerIdentity = invalidPlayer.GetComponent<NetworkIdentity>();
@@ -71,8 +70,6 @@ public class GameplayStateDungeon : GameplayState
         {
             if (targetObject != null)
             {
-                targetObject.SetThemePrefabs(StateContext.GameplayTheme);
-
                 GameplayManager.Instance.StartCoroutine(OnDungeonGenerationComplete(targetObject));
             }
         });
@@ -91,7 +88,7 @@ public class GameplayStateDungeon : GameplayState
             yield return null;
         }
 
-        dungeonGenerator.GenerateNavMesh();
+        //RelocatePlayers();
         dungeonGenerator.SpawnEnemies(StateContext.GameplayTheme.EnemyPrefabs);
 
         GameplayManager.Instance.FindObject((SafeZone targetObject) =>
