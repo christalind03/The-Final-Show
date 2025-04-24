@@ -110,10 +110,10 @@ public class PlayerInventory : NetworkBehaviour
         _inventorySlots["Slot-3"] = null;
         _inventorySlots["Slot-4"] = null;
         _inventorySlots["Slot-5"] = null;
-        _inventorySlots["Slot-6"] = null;
-        _inventorySlots["Slot-7"] = null;
-        _inventorySlots["Slot-8"] = null;
-        _inventorySlots["Slot-9"] = null;
+        // _inventorySlots["Slot-6"] = null;
+        // _inventorySlots["Slot-7"] = null;
+        // _inventorySlots["Slot-8"] = null;
+        // _inventorySlots["Slot-9"] = null;
 
         base.OnStartServer();
     }
