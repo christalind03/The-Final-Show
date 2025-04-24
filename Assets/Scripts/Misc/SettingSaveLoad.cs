@@ -38,6 +38,17 @@ public class SettingSaveLoad : NetworkBehaviour
     }
 
     /// <summary>
+    /// Saves between scene switch
+    /// </summary>
+    private void OnDisable() {
+        if (!isLocalPlayer) return;
+        SaveSetting("Screen Setting", settingsMenu.dropdownElements["ScreenSetting"].index);
+        SaveSetting("Camera Sensitivity", settingsMenu.sliderElements["CameraSens"].value);
+        SaveSetting("Music Volume", settingsMenu.sliderElements["MusicSlider"].value);
+        SaveRebind();
+    }
+
+    /// <summary>
     /// Load key binds function 
     /// </summary>
     /// <param name="controller"></param>

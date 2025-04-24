@@ -49,6 +49,8 @@ public class PlayerHealth : AbstractHealth
     protected override void TriggerDeath()
     {
         ScoreBoard scoreboard = NetworkManager.FindObjectOfType<ScoreBoard>();
+        PlayerVisibility playerVis = GetComponent<PlayerVisibility>();
+        playerVis.CmdToggleVisibility(false);
         scoreboard.CmdUpdateDeathData(netId, 1, 1);
         Spectate();
         RpcTriggerDeath();
