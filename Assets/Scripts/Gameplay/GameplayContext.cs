@@ -43,4 +43,13 @@ public class GameplayContext
         scriptsCollected++;
         lifetimeScriptsCollected++;
     }
+
+    /// <summary>
+    /// Manually selects a theme for demo purposes.
+    /// </summary>
+    /// <param name="ind">Index of the theme to select</param>
+    public void SelectTheme(int ind)
+    {
+        GameplayTheme = _gameplayThemes[ind];
+    }
 }

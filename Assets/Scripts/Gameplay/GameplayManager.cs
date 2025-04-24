@@ -83,4 +83,13 @@ public class GameplayManager : StateManager<GameplayManager.State, GameplayState
     {
         StateContext.invalidPlayers.Add(invalidPlayer);
     }
+
+    /// <summary>
+    /// Manually selects a theme for demo purposes by calling StateContext.SelectTheme().
+    /// </summary>
+    /// <param name="ind">Index of the theme to select</param>
+    public void SelectTheme(int ind)
+    {
+        StateContext.SelectTheme(ind);
+    }
 }
