@@ -104,7 +104,7 @@ public class DungeonGenerator : NetworkBehaviour
     /// </summary>
     private void GenerateDungeon()
     {
-        int themeIndex = UnityEngine.Random.Range(0, _dungeonThemes.Length);
+        _themeIndex = UnityEngine.Random.Range(0, _dungeonThemes.Length);
         int totalRooms = UnityEngine.Random.Range(_minimumRooms, _maximumRooms + 1); // Since the maximum parameter is exclusive, ensure we add by one to make it inclusive
         int exitIndex = UnityEngine.Random.Range(1, totalRooms); // Entrance occupies the 0th index
 
