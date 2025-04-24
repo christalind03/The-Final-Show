@@ -300,13 +300,19 @@ public class ScoreBoard : NetworkBehaviour
     {
         uint newNetId = conn.identity.netId;
         uint oldNetId = playerConnectionToClient.GetValueOrDefault(conn);
-        // Update player kda key 
-        PlayerKDA.Add(newNetId, PlayerKDA.GetValueOrDefault(oldNetId));
+
+        PlayerData tempKDA = PlayerKDA.GetValueOrDefault(oldNetId);
+        string tempName = playerName.GetValueOrDefault(oldNetId);
+        
+        
         PlayerKDA.Remove(oldNetId);
+        playerName.Remove(oldNetId);
+        
+        // Update player kda key 
+        PlayerKDA.Add(newNetId, tempKDA);
 
         // Update player name key
-        playerName.Add(newNetId, playerName.GetValueOrDefault(oldNetId));
-        playerName.Remove(oldNetId);
+        playerName.Add(newNetId, tempName);
 
         // Update the player connection netid
         playerConnectionToClient.Remove(conn);
