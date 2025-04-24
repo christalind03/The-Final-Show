@@ -8,18 +8,39 @@ using UnityEngine;
 [RequireComponent(typeof(NetworkIdentity))]
 public class InteractableInventoryItem : NetworkBehaviour, IInteractable
 {
+    [SerializeField] private bool _isRandom;
+    [SerializeField] private InventoryItem[] _itemPool;
     [SerializeField] private bool _isSkinned;
 
-    public InventoryItem InventoryItem;
+    [SyncVar] public InventoryItem InventoryItem;
 
     private SkinnedMeshRenderer _skinnedMeshRenderer;
     private Mesh _initialMesh;
     private Material[] _initialMaterials;
 
+    [Tooltip("Drop settings")]
+    [SerializeField] private float _rotationSpeed = 10f;
+    [SerializeField] private float _dropSpeed = 1f;
+
+    [Tooltip("The angle measured in degress upwards from the horizontal")]
+    [Range(0f, 90f)]
+    [SerializeField] private float _dropAngle = 45f;
+
+    private Rigidbody rb;
+    private bool dropped = false;
+
+    public override void OnStartServer()
+    {
+        if (_isRandom)
+        {
+            InventoryItem = _itemPool[Random.Range(0, _itemPool.Length)];
+        }
+    }
+    
     /// <summary>
     /// Sets the object's visual representation based on the assigned inventory item.
     /// </summary>
-    private void Start()
+    public override void OnStartClient()
     {
         if (InventoryItem != null)
         {
@@ -48,6 +69,7 @@ public class InteractableInventoryItem : NetworkBehaviour, IInteractable
     /// <param name="playerObject">The player interacting with the object</param>
     public void Interact(GameObject playerObject)
     {
+        dropped = false;
         if (playerObject.TryGetComponent(out PlayerInventory playerInventory))
         {
             if (playerInventory.AddItem(InventoryItem))
@@ -76,11 +98,35 @@ public class InteractableInventoryItem : NetworkBehaviour, IInteractable
 
     /// <summary>
     /// Resets the skinned mesh renderer to its initial state on all clients.
+    /// Additionally prevents the user from duplicating items from mannequins.
     /// </summary>
     [ClientRpc]
     private void RpcRemove()
     {
         _skinnedMeshRenderer.sharedMesh = _initialMesh;
         _skinnedMeshRenderer.materials = _initialMaterials;
+        
+        Destroy(this);
+        Destroy(transform.GetChild(0).gameObject); // Delete the InteractableUI
+    }
+
+    /// <summary>
+    /// Creates drop physics when a player drops an item
+    /// </summary>
+    public void Drop(Transform player)
+    {
+        rb = GetComponent<Rigidbody>();
+        dropped = true;
+        Vector3 launchDir = Quaternion.AngleAxis(_dropAngle, -player.right) * player.forward;
+        rb.AddForce(_dropSpeed * launchDir, ForceMode.VelocityChange);
+    }
+
+    /// <summary>
+    /// Creates the spinning effect after an item is dropped
+    /// </summary>
+    private void FixedUpdate()
+    {
+        if (!dropped) return;
+        transform.Rotate(0, Time.deltaTime * _rotationSpeed, 0);
     }
 }

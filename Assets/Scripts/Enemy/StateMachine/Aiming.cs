@@ -8,17 +8,10 @@ public class AimingState : EnemyState
     
     public override void EnterState()
     {
-        Debug.Log("Entering Aiming State");
-
-        // For debugging purposes only.
-        StateContext.Material.SetColor("_BaseColor", Color.red);
         StateContext.Animator.SetBool("Is Aiming", true);
     }
 
-    public override void ExitState()
-    {
-        Debug.Log("Leaving Aiming State");
-    }
+    public override void ExitState() { }
 
     public override void OnTriggerEnter(Collider otherCollider) { }
     public override void OnTriggerExit(Collider otherCollider) { }

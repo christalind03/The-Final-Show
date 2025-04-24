@@ -13,13 +13,23 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshSurface))]
 public class DungeonGenerator : NetworkBehaviour
 {
+    [System.Serializable]
+    struct DungeonThemes
+    {
+        public GameObject[] EntracePrefabs;
+        public GameObject[] ExitPrefabs;
+        public GameObject[] HallwayPrefabs;
+        public GameObject[] RoomPrefabs;
+    }
+    
     [SyncVar] private int _randomSeed;
 
-    [Header("Dungeon Segments")]
-    [SerializeField] private GameObject[] _entrancePrefabs;
-    [SerializeField] private GameObject[] _exitPrefabs;
-    [SerializeField] private GameObject[] _hallwayPrefabs;
-    [SerializeField] private GameObject[] _roomPrefabs;
+    [Header("Dungeon Data")]
+    [SerializeField] private DungeonThemes[] _dungeonThemes;
+    // private GameObject[] _entrancePrefabs;
+    // private GameObject[] _exitPrefabs;
+    // private GameObject[] _hallwayPrefabs;
+    // private GameObject[] _roomPrefabs;
 
     [Header("Dungeon Size")]
     [Tooltip("The size of the dungeon is inclusive to the entrance and exit rooms.")]
@@ -39,6 +49,7 @@ public class DungeonGenerator : NetworkBehaviour
 
     public bool IsGenerated { get; private set; }
 
+    private int _themeIndex;
     private List<DungeonSegment> _connectableSegments;
     private List<DungeonSegment> _dungeonSegments;
 
@@ -59,7 +70,7 @@ public class DungeonGenerator : NetworkBehaviour
             _maximumEnemies = _minimumEnemies;
         }
     }
-
+    
     /// <summary>
     /// Initializes dungeon generation on the client, generating the dungeon itself and its navigation mesh.
     /// </summary>
@@ -93,6 +104,7 @@ public class DungeonGenerator : NetworkBehaviour
     /// </summary>
     private void GenerateDungeon()
     {
+        _themeIndex = UnityEngine.Random.Range(0, _dungeonThemes.Length);
         int totalRooms = UnityEngine.Random.Range(_minimumRooms, _maximumRooms + 1); // Since the maximum parameter is exclusive, ensure we add by one to make it inclusive
         int exitIndex = UnityEngine.Random.Range(1, totalRooms); // Entrance occupies the 0th index
 
@@ -124,6 +136,7 @@ public class DungeonGenerator : NetworkBehaviour
 
                 if (ContainsIntersections(generatedSegment))
                 {
+                    generatedSegment.gameObject.SetActive(false); // Disable the segment so the NavMeshSurface ignores it
                     Destroy(generatedSegment.gameObject);
                     continue;
                 }
@@ -150,8 +163,8 @@ public class DungeonGenerator : NetworkBehaviour
     /// </summary>
     private void SpawnEntrance()
     {
-        int entranceIndex = UnityEngine.Random.Range(0, _entrancePrefabs.Length);
-        GameObject entranceObject = Instantiate(_entrancePrefabs[entranceIndex], transform);
+        int entranceIndex = UnityEngine.Random.Range(0, _dungeonThemes[_themeIndex].EntracePrefabs.Length);
+        GameObject entranceObject = Instantiate(_dungeonThemes[_themeIndex].EntracePrefabs[entranceIndex], transform);
 
         if (entranceObject.TryGetComponent(out DungeonSegment entranceSegment) && entranceSegment.ContainsEntryPoints())
         {
@@ -228,17 +241,17 @@ public class DungeonGenerator : NetworkBehaviour
     {
         if (isExit)
         {
-            return _exitPrefabs;
+            return _dungeonThemes[_themeIndex].ExitPrefabs;
         }
         else
         {
             if (isHallway)
             {
-                return _hallwayPrefabs;
+                return _dungeonThemes[_themeIndex].HallwayPrefabs;
             }
             else
             {
-                return _roomPrefabs;
+                return _dungeonThemes[_themeIndex].RoomPrefabs;
             }
         }
     }

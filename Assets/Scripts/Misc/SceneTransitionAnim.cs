@@ -11,39 +11,49 @@ public class SceneTransitionAnim : MonoBehaviour
     [SerializeField] private TimelineAsset exitAnim;
     [SerializeField] private TimelineAsset enterAnim;
     VisualElement transition;
-    void Start() {
-        if (Instance == null){
+    void Start()
+    {
+        if (Instance == null)
+        {
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
-        else{
+        else
+        {
             Destroy(gameObject);
         }
     }
 
-    void OnEnable() {
-        if(UnityUtils.ContainsElement(uIDocument.rootVisualElement, "Transition-Container", out VisualElement output)){
+    void OnEnable()
+    {
+        if (UnityUtils.ContainsElement(uIDocument.rootVisualElement, "Transition-Container", out VisualElement output))
+        {
             transition = output;
         }
         sceneAnim.stopped += OnAnimationFinished;
     }
 
-    void OnDisable() {
+    void OnDisable()
+    {
         sceneAnim.stopped -= OnAnimationFinished;
     }
-    public void ExitAnim() {
-        if(sceneAnim.state != PlayState.Playing){
+    public void ExitAnim()
+    {
+        if (sceneAnim.state != PlayState.Playing)
+        {
             sceneAnim.playableAsset = exitAnim;
             transition.visible = true;
-            sceneAnim.Play();              
+            sceneAnim.Play();
         }
     }
-    public void EnterAnim() {
+    public void EnterAnim()
+    {
         sceneAnim.playableAsset = enterAnim;
         transition.visible = true;
-        sceneAnim.Play();   
+        sceneAnim.Play();
     }
-    private void OnAnimationFinished(PlayableDirector director){
+    private void OnAnimationFinished(PlayableDirector director)
+    {
         transition.visible = false;
     }
 }

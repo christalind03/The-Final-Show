@@ -1,4 +1,5 @@
 using System;
+using Mirror;
 using UnityEngine;
 
 public class GameplayManager : StateManager<GameplayManager.State, GameplayState, GameplayContext>
@@ -55,5 +56,40 @@ public class GameplayManager : StateManager<GameplayManager.State, GameplayState
     public void CollectScript()
     {
         StateContext.CollectScript();
+        ScriptManagement scriptManager = NetworkManager.FindObjectOfType<ScriptManagement>();
+        scriptManager.currentScript = StateContext.scriptsCollected;
+        scriptManager.UpdateMessage();
+    }
+
+    /// <summary>
+    /// Get theme of the dungeon 
+    /// </summary>
+    /// <returns></returns>
+    public string GetTheme()
+    {
+        return StateContext.GameplayTheme.Theme;
+    }
+
+    /// <summary>
+    /// Get amount of scripts needed to continue to boss
+    /// </summary>
+    /// <returns></returns>
+    public int GetScriptsNeeded()
+    {
+        return StateContext.scriptsNeeded;
+    }
+
+    public void AddInvalidPlayer(GameObject invalidPlayer)
+    {
+        StateContext.invalidPlayers.Add(invalidPlayer);
+    }
+
+    /// <summary>
+    /// Manually selects a theme for demo purposes by calling StateContext.SelectTheme().
+    /// </summary>
+    /// <param name="ind">Index of the theme to select</param>
+    public void SelectTheme(int ind)
+    {
+        StateContext.SelectTheme(ind);
     }
 }

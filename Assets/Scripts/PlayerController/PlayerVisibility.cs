@@ -4,15 +4,16 @@ using UnityEngine;
 public class PlayerVisibility : NetworkBehaviour
 {
     private CharacterController _characterController;
-    private SkinnedMeshRenderer _skinnedMeshRenderer;
+    private GameObject _model;
 
     /// <summary>
     /// Initializes the chracter's controller and skinned mesh renderer component references.
     /// </summary>
-    private void Start()
+    public override void OnStartClient()
     {
+        base.OnStartClient();
         _characterController = gameObject.GetComponent<CharacterController>();
-        _skinnedMeshRenderer = gameObject.GetComponentInChildren<SkinnedMeshRenderer>();
+        _model = gameObject.transform.Find("Base_Character").gameObject;
     }
 
     /// <summary>
@@ -23,7 +24,7 @@ public class PlayerVisibility : NetworkBehaviour
     public void CmdToggleVisibility(bool isVisible)
     {
         _characterController.enabled = isVisible;
-        _skinnedMeshRenderer.enabled = isVisible;
+        _model.SetActive(isVisible);
         RpcToggleVisbility(isVisible);
     }
 
@@ -34,7 +35,8 @@ public class PlayerVisibility : NetworkBehaviour
     [ClientRpc]
     public void RpcToggleVisbility(bool isVisible)
     {
+        if (isServer) return;
         _characterController.enabled = isVisible;
-        _skinnedMeshRenderer.enabled = isVisible;
+        _model.SetActive(isVisible);
     }
 }

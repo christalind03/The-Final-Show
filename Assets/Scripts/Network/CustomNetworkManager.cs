@@ -47,6 +47,15 @@ public class CustomNetworkManager : NetworkManager
         // Unregister handlers for custom network messages for every client that disconnects
         NetworkClient.UnregisterHandler<CountdownMessage>();
         NetworkClient.UnregisterHandler<SpectateMessage>();
+
+        // Delete stuff that are on Dont destroy on load
+        if (NetworkClient.activeHost)
+        {
+            Destroy(GameplayManager.Instance.gameObject);
+        }
+        Destroy(ScoreBoard.Instance.gameObject);
+        Destroy(GameplayAudio.Instance.gameObject);
+        Destroy(CustomNetworkManager.Instance.gameObject);
     }
 
     /// <summary>
@@ -353,7 +362,7 @@ public class CustomNetworkManager : NetworkManager
 
     /// <summary>
     /// Handles spectating functionality.
-    /// Whena spectate message is received, the player is marked as
+    /// When a spectate message is received, the player is marked as
     /// not alive with their visibility is toggled off, enabling spectator mode.
     /// </summary>
     /// <param name="spectateMessage">The <see cref="SpectateMessage"/> received from the server</param>

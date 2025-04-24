@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -8,9 +9,11 @@ public class GameplayContext
     public GameplayTheme GameplayTheme { get; private set; }
 
     private readonly GameplayTheme[] _gameplayThemes;
+    public List<GameObject> invalidPlayers = new List<GameObject>();
 
-    public int _scriptsCollected; // Stores the number of scripts collected in the current run
-    public int _lifetimeScriptsCollected; // Stores the total number of scripts collected across all runs
+    public int scriptsCollected; // Stores the number of scripts collected in the current run
+    public int lifetimeScriptsCollected; // Stores the total number of scripts collected across all runs
+    public int scriptsNeeded = 1; // This would change depending on difficulty, using predefined value for testing
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GameplayContext"/> class.
@@ -19,12 +22,12 @@ public class GameplayContext
     public GameplayContext(GameplayTheme[] gameplayThemes)
     {
         _gameplayThemes = gameplayThemes;
-        _scriptsCollected = 0;
-        _lifetimeScriptsCollected = 0;
+        scriptsCollected = 0;
+        lifetimeScriptsCollected = 0;
     }
 
     /// <summary>
-    /// Randomizes the gameplay theme by selecting one at random from te available themes.
+    /// Randomizes the gameplay theme by selecting one at random from the available themes.
     /// </summary>
     public void RandomizeTheme()
     {
@@ -37,9 +40,16 @@ public class GameplayContext
     /// </summary>
     public void CollectScript()
     {
-        _scriptsCollected++;
-        _lifetimeScriptsCollected++;
-        Debug.Log("Current Scripts: " + _scriptsCollected);
-        Debug.Log("Lifetime Scripts: " + _lifetimeScriptsCollected);
+        scriptsCollected++;
+        lifetimeScriptsCollected++;
+    }
+
+    /// <summary>
+    /// Manually selects a theme for demo purposes.
+    /// </summary>
+    /// <param name="ind">Index of the theme to select</param>
+    public void SelectTheme(int ind)
+    {
+        GameplayTheme = _gameplayThemes[ind];
     }
 }

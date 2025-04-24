@@ -1,8 +1,8 @@
 using Mirror;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 /// <summary>
@@ -18,8 +18,9 @@ public class PlayerInterface : NetworkBehaviour
     /// <summary>
     /// Initializes the root UI element and the visibility of certain UI elements.
     /// </summary>
-    public override void OnStartAuthority()
+    public override void OnStartLocalPlayer()
     {
+        base.OnStartLocalPlayer();
         UIDocument uiDocument = gameObject.GetComponent<UIDocument>();
 
         if (uiDocument.visualTreeAsset.name != "PlayerUI")
@@ -28,7 +29,32 @@ public class PlayerInterface : NetworkBehaviour
         }
 
         _rootVisualElement = uiDocument.rootVisualElement;
-        base.OnStartAuthority();
+
+        switch (SceneManager.GetActiveScene().name)
+        {
+            case "Gameplay-Preparation":
+                if (UnityUtils.ContainsElement(_rootVisualElement, "RoundTheme", out VisualElement themeContainer))
+                {
+                    themeContainer.visible = true;
+                    if (themeContainer.visible == false) return;
+                    if (UnityUtils.ContainsElement(_rootVisualElement, "ThemeText", out TextElement themeText))
+                    {
+                        ThemeName themeName = NetworkManager.FindObjectOfType<ThemeName>();
+                        themeText.text = themeName.theme;
+                    }
+                }
+                break;
+            case "Gameplay-Dungeon":
+                if (UnityUtils.ContainsElement(_rootVisualElement, "Script-Counter", out TextElement scriptCounter))
+                {
+                    scriptCounter.visible = true;
+                    ScriptManagement scriptManager = NetworkManager.FindObjectOfType<ScriptManagement>();
+                    scriptManager.FirstLoad();
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     /// <summary>
@@ -113,23 +139,6 @@ public class PlayerInterface : NetworkBehaviour
     }
 
     /// <summary>
-    /// Refreshes the ammunition UI with the current clip and remaining ammo amounts.
-    /// </summary>
-    /// <param name="clipAmount">The current clip count.</param>
-    /// <param name="remainingAmount">The remaining amount of ammo.</param>
-    public void RefreshAmmo(int clipAmount, int remainingAmount)
-    {
-        if (UnityUtils.ContainsElement(_rootVisualElement, "Ammo-Count", out Label ammoCount))
-        {
-            if (UnityUtils.ContainsElement(_rootVisualElement, "Ammo-Remaining", out Label ammoRemaining))
-            {
-                ammoCount.text = clipAmount.ToString();
-                ammoRemaining.text = remainingAmount.ToString();
-            }
-        }
-    }
-
-    /// <summary>
     /// Refreshes the attack statistic display in the UI.
     /// </summary>
     /// <param name="totalAttack">The total attack value to display.</param>
@@ -174,18 +183,6 @@ public class PlayerInterface : NetworkBehaviour
     public void RefreshCriticalStrikeChance(float critChance)
     {
         RefreshStatus("CriticalStrike-Value", critChance);
-    }
-
-    /// <summary>
-    /// Toggles the visibility of the ammunition UI.
-    /// </summary>
-    /// <param name="displayAmmo">If true, the ammunition UI will be displayed; otherwise, hides it.</param>
-    public void ToggleAmmoVisibility(bool displayAmmo)
-    {
-        if (UnityUtils.ContainsElement(_rootVisualElement, "Ammo", out VisualElement ammoElement))
-        {
-            ammoElement.style.opacity = displayAmmo ? 1 : 0;
-        }
     }
 
     /// <summary>
@@ -269,6 +266,34 @@ public class PlayerInterface : NetworkBehaviour
                 playerSlots[Counter].AddToClassList("hide");
             }
             Counter++;
+        }
+    }
+
+
+    /// <summary>
+    /// Updates the UI displaying the script collection task
+    /// </summary>
+    /// <param name="info"></param>
+    [TargetRpc]
+    public void RpcRefreshScriptCount(string info)
+    {
+        if(!isOwned) return;
+        if (UnityUtils.ContainsElement(_rootVisualElement, "Script-Counter", out TextElement scriptCounter))
+        {
+            scriptCounter.text = info;
+        }
+    }
+
+    /// <summary>
+    /// Used for loading display first time, locally not using network
+    /// </summary>
+    /// <param name="info"></param>
+    public void RefreshScriptCount(string info)
+    {
+        if(!isOwned) return;
+        if (UnityUtils.ContainsElement(_rootVisualElement, "Script-Counter", out TextElement scriptCounter))
+        {
+            scriptCounter.text = info;
         }
     }
 

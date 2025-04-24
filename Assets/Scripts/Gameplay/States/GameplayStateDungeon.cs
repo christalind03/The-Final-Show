@@ -9,7 +9,6 @@ using UnityEngine.SceneManagement;
 public class GameplayStateDungeon : GameplayState
 {
     private SafeZone _safeZone;
-    private int _scriptsNeeded = 1; // This would change depending on difficulty, using predefined value for testing
 
     /// <summary>
     /// Sets a custom callback to be executed once the countdown finishes.
@@ -19,17 +18,23 @@ public class GameplayStateDungeon : GameplayState
     /// </summary>
     public override void EnterState()
     {
-        Debug.Log("Entered dungeon state...");
-        StateContext._scriptsCollected = 0; // Reset scripts collected
+        StateContext.scriptsCollected = 0; // Reset scripts collected
         CountdownCallback = () =>
         {
-            if (_safeZone != null && _safeZone.ContainsPlayers && StateContext._scriptsCollected >= _scriptsNeeded)
+            if (_safeZone != null && _safeZone.ContainsPlayers && StateContext.scriptsCollected >= StateContext.scriptsNeeded)
             {
                 GameplayManager.Instance.TransitionToState(GameplayManager.State.Boss);
+                List<GameObject> NotInSafeZonePlayer = NetworkUtils.RetrievePlayers().Except(_safeZone.SafePlayers).ToList();
 
-                List<GameObject> invalidPlayers = NetworkUtils.RetrievePlayers().Except(_safeZone.SafePlayers).ToList();
-
-                foreach (GameObject invalidPlayer in invalidPlayers)
+                foreach (GameObject player in NotInSafeZonePlayer)
+                {
+                    if (!StateContext.invalidPlayers.Contains(player))
+                    {
+                        StateContext.invalidPlayers.Add(player);
+                    }
+                }
+                
+                foreach (GameObject invalidPlayer in StateContext.invalidPlayers)
                 {
                     NetworkIdentity invalidPlayerIdentity = invalidPlayer.GetComponent<NetworkIdentity>();
 
@@ -42,12 +47,18 @@ public class GameplayStateDungeon : GameplayState
             }
         };
 
+        SteamLobby steamLobby = NetworkManager.FindObjectOfType<SteamLobby>();
+        if (NetworkClient.activeHost && steamLobby != null)
+        {
+            steamLobby.SetSceneData("Dungeon");
+        }
+
         base.EnterState();
     }
 
     /// <summary>
     /// Searches for the safe zone object within the loaded scene.
-    /// If found, then set the safe zone reference to the one found.
+    /// If found, then add prefab arrays from theme and set the safe zone reference to the one found.
     /// </summary>
     /// <param name="activeScene">The scene that was loaded</param>
     /// <param name="loadMode">The mode in which the scene was loaded</param>
@@ -84,11 +95,10 @@ public class GameplayStateDungeon : GameplayState
         {
             if (targetObject != null)
             {
-                Debug.Log("Found the safe zone!");
                 _safeZone = targetObject;
             }
         });
-        
+
         if (IsTimed)
         {
             CustomNetworkManager.Instance.Countdown(
@@ -97,21 +107,6 @@ public class GameplayStateDungeon : GameplayState
             );
         }
     }
-
-    ///// <summary>
-    ///// Relocates all ready players to their respective spawn positions in the game.
-    ///// This method is invoked for each connected client to ensure proper placement in the newly generated dungeon.
-    ///// </summary>
-    //private void RelocatePlayers()
-    //{
-    //    foreach (NetworkConnectionToClient clientConnection in NetworkServer.connections.Values)
-    //    {
-    //        if (clientConnection.isReady)
-    //        {
-    //            CustomNetworkManager.Instance.StartCoroutine(CustomNetworkManager.Instance.RelocatePlayer(clientConnection));
-    //        }
-    //    }
-    //}
 
     public override void OnTriggerEnter(Collider otherCollider) { }
     public override void OnTriggerExit(Collider otherCollider) { }

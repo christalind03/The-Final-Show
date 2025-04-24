@@ -10,19 +10,17 @@ public class WanderingState : EnemyState
 
     public override void EnterState()
     {
-        Debug.Log("Entering Wandering State");
         StateContext.NavMeshAgent.ResetPath(); // Clear the current path
         StateContext.NavMeshAgent.stoppingDistance = 0; // Allows the enemy to reach wander points
         StateContext.NavMeshAgent.speed = movementSpeed; // Update speed
         StateContext.Animator.SetBool("Is Aiming", false);
 
-        StateContext.AudioManager?.CmdPlay("Wandering");
+        StateContext.AudioManager?.CmdPlay("Wander");
     }
 
     public override void ExitState()
     {
-        Debug.Log("Leaving Wandering State");
-        StateContext.AudioManager?.CmdStop("Wandering");
+        StateContext.AudioManager?.CmdStop("Wander");
     }
 
     public override void OnTriggerEnter(Collider otherCollider) { }

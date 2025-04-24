@@ -14,7 +14,7 @@ public abstract class AbstractHealth : NetworkBehaviour
     [SyncVar(hook = nameof(OnCurrentHealth))]
     protected float _currentValue;
 
-    private List<float> _modifierList;
+    protected List<float> _modifierList;
 
     /// <summary>
     /// Get the base value of the stat, including any active modifiers into the final calculation.
@@ -31,7 +31,7 @@ public abstract class AbstractHealth : NetworkBehaviour
 
             return _baseValue + modifierSum;
         }
-        private set
+        protected set
         {
             _baseValue = value;
         }
@@ -43,7 +43,7 @@ public abstract class AbstractHealth : NetworkBehaviour
     public float CurrentValue
     {
         get => _currentValue;
-        private set
+        protected set
         {
             _currentValue = Mathf.Clamp(value, 0f, BaseValue);
         }
@@ -53,7 +53,7 @@ public abstract class AbstractHealth : NetworkBehaviour
     /// Initialize a new instance of the Stat class with a specified base value.
     /// </summary>
     /// <param name="baseValue">The initial value of the stat.</param>
-    private void Start()
+    protected virtual void Start()
     {
         _currentValue = _baseValue;
         _modifierList = new List<float>();
@@ -81,13 +81,10 @@ public abstract class AbstractHealth : NetworkBehaviour
         {
             float reducedDamage = Mathf.Max(decreaseValue - playerStats.Defense.BaseValue, 0);
             CurrentValue -= reducedDamage;
-
-            Debug.Log($"{gameObject.name} took {reducedDamage} damage after defense. Remaining health: {CurrentValue}/{BaseValue}");
         }
         else
         {
             CurrentValue -= decreaseValue;
-            Debug.Log($"{gameObject.name} took {decreaseValue} damage. Remaining health: {CurrentValue}/{BaseValue}");
         }
         if (CurrentValue <= 0f) { TriggerDeath(); }
     }

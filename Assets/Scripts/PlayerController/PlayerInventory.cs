@@ -51,6 +51,7 @@ public class PlayerInventory : NetworkBehaviour
         public Material[] Materials;
     }
 
+    [SerializeField] private Animator _playerAnimator;
     [SerializeField] private List<EquippableReference> _equippableReferences;
 
     private readonly SyncDictionary<string, InventoryItem> _inventorySlots = new SyncDictionary<string, InventoryItem>();
@@ -109,10 +110,10 @@ public class PlayerInventory : NetworkBehaviour
         _inventorySlots["Slot-3"] = null;
         _inventorySlots["Slot-4"] = null;
         _inventorySlots["Slot-5"] = null;
-        _inventorySlots["Slot-6"] = null;
-        _inventorySlots["Slot-7"] = null;
-        _inventorySlots["Slot-8"] = null;
-        _inventorySlots["Slot-9"] = null;
+        // _inventorySlots["Slot-6"] = null;
+        // _inventorySlots["Slot-7"] = null;
+        // _inventorySlots["Slot-8"] = null;
+        // _inventorySlots["Slot-9"] = null;
 
         base.OnStartServer();
     }
@@ -122,7 +123,7 @@ public class PlayerInventory : NetworkBehaviour
     /// This function sets up inventory slot restrictions, sorts inventory keys, retrieves
     /// references to player components, and sets the initial active inventory slot.
     /// </summary>
-    public override void OnStartAuthority()
+    public override void OnStartLocalPlayer()
     {
         // Define inventory slot restrictions
         _inventoryRestrictions = new Dictionary<string, InventoryRestriction>
@@ -146,7 +147,7 @@ public class PlayerInventory : NetworkBehaviour
         _currentSlot = "Slot-1";
         SelectSlot(_currentSlot);
 
-        base.OnStartAuthority();
+        base.OnStartLocalPlayer();
     }
 
     /// <summary>
@@ -421,6 +422,7 @@ public class PlayerInventory : NetworkBehaviour
     /// <returns><c>true</c> if the item should be equipped, otherwise <c>false</c>.</returns>
     private bool ShouldEquip(InventoryItem inventoryItem)
     {
+#if UNITY_EDITOR
         if (_equippedRenderers == null)
         {
             Debug.Log("Equipped renderers is null");
@@ -433,6 +435,7 @@ public class PlayerInventory : NetworkBehaviour
         {
             Debug.Log("Whole thing is null");
         }
+#endif
 
         GameObject equippableReference = _equippedRenderers[inventoryItem.ItemCategory];
 
@@ -486,11 +489,6 @@ public class PlayerInventory : NetworkBehaviour
 
         if (equippableReference != null)
         {
-            if (inventoryItem is RangedWeapon)
-            {
-                TargetToggleAmmoVisibility(connectionToClient, true);
-            }
-
             RpcEquip(inventoryItem);
         }
     }
@@ -508,11 +506,6 @@ public class PlayerInventory : NetworkBehaviour
 
         if (equippableReference != null)
         {
-            if (inventoryItem is RangedWeapon)
-            {
-                TargetToggleAmmoVisibility(connectionToClient, false);
-            }
-
             RpcUnequip(inventoryItem);
         }
     }
@@ -529,6 +522,7 @@ public class PlayerInventory : NetworkBehaviour
         if (inventoryItem is Weapon weaponItem)
         {
             _audioManager.ChangeAudio("Weapon", weaponItem.AttackAudio);
+            _playerAnimator.runtimeAnimatorController = weaponItem.AnimatorController;
         }
 
         GameObject equippableReference = _equippedRenderers[inventoryItem.ItemCategory];
@@ -551,27 +545,5 @@ public class PlayerInventory : NetworkBehaviour
 
         skinnedMeshRenderer.sharedMesh = initialRenderer.Mesh;
         skinnedMeshRenderer.materials = initialRenderer.Materials;
-    }
-
-    /// <summary>
-    /// Toggles the visibility of the ammunition UI on the target client.
-    /// If displayed, updates the ammo count and clip capacity.
-    /// </summary>
-    /// <remarks>
-    /// Since the visibility of ammo is tied to the <c>CmdEquip()</c> and <c>CmdUnequip()</c> functions, we must have this intermediary function to inform the server which gameObject should receive these updates.
-    /// </remarks>
-    /// <param name="targetClient">The target client to send the RPC to.</param>
-    /// <param name="displayAmmo">True to display the ammunition; otherwise, hides it.</param>
-    [TargetRpc]
-    private void TargetToggleAmmoVisibility(NetworkConnectionToClient targetClient, bool displayAmmo)
-    {
-        _playerInterface.ToggleAmmoVisibility(displayAmmo);
-
-        if (displayAmmo)
-        {
-            // TODO: If the user reloads before the current clip is gone, ensure that the difference between the clip capacity and current amount is added to the remaining amount
-            RangedWeapon rangedWeapon = (RangedWeapon)_inventorySlots[_currentSlot];
-            _playerInterface.RefreshAmmo(rangedWeapon.AmmoCount, rangedWeapon.ClipCapacity * rangedWeapon.ClipCount);
-        }
     }
 }

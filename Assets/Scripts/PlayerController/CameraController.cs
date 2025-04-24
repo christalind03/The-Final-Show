@@ -32,7 +32,8 @@ public class CameraController : NetworkBehaviour
     {
         base.OnStartClient();
         currentVirtualCameraHolder = virtualCameras;
-        if(uiDocument == null){
+        if (uiDocument == null)
+        {
             uiDocument = GetComponent<UIDocument>();
         }
 
@@ -88,7 +89,7 @@ public class CameraController : NetworkBehaviour
             }
 
             gameObject.GetComponent<PlayerInterface>().enabled = true;
-            gameObject.GetComponent<PlayerController>().enabled = true;
+            gameObject.GetComponent<CharacterController>().enabled = true;
 
             gameObject.layer = 6;
             currentVirtualCameraHolder.transform.Find("FollowCamera").gameObject.GetComponent<CinemachineVirtualCamera>().Priority = 0;
@@ -108,7 +109,7 @@ public class CameraController : NetworkBehaviour
             UnityEngine.Cursor.visible = true;
             UnityEngine.Cursor.lockState = CursorLockMode.None;
 
-            gameObject.GetComponent<PlayerController>().enabled = false;
+            gameObject.GetComponent<CharacterController>().enabled = false;
             gameObject.GetComponent<PlayerInterface>().enabled = false;
 
             if (UnityUtils.ContainsElement(rootVisualElement, "Primary-Container", out VisualElement primContainer))
@@ -127,7 +128,7 @@ public class CameraController : NetworkBehaviour
             {
                 currentPlayer = Cur;
             }
-            
+
             if (UnityUtils.ContainsElement(rootVisualElement, "Pre", out Button PreBtn))
             {
                 PreBtn.clicked += OnPreviousClicked;
@@ -138,16 +139,40 @@ public class CameraController : NetworkBehaviour
                 NextBtn.clicked += OnNextClicked;
             }
 
-            RequestPlayerList(); 
-            PrintDictionaryDebug();
+            RequestPlayerList(netId);
+            CmdRegisterSpectatorMessage();
         }
+    }
+
+    /// <summary>
+    /// Reset position of spectator camera.
+    /// </summary>
+    public void ResetSpectator(uint netid)
+    {
+        if (isOwned && !alive)
+        {
+            RequestPlayerList(netid);
+        }
+    }
+
+
+    /// <summary>
+    /// Add to invalid player list once the playe goes into spectator mode
+    /// </summary>
+    [Command]
+    private void CmdRegisterSpectatorMessage()
+    {
+        GameplayManager gameplayManager = NetworkManager.FindObjectOfType<GameplayManager>();
+        GameObject playerObj = connectionToClient.identity.gameObject;
+        gameplayManager.AddInvalidPlayer(playerObj);
     }
 
     /// <summary>
     /// Unsubscribe to the callback events
     /// </summary>
-    private void OnDisable() {
-        if(!isOwned) return;
+    private void OnDisable()
+    {
+        if (!isOwned) return;
         if (UnityUtils.ContainsElement(rootVisualElement, "Pre", out Button PreBtn))
         {
             PreBtn.clicked -= OnPreviousClicked;
@@ -168,13 +193,13 @@ public class CameraController : NetworkBehaviour
         GameObject oldVirtualCameras = playerObj[playerNetIds[currentCameraPos]].transform.Find("VirtualCameras").gameObject;
         CinemachineVirtualCamera oldFollowCam = playerObj[playerNetIds[currentCameraPos]].transform.Find("VirtualCameras/FollowCamera").gameObject.GetComponent<CinemachineVirtualCamera>();
         oldFollowCam.Priority = 0;
-        
+
         currentCameraPos--;
         if (currentCameraPos < 0) { currentCameraPos = playerObj.Count - 1; } // Circular loop back to the top of the list
         playerObj[playerNetIds[currentCameraPos]].transform.Find("VirtualCameras").gameObject.SetActive(true);
         CinemachineVirtualCamera FollowCam = playerObj[playerNetIds[currentCameraPos]].transform.Find("VirtualCameras/FollowCamera").gameObject.GetComponent<CinemachineVirtualCamera>();
         FollowCam.Priority = 1;
-        
+
         oldVirtualCameras.SetActive(false);
         currentPlayer.text = playerName[playerNetIds[currentCameraPos]];
         currentVirtualCameraHolder = playerObj[playerNetIds[currentCameraPos]].transform.Find("VirtualCameras").gameObject;
@@ -189,23 +214,23 @@ public class CameraController : NetworkBehaviour
         GameObject oldVirtualCameras = playerObj[playerNetIds[currentCameraPos]].transform.Find("VirtualCameras").gameObject;
         CinemachineVirtualCamera oldFollowCam = playerObj[playerNetIds[currentCameraPos]].transform.Find("VirtualCameras/FollowCamera").gameObject.GetComponent<CinemachineVirtualCamera>();
         oldFollowCam.Priority = 0;
-        
+
         currentCameraPos++;
         currentCameraPos %= playerObj.Count; // Circular loop back to the bottom of the list
         playerObj[playerNetIds[currentCameraPos]].transform.Find("VirtualCameras").gameObject.SetActive(true);
         CinemachineVirtualCamera FollowCam = playerObj[playerNetIds[currentCameraPos]].transform.Find("VirtualCameras/FollowCamera").gameObject.GetComponent<CinemachineVirtualCamera>();
         FollowCam.Priority = 1;
-        
+
         oldVirtualCameras.SetActive(false);
         currentPlayer.text = playerName[playerNetIds[currentCameraPos]];
         currentVirtualCameraHolder = playerObj[playerNetIds[currentCameraPos]].transform.Find("VirtualCameras").gameObject;
     }
 
-    
+
     /// <summary>
     /// Request the player list
     /// </summary>
-    private void RequestPlayerList()
+    private void RequestPlayerList(ulong netid)
     {
         ScoreBoard scoreboard = NetworkManager.FindObjectOfType<ScoreBoard>();
         playerName = new Dictionary<uint, string>();
@@ -215,31 +240,38 @@ public class CameraController : NetworkBehaviour
         int i = 0;
         var gameObjects = NetworkManager.FindObjectsOfType<PlayerController>();
 
-        foreach(KeyValuePair<uint, string> var in scoreboard.playerName){
+        foreach (KeyValuePair<uint, string> var in scoreboard.playerName)
+        {
             playerName.Add(var.Key, var.Value);
-            currentPlayer.text = playerName.GetValueOrDefault(netId);    
-        } 
+            currentPlayer.text = playerName.GetValueOrDefault(netId);
+        }
 
-        foreach(PlayerController data in gameObjects){
+        foreach (PlayerController data in gameObjects)
+        {
             playerObj.Add(data.netId, data.gameObject);
             playerNetIds.Add(data.netId);
-            if(data.netId == netId){
+            if (data.netId == netid)
+            {
                 currentCameraPos = i;
             }
             i++;
         }
     }
 
-    private void PrintDictionaryDebug(){
-        foreach(var data in playerName){
+    private void PrintDictionaryDebug()
+    {
+        foreach (var data in playerName)
+        {
             Debug.Log(data.Key + " " + data.Value);
         }
-        foreach(var data in playerObj){
+        foreach (var data in playerObj)
+        {
             Debug.Log(data.Key + " " + data.Value.name);
         }
-        foreach(var data in playerNetIds){
+        foreach (var data in playerNetIds)
+        {
             Debug.Log(data);
         }
-        Debug.Log(currentCameraPos);
+        Debug.Log("Current Camera Pos " + currentCameraPos);
     }
 }

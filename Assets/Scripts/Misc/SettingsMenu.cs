@@ -36,9 +36,8 @@ public class SettingsMenu : NetworkBehaviour
     [SerializeField] private InputActionAsset inputActions;
     private InputActionRebindingExtensions.RebindingOperation _rebindOperation;
 
-    
+
     // Misc
-    private SteamLobby steamLobby;
     PlayerController controller;
     [SerializeField] private AudioMixer mixer;
 
@@ -66,14 +65,14 @@ public class SettingsMenu : NetworkBehaviour
     /// <summary>
     /// Assigns and populate all the required UI reference when the game starts up
     /// </summary>
-    private void Setup(){
+    private void Setup()
+    {
         // Set lobby id
-        steamLobby = NetworkManager.FindObjectOfType<SteamLobby>();
         string lobbyId = NetworkManager.FindObjectOfType<CustomNetworkManager>().LobbyId;
 
         // UI variable
         _rootVisualElement = uIDocument.rootVisualElement;
-        
+
         // animation variable
         isOpen = false;
         currentTab = "Setting-General-Container";
@@ -82,9 +81,11 @@ public class SettingsMenu : NetworkBehaviour
         inputActions = controller.playerInput.actions;
 
         // Fill dictionary with correct reference of visual element
-        if(UnityUtils.ContainsElement(_rootVisualElement, "Settings-Container", out VisualElement settings)){
+        if (UnityUtils.ContainsElement(_rootVisualElement, "Settings-Container", out VisualElement settings))
+        {
             _settingsMenu = settings;
-            if(UnityUtils.ContainsElement(settings, "Setting-Nav-Container", out VisualElement nav)){
+            if (UnityUtils.ContainsElement(settings, "Setting-Nav-Container", out VisualElement nav))
+            {
                 _navContainer = nav;
             }
 
@@ -92,7 +93,8 @@ public class SettingsMenu : NetworkBehaviour
             RegisterVisEle(settings, AudioTab);
             RegisterVisEle(settings, ControlsTab);
 
-            if(UnityUtils.ContainsElement(tabElements[GeneralTab], "Id", out TextField LobbyText)){
+            if (UnityUtils.ContainsElement(tabElements[GeneralTab], "Id", out TextField LobbyText))
+            {
                 LobbyText.value = lobbyId;
             }
         }
@@ -111,31 +113,38 @@ public class SettingsMenu : NetworkBehaviour
         RegisterControl(tabElements[ControlsTab], "DropBtn", "Drop", () => StartInteractiveRebind("Drop"));
         RegisterControl(tabElements[ControlsTab], "AttackBtn", "Attack", () => StartInteractiveRebind("Attack"));
         RegisterControl(tabElements[ControlsTab], "AltAttackBtn", "Alternate Attack", () => StartInteractiveRebind("Alternate Attack"));
-        
+
         // Screen Setting
-        if(UnityUtils.ContainsElement(tabElements[GeneralTab], "ScreenSetting", out DropdownField screenDropdown)){
+        if (UnityUtils.ContainsElement(tabElements[GeneralTab], "ScreenSetting", out DropdownField screenDropdown))
+        {
             dropdownElements.Add("ScreenSetting", screenDropdown);
             screenDropdown.RegisterValueChangedCallback(function => ScreenSetting());
         }
 
         // Camera Sens
-        if(UnityUtils.ContainsElement(tabElements[GeneralTab], "CameraSens", out Slider cameraSlider)){
+        if (UnityUtils.ContainsElement(tabElements[GeneralTab], "CameraSens", out Slider cameraSlider))
+        {
             sliderElements.Add("CameraSens", cameraSlider);
             cameraSlider.RegisterValueChangedCallback(function => CameraSens());
         }
 
         // Music Setting
-        if(UnityUtils.ContainsElement(tabElements[AudioTab], "MusicSlider", out Slider musicSlider)){
+        if (UnityUtils.ContainsElement(tabElements[AudioTab], "MusicSlider", out Slider musicSlider))
+        {
             sliderElements.Add("MusicSlider", musicSlider);
             musicSlider.RegisterValueChangedCallback(function => AdjustSound("Music"));
+            float volume = sliderElements["MusicSlider"].value;
+            mixer.SetFloat("Music", Mathf.Log10(volume) * 20);
         }
-    } 
+    }
 
     /// <summary>
     /// List of all buttons that needs to unsub their actions
     /// </summary>
-    private void UnsubActions(){
-        foreach(var kvp in buttonActions){
+    private void UnsubActions()
+    {
+        foreach (var kvp in buttonActions)
+        {
             var (button, action) = kvp.Value;
             if (button != null) button.clicked -= action;
         }
@@ -148,19 +157,16 @@ public class SettingsMenu : NetworkBehaviour
     /// <summary>
     /// Stops the host or client when the leave the game
     /// </summary>
-    private void OnBtnLeaveGame(){
-        if(isServer && isClient){
+    private void OnBtnLeaveGame()
+    {
+        if (isServer && isClient)
+        {
             CustomNetworkManager.Instance.StopHost();
         }
-        else if(isClient){
+        else if (isClient)
+        {
             CustomNetworkManager.Instance.StopClient();
         }
-
-        // Delete stuff that are on Dont destroy on load
-        Destroy(CustomNetworkManager.Instance.gameObject);
-        Destroy(ScoreBoard.Instance.gameObject);
-        Destroy(GameplayManager.Instance.gameObject);
-        Destroy(GameplayAudio.Instance.gameObject);
     }
 
     /// <summary>
@@ -168,8 +174,10 @@ public class SettingsMenu : NetworkBehaviour
     /// </summary>
     /// <param name="root">visual element of the root where the query should start</param>
     /// <param name="name">the name of the target visual element</param>
-    private void RegisterVisEle(VisualElement root, string name){
-        if(UnityUtils.ContainsElement(root, name, out VisualElement output)){
+    private void RegisterVisEle(VisualElement root, string name)
+    {
+        if (UnityUtils.ContainsElement(root, name, out VisualElement output))
+        {
             tabElements[name] = output;
             output.visible = false;
         }
@@ -181,8 +189,10 @@ public class SettingsMenu : NetworkBehaviour
     /// <param name="root">the root visual element of where to start query</param>
     /// <param name="name">name of the button element</param>
     /// <param name="onClick">the action that needs to be performed when clicked</param>
-    private void RegisterButton(VisualElement root, string name, System.Action onClick){
-        if(UnityUtils.ContainsElement(root, name, out Button output)){
+    private void RegisterButton(VisualElement root, string name, System.Action onClick)
+    {
+        if (UnityUtils.ContainsElement(root, name, out Button output))
+        {
             output.clicked += onClick;
             buttonActions.Add(name, (output, onClick));
         }
@@ -194,8 +204,10 @@ public class SettingsMenu : NetworkBehaviour
     /// <param name="root">the root visual element of where to start query</param>
     /// <param name="name">name of the button element</param>
     /// <param name="onClick">the action that needs to be performed when clicked</param>
-    private void RegisterControl(VisualElement root, string name, string actionName, System.Action onClick){
-        if(UnityUtils.ContainsElement(root, name, out Button output)){
+    private void RegisterControl(VisualElement root, string name, string actionName, System.Action onClick)
+    {
+        if (UnityUtils.ContainsElement(root, name, out Button output))
+        {
             output.clicked += onClick;
             buttonActions.Add(name, (output, onClick));
             controlButtonMap.Add(actionName, output);
@@ -271,7 +283,7 @@ public class SettingsMenu : NetworkBehaviour
     /// <param name="allCompositeParts">if input action has composite bindings</param>
     private void PerformInteractiveRebind(InputAction action, int bindingIndex, bool allCompositeParts = false)
     {
-        _rebindOperation?.Cancel(); 
+        _rebindOperation?.Cancel();
 
         void CleanUp()
         {
@@ -279,7 +291,7 @@ public class SettingsMenu : NetworkBehaviour
             _rebindOperation = null;
         }
 
-        if(action.enabled) action.Disable();
+        if (action.enabled) action.Disable();
 
         controlButtonMap[action.name].text = "Waiting for Key";
 
@@ -297,12 +309,13 @@ public class SettingsMenu : NetworkBehaviour
                 operation =>
                 {
                     action.Enable();
-                    if(CheckDuplicateBindings(action, bindingIndex, allCompositeParts)) {
+                    if (CheckDuplicateBindings(action, bindingIndex, allCompositeParts))
+                    {
                         action.RemoveBindingOverride(bindingIndex);
                         CleanUp();
                         PerformInteractiveRebind(action, bindingIndex, allCompositeParts);
                         return;
-                    }   
+                    }
 
                     UpdateRebindButtonText(action, bindingIndex, allCompositeParts);
                     CleanUp();
@@ -326,17 +339,20 @@ public class SettingsMenu : NetworkBehaviour
     /// <param name="action">the input action</param>
     /// <param name="bindingIndx">the binding index of the action</param>
     /// <param name="allCompositeParts">if the action has comoosite binding</param>
-    private void UpdateRebindButtonText(InputAction action, int bindingIndx, bool allCompositeParts = false) {
+    private void UpdateRebindButtonText(InputAction action, int bindingIndx, bool allCompositeParts = false)
+    {
         var displayString = string.Empty;
         var deviceLayoutName = default(string);
         var controlPath = default(string);
 
         if (action != null)
         {
-            if (allCompositeParts) {
+            if (allCompositeParts)
+            {
                 List<string> compositeParts = new List<string>();
 
-                for (int i = 1; i < action.bindings.Count && action.bindings[i].isPartOfComposite; i++) {
+                for (int i = 1; i < action.bindings.Count && action.bindings[i].isPartOfComposite; i++)
+                {
                     compositeParts.Add(action.GetBindingDisplayString(i, out deviceLayoutName, out controlPath));
                 }
 
@@ -356,20 +372,27 @@ public class SettingsMenu : NetworkBehaviour
     /// <param name="bindingIndx">the index of the rebind input action</param>
     /// <param name="allCompositeParts">if the action has composite bindings</param>
     /// <returns>true is dupe exist, false otherwise</returns>
-    private bool CheckDuplicateBindings(InputAction action, int bindingIndx, bool allCompositeParts = false) {
+    private bool CheckDuplicateBindings(InputAction action, int bindingIndx, bool allCompositeParts = false)
+    {
         InputBinding newBinding = action.bindings[bindingIndx];
-        foreach(InputBinding binding in action.actionMap.bindings) {
-            if(binding.action == newBinding.action){
+        foreach (InputBinding binding in action.actionMap.bindings)
+        {
+            if (binding.action == newBinding.action)
+            {
                 continue;
             }
-            if(binding.effectivePath == newBinding.effectivePath) {
+            if (binding.effectivePath == newBinding.effectivePath)
+            {
                 return true;
             }
         }
 
-        if(allCompositeParts){
-            for(int i = 0; i < bindingIndx; i++) {
-                if(action.bindings[i].effectivePath == newBinding.effectivePath){
+        if (allCompositeParts)
+        {
+            for (int i = 0; i < bindingIndx; i++)
+            {
+                if (action.bindings[i].effectivePath == newBinding.effectivePath)
+                {
                     return true;
                 }
             }
@@ -383,7 +406,8 @@ public class SettingsMenu : NetworkBehaviour
     /// Set the camera sensitivity based on the camera sens slider
     /// </summary>
     /// <param name="slider">the slider UI field</param>
-    private void CameraSens() {
+    private void CameraSens()
+    {
         Slider slider = sliderElements["CameraSens"];
         controller._cameraSensitivity = slider.value;
     }
@@ -392,9 +416,11 @@ public class SettingsMenu : NetworkBehaviour
     /// Set the screen setting based on the dropdown field value
     /// </summary>
     /// <param name="dropdown">the dropdown UI field</param>
-    private void ScreenSetting() {
+    private void ScreenSetting()
+    {
         DropdownField dropdown = dropdownElements["ScreenSetting"];
-        switch(dropdown.index) {
+        switch (dropdown.index)
+        {
             case 0:
                 Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
                 break;
@@ -415,9 +441,10 @@ public class SettingsMenu : NetworkBehaviour
     /// Used to adjust volume for the targeted sound type
     /// </summary>
     /// <param name="soundType">the group in audio mixer</param>
-    private void AdjustSound(string soundType){
+    private void AdjustSound(string soundType)
+    {
         float volume = sliderElements["MusicSlider"].value;
-        mixer.SetFloat(soundType, Mathf.Log10(volume)*20);
+        mixer.SetFloat(soundType, Mathf.Log10(volume) * 20);
     }
 
     #endregion
@@ -428,31 +455,39 @@ public class SettingsMenu : NetworkBehaviour
     /// Open or closes the setting menu depending on the state of the menu currently
     /// </summary>
     /// <returns>return true for open menu, false otherwise</returns>
-    public bool OpenMenu(){
-        if(!isOpen){
+    public bool OpenMenu()
+    {
+        if (!isOpen)
+        {
             menuOpenClose.playableAsset = menuOpenAnim;
             _settingsMenu.RemoveFromClassList("secondaryContainer");
             _settingsMenu.AddToClassList("primaryContainer");
-            foreach(var elementsPair in tabElements){
-                if(elementsPair.Key != GeneralTab){
+            foreach (var elementsPair in tabElements)
+            {
+                if (elementsPair.Key != GeneralTab)
+                {
                     elementsPair.Value.visible = false;
-                }else{
+                }
+                else
+                {
                     elementsPair.Value.visible = true;
                 }
             }
             currentTab = GeneralTab;
             tabElements[GeneralTab].visible = true;
             tabElements[GeneralTab].AddToClassList("settingActiveContainer");
-            menuOpenClose.Play();   
+            menuOpenClose.Play();
             isOpen = true;
             return true;
-        }else{
+        }
+        else
+        {
             TimelineAsset closeTimeline = menuCloseAnim;
             menuOpenClose.playableAsset = closeTimeline;
-            tabElements[GeneralTab].visible = true;     
-            menuOpenClose.Play();   
+            tabElements[GeneralTab].visible = true;
+            menuOpenClose.Play();
             isOpen = false;
-        }         
+        }
         return false;
     }
 
@@ -460,9 +495,11 @@ public class SettingsMenu : NetworkBehaviour
     /// Animationing and logic for switching the setting tabs
     /// </summary>
     /// <param name="newTab">the new tab that needs to be displayed</param>
-    private void SwitchTab(string newTab){
-        if(currentTab != newTab){
-            if(switchSettingTabs.state == PlayState.Playing) return;
+    private void SwitchTab(string newTab)
+    {
+        if (currentTab != newTab)
+        {
+            if (switchSettingTabs.state == PlayState.Playing) return;
 
             // Manage which container in front
             tabElements[newTab].BringToFront();
@@ -476,7 +513,8 @@ public class SettingsMenu : NetworkBehaviour
             showTab.Play();
 
             // Remove class once done
-            switchSettingTabs.stopped += (PlayableDirector director) =>{
+            switchSettingTabs.stopped += (PlayableDirector director) =>
+            {
                 tabElements[currentTab].RemoveFromClassList("settingTransitionContainer");
             };
 

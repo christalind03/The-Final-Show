@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4aada04f77404a644bd0e1f7de738bbf, type: 3}
+  m_Name: Double Axe
+  m_EditorClassIdentifier: 
+  _objectSprite: {fileID: 21300000, guid: 2b24b8159c2cafc488ae4e13d38c9e1b, type: 3}
+  _objectPrefab: {fileID: 1508160308319047064, guid: 851898b7a43efd04b8fbdd2d3718449a,
+    type: 3}
+  _skinnedMeshRenderer: {fileID: 2870070692195637499, guid: 82c93d6b049190a44a5a1e0a9b8ee78a,
+    type: 3}
+  _inventoryCategory: 3
+  _attackAudio: {fileID: 11400000, guid: 9fdbbae14e106a648957f1ae0483439e, type: 2}
+  _attackLayers:
+    serializedVersion: 2
+    m_Bits: 128
+  _attackCooldown: 2
+  _attackDamage: 20
+  _criticalStrikeChance: 0.25
+  _animatorController: {fileID: 22100000, guid: 2116a835159977c498e5bd6b7f46b3c1,
+    type: 2}
+  _attackAngle: 45
+  _attackRange: 3

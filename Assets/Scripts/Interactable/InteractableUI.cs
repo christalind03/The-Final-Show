@@ -19,11 +19,13 @@ public class InteractableUI : AbstractBillboard
     private Camera _camera;
     private RaycastHit _raycastHit;
     private InteractableUISprites interactableSprite;
+    private bool _firstLoad;
 
     /// <summary>
     /// Loads the different ui information that needs to be displayed
     /// </summary>
     private void Start() {  
+        _firstLoad = true;
         interactableSprite = NetworkManager.FindObjectOfType<InteractableUISprites>();
         _infoText.text = message;
         _interactImage.sprite = interactableSprite._keyDictionary.GetValueOrDefault(
@@ -31,6 +33,11 @@ public class InteractableUI : AbstractBillboard
                 Interact.action.bindings[0].effectivePath,
                 InputControlPath.HumanReadableStringOptions.OmitDevice
             ));
+
+        if (_interactImage.sprite == null)
+        {
+            _interactImage.sprite = Resources.Load<Sprite>("Sprites/Keys/Symbols/Keyboard_question");
+        }
         InputSystem.onActionChange += OnActionChange;
     }
 
@@ -55,6 +62,10 @@ public class InteractableUI : AbstractBillboard
                     InputControlPath.HumanReadableStringOptions.OmitDevice
                 );
                 _interactImage.sprite = interactableSprite._keyDictionary.GetValueOrDefault(path);
+                if (_interactImage.sprite == null)
+                {
+                    _interactImage.sprite = Resources.Load<Sprite>("Sprites/Keys/Symbols/Keyboard_question");
+                }
             }
         }
     }
@@ -75,6 +86,16 @@ public class InteractableUI : AbstractBillboard
         
         Physics.Raycast(_camera.transform.position, _camera.transform.forward, out _raycastHit, _interactableDistance);
         if(_raycastHit.collider != null && _raycastHit.collider.gameObject.GetComponentInChildren<InteractableUI>() != null){
+            if(_firstLoad)
+            {
+                PlayerInput playerInput = NetworkUtils.RetrieveLocalPlayer().GetComponent<PlayerInput>();
+                _interactImage.sprite = interactableSprite._keyDictionary.GetValueOrDefault(
+                    InputControlPath.ToHumanReadableString(
+                        playerInput.actions["Interact"].bindings[0].effectivePath,
+                        InputControlPath.HumanReadableStringOptions.OmitDevice
+                    ));
+                _firstLoad = false; 
+            }
             InteractableUI hitUI = _raycastHit.collider.gameObject.GetComponentInChildren<InteractableUI>();
             if(hitUI == this){
                 canvas.enabled = true;

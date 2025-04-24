@@ -36,10 +36,12 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     protected bool _canAttack;
     protected bool _isAttacking;
 
-    protected Material _material;
-
     private Animator _enemyAnimator;
     [SerializeField] private float _attackAnimLength;
+    [SerializeField]
+    [Tooltip("The amount of time to wait before dealing damage to account for the wind-up on attack animations.")]
+    private float _attackAnimDelay = 0f;
+    private float _attackAngle = 10f; // choose an arbitrary angle to count as "facing" the target
 
     /// <summary>
     /// Stores the enemy's initial position and rotation for later use.
@@ -52,7 +54,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
 
         _fieldOfView = GetComponent<FieldOfView>();
         _navMeshAgent = GetComponent<NavMeshAgent>();
-        _material = GetComponentsInChildren<Renderer>()[0].material;
 
         // To access the animator, we must retrieve the child gameObject that is rendering the player's mesh.
         // This should be the first child of the current gameObject
@@ -63,7 +64,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
 
         _navMeshAgent.stoppingDistance = _behaviorStats.StartAimDist;
 
-        StateContext = new EnemyContext(this, _audioManager, _attackStats, _behaviorStats, _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _enemyAnimator, _material);
+        StateContext = new EnemyContext(this, _audioManager, _attackStats, _behaviorStats, _initialPosition, _initialRotation, transform, _fieldOfView, _navMeshAgent, _enemyAnimator, _attackAnimDelay);
     }
 
     /// <summary>
@@ -147,11 +148,15 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
                 // and can attack, Attack
                 else if (CurrentState.StateKey.Equals(EEnemyState.Aiming) && _canAttack)
                 {
-                    TransitionToState(EEnemyState.Attacking);
-                    _canAttack = false;
-                    _isAttacking = true;
-                    StartCoroutine(AttackCooldown());
-                    StartCoroutine(AttackAnimationCooldown());
+                    // don't attack until we are facing the target
+                    if (Vector3.Angle(transform.forward, _targetTransform.position - transform.position) < _attackAngle)
+                    {
+                        TransitionToState(EEnemyState.Attacking);
+                        _canAttack = false;
+                        _isAttacking = true;
+                        StartCoroutine(AttackCooldown());
+                        StartCoroutine(AttackAnimationCooldown());
+                    }
                 }
             }
             // If Attacking and the animation is completed, start Aiming
@@ -176,6 +181,19 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
                 //TransitionToState(EEnemyState.Idle);
                 TransitionToState(_defaultState);
             }
+        }
+    }
+
+    /// <summary>
+    /// Called by another script to target the player with the given netId if the enemy doesn't have one
+    /// </summary>
+    public void ExternalAggro(uint netId)
+    {
+        if (!_hasTarget)
+        {
+            _hasTarget = true;
+            _targetTransform = NetworkServer.spawned[netId].gameObject.transform;
+            StateContext.TargetTransform = _targetTransform;
         }
     }
 

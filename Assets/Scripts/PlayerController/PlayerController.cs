@@ -3,7 +3,6 @@ using Mirror;
 using Steamworks;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -25,6 +24,7 @@ public class PlayerController : NetworkBehaviour
     [Header("Movement Parameters")]
     [SerializeField] private float _gravity;
     [SerializeField] private float _jumpHeight;
+    [SerializeField] private float _aimSpeed;
     [SerializeField] private float _sprintSpeed;
     [SerializeField] private float _walkSpeed;
 
@@ -40,6 +40,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private Transform _followTransform;
     [SerializeField] private Transform _playerTransform;
 
+    private bool _isAiming;
     private bool _isGrounded;
     private bool _isSprinting;
     private bool _canJump;
@@ -57,9 +58,11 @@ public class PlayerController : NetworkBehaviour
     private PlayerInterface _playerInterface;
     private SettingsMenu _settings;
     private ScoreBoard _scoreboard;
+    private CameraController _cameraController;
 
     private AudioManager _audioManager;
     private Animator _playerAnimator;
+    private int _animatorIsAiming;
     private int _animatorIsJumping;
     private int _animatorMovementX;
     private int _animatorMovementZ;
@@ -70,9 +73,9 @@ public class PlayerController : NetworkBehaviour
     public override void OnStartAuthority()
     {
         _audioManager = gameObject.GetComponent<AudioManager>();
-        CameraController cameraController = gameObject.GetComponent<CameraController>();
+        _cameraController = gameObject.GetComponent<CameraController>();
 
-        if (cameraController.alive)
+        if (_cameraController.alive)
         {
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
@@ -91,6 +94,7 @@ public class PlayerController : NetworkBehaviour
         // To access the animator, we must retrieve the child gameObject that is rendering the player's mesh.
         // This should be the first child of the current gameObject, `BaseCharacter`
         _playerAnimator = transform.GetChild(0).GetComponent<Animator>();
+        _animatorIsAiming = Animator.StringToHash("Is Aiming");
         _animatorIsJumping = Animator.StringToHash("Is Jumping");
         _animatorMovementX = Animator.StringToHash("Movement X");
         _animatorMovementZ = Animator.StringToHash("Movement Z");
@@ -129,7 +133,6 @@ public class PlayerController : NetworkBehaviour
         playerInput.actions.Enable();
 
         playerInput.actions["Attack"].performed += Attack;
-        playerInput.actions["Alternate Attack"].performed += AlternateAttack;
         playerInput.actions["Drop"].performed += Drop;
         playerInput.actions["Interact"].performed += Interact;
         playerInput.actions["Jump"].performed += Jump;
@@ -209,16 +212,20 @@ public class PlayerController : NetworkBehaviour
 
         // Check to see if the player is aiming (via AlternateAttack) and if the current item in the player's inventory is a RangedWeapon.
         // If both conditions are true, activate the aim camera; otherwise, deactivate it.
-        bool isAiming = playerInput.actions["Alternate Attack"].IsPressed();
+        _isAiming = playerInput.actions["Alternate Attack"].IsPressed();
 
-        if (isAiming && _playerInventory.GetItem() is RangedWeapon)
+        if (_isAiming && _playerInventory.GetItem() is RangedWeapon)
         {
+            // Need to somehow handle attacking while aiming
             _aimCamera.Priority = 2;
+            _playerAnimator.SetBool(_animatorIsAiming, true);
         }
         else
         {
             _aimCamera.Priority = 0;
+            _playerAnimator.SetBool(_animatorIsAiming, false);
         }
+
 
         // Since the axes in which we move our input device are opposite in Unity, we must swap them to ensure correct behavior.
         // For example, moving the mouse up and/or down corresponds to side-to-side mouse movement in Unity, so we need to adjust for this.
@@ -243,7 +250,11 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private void HandleMovement()
     {
-        float totalSpeed = _isSprinting ? _sprintSpeed : _walkSpeed;
+        float totalSpeed = _isAiming
+            ? _aimSpeed
+            : _isSprinting
+                ? _sprintSpeed
+                : _walkSpeed;
 
         // Ensure we always move relative to the direction we are looking at.
         Vector2 moveInput = playerInput.actions["Movement"].ReadValue<Vector2>();
@@ -332,15 +343,6 @@ public class PlayerController : NetworkBehaviour
     }
 
     /// <summary>
-    /// Handle the player's input for the alternate attack on any given weapon.
-    /// </summary>
-    /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
-    private void AlternateAttack(InputAction.CallbackContext context)
-    {
-        if (!isLocalPlayer) { return; }
-    }
-
-    /// <summary>
     /// Handle the player's input for dropping an object from their inventory.
     /// </summary>
     /// <param name="context">The input callback context to subscribe/unsubscribe to using the Input System.</param>
@@ -363,7 +365,7 @@ public class PlayerController : NetworkBehaviour
         if (droppedItem != null)
         {
             // 3 is an arbitrary value representing how far away the dropped item should be from the player.
-            Vector3 droppedPosition = targetPosition ?? transform.position + transform.forward * 3;
+            Vector3 droppedPosition = targetPosition ?? transform.position + transform.forward + transform.up * 1.5f;
 
             CmdDrop(droppedItem, droppedPosition);
         }
@@ -448,21 +450,32 @@ public class PlayerController : NetworkBehaviour
         }
         else
         {
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
+            if(_cameraController.alive)
+            {
+                Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked;
+            }
         }
     }
 
     /// <summary>
     /// When the client no longer has authority over this object, ensure the cursor is visible and disables the controls.
     /// </summary>
-    public override void OnStopClient()
+    private void OnDisable() 
     {
         if (!isLocalPlayer) { return; }
 
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
+        DisableControls();
+    }
 
+    public override void OnStopAuthority()
+    {
+        if (!isLocalPlayer) { return; }
+
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
         DisableControls();
     }
 
@@ -474,7 +487,6 @@ public class PlayerController : NetworkBehaviour
         playerInput.actions.Disable();
 
         playerInput.actions["Attack"].performed -= Attack;
-        playerInput.actions["Alternate Attack"].performed -= AlternateAttack;
         playerInput.actions["Drop"].performed -= Drop;
         playerInput.actions["Interact"].performed -= Interact;
         playerInput.actions["Jump"].performed -= Jump;
@@ -523,10 +535,10 @@ public class PlayerController : NetworkBehaviour
     [Command]
     private void CmdDrop(InventoryItem droppedItem, Vector3 droppedPosition)
     {
-        GameObject droppedObject = Instantiate(Resources.Load<GameObject>("Items/Interactable Inventory Item"));
-
-        droppedObject.transform.position = droppedPosition;
+        float curRotation = UnityEngine.Random.Range(0f, 360f);
+        GameObject droppedObject = Instantiate(Resources.Load<GameObject>("Items/Interactable Inventory Item"), droppedPosition, Quaternion.AngleAxis(curRotation, Vector3.up));
         droppedObject.GetComponent<InteractableInventoryItem>().InventoryItem = droppedItem;
+        droppedObject.GetComponent<InteractableInventoryItem>().Drop(gameObject.transform);
 
         NetworkServer.Spawn(droppedObject);
 
@@ -617,5 +629,17 @@ public class PlayerController : NetworkBehaviour
     {
         if (!isLocalPlayer) { return; } // only move the local player
         _characterController.Move(vect);
+    }
+
+    /// <summary>
+    /// Allow other GameObjects on the server to tell clients to launch their character upward
+    /// </summary>
+    /// <param name="vel">velocity to apply in the y direction</param>
+    [ClientRpc]
+    public void RpcExternalUp(float vel)
+    {
+        if (!isLocalPlayer) { return; } // only move the local player
+        //_playerVelocity.y += vel;
+        _playerVelocity = new Vector3(_playerVelocity.x, vel, _playerVelocity.z);
     }
 }

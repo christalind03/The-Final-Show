@@ -15,13 +15,8 @@ public class IdleState : EnemyState
 
     public override void EnterState()
     {
-        Debug.Log("Entering Idle State");
-
-        // For debugging purposes only.
-        StateContext.Material.SetColor("_BaseColor", Color.green);
         hasInitialPosition = StateContext.InitialPosition == StateContext.Transform.position;
         hasInitialRotation = StateContext.InitialRotation == StateContext.Transform.rotation;
-
         _isReset = hasInitialPosition && hasInitialRotation;
 
         StateContext.NavMeshAgent.SetDestination(StateContext.InitialPosition);
@@ -29,10 +24,7 @@ public class IdleState : EnemyState
         StateContext.Animator.SetBool("Is Aiming", false);
     }
 
-    public override void ExitState() 
-    {
-        Debug.Log("Leaving Idle State");
-    }
+    public override void ExitState() { }
 
     public override void OnTriggerEnter(Collider otherCollider) { }
     public override void OnTriggerExit(Collider otherCollider) { }

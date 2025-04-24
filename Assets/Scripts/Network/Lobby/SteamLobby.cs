@@ -38,6 +38,16 @@ public class SteamLobby : MonoBehaviour
         LobbyRequest = Callback<GameLobbyJoinRequested_t>.Create(OnLobbyRequest);
 
     }
+    
+    /// <summary>
+    /// Unsub from callbacks
+    /// </summary>
+    private void OnDisable()
+    {
+        LobbyCreated?.Dispose();
+        LobbyEntered?.Dispose();
+        LobbyRequest?.Dispose();
+    }
 
     /// <summary>
     /// When a user joins the game via steam ui, this function is called to let them join the lobby
@@ -81,6 +91,14 @@ public class SteamLobby : MonoBehaviour
             if (string.IsNullOrWhiteSpace(SteamMatchmaking.GetLobbyData(new CSteamID(callback.m_ulSteamIDLobby), HostAddressKey)))
             {
                 uIManagar.invalidLobby();
+                uIManagar.invalidLobbyText("Invalid Lobby Id!");
+                return;
+            }
+
+            if (SteamMatchmaking.GetLobbyData(new CSteamID(callback.m_ulSteamIDLobby), "Scene") != "Intermission")
+            {
+                uIManagar.invalidLobby();
+                uIManagar.invalidLobbyText("Lobby already started!");
                 return;
             }
 
@@ -106,7 +124,7 @@ public class SteamLobby : MonoBehaviour
     /// </summary>
     /// <param name="number">the lobby Id</param>
     /// <returns>the value of the converted lobby code</returns>
-    public string ToBase62(ulong number)
+    private string ToBase62(ulong number)
     {
         const string chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         if (number == 0) return "0";
@@ -155,6 +173,7 @@ public class SteamLobby : MonoBehaviour
         else
         {
             uIManagar.invalidLobby();
+            uIManagar.invalidLobbyText("Invalid Lobby Id!");
         }
     }
 
@@ -187,5 +206,15 @@ public class SteamLobby : MonoBehaviour
     public bool isHost()
     {
         return NetworkServer.active;
+    }
+
+    /// <summary>
+    /// Set the scene lobby data so it can be used to limit when player are allowed to join a game
+    /// </summary>
+    /// <param name="sceneName">name of the scene to set the data to</param>
+    public void SetSceneData(string sceneName)
+    {
+        ulong lobbyId = FromBase62(manager.LobbyId);
+        SteamMatchmaking.SetLobbyData(new CSteamID(lobbyId), "Scene", sceneName);
     }
 }
