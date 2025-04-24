@@ -30,6 +30,7 @@ public class SettingSaveLoad : NetworkBehaviour
     public override void OnStopClient()
     {
         base.OnStopClient();
+        if (!isLocalPlayer) return;
         SaveSetting("Screen Setting", settingsMenu.dropdownElements["ScreenSetting"].index);
         SaveSetting("Camera Sensitivity", settingsMenu.sliderElements["CameraSens"].value);
         SaveSetting("Music Volume", settingsMenu.sliderElements["MusicSlider"].value);

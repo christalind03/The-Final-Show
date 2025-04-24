@@ -109,7 +109,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8841829326830902081}
   m_Layer: 0
-  m_Name: Base_Mannequin (1)
+  m_Name: Random Mannequin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -124,7 +124,7 @@ Transform:
   m_GameObject: {fileID: 904044507616112351}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5, y: 0, z: 10}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.635, y: 0.635, z: 0.635}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -425,8 +425,16 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  _isRandom: 1
+  _itemPool:
+  - {fileID: 11400000, guid: 3a2002f90d7dead4cab0b195f15cad38, type: 2}
+  - {fileID: 11400000, guid: 4733b3524202ffa4a949228af76d3946, type: 2}
+  - {fileID: 11400000, guid: e8b6ae4f4697bb747b346511b9d6f766, type: 2}
   _isSkinned: 1
   InventoryItem: {fileID: 11400000, guid: 3a2002f90d7dead4cab0b195f15cad38, type: 2}
+  _rotationSpeed: 10
+  _dropSpeed: 1
+  _dropAngle: 45
 --- !u!1 &2312429452366278955
 GameObject:
   m_ObjectHideFlags: 0
@@ -842,8 +850,16 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  _isRandom: 1
+  _itemPool:
+  - {fileID: 11400000, guid: 8fdc8ad3537d12c4c8af8a9d55152ce3, type: 2}
+  - {fileID: 11400000, guid: f509748f19f9a5345906e5a3e4b60caf, type: 2}
+  - {fileID: 11400000, guid: a1fa1b591ceb9be44956a2da81a0fa9c, type: 2}
   _isSkinned: 1
   InventoryItem: {fileID: 11400000, guid: 8fdc8ad3537d12c4c8af8a9d55152ce3, type: 2}
+  _rotationSpeed: 10
+  _dropSpeed: 1
+  _dropAngle: 45
 --- !u!1 &4874132641340362889
 GameObject:
   m_ObjectHideFlags: 0
@@ -1005,8 +1021,16 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  _isRandom: 1
+  _itemPool:
+  - {fileID: 11400000, guid: c7cc6f9e0eef0e94ca87336044ddc33e, type: 2}
+  - {fileID: 11400000, guid: f62c4af6f05aa724e95f32e1bc72c117, type: 2}
+  - {fileID: 11400000, guid: 52b71d46e9776924281e915fd8e450d6, type: 2}
   _isSkinned: 1
   InventoryItem: {fileID: 11400000, guid: c7cc6f9e0eef0e94ca87336044ddc33e, type: 2}
+  _rotationSpeed: 10
+  _dropSpeed: 1
+  _dropAngle: 45
 --- !u!1 &4988384876835200740
 GameObject:
   m_ObjectHideFlags: 0
@@ -1231,8 +1255,18 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  _isRandom: 1
+  _itemPool:
+  - {fileID: 11400000, guid: 329da55046811564e98e9132cd96dd5c, type: 2}
+  - {fileID: 11400000, guid: 4f129e7e272eb8b4c9c4eb5f1d9d9080, type: 2}
+  - {fileID: 11400000, guid: 9aafd884e55e9394b81790e893fb957e, type: 2}
+  - {fileID: 11400000, guid: 80bc08ef81539e34384e9c14aa582f68, type: 2}
+  - {fileID: 11400000, guid: e5bd02241b48a1a4ea37856224c0487c, type: 2}
   _isSkinned: 1
-  InventoryItem: {fileID: 11400000, guid: 80bc08ef81539e34384e9c14aa582f68, type: 2}
+  InventoryItem: {fileID: 11400000, guid: e5bd02241b48a1a4ea37856224c0487c, type: 2}
+  _rotationSpeed: 10
+  _dropSpeed: 1
+  _dropAngle: 45
 --- !u!1 &5426043417902702913
 GameObject:
   m_ObjectHideFlags: 0

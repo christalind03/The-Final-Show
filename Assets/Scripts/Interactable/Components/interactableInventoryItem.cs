@@ -8,9 +8,11 @@ using UnityEngine;
 [RequireComponent(typeof(NetworkIdentity))]
 public class InteractableInventoryItem : NetworkBehaviour, IInteractable
 {
+    [SerializeField] private bool _isRandom;
+    [SerializeField] private InventoryItem[] _itemPool;
     [SerializeField] private bool _isSkinned;
 
-    public InventoryItem InventoryItem;
+    [SyncVar] public InventoryItem InventoryItem;
 
     private SkinnedMeshRenderer _skinnedMeshRenderer;
     private Mesh _initialMesh;
@@ -27,10 +29,18 @@ public class InteractableInventoryItem : NetworkBehaviour, IInteractable
     private Rigidbody rb;
     private bool dropped = false;
 
+    public override void OnStartServer()
+    {
+        if (_isRandom)
+        {
+            InventoryItem = _itemPool[Random.Range(0, _itemPool.Length)];
+        }
+    }
+    
     /// <summary>
     /// Sets the object's visual representation based on the assigned inventory item.
     /// </summary>
-    private void Start()
+    public override void OnStartClient()
     {
         if (InventoryItem != null)
         {
