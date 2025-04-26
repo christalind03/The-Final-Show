@@ -31,7 +31,9 @@ public class AttackingState : EnemyState
         // TODO: Check if the target is still in range after the wind-up
         if (StateContext.TargetTransform.root.TryGetComponent(out AbstractHealth targetHealth))
         {
+            Vector3 targetDirection = (StateContext.TargetTransform.position - StateContext.Transform.position).normalized;
             targetHealth.CmdDamage(StateContext.AttackStats.AttackDamage);
+            targetHealth.ApplyKnockback(targetDirection * 10, 0.25f);
         }
     }
 }

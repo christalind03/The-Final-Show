@@ -77,8 +77,9 @@ public class PlayerHealth : AbstractHealth
         cameraController.Spectate();
     }
 
+    [Command(requiresAuthority = false)]
     public override void ApplyKnockback(Vector3 vect, float duration)
     {
-        Debug.Log("Player Knockabck");
+        gameObject.GetComponent<PlayerController>().RpcExternalKnockback(vect, duration);
     }
 }

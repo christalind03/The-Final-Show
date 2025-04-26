@@ -96,7 +96,7 @@ public class CombatController : NetworkBehaviour
                 }
                 else if (healthComponent is PlayerHealth playerHealth)
                 {
-                    playerHealth.ApplyKnockback(targetDirection, 1f);
+                    playerHealth.ApplyKnockback(targetDirection*10, 0.25f); // arbitrary strength and duration, these values feel good
                 }
                 else
                 {
