@@ -78,8 +78,9 @@ public class PlayerHealth : AbstractHealth
     }
 
     [Command(requiresAuthority = false)]
-    public override void ApplyKnockback(Vector3 vect, float duration)
+    public override void ApplyKnockback(Vector3 vect)
     {
-        gameObject.GetComponent<PlayerController>().RpcExternalKnockback(vect, duration);
+        // Due to the different implementation between enemy and player knockback, multiply the vector by 2 for a better feel
+        gameObject.GetComponent<PlayerController>().RpcExternalKnockback(2 * vect); 
     }
 }

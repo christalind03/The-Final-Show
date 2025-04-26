@@ -646,17 +646,18 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void RpcExternalKnockback(Vector3 vel, float duration)
+    public void RpcExternalKnockback(Vector3 vel)
     {
         if (!isLocalPlayer) { return; }
         if (!_isKnockback)
         {
-            StartCoroutine(KnockbackCoroutine(vel, duration));
+            StartCoroutine(KnockbackCoroutine(vel));
         }
     }
 
-    private IEnumerator KnockbackCoroutine(Vector3 vel, float duration)
+    private IEnumerator KnockbackCoroutine(Vector3 vel)
     {
+        float duration = 0.25f; // hardcoded duration, this feels good
         _isKnockback = true;
         float timer = 0f;
         while (timer < duration)

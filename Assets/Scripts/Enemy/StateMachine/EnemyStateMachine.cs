@@ -219,17 +219,18 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     }
 
     [Server]
-    public void ExternalKnockback(Vector3 vel, float duration)
+    public void ExternalKnockback(Vector3 vel)
     {
         if (!_isKnockback)
         {
-            StartCoroutine(KnockbackCoroutine(vel, duration));
+            StartCoroutine(KnockbackCoroutine(vel));
         }
     }
 
     [Server]
-    protected IEnumerator KnockbackCoroutine(Vector3 vel, float duration)
+    protected IEnumerator KnockbackCoroutine(Vector3 vel)
     {
+        float duration = 0.25f; // hardcoded duration, this feels good
         _isKnockback = true;
         _navMeshAgent.velocity = vel;
         yield return new WaitForSeconds(duration);

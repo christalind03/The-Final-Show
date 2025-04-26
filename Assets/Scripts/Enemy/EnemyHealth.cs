@@ -111,8 +111,8 @@ public class EnemyHealth : AbstractHealth
     }
 
     [Command(requiresAuthority = false)]
-    public override void ApplyKnockback(Vector3 vect, float duration)
+    public override void ApplyKnockback(Vector3 vect)
     {
-        _enemyController.ExternalKnockback(vect, duration);
+        _enemyController.ExternalKnockback(vect);
     }
 }

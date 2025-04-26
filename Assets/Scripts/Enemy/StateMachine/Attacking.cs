@@ -33,7 +33,7 @@ public class AttackingState : EnemyState
         {
             Vector3 targetDirection = (StateContext.TargetTransform.position - StateContext.Transform.position).normalized;
             targetHealth.CmdDamage(StateContext.AttackStats.AttackDamage);
-            targetHealth.ApplyKnockback(targetDirection * 10, 0.25f);
+            targetHealth.ApplyKnockback(targetDirection * 5); // 5 is arbitrary, feels like a good value
         }
     }
 }

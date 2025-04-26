@@ -148,5 +148,5 @@ public abstract class AbstractHealth : NetworkBehaviour
     /// </summary>
     protected abstract void TriggerDeath();
 
-    public abstract void ApplyKnockback(Vector3 vect, float duration);
+    public abstract void ApplyKnockback(Vector3 vect);
 }

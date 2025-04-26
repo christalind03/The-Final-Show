@@ -10,9 +10,11 @@ public class MeleeWeapon : Weapon
     // This will be displayed underneath the "Weapon Parameters" header (inherited from "Weapon").
     [SerializeField] private float _attackAngle;
     [SerializeField] private float _attackRange;
-
+    [SerializeField] private float _knockbackStrength;
+    
     public float AttackAngle => _attackAngle;
     public float AttackRange => _attackRange;
+    public float KnockbackStrength => _knockbackStrength;
 }
 
 /// <summary>
