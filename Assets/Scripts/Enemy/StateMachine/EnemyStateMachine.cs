@@ -35,6 +35,7 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
 
     protected bool _canAttack;
     protected bool _isAttacking;
+    protected bool _isKnockback;
 
     private Animator _enemyAnimator;
     [SerializeField] private float _attackAnimLength;
@@ -215,6 +216,34 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
     {
         yield return new WaitForSeconds(_attackAnimLength); // float for duration of attack animation
         _isAttacking = false;
+    }
+
+    [Server]
+    public void ExternalKnockback(Vector3 vel, float duration)
+    {
+        if (!_isKnockback)
+        {
+            StartCoroutine(KnockbackCoroutine(vel, duration));
+        }
+    }
+
+    [Server]
+    protected IEnumerator KnockbackCoroutine(Vector3 vel, float duration)
+    {
+        _isKnockback = true;
+        _navMeshAgent.velocity = vel;
+        yield return new WaitForSeconds(duration);
+        /*
+        float timer = 0f;
+        while (timer < duration)
+        {
+            _navMeshAgent.velocity = vel;
+            timer += Time.deltaTime;
+            yield return null;
+        }
+        */
+        //_navMeshAgent.velocity = Vector3.zero;
+        _isKnockback = false;
     }
     
 }

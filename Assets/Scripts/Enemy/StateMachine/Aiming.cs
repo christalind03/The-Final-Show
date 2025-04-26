@@ -9,6 +9,7 @@ public class AimingState : EnemyState
     public override void EnterState()
     {
         StateContext.Animator.SetBool("Is Aiming", true);
+        StateContext.NavMeshAgent.ResetPath();
     }
 
     public override void ExitState() { }

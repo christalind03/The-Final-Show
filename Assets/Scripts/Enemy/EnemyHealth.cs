@@ -109,4 +109,10 @@ public class EnemyHealth : AbstractHealth
             curRotation += degIncrement;
         }
     }
+
+    [Command(requiresAuthority = false)]
+    public override void ApplyKnockback(Vector3 vect, float duration)
+    {
+        _enemyController.ExternalKnockback(vect, duration);
+    }
 }

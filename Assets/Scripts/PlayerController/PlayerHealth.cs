@@ -76,4 +76,9 @@ public class PlayerHealth : AbstractHealth
         cameraController.alive = false;
         cameraController.Spectate();
     }
+
+    public override void ApplyKnockback(Vector3 vect, float duration)
+    {
+        Debug.Log("Player Knockabck");
+    }
 }

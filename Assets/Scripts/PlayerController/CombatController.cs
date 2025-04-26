@@ -92,6 +92,11 @@ public class CombatController : NetworkBehaviour
                 if (healthComponent is EnemyHealth enemyHealth)
                 {
                     enemyHealth.CmdDamageSource(finalDamage, netId);
+                    enemyHealth.ApplyKnockback(targetDirection*5, 0.25f); // arbitrary strength and duration, these values feel good
+                }
+                else if (healthComponent is PlayerHealth playerHealth)
+                {
+                    playerHealth.ApplyKnockback(targetDirection, 1f);
                 }
                 else
                 {
