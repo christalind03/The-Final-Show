@@ -645,6 +645,10 @@ public class PlayerController : NetworkBehaviour
         _playerVelocity = new Vector3(_playerVelocity.x, vel, _playerVelocity.z);
     }
 
+    /// <summary>
+    /// Start a coroutine to handle player knockback.
+    /// </summary>
+    /// <param name="vel">Scaled vector to move player along</param>
     [ClientRpc]
     public void RpcExternalKnockback(Vector3 vel)
     {
@@ -655,6 +659,10 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Coroutine to move the player a small amount each frame for the duration of the effect.
+    /// </summary>
+    /// <param name="vel">Scaled vector to move player along</param>
     private IEnumerator KnockbackCoroutine(Vector3 vel)
     {
         float duration = 0.25f; // hardcoded duration, this feels good
@@ -662,7 +670,7 @@ public class PlayerController : NetworkBehaviour
         float timer = 0f;
         while (timer < duration)
         {
-            float decay = 1f - (timer / duration);
+            float decay = 1f - (timer / duration); // Knockback has decaying strength
             _characterController.Move(vel * decay * Time.deltaTime);
             timer += Time.deltaTime;
             yield return null;

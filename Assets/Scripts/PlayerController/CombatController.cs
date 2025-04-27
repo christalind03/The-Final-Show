@@ -66,7 +66,7 @@ public class CombatController : NetworkBehaviour
     }
 
     /// <summary>
-    /// Performs a melee attack using the specified melee weapon, damaging all valid targets within range.
+    /// Performs a melee attack using the specified melee weapon, damaging and applying knockback to all valid targets within range.
     /// </summary>
     /// <param name="playerWeapon">The melee weapon being used for the attack.</param>
     private void MeleeAttack(MeleeWeapon playerWeapon)

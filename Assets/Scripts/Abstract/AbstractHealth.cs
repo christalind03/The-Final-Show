@@ -148,5 +148,9 @@ public abstract class AbstractHealth : NetworkBehaviour
     /// </summary>
     protected abstract void TriggerDeath();
 
+    /// <summary>
+    /// Apply a knockback effect to the object.
+    /// </summary>
+    /// <param name="vect">Scaled vector to move object along</param>
     public abstract void ApplyKnockback(Vector3 vect);
 }

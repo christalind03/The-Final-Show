@@ -218,6 +218,10 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
         _isAttacking = false;
     }
 
+    /// <summary>
+    /// Start a coroutine to handle enemy knockback.
+    /// </summary>
+    /// <param name="vel">Scaled vector to move enemy along</param>
     [Server]
     public void ExternalKnockback(Vector3 vel)
     {
@@ -227,6 +231,10 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
         }
     }
 
+    /// <summary>
+    /// Coroutine to apply a knockback and wait for a cooldown before the enemy can be knocked back again.
+    /// </summary>
+    /// <param name="vel">Scaled vector to move enemy along</param>
     [Server]
     protected IEnumerator KnockbackCoroutine(Vector3 vel)
     {
@@ -234,16 +242,6 @@ public class EnemyStateMachine : StateManager<EnemyStateMachine.EEnemyState, Ene
         _isKnockback = true;
         _navMeshAgent.velocity = vel;
         yield return new WaitForSeconds(duration);
-        /*
-        float timer = 0f;
-        while (timer < duration)
-        {
-            _navMeshAgent.velocity = vel;
-            timer += Time.deltaTime;
-            yield return null;
-        }
-        */
-        //_navMeshAgent.velocity = Vector3.zero;
         _isKnockback = false;
     }
     

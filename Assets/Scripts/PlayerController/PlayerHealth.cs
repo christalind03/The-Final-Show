@@ -77,6 +77,10 @@ public class PlayerHealth : AbstractHealth
         cameraController.Spectate();
     }
 
+    /// <summary>
+    /// Apply a knockback effect to the player via the player controller.
+    /// </summary>
+    /// <param name="vect">Scaled vector to move player along</param>
     [Command(requiresAuthority = false)]
     public override void ApplyKnockback(Vector3 vect)
     {
