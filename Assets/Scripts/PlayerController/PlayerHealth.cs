@@ -76,4 +76,15 @@ public class PlayerHealth : AbstractHealth
         cameraController.alive = false;
         cameraController.Spectate();
     }
+
+    /// <summary>
+    /// Apply a knockback effect to the player via the player controller.
+    /// </summary>
+    /// <param name="vect">Scaled vector to move player along</param>
+    [Command(requiresAuthority = false)]
+    public override void ApplyKnockback(Vector3 vect)
+    {
+        // Due to the different implementation between enemy and player knockback, multiply the vector by 2 for a better feel
+        gameObject.GetComponent<PlayerController>().RpcExternalKnockback(2 * vect); 
+    }
 }

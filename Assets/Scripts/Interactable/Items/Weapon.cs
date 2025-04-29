@@ -6,6 +6,9 @@ using UnityEngine;
 /// </summary>
 public class Weapon : InventoryItem
 {
+    [Header("Animation Parameters")]
+    [SerializeField] protected AnimatorOverrideController _animatorController;
+
     [Header("Weapon Parameters")]
     [SerializeField] protected AudioResource _attackAudio;
     [SerializeField] protected LayerMask _attackLayers;
@@ -13,8 +16,6 @@ public class Weapon : InventoryItem
     [SerializeField] protected float _attackDamage;
     [SerializeField, Range(0f, 1f)] protected float _criticalStrikeChance;
 
-    [Header("Animation Parameters")]
-    [SerializeField] protected AnimatorOverrideController _animatorController;
 
     public AudioResource AttackAudio => _attackAudio;
     public LayerMask AttackLayers => _attackLayers;

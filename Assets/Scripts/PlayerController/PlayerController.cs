@@ -45,6 +45,7 @@ public class PlayerController : NetworkBehaviour
     private bool _isSprinting;
     private bool _canJump;
     private bool _canSprint;
+    private bool _isKnockback;
 
     private float _xRotation;
     private float _yRotation;
@@ -83,6 +84,7 @@ public class PlayerController : NetworkBehaviour
 
         _canJump = true;
         _canSprint = true;
+        _isKnockback = false;
 
         playerInput = gameObject.GetComponent<PlayerInput>();
         _combatController = gameObject.GetComponent<CombatController>();
@@ -641,5 +643,38 @@ public class PlayerController : NetworkBehaviour
         if (!isLocalPlayer) { return; } // only move the local player
         //_playerVelocity.y += vel;
         _playerVelocity = new Vector3(_playerVelocity.x, vel, _playerVelocity.z);
+    }
+
+    /// <summary>
+    /// Start a coroutine to handle player knockback.
+    /// </summary>
+    /// <param name="vel">Scaled vector to move player along</param>
+    [ClientRpc]
+    public void RpcExternalKnockback(Vector3 vel)
+    {
+        if (!isLocalPlayer) { return; }
+        if (!_isKnockback)
+        {
+            StartCoroutine(KnockbackCoroutine(vel));
+        }
+    }
+
+    /// <summary>
+    /// Coroutine to move the player a small amount each frame for the duration of the effect.
+    /// </summary>
+    /// <param name="vel">Scaled vector to move player along</param>
+    private IEnumerator KnockbackCoroutine(Vector3 vel)
+    {
+        float duration = 0.25f; // hardcoded duration, this feels good
+        _isKnockback = true;
+        float timer = 0f;
+        while (timer < duration)
+        {
+            float decay = 1f - (timer / duration); // Knockback has decaying strength
+            _characterController.Move(vel * decay * Time.deltaTime);
+            timer += Time.deltaTime;
+            yield return null;
+        }
+        _isKnockback = false;
     }
 }
