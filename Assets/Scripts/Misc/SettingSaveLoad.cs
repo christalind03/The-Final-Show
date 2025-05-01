@@ -22,6 +22,7 @@ public class SettingSaveLoad : NetworkBehaviour
         settingsMenu.dropdownElements["ScreenSetting"].index = LoadSetting("Screen Setting", 0);
         settingsMenu.sliderElements["CameraSens"].value = LoadSetting("Camera Sensitivity", 3.5f);
         settingsMenu.sliderElements["MusicSlider"].value = LoadSetting("Music Volume", 1.0f);
+        settingsMenu.sliderElements["SFXSlider"].value = LoadSetting("SFX Volume", 1.0f);
     }
 
     /// <summary>
@@ -34,6 +35,7 @@ public class SettingSaveLoad : NetworkBehaviour
         SaveSetting("Screen Setting", settingsMenu.dropdownElements["ScreenSetting"].index);
         SaveSetting("Camera Sensitivity", settingsMenu.sliderElements["CameraSens"].value);
         SaveSetting("Music Volume", settingsMenu.sliderElements["MusicSlider"].value);
+        SaveSetting("SFX Volume", settingsMenu.sliderElements["SFXSlider"].value);
         SaveRebind();
     }
 
@@ -45,6 +47,7 @@ public class SettingSaveLoad : NetworkBehaviour
         SaveSetting("Screen Setting", settingsMenu.dropdownElements["ScreenSetting"].index);
         SaveSetting("Camera Sensitivity", settingsMenu.sliderElements["CameraSens"].value);
         SaveSetting("Music Volume", settingsMenu.sliderElements["MusicSlider"].value);
+        SaveSetting("SFX Volume", settingsMenu.sliderElements["SFXSlider"].value);
         SaveRebind();
     }
 
