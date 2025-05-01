@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.SceneManagement;
 using UnityEngine.Timeline;
 using UnityEngine.UIElements;
 
@@ -10,7 +11,8 @@ public class SceneTransitionAnim : MonoBehaviour
     [SerializeField] private PlayableDirector sceneAnim;
     [SerializeField] private TimelineAsset exitAnim;
     [SerializeField] private TimelineAsset enterAnim;
-    VisualElement transition;
+    private VisualElement _transition;
+    private TextElement _sceneName;
     void Start()
     {
         if (Instance == null)
@@ -28,7 +30,11 @@ public class SceneTransitionAnim : MonoBehaviour
     {
         if (UnityUtils.ContainsElement(uIDocument.rootVisualElement, "Transition-Container", out VisualElement output))
         {
-            transition = output;
+            _transition = output;
+        }
+        if (UnityUtils.ContainsElement(uIDocument.rootVisualElement, "Scene-Display", out TextElement sceneName))
+        {
+            _sceneName = sceneName;
         }
         sceneAnim.stopped += OnAnimationFinished;
     }
@@ -42,18 +48,27 @@ public class SceneTransitionAnim : MonoBehaviour
         if (sceneAnim.state != PlayState.Playing)
         {
             sceneAnim.playableAsset = exitAnim;
-            transition.visible = true;
+            _transition.visible = true;
             sceneAnim.Play();
         }
     }
     public void EnterAnim()
     {
+        string activeScene = SceneManager.GetActiveScene().name;
+        activeScene = activeScene.Replace("Gameplay-", "");
+        if (activeScene == "Network-Lobby") return;
         sceneAnim.playableAsset = enterAnim;
-        transition.visible = true;
+        _sceneName.visible = true;
+        _sceneName.text = activeScene;
+        _transition.visible = true;
         sceneAnim.Play();
     }
     private void OnAnimationFinished(PlayableDirector director)
     {
-        transition.visible = false;
+        _transition.visible = false;
+        if (sceneAnim.playableAsset == enterAnim)
+        {
+            _sceneName.visible = false;
+        }
     }
 }

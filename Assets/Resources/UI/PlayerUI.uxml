@@ -171,7 +171,7 @@
             <ui:VisualElement name="Content" style="flex-grow: 1;">
                 <ui:VisualElement name="FirstRow" style="flex-grow: 1; flex-direction: row; max-height: 33.3%;">
                     <ui:VisualElement name="Slot1" class="defaultFont" style="flex-grow: 1; max-height: 70%; align-self: flex-start; color: rgb(0, 0, 0); font-size: 35px;">
-                        <ui:DropdownField label="Screen Setting" choices="Full Screen, Board Window" index="0" name="ScreenSetting" class="woodbackground-popup-field_input" />
+                        <ui:DropdownField label="Screen Setting" choices="Full Screen,Bordered " index="0" name="ScreenSetting" class="woodbackground-popup-field_input" />
                         <ui:Slider label="Camera Sens." high-value="100" name="CameraSens" show-input-field="true" focusable="false" />
                     </ui:VisualElement>
                 </ui:VisualElement>
@@ -189,6 +189,7 @@
             <ui:VisualElement name="Content" style="flex-grow: 1;">
                 <ui:VisualElement name="Slot1" style="flex-grow: 1;">
                     <ui:Slider label="Music" high-value="1" name="MusicSlider" low-value="0.0001" class="defaultFont" style="font-size: 35px; color: rgb(0, 0, 0);" />
+                    <ui:Slider label="SFX" high-value="1" name="SFXSlider" low-value="0.0001" class="defaultFont" style="font-size: 35px; color: rgb(0, 0, 0);" />
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement name="Spacer" style="flex-grow: 1; max-height: 5%;" />

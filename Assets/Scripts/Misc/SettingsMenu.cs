@@ -132,9 +132,18 @@ public class SettingsMenu : NetworkBehaviour
         if (UnityUtils.ContainsElement(tabElements[AudioTab], "MusicSlider", out Slider musicSlider))
         {
             sliderElements.Add("MusicSlider", musicSlider);
-            musicSlider.RegisterValueChangedCallback(function => AdjustSound("Music"));
-            float volume = sliderElements["MusicSlider"].value;
-            mixer.SetFloat("Music", Mathf.Log10(volume) * 20);
+            musicSlider.RegisterValueChangedCallback(function => AdjustSound("Music", "MusicSlider"));
+            float musicVolume = sliderElements["MusicSlider"].value;
+            mixer.SetFloat("Music", Mathf.Log10(musicVolume) * 20);
+        }
+
+        // SFX Settings
+        if (UnityUtils.ContainsElement(tabElements[AudioTab], "SFXSlider", out Slider sfxSlider))
+        {
+            sliderElements.Add("SFXSlider", sfxSlider);
+            sfxSlider.RegisterValueChangedCallback(function => AdjustSound("Sound", "SFXSlider"));
+            float SFXVolume = sliderElements["SFXSlider"].value;
+            mixer.SetFloat("Sound", Mathf.Log10(SFXVolume) * 20);
         }
     }
 
@@ -151,7 +160,8 @@ public class SettingsMenu : NetworkBehaviour
         buttonActions.Clear();
         sliderElements["CameraSens"].UnregisterValueChangedCallback(function => CameraSens());
         dropdownElements["ScreenSetting"].UnregisterValueChangedCallback(function => ScreenSetting());
-        sliderElements["MusicSlider"].UnregisterValueChangedCallback(function => AdjustSound("Music"));
+        sliderElements["MusicSlider"].UnregisterValueChangedCallback(function => AdjustSound("Music", "MusicSlider"));
+        sliderElements["SFXSlider"].UnregisterValueChangedCallback(function => AdjustSound("Sound", "SFXSlider"));
     }
 
     /// <summary>
@@ -441,9 +451,9 @@ public class SettingsMenu : NetworkBehaviour
     /// Used to adjust volume for the targeted sound type
     /// </summary>
     /// <param name="soundType">the group in audio mixer</param>
-    private void AdjustSound(string soundType)
+    private void AdjustSound(string soundType, string sliderElementName)
     {
-        float volume = sliderElements["MusicSlider"].value;
+        float volume = sliderElements[sliderElementName].value;
         mixer.SetFloat(soundType, Mathf.Log10(volume) * 20);
     }
 
