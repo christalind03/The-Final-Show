@@ -8,30 +8,26 @@ public class UITesting : MonoBehaviour
     [SerializeField] private UIDocument uIDocument;
     [SerializeField] private PlayableDirector sceneAnim;
     [SerializeField] private TimelineAsset testAnim;
-    private VisualElement _menuView;
+    private VisualElement _rootVisualElement;
     private VisualElement _joinView;
 
     void Start()
     {
-        VisualElement rootVisualElement = uIDocument.rootVisualElement;
-        if (UnityUtils.ContainsElement(rootVisualElement, "LobbyMenu", out VisualElement mainmenu))
-        {
-            _menuView = mainmenu;
-        }
-        if (UnityUtils.ContainsElement(rootVisualElement, "LobbyJoin", out VisualElement joinmenu))
-        {
-            _joinView = joinmenu;
-        }
+        _rootVisualElement = uIDocument.rootVisualElement;
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            SwitchUI(_menuView, _joinView);
-        }
         if (Input.GetKeyDown(KeyCode.E))
         {
+            if (UnityUtils.ContainsElement(_rootVisualElement, "Transition-Container", out VisualElement transition))
+            {
+                transition.visible = true;
+            }
+            if (UnityUtils.ContainsElement(_rootVisualElement, "Scene-Display", out VisualElement scene))
+            {
+                scene.visible = true;
+            }
             ExitAnim();
         }
     }
